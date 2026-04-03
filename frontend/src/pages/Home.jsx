@@ -81,7 +81,7 @@ const Home = () => {
           animate={{ opacity: 1, y: 0 }}
           className="hero-section"
         >
-          <h1>AIDocs <span className="gradient-text">CRUD</span></h1>
+          <h1>SwiftDocs <span className="gradient-text">AI</span></h1>
           <p className="subtitle">Connect your thoughts with our premium document management system.</p>
         </motion.header>
 

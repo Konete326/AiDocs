@@ -1,7 +1,7 @@
 {
-  "name": "aidocs-backend",
+  "name": "swiftdocs-ai-backend",
   "version": "1.0.0",
-  "description": "AIDocs Backend API",
+  "description": "SwiftDocs AI Backend API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
