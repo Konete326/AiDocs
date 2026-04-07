@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authAPI } from '../services/authService';
-import Button from '../common/Button';
-import GlassCard from '../common/GlassCard';
+import Button from '../components/common/Button';
+import GlassCard from '../components/common/GlassCard';
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
