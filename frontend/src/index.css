@@ -1,1 +1,24 @@
 @import "tailwindcss";
+@import "./styles/glass.css";
+
+@theme {
+  --font-display: 'Poppins', sans-serif;
+  --font-serif: 'Source Serif 4', serif;
+  --font-sans: 'Poppins', sans-serif;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
