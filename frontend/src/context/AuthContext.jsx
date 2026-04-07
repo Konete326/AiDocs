@@ -3,18 +3,20 @@ import { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext(null);
 
+import { setApiToken } from '../services/api';
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const login = (userData, token) => {
-    localStorage.setItem('token', token);
+    setApiToken(token);
     setUser(userData);
     setIsAuthenticated(true);
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
+    setApiToken(null);
     setUser(null);
     setIsAuthenticated(false);
   };

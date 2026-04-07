@@ -1,15 +1,17 @@
 const express = require('express');
-const router = express.Router();
 const authController = require('../controllers/authController');
+const { authLimiter } = require('../middleware/rateLimiter');
+const verifyFirebaseToken = require('../middleware/verifyFirebaseToken');
+const router = express.Router();
 
-// @route   POST /api/auth/register
-// @desc    Register user
-// @access  Public
+router.use(authLimiter);
+
 router.post('/register', authController.register);
-
-// @route   POST /api/auth/login
-// @desc    Login user
-// @access  Public
 router.post('/login', authController.login);
+router.post('/refresh', authController.refreshToken);
+router.post('/logout', authController.logout);
+
+// Firebase Google Auth
+router.post('/google', verifyFirebaseToken, authController.googleFirebaseAuth);
 
 module.exports = router;

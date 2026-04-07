@@ -1,65 +1,58 @@
-// Auth controller logic
-const User = require('../models/User');
-const jwt = require('jsonwebtoken');
+const authService = require('../services/authService');
+const asyncWrapper = require('../utils/asyncWrapper');
 
-// Generate JWT Token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
+const setRefreshCookie = (res, refreshToken) => {
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 };
 
-const register = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-    
-    // Check if user exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
-    }
+exports.register = asyncWrapper(async (req, res) => {
+  const { email, password, displayName } = req.body;
+  const { user, accessToken, refreshToken } = await authService.registerUser(email, password, displayName);
 
-    // Create user
-    const user = await User.create({
-      name,
-      email,
-      password, // Password hashing normally handled in User model
-    });
+  setRefreshCookie(res, refreshToken);
+  res.status(201).json({ success: true, data: { user: { id: user._id, email: user.email, displayName: user.displayName }, accessToken } });
+});
 
-    if (user) {
-      res.status(201).json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        token: generateToken(user._id),
-      });
-    }
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+exports.login = asyncWrapper(async (req, res) => {
+  const { email, password } = req.body;
+  const { user, accessToken, refreshToken } = await authService.loginUser(email, password);
+
+  setRefreshCookie(res, refreshToken);
+  res.status(200).json({ success: true, data: { user: { id: user._id, email: user.email, displayName: user.displayName }, accessToken } });
+});
+
+exports.refreshToken = asyncWrapper(async (req, res) => {
+  const token = req.cookies?.refreshToken;
+  const { accessToken, refreshToken } = await authService.refreshAccessToken(token);
+
+  setRefreshCookie(res, refreshToken);
+  res.status(200).json({ success: true, data: { accessToken } });
+});
+
+exports.logout = asyncWrapper(async (req, res) => {
+  let userId = null;
+  if (req.user && req.user.id) userId = req.user.id;
+  else if (req.cookies?.refreshToken) {
+    const { hashToken } = require('../utils/tokenUtils');
+    const User = require('../models/User');
+    const user = await User.findOne({ refreshTokenHash: hashToken(req.cookies.refreshToken) });
+    if (user) userId = user._id;
   }
-};
 
-const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
+  if (userId) await authService.logoutUser(userId);
 
-    if (user && (await user.matchPassword(password))) {
-      res.json({
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        token: generateToken(user._id),
-      });
-    } else {
-      res.status(401).json({ message: 'Invalid email or password' });
-    }
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
+  res.clearCookie('refreshToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' });
+  res.status(200).json({ success: true, data: null });
+});
 
-module.exports = {
-  register,
-  login,
-};
+exports.googleFirebaseAuth = asyncWrapper(async (req, res) => {
+  const { user, accessToken, refreshToken } = await authService.handleFirebaseGoogleUser(req.firebaseUser);
+
+  setRefreshCookie(res, refreshToken);
+  res.status(200).json({ success: true, data: { user: { id: user._id, email: user.email, displayName: user.displayName, avatarUrl: user.avatarUrl }, accessToken } });
+});

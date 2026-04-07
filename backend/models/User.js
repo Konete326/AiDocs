@@ -1,40 +1,18 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 
-const userSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-    trim: true
+const userSchema = new mongoose.Schema(
+  {
+    email: { type: String, unique: true, required: true, lowercase: true, trim: true },
+    passwordHash: { type: String, required: function() { return !this.firebaseUid; } },
+    firebaseUid: { type: String, sparse: true, index: true },
+    displayName: { type: String, minlength: 2, maxlength: 80, required: true },
+    avatarUrl: { type: String },
+    role: { type: String, enum: ['user', 'admin'], default: 'user' },
+    isVerified: { type: Boolean, default: false },
+    refreshTokenHash: { type: String },
+    refreshTokenExpiry: { type: Date }
   },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true
-  },
-  password: {
-    type: String,
-    required: true
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  }
-});
-// Match password
-userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
-};
-
-// Encrypt password using bcrypt
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) {
-    next();
-  }
-
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
-});
+  { timestamps: true }
+);
 
 module.exports = mongoose.model('User', userSchema);

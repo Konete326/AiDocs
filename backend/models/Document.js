@@ -2,25 +2,23 @@ const mongoose = require('mongoose');
 
 const documentSchema = new mongoose.Schema(
   {
-    title: {
-      type: String,
-      required: [true, 'Please add a title'],
-      trim: true,
-      maxlength: [100, 'Title cannot be more than 100 characters'],
+    projectId: { type: mongoose.Schema.Types.ObjectId, ref: 'Project', required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    docType: { 
+      type: String, 
+      enum: ['prd','srd','techStack','dbSchema','userFlows','mvpPlan','folderStructure','claudeContext','agentSystemPrompt'],
+      required: true
     },
-    content: {
-      type: String,
-      required: [true, 'Please add document content'],
-    },
-    author: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
-      required: false, // Make it optional for now to simplify CRUD testing
-    },
+    version: { type: Number, default: 1 },
+    content: { type: String },
+    contentTokenCount: { type: Number },
+    modelUsed: { type: String },
+    generationTimeMs: { type: Number }
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
+
+documentSchema.index({ projectId: 1, docType: 1 }, { unique: true });
+documentSchema.index({ userId: 1, projectId: 1 });
 
 module.exports = mongoose.model('Document', documentSchema);

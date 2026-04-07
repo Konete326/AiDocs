@@ -1,10 +1,14 @@
 const express = require('express');
-const router = express.Router();
 const userController = require('../controllers/userController');
+const authenticate = require('../middleware/authenticate');
+const { uploadAvatar } = require('../middleware/uploadMiddleware');
 
-// @route   GET /api/users
-// @desc    Get all users
-// @access  Public
-router.get('/', userController.getUsers);
+const router = express.Router();
+
+router.use(authenticate);
+
+router.get('/me', userController.getMe);
+router.patch('/me', userController.updateMe);
+router.patch('/me/avatar', uploadAvatar, userController.uploadAvatar);
 
 module.exports = router;

@@ -1,0 +1,1 @@
+module.exports = (wizardAnswers, previousDocs) => { return `Generate a highly detailed PRD document in raw Markdown format (no preamble, no code block fences). Context:  ${JSON.stringify(wizardAnswers)} \nPrevious Context: ${Object.keys(previousDocs).join(', ')}`; };

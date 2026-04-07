@@ -10,11 +10,16 @@ const api = axios.create({
   },
 });
 
+let memoryToken = null;
+
+export const setApiToken = (token) => {
+  memoryToken = token;
+};
+
 // Add token to requests if available
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (memoryToken) {
+    config.headers.Authorization = `Bearer ${memoryToken}`;
   }
   return config;
 });

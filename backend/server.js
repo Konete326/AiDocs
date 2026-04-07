@@ -1,47 +1,73 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const dotenv = require('dotenv');
-const connectDB = require('./config/db');
+const helmet = require('helmet');
+const morgan = require('morgan');
+const cookieParser = require('cookie-parser');
 
-// Load env vars
-dotenv.config();
+const db = require('./config/db');
 
-// Connect to database
-connectDB();
+const { apiLimiter } = require('./middleware/rateLimiter');
+const errorHandler = require('./middleware/errorHandler');
+
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const projectRoutes = require('./routes/projectRoutes');
+const documentRoutes = require('./routes/documentRoutes');
+const subscriptionRoutes = require('./routes/subscriptionRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
-// Middleware
-app.use(cors());
+// Security and utility middleware
+app.use(helmet());
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
+  credentials: true
+}));
+app.use(morgan('dev'));
+
+// Webhook parsing for Stripe requires raw body parsing.
+// Must be mounted BEFORE express.json() generic parser
+const subscriptionController = require('./controllers/subscriptionController');
+app.use('/api/subscriptions/webhook', express.raw({ type: 'application/json' }), subscriptionController.handleWebhook);
+
+// General JSON payload configuration
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+
+// Apply rate limiting
+app.use('/api', apiLimiter);
 
 // Routes
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/users', require('./routes/userRoutes'));
-app.use('/api/documents', require('./routes/documentRoutes'));
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/projects', projectRoutes);
+app.use('/api/projects/:projectId/documents', documentRoutes);
+app.use('/api/subscriptions', subscriptionRoutes);
+app.use('/api/notifications', notificationRoutes);
 
-// Base route
-app.get('/', (req, res) => {
-  res.json({ message: 'API is running...' });
+// 404 handler
+app.use((req, res, next) => {
+  res.status(404).json({ success: false, error: 'Endpoint not found', code: 'NOT_FOUND' });
 });
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  const statusCode = res.statusCode === 200 ? 500 : res.statusCode;
-  res.status(statusCode);
-  res.json({
-    message: err.message,
-    stack: process.env.NODE_ENV === 'production' ? null : err.stack,
-  });
-});
+// Global error handler
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-// Listen only for local development
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
+const startServer = async () => {
+  try {
+    await db(); // Connect to MongoDB
+    app.listen(PORT, () => {
+      console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error.message);
+    process.exit(1);
+  }
+};
 
-module.exports = app;
+startServer();
