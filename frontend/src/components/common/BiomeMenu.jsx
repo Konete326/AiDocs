@@ -4,21 +4,11 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowUpRight, Circle, FileText, Layout, Zap, Settings } from "lucide-react";
 
-interface BiomeMenuItem {
-    title: string;
-    icon?: React.ReactNode;
-    iconColor?: string;
-}
-
-interface BiomeMenuProps {
-    isOpen: boolean;
-    onClose: () => void;
-    sidebarTitle?: string;
-    sidebarDescription?: string;
-    items?: BiomeMenuItem[];
-}
-
-const BiomeMenu: React.FC<BiomeMenuProps> = ({
+/**
+ * BiomeMenu Component
+ * A high-fidelity, dual-panel navigation modal for SwiftDocs AI.
+ */
+const BiomeMenu = ({
     isOpen,
     onClose,
     sidebarTitle = "SwiftDocs AI",
