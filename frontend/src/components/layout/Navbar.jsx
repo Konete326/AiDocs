@@ -1,19 +1,13 @@
 import { useState } from 'react';
-import { Menu, X, Rocket, Shield, HelpCircle } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import GlassCard from '../common/GlassCard';
 import logo from '../../assets/logo.png';
-import Button from '../common/Button';
+import BiomeMenu from '../common/BiomeMenu';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-
-  const menuItems = [
-    { label: 'Platform', icon: Rocket, path: '#' },
-    { label: 'Security', icon: Shield, path: '#' },
-    { label: 'Support', icon: HelpCircle, path: '#' },
-  ];
 
   return (
     <>
@@ -32,31 +26,10 @@ const Navbar = () => {
         </GlassCard>
       </nav>
 
-      {/* Mobile/Tablet Menu Overlay */}
-      {isOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-md" onClick={() => setIsOpen(false)} />
-          <div className="absolute top-24 left-4 right-4 animate-in fade-in zoom-in duration-300">
-            <GlassCard strong className="rounded-[2.5rem] p-6 shadow-2xl border border-white/10">
-              <div className="flex flex-col gap-4">
-                {menuItems.map((item) => (
-                  <button 
-                    key={item.label}
-                    className="flex items-center gap-4 p-4 rounded-2xl hover:bg-white/5 transition-all text-white/70 hover:text-white"
-                  >
-                    <item.icon className="w-5 h-5" />
-                    <span className="text-lg font-medium">{item.label}</span>
-                  </button>
-                ))}
-                <div className="h-px w-full bg-white/10 my-2" />
-                <Button onClick={() => navigate('/login')} variant="strong" className="py-4">
-                  Sign In
-                </Button>
-              </div>
-            </GlassCard>
-          </div>
-        </div>
-      )}
+      <BiomeMenu 
+        isOpen={isOpen} 
+        onClose={() => setIsOpen(false)} 
+      />
     </>
   );
 };
