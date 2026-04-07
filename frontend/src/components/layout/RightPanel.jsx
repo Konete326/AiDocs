@@ -1,11 +1,11 @@
-import { Sparkles, ArrowRight, Twitter, Linkedin, Instagram, Wand2, BookOpen } from 'lucide-react';
+import { Sparkles, ArrowRight, Globe, Layers, Mail, Wand2, BookOpen } from 'lucide-react';
 import GlassCard from '../common/GlassCard';
 import thumb from '../../assets/hero-flowers.png';
 
 const TopBar = () => (
   <div className="flex justify-between items-center w-full">
     <GlassCard className="rounded-full px-5 py-2.5 flex gap-4 items-center">
-      {[Twitter, Linkedin, Instagram].map((Icon, i) => (
+      {[Globe, Layers, Mail].map((Icon, i) => (
         <button key={i} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white hover:text-white/80 transition-all cursor-pointer">
           <Icon className="w-4 h-4" />
         </button>
