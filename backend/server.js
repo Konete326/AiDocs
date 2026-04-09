@@ -19,12 +19,15 @@ const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
-// Manual CORS Handling for Vercel
+// Unified CORS & Preflight Handling for Vercel
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const allowedOrigins = [process.env.FRONTEND_URL, 'http://localhost:5173'];
-  
-  if (origin && (allowedOrigins.includes(origin) || origin.endsWith('.vercel.app'))) {
+  const isAllowed = !origin || 
+                   origin.endsWith('.vercel.app') || 
+                   origin === process.env.FRONTEND_URL || 
+                   origin === 'http://localhost:5173';
+
+  if (isAllowed && origin) {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
   
@@ -36,29 +39,16 @@ app.use((req, res, next) => {
   );
 
   if (req.method === 'OPTIONS') {
-    res.status(200).end();
-    return;
+    return res.status(200).end();
   }
   next();
 });
 
-// Security and utility middleware
-app.use(helmet());
-
-
-// Use standard cors middleware as well for safety
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (origin.endsWith('.vercel.app') || origin === process.env.FRONTEND_URL || origin === 'http://localhost:5173') {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+// Security middleware with CORS-friendly settings
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
+
 app.use(morgan('dev'));
 
 // Webhook parsing for Stripe requires raw body parsing.
@@ -67,8 +57,8 @@ const subscriptionController = require('./controllers/subscriptionController');
 app.use('/api/subscriptions/webhook', express.raw({ type: 'application/json' }), subscriptionController.handleWebhook);
 
 // General JSON payload configuration
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // Root route / Health check
