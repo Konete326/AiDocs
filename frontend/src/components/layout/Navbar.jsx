@@ -1,13 +1,33 @@
 import { useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LogIn, Layout, FileText, Settings, UserPlus, LogOut } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import GlassCard from '../common/GlassCard';
 import logo from '../../assets/logo.png';
 import BiomeMenu from '../common/BiomeMenu';
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const { isAuthenticated, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    setIsOpen(false);
+    navigate('/');
+  };
+
+  const navItems = isAuthenticated
+    ? [
+        { title: "Dashboard", href: "/dashboard", icon: <Layout className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/dashboard'); } },
+        { title: "Documents", href: "/documents", icon: <FileText className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/documents'); } },
+        { title: "Settings", href: "/profile", icon: <Settings className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/profile'); } },
+        { title: "Logout", icon: <LogOut className="w-4 h-4 text-white" />, onClick: handleLogout },
+      ]
+    : [
+        { title: "Sign In", href: "/login", icon: <LogIn className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/login'); } },
+        { title: "Create Account", href: "/register", icon: <UserPlus className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/register'); } },
+      ];
 
   return (
     <>
@@ -28,7 +48,8 @@ const Navbar = () => {
 
       <BiomeMenu 
         isOpen={isOpen} 
-        onClose={() => setIsOpen(false)} 
+        onClose={() => setIsOpen(false)}
+        items={navItems}
       />
     </>
   );

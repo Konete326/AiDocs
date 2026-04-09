@@ -1,27 +1,59 @@
 import axios from 'axios';
 
-// Always use /api - Vite proxy handles it in dev, Vercel handles it in prod
-const baseURL = '/api';
+let _accessToken = null;
 
-const api = axios.create({
-  baseURL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-let memoryToken = null;
-
-export const setApiToken = (token) => {
-  memoryToken = token;
+export const getAccessToken = () => _accessToken;
+export const setAccessToken = (token) => {
+  _accessToken = token;
 };
 
-// Add token to requests if available
-api.interceptors.request.use((config) => {
-  if (memoryToken) {
-    config.headers.Authorization = `Bearer ${memoryToken}`;
-  }
-  return config;
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  withCredentials: true,
 });
+
+api.interceptors.request.use(
+  (config) => {
+    const token = getAccessToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Avoid infinite loop if refresh token fails
+    if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/auth/refresh') {
+      originalRequest._retry = true;
+
+      try {
+        const response = await axios.post(
+          `${api.defaults.baseURL}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
+        const newAccessToken = response.data.data.accessToken;
+        setAccessToken(newAccessToken);
+
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        setAccessToken(null);
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 export default api;

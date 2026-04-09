@@ -735,6 +735,15 @@ After finishing, update the Completion Tracker section of AIDOCS_MASTER_PLAN.md.
 - [x] User model avatarUrl saved as Cloudinary URL
 - [x] .env.example updated with Firebase + Cloudinary vars
 
+### Sprint 7 — Frontend Auth Connection (Current)
+- [x] Firebase and Axios dependencies installed
+- [x] Frontend variables added (.env, .env.example)
+- [x] Services Layer Rebuilt (api.js, authService.js, userService.js, firebase.js)
+- [x] AuthContext Rebuilt with memory-based token logic
+- [x] Login and Register Pages Rebuilt with glass-theme and video background
+- [x] PrivateRoute and AppRoutes configured
+- [x] Navbar updated to reflect auth state
+
 ---
 
 ## 13. Sprint 6 — Testing + Firebase Google Auth + Cloudinary
