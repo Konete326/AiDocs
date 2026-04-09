@@ -3,8 +3,7 @@ import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-
-const VIDEO_URL = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4';
+import AuthLayout from '../components/layout/AuthLayout';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -20,10 +19,8 @@ const Login = () => {
   };
 
   return (
-    <section className="relative min-h-screen overflow-hidden px-4 flex items-center justify-center">
-      <video src={VIDEO_URL} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" />
-      <div className="absolute inset-0 bg-black/50 z-[1]" />
-      <div className="relative z-10 w-full max-w-md liquid-glass-strong rounded-3xl p-8 md:p-12 mb-10">
+    <AuthLayout>
+      <div className="w-full max-w-md liquid-glass-strong rounded-3xl p-8 md:p-12">
         <div className="flex flex-col items-center">
           <img src={logo} alt="Logo" className="w-10 h-10 object-cover rounded-lg" />
           <span className="text-xl font-semibold tracking-tighter text-white mt-2">SwiftDocs AI</span>
@@ -60,7 +57,7 @@ const Login = () => {
           </div>
         </form>
       </div>
-    </section>
+    </AuthLayout>
   );
 };
 
