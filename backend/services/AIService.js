@@ -2,10 +2,10 @@ const axios = require('axios');
 const AppError = require('../utils/AppError');
 
 const providers = [
-  { name: 'NVIDIA_NIM_405', url: 'https://integrate.api.nvidia.com/v1/chat/completions', model: 'meta/llama-3.1-405b-instruct', getKey: () => process.env.NVIDIA_API_KEY },
-  { name: 'OPENROUTER_405', url: 'https://openrouter.ai/api/v1/chat/completions', model: 'meta-llama/llama-3.1-405b', getKey: () => process.env.OPENROUTER_API_KEY },
-  { name: 'OPENROUTER_70', url: 'https://openrouter.ai/api/v1/chat/completions', model: 'meta-llama/llama-3.1-70b', getKey: () => process.env.OPENROUTER_API_KEY },
-  { name: 'NVIDIA_NEMOTRON_340', url: 'https://integrate.api.nvidia.com/v1/chat/completions', model: 'nvidia/nemotron-4-340b-instruct', getKey: () => process.env.NVIDIA_API_KEY }
+  { name: 'OPENROUTER_405', url: 'https://openrouter.ai/api/v1/chat/completions', model: 'meta-llama/llama-3.1-405b', getKey: () => process.env.AI_API_KEY },
+  { name: 'OPENROUTER_70', url: 'https://openrouter.ai/api/v1/chat/completions', model: 'meta-llama/llama-3.1-70b', getKey: () => process.env.AI_API_KEY },
+  { name: 'NVIDIA_NIM_405', url: 'https://integrate.api.nvidia.com/v1/chat/completions', model: 'meta/llama-3.1-405b-instruct', getKey: () => process.env.AI_API_KEY },
+  { name: 'NVIDIA_NEMOTRON_340', url: 'https://integrate.api.nvidia.com/v1/chat/completions', model: 'nvidia/nemotron-4-340b-instruct', getKey: () => process.env.AI_API_KEY }
 ];
 
 const callProvider = async (provider, prompt) => {
