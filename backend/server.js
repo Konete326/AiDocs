@@ -58,16 +58,15 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-const startServer = async () => {
-  try {
-    await db(); // Connect to MongoDB
-    app.listen(PORT, () => {
-      console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-    });
-  } catch (error) {
-    console.error('Failed to start server:', error.message);
-    process.exit(1);
-  }
-};
+// Connect to MongoDB (needed for Vercel serverless executions)
+db().catch(err => console.error('Failed to connect to MongoDB:', err));
 
-startServer();
+// Start server locally (Vercel will ignore this if not in development, and use the exported app)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  });
+}
+
+// Export app for Vercel
+module.exports = app;
