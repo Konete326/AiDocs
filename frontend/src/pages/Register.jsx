@@ -24,14 +24,14 @@ const Register = () => {
 
   return (
     <AuthLayout>
-      <div className="w-full max-w-md liquid-glass-strong rounded-3xl p-8 md:p-12">
+      <div className="w-full max-w-md liquid-glass-strong rounded-2xl md:rounded-3xl p-5 md:p-10 scale-[0.85] sm:scale-100 origin-top">
         <div className="flex flex-col items-center">
-          <img src={logo} alt="Logo" className="w-10 h-10 object-cover rounded-lg" />
-          <span className="text-xl font-semibold tracking-tighter text-white mt-2">SwiftDocs AI</span>
-          <h1 className="text-3xl font-medium text-white tracking-tight mt-6 text-center">Create your account</h1>
-          <p className="text-sm text-white/60 mt-1">Start generating docs in minutes</p>
+          <img src={logo} alt="Logo" className="w-8 h-8 md:w-10 md:h-10 object-cover rounded-lg" />
+          <span className="text-lg md:text-xl font-semibold tracking-tighter text-white mt-2">SwiftDocs AI</span>
+          <h1 className="text-2xl md:text-3xl font-medium text-white tracking-tight mt-3 md:mt-6 text-center">Create your account</h1>
+          <p className="text-xs md:text-sm text-white/60 mt-1">Start generating docs in minutes</p>
         </div>
-        <form onSubmit={handleSubmit} className="mt-8 space-y-4">
+        <form onSubmit={handleSubmit} className="mt-4 md:mt-8 space-y-3 md:space-y-4">
           <div className="liquid-glass rounded-xl px-4 py-3 flex items-center gap-3"><User className="w-4 h-4 text-white/40" /><input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" required className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm" /></div>
           <div className="liquid-glass rounded-xl px-4 py-3 flex items-center gap-3"><Mail className="w-4 h-4 text-white/40" /><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email address" required className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm" /></div>
           <div className="liquid-glass rounded-xl px-4 py-3 flex items-center gap-3">

@@ -56,9 +56,9 @@ const FeatureCards = () => (
 );
 
 const RightPanel = () => (
-  <div className="flex flex-col w-full lg:w-[48%] px-6 pb-20 lg:pb-12 lg:pt-10 gap-8 min-h-screen">
+  <div className="flex flex-col w-full lg:w-[48%] h-[45%] lg:h-full px-4 lg:px-6 pb-6 lg:pb-12 lg:pt-10 gap-3 lg:gap-8 overflow-hidden origin-top scale-[0.8] sm:scale-95 lg:scale-100">
     <TopBar />
-    <div className="flex flex-col lg:flex-1 justify-center gap-12 lg:gap-0 lg:justify-between h-full">
+    <div className="flex flex-col lg:flex-1 justify-center lg:justify-between h-full gap-3 lg:gap-0">
       <CommunityCard />
       <FeatureCards />
     </div>

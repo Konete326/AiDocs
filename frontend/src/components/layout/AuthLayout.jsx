@@ -21,11 +21,11 @@ const TestimonialCard = ({ testimonial, i }) => (
 
 const AuthLayout = ({ children }) => {
   return (
-    <div className="relative h-screen w-full overflow-hidden flex flex-col md:flex-row">
+    <div className="relative h-[100dvh] w-full overflow-hidden flex flex-col md:flex-row">
       <video src={VIDEO_URL} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" />
       <div className="absolute inset-0 bg-black/50 z-[1]" />
       
-      <div className="relative z-10 w-full md:w-1/2 lg:w-[45%] flex items-center justify-center p-6 sm:p-8 bg-black/40 backdrop-blur-xl border-r border-white/10 h-full overflow-y-auto">
+      <div className="relative z-10 w-full md:w-1/2 lg:w-[45%] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-xl border-r border-white/10 h-full overflow-hidden">
         {children}
       </div>
 

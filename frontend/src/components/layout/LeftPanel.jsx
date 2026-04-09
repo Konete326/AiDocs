@@ -43,9 +43,9 @@ const BottomQuote = () => (
 );
 
 const LeftPanel = () => (
-  <div className="relative flex flex-col w-full lg:w-[52%] min-h-screen p-4 lg:p-6 overflow-hidden">
-    <GlassCard strong className="absolute inset-4 lg:inset-6 rounded-[2.5rem] z-0 pointer-events-none" />
-    <div className="relative z-10 flex flex-col h-full lg:m-4 flex-1">
+  <div className="relative flex flex-col w-full lg:w-[52%] h-[55%] lg:h-full p-2 sm:p-4 lg:p-6 overflow-hidden origin-top">
+    <GlassCard strong className="absolute inset-2 sm:inset-4 lg:inset-6 rounded-3xl lg:rounded-[2.5rem] z-0 pointer-events-none" />
+    <div className="relative z-10 flex flex-col h-full m-2 lg:m-4 flex-1 scale-[0.8] sm:scale-95 lg:scale-100 origin-top">
       <Navbar />
       <HeroText />
       <BottomQuote />
