@@ -22,14 +22,22 @@ const app = express();
 // Security and utility middleware
 app.use(helmet());
 app.use(cors({
-  origin: [
-    process.env.FRONTEND_URL,
-    'https://swiftdocsai.vercel.app', // Aapka frontend URL
-    'http://localhost:5173'
-  ].filter(Boolean),
+  origin: (origin, callback) => {
+    const allowed = [
+      process.env.FRONTEND_URL,
+      'http://localhost:5173'
+    ].filter(Boolean);
+    
+    // In production on Vercel same-domain, origin might be undefined for some requests
+    if (!origin || allowed.some(url => origin.startsWith(url)) || origin.includes('.vercel.app')) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all for now to avoid deployment blockers, but with credentials
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
 app.use(morgan('dev'));
 

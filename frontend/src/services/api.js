@@ -1,14 +1,21 @@
 import axios from 'axios';
 
-let _accessToken = null;
+// Initialize access token from localStorage for persistence across refreshes
+let _accessToken = localStorage.getItem('accessToken');
 
 export const getAccessToken = () => _accessToken;
 export const setAccessToken = (token) => {
   _accessToken = token;
+  if (token) {
+    localStorage.setItem('accessToken', token);
+  } else {
+    localStorage.removeItem('accessToken');
+  }
 };
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
+  // Use relative URL for unified deployment, fallback to env or localhost
+  baseURL: import.meta.env.VITE_API_URL || (window.location.origin + '/api'),
   withCredentials: true,
 });
 
