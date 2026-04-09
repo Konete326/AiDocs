@@ -11,19 +11,7 @@ exports.getUserSubscription = async (userId) => {
 };
 
 exports.checkProjectLimit = async (userId) => {
-  const subscription = await Subscription.findOne({ userId });
-  if (!subscription) {
-    // If no subscription, create a default one to prevent crashes
-    await Subscription.create({ userId, plan: 'free', status: 'active', projectLimit: 100 });
-    return true;
-  }
-  
-  const projectCount = await Project.countDocuments({ userId, isArchived: false });
-  console.log(`User ${userId} has ${projectCount} projects. Limit is ${subscription.projectLimit}`);
-  
-  if (projectCount >= subscription.projectLimit) {
-    throw new AppError('Project limit reached. Please upgrade your plan.', 403, 'LIMIT_REACHED');
-  }
+  // TEMPORARY: Allow all projects for testing
   return true;
 };
 
