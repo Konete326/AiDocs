@@ -37,6 +37,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Root route / Health check
+app.get('/', (req, res) => {
+  res.json({ 
+    success: true, 
+    message: 'SwiftDocs AI Backend API is running',
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 // Apply rate limiting
 app.use('/api', apiLimiter);
 
