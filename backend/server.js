@@ -19,16 +19,15 @@ const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
-// Unified CORS & Preflight Handling for Vercel
+// 1. Manual CORS Handling (MUST be after app = express())
 app.use((req, res, next) => {
   const origin = req.headers.origin;
-  const isAllowed = !origin || 
-                   origin.endsWith('.vercel.app') || 
-                   origin === process.env.FRONTEND_URL || 
-                   origin === 'http://localhost:5173';
-
-  if (isAllowed && origin) {
+  // Dynamically allow the requesting origin if it's production or local
+  if (origin && (origin.endsWith('.vercel.app') || origin === process.env.FRONTEND_URL || origin === 'http://localhost:5173')) {
     res.setHeader('Access-Control-Allow-Origin', origin);
+  } else if (!origin) {
+    // Allow non-browser requests
+    res.setHeader('Access-Control-Allow-Origin', '*');
   }
   
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -44,62 +43,52 @@ app.use((req, res, next) => {
   next();
 });
 
-// Security middleware with CORS-friendly settings
+// 2. Helmet with Cross-Origin support
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
 app.use(morgan('dev'));
 
-// Webhook parsing for Stripe requires raw body parsing.
-// Must be mounted BEFORE express.json() generic parser
+// Static files and logs
 const subscriptionController = require('./controllers/subscriptionController');
 app.use('/api/subscriptions/webhook', express.raw({ type: 'application/json' }), subscriptionController.handleWebhook);
 
-// General JSON payload configuration
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
-// Root route / Health check
-app.get('/', (req, res) => {
-  res.json({ 
-    success: true, 
-    message: 'SwiftDocs AI Backend API is running',
-    environment: process.env.NODE_ENV || 'development'
-  });
-});
+// Trust proxy for Vercel/proxies
+app.set('trust proxy', 1);
 
-// Apply rate limiting
-app.use('/api', apiLimiter);
+// Health check
+app.get('/', (req, res) => {
+  res.status(200).json({ status: 'active', message: 'SwiftDocs AI API is running' });
+});
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/projects', projectRoutes);
-app.use('/api/projects/:projectId/documents', documentRoutes);
+app.use('/api/documents', documentRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/notifications', notificationRoutes);
 
 // 404 handler
 app.use((req, res, next) => {
-  res.status(404).json({ success: false, error: 'Endpoint not found', code: 'NOT_FOUND' });
+  res.status(404).json({ success: false, error: 'Route not found' });
 });
 
-// Global error handler
+// Global Error Handler
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-// Connect to MongoDB (needed for Vercel serverless executions)
-db().catch(err => console.error('Failed to connect to MongoDB:', err));
-
-// Start server locally (Vercel will ignore this if not in development, and use the exported app)
+// Only listen if not in a serverless environment (optional for local)
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
-    console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+    console.log(`Server running on port ${PORT}`);
   });
 }
 
-// Export app for Vercel
 module.exports = app;
