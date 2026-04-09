@@ -15,15 +15,14 @@ const PasswordStrengthMeter = ({ score }) => {
         {[1, 2, 3, 4].map((level) => (
           <div
             key={level}
-            className={`h-1 rounded-full flex-1 ${
-              score >= level
-                ? score === 1 ? 'bg-red-400' : score === 2 ? 'bg-orange-400' : score === 3 ? 'bg-blue-400' : 'bg-green-400'
-                : 'bg-white/10'
+            className={`h-1 rounded-full flex-1 transition-all ${
+              score >= level ? 'bg-white' : 'bg-white/10'
             }`}
+            style={{ opacity: score >= level ? score * 0.25 : 1 }}
           />
         ))}
       </div>
-      <div className="text-[10px] text-white/40 mt-1 uppercase tracking-wider">{getStrengthLabel(score)}</div>
+      <div className="text-xs text-white/40 mt-1 uppercase tracking-wider">{getStrengthLabel(score)}</div>
     </div>
   );
 };

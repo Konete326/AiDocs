@@ -6,6 +6,8 @@ import Register from '../pages/Register';
 import ForgotPassword from '../pages/ForgotPassword';
 import Dashboard from '../pages/Dashboard';
 import Profile from '../pages/Profile';
+import CreateProject from '../pages/CreateProject';
+import ProjectDetail from '../pages/ProjectDetail';
 import PrivateRoute from '../components/common/PrivateRoute';
 
 export default function AppRoutes() {
@@ -20,6 +22,8 @@ export default function AppRoutes() {
       <Route element={<PrivateRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/projects/new" element={<CreateProject />} />
+        <Route path="/projects/:id" element={<ProjectDetail />} />
       </Route>
     </Routes>
   );

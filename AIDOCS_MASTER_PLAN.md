@@ -735,7 +735,7 @@ After finishing, update the Completion Tracker section of AIDOCS_MASTER_PLAN.md.
 - [x] User model avatarUrl saved as Cloudinary URL
 - [x] .env.example updated with Firebase + Cloudinary vars
 
-### Sprint 7 — Frontend Auth Connection (Current)
+### Sprint 7 — Frontend Auth Connection
 - [x] Firebase and Axios dependencies installed
 - [x] Frontend variables added (.env, .env.example)
 - [x] Services Layer Rebuilt (api.js, authService.js, userService.js, firebase.js)
@@ -743,6 +743,16 @@ After finishing, update the Completion Tracker section of AIDOCS_MASTER_PLAN.md.
 - [x] Login and Register Pages Rebuilt with glass-theme and video background
 - [x] PrivateRoute and AppRoutes configured
 - [x] Navbar updated to reflect auth state
+
+### Sprint 8 — Dashboard & Project Creation
+- [x] Project and Document services implemented
+- [x] Dashboard page with real data fetching created
+- [x] ProjectCard and EmptyState components created
+- [x] 7-Step Project Creation Wizard implemented
+- [x] AI Generation polling logic added to ProjectDetail
+- [x] AppRoutes updated with new project routes
+- [x] End-to-end frontend-backend connectivity verified
+- [x] Wizard refactored into 7 separate step components with Shell-Step architecture
 
 ---
 

@@ -3,6 +3,8 @@ import GlassCard from '../common/GlassCard';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 
+import heroImage from '../../assets/hero.png';
+
 const TopBar = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
@@ -38,7 +40,7 @@ const FeatureCards = () => {
       </GlassCard>
     </div>
     <GlassCard onClick={() => navigate('/register')} className="rounded-[2.5rem] p-5 flex gap-5 items-center border border-white/5 transition-transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
-      <img src="https://images.unsplash.com/photo-1620712948624-91eb7dd1562b?w=800&q=80" alt="Preview" className="w-20 h-20 sm:w-28 sm:h-20 object-cover rounded-2xl shadow-xl flex-shrink-0" />
+      <img src={heroImage} alt="Preview" className="w-20 h-20 sm:w-28 sm:h-20 object-cover rounded-2xl shadow-xl flex-shrink-0" />
       <div className="flex-1">
         <p className="text-sm font-semibold text-white leading-tight">Advanced AI Document Sculpting</p>
         <p className="text-xs text-white/40 mt-2 font-medium">For modern founders who ship fast.</p>

@@ -1,41 +1,88 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { getProjects, deleteProject } from '../services/projectService';
+import { getMySubscription } from '../services/subscriptionService';
+import DashboardHeader from '../components/dashboard/DashboardHeader';
+import ProjectCard from '../components/dashboard/ProjectCard';
+import EmptyState from '../components/dashboard/EmptyState';
+import SubscriptionBanner from '../components/dashboard/SubscriptionBanner';
 
-export default function Dashboard() {
-  const { user, logout } = useAuth();
-  const navigate = useNavigate();
+const Dashboard = () => {
+  const [projects, setProjects] = useState([]);
+  const [subscription, setSubscription] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const handleLogout = async () => {
-    await logout();
-    navigate('/login');
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [projectsData, subData] = await Promise.all([
+          getProjects(),
+          getMySubscription()
+        ]);
+        setProjects(projectsData);
+        setSubscription(subData);
+      } catch (err) {
+        setError('Failed to load dashboard data.');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this project?')) return;
+    try {
+      await deleteProject(id);
+      setProjects(prev => prev.filter(p => p._id !== id));
+    } catch (err) {
+      alert('Failed to delete project.');
+    }
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      <video
-        className="absolute inset-0 w-full h-full object-cover z-0"
+    <div className="relative min-h-screen w-full overflow-hidden bg-black">
+      <video 
+        autoPlay muted loop playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0 opacity-40"
         src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
       />
-      <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
-        <div className="liquid-glass-strong rounded-3xl p-8 md:p-12 w-full max-w-lg text-center">
-          <h1 className="text-3xl font-medium text-white tracking-tight">Your Projects</h1>
-          <p className="text-white/60 mt-2">Dashboard coming soon...</p>
-          <div className="mt-8 liquid-glass rounded-xl p-4">
-            <p className="text-white text-lg font-medium">Welcome, {user?.displayName}</p>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="liquid-glass border border-white/20 hover:bg-white/10 rounded-full px-6 py-2 mt-8 text-white text-sm transition-all hover:scale-105 inline-block"
-          >
-            Logout
-          </button>
+      
+      <div className="relative z-10 p-6 md:p-12 lg:p-16 max-w-7xl mx-auto min-h-screen">
+        <DashboardHeader projectCount={projects.length} plan={subscription?.plan || 'free'} />
+
+        <div className="mt-12 space-y-8">
+          {subscription?.plan === 'free' && projects.length >= 1 && (
+            <SubscriptionBanner />
+          )}
+
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="liquid-glass rounded-3xl p-6 h-48 animate-pulse">
+                  <div className="h-4 bg-white/10 rounded-full w-3/4 mb-4" />
+                  <div className="h-3 bg-white/10 rounded-full w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : projects.length === 0 ? (
+            <EmptyState />
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {projects.map(project => (
+                <ProjectCard key={project._id} project={project} onDelete={handleDelete} />
+              ))}
+            </motion.div>
+          )}
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default Dashboard;

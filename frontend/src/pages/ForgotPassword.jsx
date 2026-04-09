@@ -22,8 +22,8 @@ export default function ForgotPassword() {
 
   return (
     <AuthLayout title="Reset password" subtitle="We'll send you a recovery link">
-      {message && <div className="liquid-glass rounded-xl px-4 py-3 text-sm text-green-300/80 mb-4 border border-green-500/20">{message}</div>}
-      {error && <div className="liquid-glass rounded-xl px-4 py-3 text-sm text-red-300/80 mb-4 border border-red-500/20">{error}</div>}
+      {message && <div className="liquid-glass rounded-xl px-4 py-3 text-sm text-white/80 mb-4">{message}</div>}
+      {error && <div className="liquid-glass rounded-xl px-4 py-3 text-sm text-white/80 mb-4">{error}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="liquid-glass rounded-xl px-4 py-3 flex items-center gap-3">
           <Mail className="w-4 h-4 text-white/40" />
