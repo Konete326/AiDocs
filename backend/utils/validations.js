@@ -9,7 +9,7 @@ const createProjectSchema = Joi.object({
     coreFeatures: Joi.array().items(Joi.string()).required(),
     techPreferences: Joi.string().required(),
     monetizationModel: Joi.string().required(),
-    scaleExpectation: Joi.string().required(),
+    scaleExpectation: Joi.string().allow('', null),
     additionalContext: Joi.string().allow('', null)
   }).required()
 });
