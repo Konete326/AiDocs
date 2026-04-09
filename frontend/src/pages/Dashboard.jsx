@@ -20,10 +20,11 @@ const Dashboard = () => {
           getProjects(),
           getMySubscription()
         ]);
-        setProjects(projectsData);
-        setSubscription(subData);
+        setProjects(projectsData || []);
+        setSubscription(subData || null);
       } catch (err) {
         setError('Failed to load dashboard data.');
+        setProjects([]);
       } finally {
         setIsLoading(false);
       }
@@ -50,10 +51,10 @@ const Dashboard = () => {
       />
       
       <div className="relative z-10 p-6 md:p-12 lg:p-16 max-w-7xl mx-auto min-h-screen">
-        <DashboardHeader projectCount={projects.length} plan={subscription?.plan || 'free'} />
+        <DashboardHeader projectCount={projects?.length || 0} plan={subscription?.plan || 'free'} />
 
         <div className="mt-12 space-y-8">
-          {subscription?.plan === 'free' && projects.length >= 1 && (
+          {subscription?.plan === 'free' && (projects?.length || 0) >= 1 && (
             <SubscriptionBanner />
           )}
 
@@ -66,7 +67,7 @@ const Dashboard = () => {
                 </div>
               ))}
             </div>
-          ) : projects.length === 0 ? (
+          ) : (projects?.length || 0) === 0 ? (
             <EmptyState />
           ) : (
             <motion.div 
