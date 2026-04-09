@@ -84,7 +84,7 @@ const BiomeMenu = ({
                             {items.map((item) => (
                                 <div
                                     key={item.title}
-                                    className="rounded-2xl md:rounded-3xl p-3 md:p-5 transition-all cursor-pointer flex items-center gap-3 md:gap-5 hover:bg-white/5 border border-white/[0.03] group"
+                                    className="rounded-2xl md:rounded-3xl p-3 md:p-5 transition-transform hover:scale-105 active:scale-95 cursor-pointer flex items-center gap-3 md:gap-5 hover:bg-white/5 border border-white/[0.03] group"
                                     style={{
                                         backgroundColor: "rgba(255,255,255,0.02)",
                                     }}

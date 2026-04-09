@@ -12,13 +12,13 @@ const Navbar = () => {
   return (
     <>
       <nav className="flex justify-between items-center w-full relative z-50">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
+        <div className="flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 transition-transform" onClick={() => navigate('/')}>
           <img src={logo} alt="Logo" className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg object-cover" />
           <span className="font-semibold text-xl lg:text-2xl tracking-tighter text-white">SwiftDocs AI</span>
         </div>
         
         <GlassCard 
-          className="rounded-full px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-white/5 transition-all"
+          className="rounded-full px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-white/5 hover:scale-105 active:scale-95 transition-all"
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? <X className="w-4 h-4 text-white" /> : <Menu className="w-4 h-4 text-white/80" />}
