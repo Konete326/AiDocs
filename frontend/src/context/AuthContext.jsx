@@ -3,6 +3,7 @@ import {
   loginUser as apiLogin,
   registerUser as apiRegister,
   loginWithGoogle as apiLoginGoogle,
+  checkGoogleRedirect,
   logoutUser as apiLogout,
   refreshAccessToken,
 } from '../services/authService';
@@ -48,6 +49,14 @@ export function AuthProvider({ children }) {
 
     async function bootstrap() {
       try {
+        // Did we just return from Google Redirect?
+        const redirectedUser = await checkGoogleRedirect();
+        if (redirectedUser) {
+          if (isMounted) dispatch({ type: 'SET_USER', payload: redirectedUser });
+          return;
+        }
+
+        // Otherwise normal refresh logic
         await refreshAccessToken();
         const user = await getMe();
         if (isMounted) {
