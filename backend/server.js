@@ -19,9 +19,6 @@ const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
-// Security and utility middleware
-app.use(helmet());
-
 // Manual CORS Handling for Vercel
 app.use((req, res, next) => {
   const origin = req.headers.origin;
@@ -44,6 +41,10 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+// Security and utility middleware
+app.use(helmet());
+
 
 // Use standard cors middleware as well for safety
 app.use(cors({
