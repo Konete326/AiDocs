@@ -21,23 +21,31 @@ const app = express();
 
 // Security and utility middleware
 app.use(helmet());
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost:5173',
+  /\.vercel\.app$/ // Allow all Vercel subdomains for flexibility
+].filter(Boolean);
+
 app.use(cors({
   origin: (origin, callback) => {
-    const allowed = [
-      process.env.FRONTEND_URL,
-      'http://localhost:5173'
-    ].filter(Boolean);
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
     
-    // In production on Vercel same-domain, origin might be undefined for some requests
-    if (!origin || allowed.some(url => origin.startsWith(url)) || origin.includes('.vercel.app')) {
+    const isAllowed = allowedOrigins.some(allowed => {
+      if (allowed instanceof RegExp) return allowed.test(origin);
+      return allowed === origin;
+    });
+
+    if (isAllowed) {
       callback(null, true);
     } else {
-      callback(null, true); // Allow all for now to avoid deployment blockers, but with credentials
+      callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie', 'X-Requested-With']
 }));
 app.use(morgan('dev'));
 
