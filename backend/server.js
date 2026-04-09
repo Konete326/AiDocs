@@ -19,6 +19,9 @@ const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
+// Database connection
+db().catch(err => console.error('Database initial connection failed:', err));
+
 // 1. Manual CORS Handling (MUST be after app = express())
 app.use((req, res, next) => {
   const origin = req.headers.origin;
