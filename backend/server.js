@@ -22,8 +22,14 @@ const app = express();
 // Security and utility middleware
 app.use(helmet());
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true
+  origin: [
+    process.env.FRONTEND_URL,
+    'https://swiftdocsai.vercel.app', // Aapka frontend URL
+    'http://localhost:5173'
+  ].filter(Boolean),
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(morgan('dev'));
 
