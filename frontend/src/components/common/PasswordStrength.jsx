@@ -20,7 +20,7 @@ const PasswordStrength = ({ password }) => {
   };
   return (
     <div className="mt-2 space-y-1">
-      <div className="flex gap-1 relative z-50">
+      <div className="flex gap-1">
         {[1, 2, 3, 4].map(num => (
           <div key={num} className={`h-1 rounded-full flex-1 ${strength >= num ? (strength === 1 ? 'bg-white/20' : strength === 2 ? 'bg-white/40' : strength === 3 ? 'bg-white/60' : 'bg-white/80') : 'bg-white/10'}`} />
         ))}
