@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { getProject, getProjectDocuments } from '../../services/projectService';
-import { getProjectDocuments as fetchDocs } from '../../services/documentService';
-import { getMySubscription } from '../../services/subscriptionService';
+import { getProject } from '../services/projectService';
+import { getProjectDocuments as fetchDocs } from '../services/documentService';
+import { getMySubscription } from '../services/subscriptionService';
 
 export const useProjectPolling = (id) => {
   const [project, setProject] = useState(null);
