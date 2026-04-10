@@ -11,14 +11,17 @@ import ProjectDetail from '../pages/ProjectDetail';
 import Pricing from '../pages/Pricing';
 import Workspace from '../pages/Workspace';
 import PrivateRoute from '../components/common/PrivateRoute';
+import PublicOnlyRoute from '../components/common/PublicOnlyRoute';
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route element={<PublicOnlyRoute />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+      </Route>
       <Route path="/pricing" element={<Pricing />} />
       
       {/* Protected Routes */}

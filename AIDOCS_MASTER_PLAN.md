@@ -32,7 +32,7 @@ A user creates a Project → fills a wizard → triggers generation → gets 9 d
 ### Subscription Tiers
 | Plan | Project Limit | Generation | Chat | ZIP Export |
 |------|--------------|------------|------|------------|
-| Free | 1 | ✅ | ❌ | ❌ |
+| Free | 3 | ✅ | ❌ | ❌ |
 | Pro | 10 | ✅ | ✅ | ✅ |
 | Team | Unlimited | ✅ | ✅ | ✅ |
 
@@ -793,6 +793,21 @@ After finishing, update the Completion Tracker section of AIDOCS_MASTER_PLAN.md.
 - [x] AppRoutes.jsx updated (/projects/:id/workspace route added)
 - [x] ProjectHeader.jsx updated (Workspace button added)
 - [x] Committed and pushed to GitHub
+|
+| ### Sprint 12 — UX Refinement & Pricing Update
+| - [x] PublicOnlyRoute created (auth bounce logic)
+| - [x] AppRoutes updated (Login/Register protected)
+| - [x] Hero CTA dynamic (Explore Now uses useAuth)
+| - [x] Free tier limit increased (1 → 3 projects)
+| - [x] Pro price updated ($19 → $5)
+| - [x] Team price updated ($49 → $10)
+| - [x] Backend defaults updated (Subscription model & services)
+| - [x] Back buttons added (Profile, Pricing, Workspace)
+| - [x] Cancel button added (Create Project Wizard)
+| - [x] Navbar updated (Pricing link for auth users)
+| - [x] GeneratingState updated (Back to Dashboard button)
+| - [x] Sprint complete and documentation updated
+|
 
 ---
 

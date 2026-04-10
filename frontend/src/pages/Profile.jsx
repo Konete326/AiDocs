@@ -1,5 +1,5 @@
-import { useRef } from 'react';
-import { Pencil } from 'lucide-react';
+import { Pencil, ChevronLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useProfileFetch } from '../hooks/useProfileFetch';
 import GlassCard from '../components/common/GlassCard';
 import ProfileHeader from '../components/profile/ProfileHeader';
@@ -9,6 +9,7 @@ import ProfileCard from '../components/profile/ProfileCard';
 const VIDEO_URL = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4';
 
 const Profile = () => {
+  const navigate = useNavigate();
   const fileRef = useRef(null);
   const {
     user, subscription, projectsCount, totalDocs,
@@ -26,6 +27,13 @@ const Profile = () => {
       <div className="absolute inset-0 bg-black/50 z-[1]" />
       <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
       <div className="relative z-10 mx-auto max-w-6xl">
+        <button 
+          onClick={() => navigate('/dashboard')}
+          className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 mb-8 hover:scale-105 transition-transform cursor-pointer"
+        >
+          <ChevronLeft className="w-4 h-4 text-white/70" />
+          <span className="text-sm text-white/70 font-medium">Dashboard</span>
+        </button>
         <GlassCard strong className="rounded-[2rem] p-6 sm:p-8 md:p-12 relative">
           {!isEditing && (
             <button onClick={handleEditToggle} className="absolute top-4 sm:top-6 right-4 sm:right-6 liquid-glass rounded-full px-4 py-2 text-sm text-white/80 flex items-center gap-2 hover:scale-105 transition-transform z-20 cursor-pointer">

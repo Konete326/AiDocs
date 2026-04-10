@@ -9,7 +9,7 @@ const subscriptionSchema = new mongoose.Schema(
     stripeSubscriptionId: { type: String },
     currentPeriodStart: { type: Date },
     currentPeriodEnd: { type: Date },
-    projectLimit: { type: Number, default: 1 }
+    projectLimit: { type: Number, default: 3 }
   },
   { timestamps: false }
 );

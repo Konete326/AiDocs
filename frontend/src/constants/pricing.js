@@ -5,7 +5,7 @@ export const PLANS = [
     period: '',
     description: 'Perfect for trying out SwiftDocs AI',
     features: [
-      '1 project',
+      '3 projects',
       '9 AI-generated documents',
       'All document types',
       'Markdown export',
@@ -16,7 +16,7 @@ export const PLANS = [
   },
   {
     plan: 'pro',
-    price: '$19',
+    price: '$5',
     period: '/month',
     description: 'For founders building seriously',
     features: [
@@ -33,7 +33,7 @@ export const PLANS = [
   },
   {
     plan: 'team',
-    price: '$49',
+    price: '$10',
     period: '/month',
     description: 'For teams shipping together',
     features: [

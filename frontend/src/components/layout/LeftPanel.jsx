@@ -4,11 +4,12 @@ import Pill from '../common/Pill';
 import Button from '../common/Button';
 import Navbar from './Navbar';
 import logo from '../../assets/logo.png';
-
+import { useAuth } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
 const HeroText = () => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   return (
   <div className="flex flex-col items-center justify-center text-center gap-4 lg:gap-8 flex-1 py-12 lg:py-0">
     <img src={logo} alt="SwiftDocs AI" className="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl object-cover shadow-2xl" />
@@ -17,7 +18,11 @@ const HeroText = () => {
       spirit of your{' '}
       <em className="font-serif italic text-white/80">idea</em>
     </h1>
-    <Button variant="strong" className="flex items-center gap-3" onClick={() => navigate('/register')}>
+    <Button 
+      variant="strong" 
+      className="flex items-center gap-3" 
+      onClick={() => navigate(isAuthenticated ? '/dashboard' : '/register')}
+    >
       <span className="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
         <Download className="w-4 h-4" />
       </span>

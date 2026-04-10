@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { createProject, triggerGeneration } from '../services/projectService';
 import {
@@ -64,8 +65,20 @@ const CreateProject = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full flex items-center justify-center p-6 bg-black">
+    <div className="relative min-h-screen w-full flex flex-col items-center justify-center p-6 bg-black">
       <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4" />
+      
+      <button 
+        onClick={() => {
+          localStorage.removeItem(STORAGE_KEY);
+          navigate('/dashboard');
+        }}
+        className="absolute top-8 right-8 z-50 liquid-glass rounded-full p-3 hover:scale-110 transition-transform cursor-pointer text-white/70"
+        title="Cancel and go back"
+      >
+        <X className="w-6 h-6" />
+      </button>
+
       <WizardShell 
         step={step} totalSteps={4} 
         onNext={validateAndNext} onBack={() => { setError(''); setStep(s => s - 1); }} 

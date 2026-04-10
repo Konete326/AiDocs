@@ -4,7 +4,7 @@ const AppError = require('../utils/AppError');
 
 exports.createCheckoutSession = async (userId, email, plan) => {
   let priceId;
-  const limits = { free: 1, pro: 10, team: 1000 };
+  const limits = { free: 3, pro: 10, team: 999999 };
 
   if (plan === 'pro') priceId = process.env.STRIPE_PRO_PRICE_ID;
   else if (plan === 'team') priceId = process.env.STRIPE_TEAM_PRICE_ID;

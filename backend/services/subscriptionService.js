@@ -34,7 +34,7 @@ exports.upgradePlan = async (userId, stripeData) => {
 exports.downgradeByStripeId = async (stripeSubscriptionId) => {
   return await Subscription.findOneAndUpdate(
     { stripeSubscriptionId },
-    { plan: 'free', status: 'canceled', projectLimit: 1 },
+    { plan: 'free', status: 'canceled', projectLimit: 3 },
     { new: true }
   );
 };
