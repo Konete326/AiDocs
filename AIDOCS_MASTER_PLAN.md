@@ -781,6 +781,19 @@ After finishing, update the Completion Tracker section of AIDOCS_MASTER_PLAN.md.
 - [x] Multi-format Document Export ready for Pro accounts
 - [x] Security Audit Fixes (Salt rounds 12, real limit checks, AI delay, Rate limiting)
 
+### Sprint 11 — Kanban Workspace
+- [x] @hello-pangea/dnd installed
+- [x] projectService.js updated (updateKanban added)
+- [x] Workspace.jsx created (layout, state, drag handlers, save logic)
+- [x] KanbanBoard.jsx created (DragDropContext wrapper)
+- [x] KanbanColumn.jsx created (Droppable, editable title, task count)
+- [x] KanbanCard.jsx created (Draggable, delete on hover)
+- [x] AddTaskInput.jsx created (inline input, Ctrl+Enter submit)
+- [x] AddColumnButton.jsx created (glass card, plus icon)
+- [x] AppRoutes.jsx updated (/projects/:id/workspace route added)
+- [x] ProjectHeader.jsx updated (Workspace button added)
+- [x] Committed and pushed to GitHub
+
 ---
 
 ## 13. Sprint 6 — Testing + Firebase Google Auth + Cloudinary
