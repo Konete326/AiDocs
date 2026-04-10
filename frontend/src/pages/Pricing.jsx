@@ -8,57 +8,8 @@ import PricingFaq from '../components/pricing/PricingFaq';
 
 const VIDEO_URL = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4';
 
-const PLANS = [
-  {
-    plan: 'free',
-    price: '$0',
-    period: '',
-    description: 'Perfect for trying out SwiftDocs AI',
-    features: [
-      '1 project',
-      '9 AI-generated documents',
-      'All document types',
-      'Markdown export',
-      'Community support',
-    ],
-    ctaLabel: 'Get Started Free',
-    isPopular: false,
-  },
-  {
-    plan: 'pro',
-    price: '$10',
-    period: '/month',
-    description: 'For founders building seriously',
-    features: [
-      '10 projects',
-      'Unlimited document regeneration',
-      'Edit & customize documents',
-      'ZIP download all docs',
-      'AI Co-founder Chat',
-      'Priority generation',
-      'Email support',
-    ],
-    ctaLabel: 'Upgrade to Pro',
-    isPopular: true,
-  },
-  {
-    plan: 'team',
-    price: '$29',
-    period: '/month',
-    description: 'For teams shipping together',
-    features: [
-      'Unlimited projects',
-      'Everything in Pro',
-      'Team collaboration',
-      'Custom AI prompts',
-      'Advanced analytics',
-      'Dedicated support',
-      'SLA guarantee',
-    ],
-    ctaLabel: 'Start Team Plan',
-    isPopular: false,
-  },
-];
+import { PLANS } from '../constants/pricing';
+
 
 const Pricing = () => {
   const navigate = useNavigate();

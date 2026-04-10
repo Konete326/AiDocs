@@ -771,8 +771,12 @@ After finishing, update the Completion Tracker section of AIDOCS_MASTER_PLAN.md.
 - [x] RESTful export endpoint implemented with blob steaming
 - [x] Frontend service updated with binary response handling
 - [x] ProjectDetail UI updated with Download action & Pro-only badges
-- [x] Notification System (Bell + Dropdown) implemented
-- [x] Pricing Page (/pricing) with Stripe integration implemented
+- [x] Pricing page with 3 plan cards (glass theme)
+- [x] NotificationBell component in navbar
+- [x] NotificationDropdown with mark-as-read
+- [x] NotificationItem with type icons
+- [x] Pro-only ZIP download button in ProjectHeader
+- [x] /pricing route added
 - [x] Security Audit Fixes (Salt rounds 12, real limit checks, AI delay, Rate limiting)
 
 ---
