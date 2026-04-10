@@ -22,7 +22,7 @@ const providers = [
   {
     name: 'OPENROUTER_405B',
     url: OPENROUTER_URL,
-    model: 'meta-llama/llama-3.1-405b-instruct:free',
+    model: 'meta-llama/llama-3.1-405b',
     getKey: () => process.env.AI_API_KEY,
     headers: {
       'HTTP-Referer': process.env.FRONTEND_URL || 'http://localhost:5173',
@@ -32,7 +32,7 @@ const providers = [
   {
     name: 'OPENROUTER_70B',
     url: OPENROUTER_URL,
-    model: 'meta-llama/llama-3.1-70b-instruct:free',
+    model: 'meta-llama/llama-3.1-70b',
     getKey: () => process.env.AI_API_KEY,
     headers: {
       'HTTP-Referer': process.env.FRONTEND_URL || 'http://localhost:5173',
