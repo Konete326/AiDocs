@@ -3,43 +3,13 @@ import {
   loginUser as apiLogin,
   registerUser as apiRegister,
   loginWithGoogle as apiLoginGoogle,
-  checkGoogleRedirect,
   logoutUser as apiLogout,
   refreshAccessToken,
 } from '../services/authService';
 import { getMe } from '../services/userService';
+import { authReducer, initialState } from './authReducer';
 
 const AuthContext = createContext();
-
-const initialState = {
-  user: null,
-  isLoading: true,
-  isAuthenticated: false,
-};
-
-function authReducer(state, action) {
-  switch (action.type) {
-    case 'SET_USER':
-      return {
-        ...state,
-        user: action.payload,
-        isAuthenticated: !!action.payload,
-      };
-    case 'CLEAR_USER':
-      return {
-        ...state,
-        user: null,
-        isAuthenticated: false,
-      };
-    case 'SET_LOADING':
-      return {
-        ...state,
-        isLoading: action.payload,
-      };
-    default:
-      return state;
-  }
-}
 
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
@@ -49,20 +19,12 @@ export function AuthProvider({ children }) {
 
     async function bootstrap() {
       try {
-        // Did we just return from Google Redirect?
-        const redirectedUser = await checkGoogleRedirect();
-        if (redirectedUser) {
-          if (isMounted) dispatch({ type: 'SET_USER', payload: redirectedUser });
-          return;
-        }
-
-        // Otherwise normal refresh logic
         await refreshAccessToken();
         const user = await getMe();
         if (isMounted) {
           dispatch({ type: 'SET_USER', payload: user });
         }
-      } catch (error) {
+      } catch {
         if (isMounted) {
           dispatch({ type: 'CLEAR_USER' });
         }
@@ -74,10 +36,7 @@ export function AuthProvider({ children }) {
     }
 
     bootstrap();
-
-    return () => {
-      isMounted = false;
-    };
+    return () => { isMounted = false; };
   }, []);
 
   const login = async (email, password) => {
@@ -108,16 +67,7 @@ export function AuthProvider({ children }) {
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        ...state,
-        login,
-        loginGoogle,
-        register,
-        logout,
-        updateUser,
-      }}
-    >
+    <AuthContext.Provider value={{ ...state, login, loginGoogle, register, logout, updateUser }}>
       {children}
     </AuthContext.Provider>
   );
@@ -125,8 +75,6 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
+  if (!context) throw new Error('useAuth must be used within an AuthProvider');
   return context;
 }

@@ -13,7 +13,7 @@ export default function WizardStep3Tech({ formData, onChange }) {
           />
         </div>
         <p className="mt-2 text-[10px] text-white/30 uppercase tracking-wider flex items-center gap-2">
-          <span>💡</span> Tip: Leave blank if you want the AI to recommend the best stack.
+          <span>💡</span> Tip: Leave blank if you want the AI to recommend the optimal stack.
         </p>
       </div>
 
@@ -28,6 +28,9 @@ export default function WizardStep3Tech({ formData, onChange }) {
             className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
           />
         </div>
+        <p className="mt-2 text-[10px] text-white/30 uppercase tracking-wider">
+          How will this project make money? Or is it internal tools?
+        </p>
       </div>
 
       <div>
@@ -41,6 +44,9 @@ export default function WizardStep3Tech({ formData, onChange }) {
             className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
           />
         </div>
+        <p className="mt-2 text-[10px] text-white/30 uppercase tracking-wider">
+          Add details about competitors, specific design styles, or future scaling plans.
+        </p>
       </div>
     </div>
   );

@@ -12,9 +12,14 @@ export default function WizardStep2Requirements({ formData, onChange }) {
             className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
           />
         </div>
-        <p className="mt-2 text-[10px] text-white/30 uppercase tracking-wider flex items-center gap-2">
-          <span>💡</span> Tip: Be specific about demographics and their daily constraints.
-        </p>
+        <div className="mt-3 space-y-1">
+          <p className="text-[10px] text-white/30 uppercase tracking-wider flex items-center gap-2">
+            <span>💡</span> Tip: Be specific about demographics and daily constraints.
+          </p>
+          <p className="text-[10px] text-white/20 italic leading-relaxed">
+            Ex: "Marketing managers at 10-50 person agencies who need quick reports for clients."
+          </p>
+        </div>
       </div>
 
       <div>
@@ -28,9 +33,14 @@ export default function WizardStep2Requirements({ formData, onChange }) {
             className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
           />
         </div>
-        <p className="mt-2 text-[10px] text-white/30 uppercase tracking-wider flex items-center gap-2">
-          <span>💡</span> Tip: Separate features with commas. Focus on the core value proposition.
-        </p>
+        <div className="mt-3 space-y-1">
+          <p className="text-[10px] text-white/30 uppercase tracking-wider flex items-center gap-2">
+            <span>💡</span> Tip: Separate with commas. Focus on the core value.
+          </p>
+          <p className="text-[10px] text-white/20 italic leading-relaxed">
+            Ex: "One-click invoice creation, Automated late payment reminders, Stripe integration."
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -87,7 +87,7 @@ exports.getDocumentsByProject = async (projectId, userId) => {
   const project = await Project.findOne({ _id: projectId, userId, isArchived: false });
   if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');
   
-  return await Document.find({ projectId }).select('-content').sort({ createdAt: 1 });
+  return await Document.find({ projectId }).sort({ createdAt: 1 });
 };
 
 exports.getSingleDocument = async (projectId, docType, userId) => {

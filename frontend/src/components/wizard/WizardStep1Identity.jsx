@@ -15,6 +15,9 @@ export default function WizardStep1Identity({ formData, onChange }) {
             className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm"
           />
         </div>
+        <p className="mt-2 text-[10px] text-white/30 uppercase tracking-wider">
+          Give your idea a working name. You can change it later.
+        </p>
       </div>
 
       <div>
@@ -23,6 +26,7 @@ export default function WizardStep1Identity({ formData, onChange }) {
           {types.map((type) => (
             <button
               key={type}
+              type="button"
               onClick={() => onChange('projectType', type)}
               className={`${
                 formData.projectType === type ? 'liquid-glass-strong text-white shadow-[0_0_20px_rgba(255,255,255,0.1)]' : 'liquid-glass text-white/60'
@@ -45,9 +49,14 @@ export default function WizardStep1Identity({ formData, onChange }) {
             className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
           />
         </div>
-        <p className="mt-2 text-[10px] text-white/30 uppercase tracking-wider flex items-center gap-2">
-          <span>💡</span> Tip: Clearly define the frustration you are solving for users.
-        </p>
+        <div className="mt-3 space-y-2">
+          <p className="text-[10px] text-white/30 uppercase tracking-wider flex items-center gap-2">
+            <span>💡</span> Tip: Clearly define the frustration you are solving.
+          </p>
+          <p className="text-[10px] text-white/20 italic leading-relaxed">
+            Ex: "Freelancers struggle to track unpaid invoices across multiple platforms, leading to lost revenue."
+          </p>
+        </div>
       </div>
     </div>
   );

@@ -1,20 +1,12 @@
 import axios from 'axios';
 
-// Initialize access token from localStorage for persistence across refreshes
-let _accessToken = localStorage.getItem('accessToken');
+// Token is memory-only — never stored in localStorage (XSS mitigation)
+let _accessToken = null;
 
 export const getAccessToken = () => _accessToken;
-export const setAccessToken = (token) => {
-  _accessToken = token;
-  if (token) {
-    localStorage.setItem('accessToken', token);
-  } else {
-    localStorage.removeItem('accessToken');
-  }
-};
+export const setAccessToken = (token) => { _accessToken = token; };
 
 const api = axios.create({
-  // Use relative URL for unified deployment, fallback to env or localhost
   baseURL: import.meta.env.VITE_API_URL || (window.location.origin + '/api'),
   withCredentials: true,
 });
@@ -35,7 +27,6 @@ api.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // Avoid infinite loop if refresh token fails
     if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/auth/refresh') {
       originalRequest._retry = true;
 

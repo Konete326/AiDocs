@@ -1,0 +1,3134 @@
+
+
+==========================================
+FILE: pages/CreateProject.jsx
+LINES: 81
+==========================================
+
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { createProject, triggerGeneration } from '../services/projectService';
+import {
+  WizardShell, WizardStep1Identity, WizardStep2Requirements,
+  WizardStep3Tech, WizardStep4Review
+} from '../components/wizard';
+
+const STORAGE_KEY = 'aidocs_wizard_draft';
+
+const CreateProject = () => {
+  const navigate = useNavigate();
+  const [step, setStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  
+  const [formData, setFormData] = useState(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return saved ? JSON.parse(saved) : {
+      title: '', projectType: 'saas',
+      wizardAnswers: { problemStatement: '', targetAudience: '', coreFeatures: '', techPreferences: '', monetizationModel: '', additionalContext: '' }
+    };
+  });
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(formData));
+  }, [formData]);
+
+  const handleChange = (f, v) => {
+    if (f.startsWith('wizardAnswers.')) {
+      setFormData(p => ({ ...p, wizardAnswers: { ...p.wizardAnswers, [f.split('.')[1]]: v } }));
+    } else setFormData(p => ({ ...p, [f]: v }));
+  };
+
+  const validateAndNext = () => {
+    if (step === 1 && (!formData.title || !formData.wizardAnswers.problemStatement)) {
+      setError('Title and Problem Statement are required.'); return;
+    }
+    if (step === 2 && (!formData.wizardAnswers.targetAudience || !formData.wizardAnswers.coreFeatures)) {
+      setError('Audience and Features are required to build your docs.'); return;
+    }
+    setError(''); setStep(s => s + 1);
+  };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const featArr = formData.wizardAnswers.coreFeatures.split(',').map(f => f.trim()).filter(Boolean);
+      const proj = await createProject({ ...formData, wizardAnswers: { ...formData.wizardAnswers, coreFeatures: featArr } });
+      await triggerGeneration(proj._id);
+      localStorage.removeItem(STORAGE_KEY);
+      navigate(`/projects/${proj._id}`);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Generation failed');
+      setIsSubmitting(false);
+    }
+  };
+
+  const steps = {
+    1: <WizardStep1Identity formData={formData} onChange={handleChange} />,
+    2: <WizardStep2Requirements formData={formData} onChange={handleChange} />,
+    3: <WizardStep3Tech formData={formData} onChange={handleChange} />,
+    4: <WizardStep4Review formData={formData} />
+  };
+
+  return (
+    <div className="relative min-h-screen w-full flex items-center justify-center p-6 bg-black">
+      <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4" />
+      <WizardShell 
+        step={step} totalSteps={4} 
+        onNext={validateAndNext} onBack={() => { setError(''); setStep(s => s - 1); }} 
+        onSubmit={handleSubmit} isSubmitting={isSubmitting} error={error}
+      >
+        {steps[step]}
+      </WizardShell>
+    </div>
+  );
+};
+
+export default CreateProject;
+
+
+==========================================
+FILE: pages/Dashboard.jsx
+LINES: 90
+==========================================
+
+import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { getProjects, deleteProject } from '../services/projectService';
+import { getMySubscription } from '../services/subscriptionService';
+import DashboardHeader from '../components/dashboard/DashboardHeader';
+import ProjectCard from '../components/dashboard/ProjectCard';
+import EmptyState from '../components/dashboard/EmptyState';
+import SubscriptionBanner from '../components/dashboard/SubscriptionBanner';
+
+const Dashboard = () => {
+  const [projects, setProjects] = useState([]);
+  const [subscription, setSubscription] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [projectsData, subData] = await Promise.all([
+          getProjects(),
+          getMySubscription()
+        ]);
+        setProjects(projectsData || []);
+        setSubscription(subData || null);
+      } catch (err) {
+        setError('Failed to load dashboard data.');
+        setProjects([]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this project?')) return;
+    try {
+      await deleteProject(id);
+      setProjects(prev => prev.filter(p => p._id !== id));
+    } catch (err) {
+      alert('Failed to delete project.');
+    }
+  };
+
+  return (
+    <div className="relative min-h-screen w-full overflow-hidden bg-black">
+      <video 
+        autoPlay muted loop playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0 opacity-40"
+        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4"
+      />
+      
+      <div className="relative z-10 p-6 md:p-12 lg:p-16 max-w-7xl mx-auto min-h-screen">
+        <DashboardHeader projectCount={projects?.length || 0} plan={subscription?.plan || 'free'} />
+
+        <div className="mt-12 space-y-8">
+          {subscription?.plan === 'free' && (projects?.length || 0) >= 1 && (
+            <SubscriptionBanner />
+          )}
+
+          {isLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="liquid-glass rounded-3xl p-6 h-48 animate-pulse">
+                  <div className="h-4 bg-white/10 rounded-full w-3/4 mb-4" />
+                  <div className="h-3 bg-white/10 rounded-full w-1/2" />
+                </div>
+              ))}
+            </div>
+          ) : (projects?.length || 0) === 0 ? (
+            <EmptyState />
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0 }} 
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            >
+              {projects.map(project => (
+                <ProjectCard key={project._id} project={project} onDelete={handleDelete} />
+              ))}
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
+
+
+==========================================
+FILE: pages/ForgotPassword.jsx
+LINES: 44
+==========================================
+
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Mail, ArrowLeft } from 'lucide-react';
+import AuthLayout from '../components/auth/AuthLayout';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+
+export default function ForgotPassword() {
+  const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!email) return setError('Email is required');
+    setError(''); setMessage(''); setIsLoading(true);
+    setTimeout(() => {
+      setMessage('If an account exists, a reset link has been sent.');
+      setIsLoading(false);
+    }, 1500);
+  };
+
+  return (
+    <AuthLayout title="Reset password" subtitle="We'll send you a recovery link">
+      {message && <div className="liquid-glass rounded-xl px-4 py-3 text-sm text-white/80 mb-4">{message}</div>}
+      {error && <div className="liquid-glass rounded-xl px-4 py-3 text-sm text-white/80 mb-4">{error}</div>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="liquid-glass rounded-xl px-4 py-3 flex items-center gap-3">
+          <Mail className="w-4 h-4 text-white/40" />
+          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="bg-transparent text-white outline-none w-full text-sm" />
+        </div>
+        <button type="submit" disabled={isLoading} className="liquid-glass-strong rounded-full py-3 h-11 w-full mt-4 text-white font-medium text-sm hover:scale-105 transition-all flex justify-center items-center">
+          {isLoading ? <LoadingSpinner /> : "Send Reset Link"}
+        </button>
+      </form>
+      <div className="mt-8 text-center">
+        <Link to="/login" className="text-xs text-white/50 hover:text-white/80 flex items-center justify-center gap-2">
+          <ArrowLeft className="w-3 h-3" /> Back to sign in
+        </Link>
+      </div>
+    </AuthLayout>
+  );
+}
+
+
+==========================================
+FILE: pages/Home.jsx
+LINES: 27
+==========================================
+
+import LeftPanel from '../components/layout/LeftPanel';
+import RightPanel from '../components/layout/RightPanel';
+
+const VIDEO_URL =
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4';
+
+const Home = () => (
+  <div className="relative h-[100dvh] w-full bg-black overflow-hidden flex flex-col lg:flex-row">
+    <video
+      src={VIDEO_URL}
+      autoPlay
+      loop
+      muted
+      playsInline
+      className="absolute inset-0 w-full h-full object-cover z-0"
+    />
+    <div className="absolute inset-0 bg-black/40 z-[1]" />
+    
+    <main className="relative z-10 flex flex-col lg:flex-row w-full h-[100dvh]">
+      <LeftPanel />
+      <RightPanel />
+    </main>
+  </div>
+);
+
+export default Home;
+
+
+==========================================
+FILE: pages/Landing.jsx
+LINES: 238
+==========================================
+
+import React from 'react';
+import {
+  Menu,
+  Download,
+  Twitter,
+  Linkedin,
+  Instagram,
+  ArrowRight,
+  Sparkles,
+  Wand2,
+  BookOpen,
+  Plus,
+} from 'lucide-react';
+
+const VIDEO_URL =
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4';
+
+export default function Landing() {
+  return (
+    <div className="relative min-h-screen flex overflow-hidden bg-black">
+      {/* ── Background Video ── */}
+      <video
+        className="absolute inset-0 w-full h-full object-cover z-0"
+        src={VIDEO_URL}
+        autoPlay
+        loop
+        muted
+        playsInline
+      />
+
+      {/* ── Dark scrim over video ── */}
+      <div className="absolute inset-0 z-[1] bg-black/30" />
+
+      {/* ══════════════════════════════════
+          LEFT PANEL
+      ══════════════════════════════════ */}
+      <div className="relative z-10 w-full lg:w-[52%] min-h-screen flex flex-col p-4 lg:p-6">
+        {/* Liquid glass overlay card */}
+        <div className="liquid-glass-strong rounded-3xl absolute inset-4 lg:inset-6 z-0" />
+
+        {/* Panel content sits above the glass */}
+        <div className="relative z-10 flex flex-col min-h-full">
+
+          {/* ── Top Nav ── */}
+          <nav className="flex items-center justify-between px-6 pt-6">
+            <span className="text-2xl font-semibold tracking-tighter text-white select-none">
+              SwiftDocs
+            </span>
+
+            {/* Menu pill */}
+            <button className="liquid-glass rounded-full flex items-center gap-2 px-4 py-2 hover:scale-105 transition-transform">
+              <Menu className="w-4 h-4 text-white/80" />
+              <span className="text-sm text-white/80 font-light">Menu</span>
+            </button>
+          </nav>
+
+          {/* ── Hero Center ── */}
+          <div className="flex-1 flex flex-col items-center justify-center px-8 text-center gap-8">
+            <h1
+              className="text-6xl lg:text-7xl font-medium tracking-[-0.05em] text-white leading-[1.05]"
+            >
+              Architecting the
+              <br />
+              <i className="font-serif text-white/80">intelligence</i> of SaaS
+            </h1>
+
+            {/* CTA Button */}
+            <button className="liquid-glass-strong rounded-full flex items-center gap-3 px-7 py-3.5 hover:scale-105 transition-transform">
+              <Download className="w-4 h-4 text-white/80" />
+              <span className="text-sm font-medium text-white tracking-wide">
+                Start Generating
+              </span>
+            </button>
+
+            {/* Feature Pills */}
+            <div className="flex flex-wrap items-center justify-center gap-3">
+              {['9-Doc Tech Suites', 'AI Generation Cascade', 'Kanban Workspace'].map(
+                (pill) => (
+                  <span
+                    key={pill}
+                    className="liquid-glass rounded-full px-4 py-1.5 text-xs text-white/80 tracking-wide hover:scale-105 transition-transform cursor-default"
+                  >
+                    {pill}
+                  </span>
+                )
+              )}
+            </div>
+          </div>
+
+          {/* ── Bottom Section ── */}
+          <div className="px-8 pb-8 flex flex-col gap-4">
+            {/* Label */}
+            <p className="text-xs tracking-widest uppercase text-white/50 text-center">
+              Visionary Engineering
+            </p>
+
+            {/* Quote */}
+            <p className="text-center text-white/80 text-base font-light">
+              "We imagined a workflow with{' '}
+              <i className="font-serif text-white/70">zero friction</i>."
+            </p>
+
+            {/* Author */}
+            <div className="flex items-center gap-3 justify-center">
+              <div className="flex-1 h-px bg-white/15" />
+              <span className="text-xs text-white/50 font-light tracking-wide whitespace-nowrap">
+                AiDocs Engine
+              </span>
+              <div className="flex-1 h-px bg-white/15" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════
+          RIGHT PANEL
+      ══════════════════════════════════ */}
+      <div className="hidden lg:flex relative z-10 w-[48%] min-h-screen flex-col p-6 gap-5">
+
+        {/* ── Top Bar ── */}
+        <div className="flex items-center justify-end gap-3">
+          {/* Social icons pill */}
+          <div className="liquid-glass rounded-full flex items-center gap-1 px-3 py-2">
+            {[Twitter, Linkedin, Instagram].map((Icon, i) => (
+              <button
+                key={i}
+                className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:scale-105 transition-transform"
+              >
+                <Icon className="w-3.5 h-3.5 text-white/70" />
+              </button>
+            ))}
+            <div className="w-px h-4 bg-white/20 mx-1" />
+            <button className="w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:scale-105 transition-transform">
+              <ArrowRight className="w-3.5 h-3.5 text-white/70" />
+            </button>
+          </div>
+
+          {/* Account / Sparkles button */}
+          <button className="liquid-glass rounded-full flex items-center gap-2 px-4 py-2 hover:scale-105 transition-transform">
+            <Sparkles className="w-4 h-4 text-white/70" />
+            <span className="text-xs text-white/70 font-light">Account</span>
+          </button>
+        </div>
+
+        {/* ── Community Card ── */}
+        <div className="liquid-glass rounded-2xl p-5 w-56">
+          <p className="text-sm font-medium text-white leading-snug mb-2">
+            Enter the developer ecosystem
+          </p>
+          <p className="text-xs text-white/60 font-light leading-relaxed">
+            Join builders shipping faster with AI-generated docs.
+          </p>
+        </div>
+
+        {/* ── Bottom Feature Section ── */}
+        <div className="mt-auto">
+          <div className="liquid-glass rounded-[2.5rem] p-4 flex flex-col gap-3">
+
+            {/* Two side-by-side cards */}
+            <div className="flex gap-3">
+              {/* AI Processing */}
+              <div className="liquid-glass rounded-3xl flex-1 p-5 flex flex-col gap-3 hover:scale-105 transition-transform cursor-default">
+                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                  <Wand2 className="w-4 h-4 text-white/70" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-white">AI Processing</p>
+                  <p className="text-xs text-white/50 font-light mt-1">
+                    4-level fallback cascade
+                  </p>
+                </div>
+              </div>
+
+              {/* Doc Archive */}
+              <div className="liquid-glass rounded-3xl flex-1 p-5 flex flex-col gap-3 hover:scale-105 transition-transform cursor-default">
+                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                  <BookOpen className="w-4 h-4 text-white/70" />
+                </div>
+                <div>
+                  <p className="text-sm font-medium text-white">Doc Archive</p>
+                  <p className="text-xs text-white/50 font-light mt-1">
+                    9-document tech suite
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom inner card */}
+            <div className="liquid-glass rounded-3xl p-5 flex items-start gap-4 hover:scale-105 transition-transform cursor-default">
+              {/* Thumbnail */}
+              <div className="w-24 h-16 rounded-xl bg-white/5 flex-shrink-0 overflow-hidden">
+                <svg
+                  viewBox="0 0 96 64"
+                  className="w-full h-full"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <rect width="96" height="64" fill="rgba(255,255,255,0.03)" />
+                  {/* Abstract tech grid */}
+                  {[0, 1, 2, 3].map((row) =>
+                    [0, 1, 2, 3, 4].map((col) => (
+                      <rect
+                        key={`${row}-${col}`}
+                        x={col * 20 + 3}
+                        y={row * 15 + 2}
+                        width={14}
+                        height={10}
+                        rx={2}
+                        fill={`rgba(255,255,255,${Math.random() * 0.08 + 0.03})`}
+                      />
+                    ))
+                  )}
+                  <line x1="0" y1="32" x2="96" y2="32" stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" />
+                  <line x1="48" y1="0" x2="48" y2="64" stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" />
+                </svg>
+              </div>
+
+              {/* Text + Plus */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white leading-snug">
+                  Advanced Document Architecture
+                </p>
+                <p className="text-xs text-white/50 font-light mt-1 leading-relaxed">
+                  Structured outputs ready for AI coding agents.
+                </p>
+              </div>
+
+              <button className="liquid-glass rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0 hover:scale-105 transition-transform">
+                <Plus className="w-4 h-4 text-white/70" />
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: pages/Login.jsx
+LINES: 51
+==========================================
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import AuthLayout from '../components/auth/AuthLayout';
+import GoogleSignInButton from '../components/auth/GoogleSignInButton';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+
+export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { login, loginGoogle, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => { if (isAuthenticated) navigate('/dashboard'); }, [isAuthenticated, navigate]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!email || !password) return setError('Please fill in all fields.');
+    setError(''); setIsLoading(true);
+    try { await login(email, password); navigate('/dashboard'); }
+    catch (err) { setError(err.response?.data?.error || 'Login failed.'); }
+    finally { setIsLoading(false); }
+  };
+
+  return (
+    <AuthLayout title="Welcome back" subtitle="Sign in to continue building">
+      {error && <div className="liquid-glass rounded-xl px-4 py-3 text-sm text-white/80 mb-4">{error}</div>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="liquid-glass rounded-xl px-4 py-3 flex items-center gap-3">
+          <Mail className="w-4 h-4 text-white/40" />
+          <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required className="bg-transparent text-white outline-none w-full text-sm" />
+        </div>
+        <div className="liquid-glass rounded-xl px-4 py-3 flex items-center gap-3">
+          <Lock className="w-4 h-4 text-white/40" />
+          <input type={showPassword ? 'text' : 'password'} placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required className="bg-transparent text-white outline-none w-full text-sm" />
+          <button type="button" onClick={() => setShowPassword(!showPassword)}>{showPassword ? <EyeOff className="w-4 h-4 text-white/60" /> : <Eye className="w-4 h-4 text-white/60" />}</button>
+        </div>
+        <div className="flex justify-end"><Link to="/forgot-password" size="xs" className="text-xs text-white/50 hover:text-white/80">Forgot password?</Link></div>
+        <button type="submit" disabled={isLoading} className="liquid-glass-strong rounded-full py-3 h-11 w-full mt-4 text-white font-medium text-sm hover:scale-105 transition-all outline-none flex justify-center items-center">{isLoading ? <LoadingSpinner /> : "Sign In"}</button>
+      </form>
+      <div className="flex items-center gap-3 mt-6"><div className="h-px flex-1 bg-white/10" /><span className="text-xs text-white/40">or</span><div className="h-px flex-1 bg-white/10" /></div>
+      <GoogleSignInButton onClick={async () => { try { setIsLoading(true); await loginGoogle(); navigate('/dashboard'); } catch (err) { setError('Google sign-in failed.'); } finally { setIsLoading(false); } }} isLoading={isLoading} />
+      <div className="mt-6 text-center"><span className="text-xs text-white/50">New here? </span><Link to="/register" className="text-xs text-white/80 underline underline-offset-4">Create account</Link></div>
+    </AuthLayout>
+  );
+}
+
+
+==========================================
+FILE: pages/Profile.jsx
+LINES: 58
+==========================================
+
+import { useRef } from 'react';
+import { Pencil } from 'lucide-react';
+import { useProfileFetch } from '../hooks/useProfileFetch';
+import GlassCard from '../components/common/GlassCard';
+import ProfileHeader from '../components/profile/ProfileHeader';
+import StatsGrid from '../components/profile/StatsGrid';
+import ProfileCard from '../components/profile/ProfileCard';
+
+const VIDEO_URL = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4';
+
+const Profile = () => {
+  const fileRef = useRef(null);
+  const {
+    user, subscription, projectsCount, totalDocs,
+    isEditing, setIsEditing, isSaving, saveError,
+    editData, setEditData, handleEditToggle, handleSave, handleAvatarChange
+  } = useProfileFetch();
+
+  const memberSince = user?.createdAt
+    ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    : 'N/A';
+
+  return (
+    <section className="relative min-h-screen overflow-hidden px-4 sm:px-6 py-24 lg:py-32 bg-black">
+      <video src={VIDEO_URL} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" />
+      <div className="absolute inset-0 bg-black/50 z-[1]" />
+      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+      <div className="relative z-10 mx-auto max-w-6xl">
+        <GlassCard strong className="rounded-[2rem] p-6 sm:p-8 md:p-12 relative">
+          {!isEditing && (
+            <button onClick={handleEditToggle} className="absolute top-4 sm:top-6 right-4 sm:right-6 liquid-glass rounded-full px-4 py-2 text-sm text-white/80 flex items-center gap-2 hover:scale-105 transition-transform z-20 cursor-pointer">
+              <Pencil className="w-4 h-4" />
+              <span className="hidden sm:inline">Edit Profile</span>
+            </button>
+          )}
+          <div className="grid gap-12 lg:grid-cols-2 mt-10 sm:mt-0">
+            <div className="space-y-8 flex flex-col">
+              <ProfileHeader user={user} />
+              <StatsGrid projectsCount={projectsCount} totalDocs={totalDocs} plan={subscription?.plan || 'free'} />
+            </div>
+            <div className="relative">
+              <ProfileCard
+                user={user} subscription={subscription} memberSince={memberSince}
+                isEditing={isEditing} editData={editData}
+                onChange={(f, v) => setEditData({ ...editData, [f]: v })}
+                onSave={handleSave} onCancel={() => setIsEditing(false)}
+                isSaving={isSaving} saveError={saveError}
+                onAvatarUpload={() => fileRef.current?.click()}
+              />
+            </div>
+          </div>
+        </GlassCard>
+      </div>
+    </section>
+  );
+};
+export default Profile;
+
+
+==========================================
+FILE: pages/ProjectDetail.jsx
+LINES: 74
+==========================================
+
+import { useParams, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
+import { triggerGeneration } from '../services/projectService';
+import { useProjectPolling } from '../hooks/useProjectPolling';
+import ProjectHeader from '../components/project/ProjectHeader';
+import DocsList from '../components/project/DocsList';
+import GeneratingState from '../components/project/GeneratingState';
+import ErrorState from '../components/project/ErrorState';
+import DocumentViewer from '../components/project/DocumentViewer';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+
+const VIDEO_URL = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4';
+
+const ProjectDetail = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  const {
+    project, setProject, documents, setDocuments,
+    selectedDoc, setSelectedDoc, subscription, isLoading, error
+  } = useProjectPolling(id);
+
+  const handleRetry = async () => {
+    await triggerGeneration(id);
+    setProject((prev) => ({ ...prev, status: 'generating' }));
+  };
+
+  if (isLoading) return <div className="h-screen flex items-center justify-center bg-black"><LoadingSpinner /></div>;
+  if (error || !project) return <div className="h-screen flex items-center justify-center bg-black text-white/60">{error || 'Project not found.'}</div>;
+
+  const renderContent = () => {
+    if (project.status === 'generating') return <GeneratingState docsGenerated={project.docsGenerated} />;
+    if (project.status === 'error') return <ErrorState onRetry={handleRetry} />;
+    if (project.status === 'complete' && selectedDoc) return (
+      <DocumentViewer
+        document={selectedDoc} project={project} user={user} subscription={subscription}
+        onUpdate={(updated) => {
+          setDocuments((prev) => prev.map((d) => d.docType === updated.docType ? updated : d));
+          setSelectedDoc(updated);
+        }}
+      />
+    );
+    if (project.status === 'draft') return (
+      <div className="liquid-glass rounded-3xl p-8 text-center">
+        <p className="text-white/60 text-sm mb-4">Your project is ready to generate.</p>
+        <button onClick={handleRetry} className="liquid-glass-strong rounded-full px-8 py-3 text-white text-sm hover:scale-105 transition-transform cursor-pointer">
+          Generate Documents
+        </button>
+      </div>
+    );
+    return null;
+  };
+
+  return (
+    <div className="relative min-h-screen w-full bg-black overflow-hidden">
+      <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" src={VIDEO_URL} />
+      <div className="relative z-10 px-6 py-8 md:px-12">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-7xl mx-auto">
+          <ProjectHeader project={project} onBack={() => navigate('/dashboard')} />
+          <div className="flex flex-col lg:flex-row gap-6">
+            <div className="w-full lg:w-72 flex-shrink-0">
+              <DocsList documents={documents} selectedDoc={selectedDoc} onSelect={setSelectedDoc} isGenerating={project.status === 'generating'} />
+            </div>
+            <div className="flex-1">{renderContent()}</div>
+          </div>
+        </motion.div>
+      </div>
+    </div>
+  );
+};
+export default ProjectDetail;
+
+
+==========================================
+FILE: pages/Register.jsx
+LINES: 55
+==========================================
+
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Mail, Lock, Eye, EyeOff, User, ShieldCheck } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { usePasswordStrength } from '../hooks/usePasswordStrength';
+import AuthLayout from '../components/auth/AuthLayout';
+import PasswordStrengthMeter from '../components/auth/PasswordStrengthMeter';
+import GoogleSignInButton from '../components/auth/GoogleSignInButton';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+
+export default function Register() {
+  const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
+  const [show, setShow] = useState({ p: false, cp: false });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const { register, loginGoogle, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const score = usePasswordStrength(form.password);
+
+  useEffect(() => { if (isAuthenticated) navigate('/dashboard'); }, [isAuthenticated, navigate]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name || !form.email || !form.password || !form.confirmPassword) return setError('Fill all fields.');
+    if (score < 3) return setError('Password is too weak.');
+    if (form.password !== form.confirmPassword) return setError('Passwords mismatch.');
+    setError(''); setIsLoading(true);
+    try { await register(form.name, form.email, form.password); navigate('/dashboard'); }
+    catch (err) { setError(err.response?.data?.error || 'Registration failed.'); }
+    finally { setIsLoading(false); }
+  };
+
+  const inputCls = "bg-transparent text-white outline-none w-full text-sm";
+  const rowCls = "liquid-glass rounded-xl px-4 py-3 flex items-center gap-3";
+
+  return (
+    <AuthLayout title="Create account" subtitle="Start generating docs in minutes">
+      {error && <div className="liquid-glass rounded-xl px-4 py-3 text-sm text-white/80 mb-4">{error}</div>}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className={rowCls}><User className="w-4 h-4 text-white/40" /><input type="text" placeholder="Full name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className={inputCls} required /></div>
+        <div className={rowCls}><Mail className="w-4 h-4 text-white/40" /><input type="email" placeholder="Email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className={inputCls} required /></div>
+        <div>
+          <div className={rowCls}><Lock className="w-4 h-4 text-white/40" /><input type={show.p ? 'text' : 'password'} placeholder="Password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} className={inputCls} required /><button type="button" onClick={() => setShow({...show, p: !show.p})}>{show.p ? <EyeOff className="w-4 h-4 text-white/60" /> : <Eye className="w-4 h-4 text-white/60" />}</button></div>
+          {form.password && <PasswordStrengthMeter score={score} />}
+        </div>
+        <div className={rowCls}><ShieldCheck className="w-4 h-4 text-white/40" /><input type={show.cp ? 'text' : 'password'} placeholder="Confirm password" value={form.confirmPassword} onChange={e => setForm({...form, confirmPassword: e.target.value})} className={inputCls} required /><button type="button" onClick={() => setShow({...show, cp: !show.cp})}>{show.cp ? <EyeOff className="w-4 h-4 text-white/60" /> : <Eye className="w-4 h-4 text-white/60" />}</button></div>
+        <button type="submit" disabled={isLoading} className="liquid-glass-strong rounded-full py-3 h-11 w-full mt-4 text-white font-medium text-sm hover:scale-105 transition-all flex justify-center items-center">{isLoading ? <LoadingSpinner /> : "Create Account"}</button>
+      </form>
+      <div className="flex items-center gap-3 mt-6"><div className="h-px flex-1 bg-white/10" /><span className="text-xs text-white/40">or</span><div className="h-px flex-1 bg-white/10" /></div>
+      <GoogleSignInButton onClick={async () => { try { setIsLoading(true); await loginGoogle(); navigate('/dashboard'); } catch (err) { setError('Google failed.'); } finally { setIsLoading(false); } }} isLoading={isLoading} />
+      <div className="mt-6 text-center"><span className="text-xs text-white/50">Joined? </span><Link to="/login" className="text-xs text-white/80 underline underline-offset-4">Sign in</Link></div>
+    </AuthLayout>
+  );
+}
+
+
+==========================================
+FILE: components/auth/AuthLayout.jsx
+LINES: 25
+==========================================
+
+import React from 'react';
+
+const AuthLayout = ({ children, title, subtitle }) => (
+  <div className="relative min-h-screen overflow-hidden">
+    <video
+      className="absolute inset-0 w-full h-full object-cover z-0"
+      src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4"
+      autoPlay loop muted playsInline
+    />
+    <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-8">
+      <div className="liquid-glass-strong rounded-3xl p-6 md:p-12 w-full max-w-md my-auto flex flex-col items-center">
+        <div className="flex items-center gap-2 justify-center">
+          <div className="w-10 h-10 bg-white/20 rounded-xl" />
+          <span className="text-xl font-semibold tracking-tighter text-white">SwiftDocs AI</span>
+        </div>
+        <h1 className="text-3xl font-medium text-white tracking-tight mt-6 text-center">{title}</h1>
+        <p className="text-sm text-white/60 mt-1 text-center">{subtitle}</p>
+        <div className="w-full mt-8">{children}</div>
+      </div>
+    </div>
+  </div>
+);
+
+export default AuthLayout;
+
+
+==========================================
+FILE: components/auth/GoogleSignInButton.jsx
+LINES: 22
+==========================================
+
+import React from 'react';
+import LoadingSpinner from '../common/LoadingSpinner';
+
+const GoogleSignInButton = ({ onClick, isLoading }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    disabled={isLoading}
+    className="liquid-glass rounded-full py-3 w-full flex items-center justify-center gap-3 mt-3 hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed h-11"
+  >
+    <svg width="18" height="18" viewBox="0 0 18 18">
+      <path fill="#4285F4" d="M16.51 8H8.98v3h4.3c-.18 1-.74 1.48-1.6 2.04v2.01h2.6a7.8 7.8 0 0 0 2.38-5.88c0-.57-.05-.66-.15-1.18"/>
+      <path fill="#34A853" d="M8.98 17c2.16 0 3.97-.72 5.3-1.94l-2.6-2a4.8 4.8 0 0 1-7.18-2.54H1.83v2.07A8 8 0 0 0 8.98 17"/>
+      <path fill="#FBBC05" d="M4.5 10.52a4.8 4.8 0 0 1 0-3.04V5.41H1.83a8 8 0 0 0 0 7.18z"/>
+      <path fill="#EA4335" d="M8.98 4.18c1.17 0 2.23.4 3.06 1.2l2.3-2.3A8 8 0 0 0 1.83 5.4L4.5 7.49a4.77 4.77 0 0 1 4.48-3.3"/>
+    </svg>
+    <span className="text-sm text-white/80">Continue with Google</span>
+  </button>
+);
+
+export default GoogleSignInButton;
+
+
+==========================================
+FILE: components/auth/PasswordStrengthMeter.jsx
+LINES: 31
+==========================================
+
+import React from 'react';
+
+const PasswordStrengthMeter = ({ score }) => {
+  const getStrengthLabel = (s) => {
+    if (s === 1) return 'Weak';
+    if (s === 2) return 'Fair';
+    if (s === 3) return 'Good';
+    if (s === 4) return 'Strong';
+    return '';
+  };
+
+  return (
+    <div className="mt-2 px-1">
+      <div className="flex gap-1">
+        {[1, 2, 3, 4].map((level) => (
+          <div
+            key={level}
+            className={`h-1 rounded-full flex-1 transition-all ${
+              score >= level ? 'bg-white' : 'bg-white/10'
+            }`}
+            style={{ opacity: score >= level ? score * 0.25 : 1 }}
+          />
+        ))}
+      </div>
+      <div className="text-xs text-white/40 mt-1 uppercase tracking-wider">{getStrengthLabel(score)}</div>
+    </div>
+  );
+};
+
+export default PasswordStrengthMeter;
+
+
+==========================================
+FILE: components/common/BiomeMenu.jsx
+LINES: 111
+==========================================
+
+import React, { useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowUpRight, Circle, X } from "lucide-react";
+import { useLocation } from "react-router-dom";
+
+const BiomeMenu = ({
+    isOpen,
+    onClose,
+    sidebarTitle = "SwiftDocs AI",
+    sidebarDescription = "The next generation of AI-powered technical documentation.",
+    items = [],
+}) => {
+    const location = useLocation();
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === "Escape" && isOpen) {
+                onClose();
+            }
+        };
+        document.addEventListener("keydown", handleKeyDown);
+        return () => document.removeEventListener("keydown", handleKeyDown);
+    }, [isOpen, onClose]);
+
+    useEffect(() => {
+        if (isOpen) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [isOpen]);
+
+    return (
+        <AnimatePresence>
+            {isOpen && (
+                <div className="fixed inset-0 z-[100] flex items-start justify-center pt-4 sm:pt-8 md:pt-24 px-2 sm:px-4 overflow-hidden">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={onClose}
+                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                    />
+
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95, y: -20 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95, y: -20 }}
+                        transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                        className="relative z-[101] w-full max-w-[95vw] md:max-w-[700px] h-auto max-h-[90vh] md:h-[400px] flex flex-col md:flex-row overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.3)] rounded-3xl bg-black/90 border-t border-l border-white/10"
+                    >
+                        <button
+                            onClick={onClose}
+                            className="absolute top-4 right-4 z-50 md:hidden w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                            aria-label="Close menu"
+                        >
+                            <X className="w-5 h-5 text-white" />
+                        </button>
+
+                        <div className="relative overflow-hidden p-6 md:p-8 flex flex-col justify-between w-full md:w-[35%] shrink-0 bg-white/[0.03]">
+                            <div className="absolute -top-12 -left-12 w-48 h-48 rounded-full blur-[80px] opacity-20 bg-white" />
+                            <div className="relative z-10">
+                                <h3 className="font-serif text-2xl md:text-3xl font-medium italic mb-2 md:mb-3 text-white tracking-tight">
+                                    {sidebarTitle}
+                                </h3>
+                                <p className="text-xs md:text-sm text-white/40 leading-relaxed font-medium">
+                                    {sidebarDescription}
+                                </p>
+                            </div>
+                            <div className="relative z-10 mt-4 md:mt-auto hidden md:block">
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full border border-white/20 flex items-center justify-center transition-transform hover:scale-110 cursor-pointer">
+                                    <ArrowUpRight className="text-white/60 w-4 h-4 md:w-5 md:h-5" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex-1 p-4 md:p-10 grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-5 bg-white/[0.02] overflow-y-auto content-start">
+                            {items.map((item) => {
+                                const isActive = item.href && location.pathname === item.href;
+                                return (
+                                    <div
+                                        key={item.title}
+                                        onClick={item.onClick}
+                                        className={`rounded-2xl md:rounded-3xl p-3 md:p-5 transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center gap-3 md:gap-5 group ${
+                                            isActive
+                                                ? "bg-white/10 ring-1 ring-white/20"
+                                                : "bg-white/[0.02] hover:bg-white/5"
+                                        }`}
+                                    >
+                                        <div className={`w-10 h-10 md:w-12 md:h-12 rounded-full flex items-center justify-center shadow-lg shrink-0 transition-colors ${isActive ? "bg-white/20" : "bg-white/10 group-hover:bg-white/20"}`}>
+                                            {item.icon || <Circle className="w-4 h-4 text-white" />}
+                                        </div>
+                                        <span className={`text-sm md:text-base font-semibold tracking-tight transition-colors ${isActive ? "text-white" : "text-white/80 group-hover:text-white"}`}>
+                                            {item.title}
+                                        </span>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+        </AnimatePresence>
+    );
+};
+
+export default BiomeMenu;
+
+
+==========================================
+FILE: components/common/Button.css
+LINES: 23
+==========================================
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: opacity 0.2s;
+}
+
+.btn:hover {
+  opacity: 0.9;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+
+==========================================
+FILE: components/common/Button.jsx
+LINES: 28
+==========================================
+
+const Button = ({
+  children,
+  className = '',
+  variant = 'glass',
+  type = 'button',
+  onClick,
+  ...props
+}) => {
+  const base =
+    variant === 'strong'
+      ? 'liquid-glass-strong'
+      : 'liquid-glass';
+
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      className={`${base} rounded-full px-8 py-3 text-white font-medium
+        hover:scale-105 active:scale-95 transition-transform cursor-pointer ${className}`}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+};
+
+export default Button;
+
+
+==========================================
+FILE: components/common/GlassCard.jsx
+LINES: 11
+==========================================
+
+const GlassCard = ({ children, className = '', strong = false, ...props }) => {
+  const base = strong ? 'liquid-glass-strong' : 'liquid-glass';
+  return (
+    <div className={`${base} ${className}`} {...props}>
+      {children}
+    </div>
+  );
+};
+
+export default GlassCard;
+
+
+==========================================
+FILE: components/common/LoadingSpinner.jsx
+LINES: 16
+==========================================
+
+import React from 'react';
+
+export default function LoadingSpinner({ size = 'sm' }) {
+  const sizeClasses = {
+    sm: 'w-4 h-4',
+    md: 'w-6 h-6',
+    lg: 'w-8 h-8',
+  };
+
+  return (
+    <div
+      className={`animate-spin rounded-full border-2 border-white/20 border-t-white/80 ${sizeClasses[size]}`}
+    />
+  );
+}
+
+
+==========================================
+FILE: components/common/PasswordStrength.jsx
+LINES: 34
+==========================================
+
+const PasswordStrength = ({ password }) => {
+  if (!password) return null;
+  const strengthLogic = () => {
+    let s = 0;
+    if (password.length >= 8) s += 1;
+    if (/\d/.test(password)) s += 1;
+    if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) s += 1;
+    if (/[A-Z]/.test(password)) s += 1;
+    return s;
+  };
+  const strength = strengthLogic();
+  const getLabel = () => {
+    switch(strength) {
+      case 1: return "Weak";
+      case 2: return "Fair";
+      case 3: return "Good";
+      case 4: return "Strong";
+      default: return "Weak";
+    }
+  };
+  return (
+    <div className="mt-2 space-y-1">
+      <div className="flex gap-1">
+        {[1, 2, 3, 4].map(num => (
+          <div key={num} className={`h-1 rounded-full flex-1 ${strength >= num ? (strength === 1 ? 'bg-white/20' : strength === 2 ? 'bg-white/40' : strength === 3 ? 'bg-white/60' : 'bg-white/80') : 'bg-white/10'}`} />
+        ))}
+      </div>
+      <p className="text-xs text-white/40">{getLabel()}</p>
+    </div>
+  );
+};
+
+export default PasswordStrength;
+
+
+==========================================
+FILE: components/common/Pill.jsx
+LINES: 11
+==========================================
+
+const Pill = ({ children, className = '', strong = false }) => {
+  const base = strong ? 'liquid-glass-strong' : 'liquid-glass';
+  return (
+    <span className={`${base} rounded-full px-4 py-1.5 text-xs text-white/80 ${className}`}>
+      {children}
+    </span>
+  );
+};
+
+export default Pill;
+
+
+==========================================
+FILE: components/common/PrivateRoute.jsx
+LINES: 33
+==========================================
+
+import React from 'react';
+import { Navigate, Outlet } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import LoadingSpinner from './LoadingSpinner';
+
+export default function PrivateRoute() {
+  const { isAuthenticated, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div className="relative min-h-screen overflow-hidden">
+        <video
+          className="absolute inset-0 w-full h-full object-cover z-0"
+          src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
+        <div className="relative z-10 min-h-screen flex items-center justify-center">
+          <LoadingSpinner size="lg" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <Outlet />;
+}
+
+
+==========================================
+FILE: components/dashboard/DashboardHeader.jsx
+LINES: 24
+==========================================
+
+import { Sparkles } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+export default function DashboardHeader({ projectCount, plan }) {
+  const navigate = useNavigate();
+  return (
+    <div className="flex items-center justify-between">
+      <div>
+        <h1 className="text-3xl font-medium text-white">Your Projects</h1>
+        <p className="text-sm text-white/50 mt-1">
+          {plan} plan · {projectCount} project{projectCount !== 1 ? 's' : ''}
+        </p>
+      </div>
+      <button
+        onClick={() => navigate('/projects/new')}
+        className="liquid-glass-strong rounded-full px-6 py-3 flex items-center gap-2 hover:scale-105 transition-transform"
+      >
+        <Sparkles className="w-4 h-4 text-white" />
+        <span className="text-sm text-white font-medium">New Project</span>
+      </button>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: components/dashboard/EmptyState.jsx
+LINES: 24
+==========================================
+
+import { FileText } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+export default function EmptyState() {
+  const navigate = useNavigate();
+  return (
+    <div className="flex justify-center">
+      <div className="liquid-glass-strong rounded-3xl p-12 text-center max-w-md">
+        <FileText className="w-12 h-12 text-white/30 mb-4 mx-auto" />
+        <h2 className="text-xl font-medium text-white">No projects yet</h2>
+        <p className="text-sm text-white/60 mt-2">
+          Create your first project and let AI generate your complete technical docs.
+        </p>
+        <button
+          onClick={() => navigate('/projects/new')}
+          className="liquid-glass-strong rounded-full px-8 py-3 mt-6 text-white text-sm font-medium hover:scale-105 transition-transform"
+        >
+          Create First Project
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: components/dashboard/ProjectCard.jsx
+LINES: 74
+==========================================
+
+import { useNavigate } from 'react-router-dom';
+import { Trash2 } from 'lucide-react';
+
+const ProjectCard = ({ project, onDelete }) => {
+  const navigate = useNavigate();
+
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case 'generating': return 'text-white/70 animate-pulse';
+      case 'complete': return 'text-white/80';
+      case 'error': return 'text-red-400/80';
+      default: return 'text-white/50';
+    }
+  };
+
+  const progress = (project.docsGenerated?.length / 9) * 100 || 0;
+
+  return (
+    <div 
+      onClick={() => navigate(`/projects/${project._id}`)}
+      className={`liquid-glass rounded-3xl p-6 flex flex-col gap-4 hover:scale-[1.02] transition-transform cursor-pointer group ${project.status === 'generating' ? 'animate-pulse' : ''}`}
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex-1">
+          <span className="liquid-glass rounded-full px-3 py-1 text-xs uppercase tracking-wider text-white/60 capitalize">
+            {project.projectType}
+          </span>
+          <h3 className="text-lg font-medium text-white mt-2 line-clamp-2">{project.title}</h3>
+        </div>
+        <div className={`rounded-full px-3 py-1 text-xs uppercase tracking-wider liquid-glass ${getStatusStyle(project.status)}`}>
+          {project.status}
+        </div>
+      </div>
+
+      {(project.status === 'generating' || project.status === 'complete') && (
+        <div>
+          <div className="text-xs uppercase tracking-widest text-white/50 flex justify-between mb-1">
+            <span>Documents</span>
+            <span>{project.docsGenerated?.length || 0}/9</span>
+          </div>
+          <div className="liquid-glass rounded-full h-1 w-full overflow-hidden">
+            <div 
+              className="bg-white/60 h-full transition-all duration-500" 
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      <div className="flex items-center justify-between mt-auto pt-4">
+        <span className="text-xs text-white/40 uppercase tracking-wider">
+          {new Date(project.createdAt).toLocaleDateString()}
+        </span>
+        <div className="flex gap-2">
+          <button 
+            onClick={(e) => { e.stopPropagation(); navigate(`/projects/${project._id}`); }}
+            className="liquid-glass rounded-full px-4 py-1.5 text-xs uppercase tracking-wider text-white/70 hover:text-white transition-colors"
+          >
+            View
+          </button>
+          <button 
+            onClick={(e) => { e.stopPropagation(); onDelete(project._id); }}
+            className="liquid-glass rounded-full w-8 h-8 flex items-center justify-center text-white/40 hover:text-white/70 transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProjectCard;
+
+
+==========================================
+FILE: components/dashboard/SubscriptionBanner.jsx
+LINES: 23
+==========================================
+
+import { Zap } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
+export default function SubscriptionBanner() {
+  const navigate = useNavigate();
+  return (
+    <div className="liquid-glass rounded-2xl px-6 py-4 flex items-center justify-between">
+      <div className="flex items-center gap-3">
+        <Zap className="w-4 h-4 text-white/70 flex-shrink-0" />
+        <span className="text-sm text-white/70">
+          You've used 1/1 free project. Upgrade for more.
+        </span>
+      </div>
+      <button
+        onClick={() => navigate('/pricing')}
+        className="liquid-glass-strong rounded-full px-4 py-2 text-xs text-white hover:scale-105 transition-transform flex-shrink-0 ml-4"
+      >
+        Upgrade to Pro
+      </button>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: components/layout/AuthLayout.jsx
+LINES: 42
+==========================================
+
+import { motion } from 'framer-motion';
+
+const VIDEO_URL = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4';
+
+const sampleTestimonials = [
+  { avatarSrc: "https://randomuser.me/api/portraits/women/57.jpg", name: "Sarah Chen", handle: "@sarahdigital", text: "Amazing platform! Experience is seamless." },
+  { avatarSrc: "https://randomuser.me/api/portraits/men/64.jpg", name: "Marcus J.", handle: "@marcustech", text: "Transformed how I work. Clean design." },
+  { avatarSrc: "https://randomuser.me/api/portraits/men/32.jpg", name: "David M.", handle: "@davidcreates", text: "Intuitive, reliable, and helpful." },
+];
+
+const TestimonialCard = ({ testimonial, i }) => (
+  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 + i * 0.1 }} className="flex items-start gap-3 rounded-3xl liquid-glass border border-white/10 p-5 w-64 lg:w-72 flex-shrink-0">
+    <img src={testimonial.avatarSrc} className="h-10 w-10 object-cover rounded-2xl" alt="avatar" />
+    <div className="text-sm leading-snug">
+      <p className="font-medium text-white">{testimonial.name}</p>
+      <p className="text-white/50 text-xs">{testimonial.handle}</p>
+      <p className="mt-1 text-white/80 text-xs">{testimonial.text}</p>
+    </div>
+  </motion.div>
+);
+
+const AuthLayout = ({ children }) => {
+  return (
+    <div className="relative h-[100dvh] w-full overflow-hidden flex flex-col md:flex-row">
+      <video src={VIDEO_URL} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" />
+      <div className="absolute inset-0 bg-black/50 z-[1]" />
+      
+      <div className="relative z-10 w-full md:w-1/2 lg:w-[45%] flex items-center justify-center p-4 sm:p-6 bg-black/40 backdrop-blur-xl border-r border-white/10 h-full overflow-hidden">
+        {children}
+      </div>
+
+      <div className="relative z-10 hidden md:flex flex-1 flex-col items-center justify-end p-8 pb-16">
+        <div className="flex gap-4 overflow-hidden w-full justify-center">
+            {sampleTestimonials.map((t, i) => <TestimonialCard key={i} testimonial={t} i={i} />)}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AuthLayout;
+
+
+==========================================
+FILE: components/layout/LeftPanel.jsx
+LINES: 62
+==========================================
+
+import { Download } from 'lucide-react';
+import GlassCard from '../common/GlassCard';
+import Pill from '../common/Pill';
+import Button from '../common/Button';
+import Navbar from './Navbar';
+import logo from '../../assets/logo.png';
+
+import { useNavigate } from 'react-router-dom';
+
+const HeroText = () => {
+  const navigate = useNavigate();
+  return (
+  <div className="flex flex-col items-center justify-center text-center gap-4 lg:gap-8 flex-1 py-12 lg:py-0">
+    <img src={logo} alt="SwiftDocs AI" className="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl object-cover shadow-2xl" />
+    <h1 className="text-4xl md:text-6xl lg:text-[5.5rem] font-medium tracking-[-0.05em] text-white leading-[1.1]">
+      Generating the<br />
+      spirit of your{' '}
+      <em className="font-serif italic text-white/80">idea</em>
+    </h1>
+    <Button variant="strong" className="flex items-center gap-3" onClick={() => navigate('/register')}>
+      <span className="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
+        <Download className="w-4 h-4" />
+      </span>
+      Explore Now
+    </Button>
+    <div className="flex gap-2 flex-wrap justify-center max-w-sm mt-4">
+      {['PRD Generation', 'AI Docs', 'Dev-Ready Specs'].map(tag => (
+        <Pill key={tag}>{tag}</Pill>
+      ))}
+    </div>
+  </div>
+  );
+};
+
+const BottomQuote = () => (
+  <div className="mt-auto text-center pb-8 lg:pb-2">
+    <p className="text-xs tracking-[0.2em] uppercase text-white/40 mb-3 font-semibold">VISIONARY DOCS</p>
+    <p className="text-white/60 text-sm md:text-base px-6">
+      We imagined{' '}
+      <span className="font-serif italic text-white/80">docs that write themselves.</span>
+    </p>
+    <div className="flex items-center gap-4 justify-center mt-4">
+      <div className="h-px w-8 lg:w-12 bg-white/10" />
+      <span className="text-xs tracking-[0.15em] text-white/30 font-bold">SWIFT DOCS TEAM</span>
+      <div className="h-px w-8 lg:w-12 bg-white/10" />
+    </div>
+  </div>
+);
+
+const LeftPanel = () => (
+  <div className="relative flex flex-col w-full lg:w-[52%] min-h-[50%] lg:h-full p-2 sm:p-4 lg:p-6 overflow-y-auto lg:overflow-hidden">
+    <GlassCard strong className="absolute inset-2 sm:inset-4 lg:inset-6 rounded-3xl lg:rounded-[2.5rem] z-0" />
+    <div className="relative z-10 flex flex-col h-full m-2 lg:m-4 flex-1">
+      <Navbar />
+      <HeroText />
+      <BottomQuote />
+    </div>
+  </div>
+);
+
+export default LeftPanel;
+
+
+==========================================
+FILE: components/layout/Navbar.css
+LINES: 31
+==========================================
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #333;
+  color: white;
+}
+
+.nav-brand a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 1.5rem;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+}
+
+.nav-links a:hover {
+  text-decoration: underline;
+}
+
+
+==========================================
+FILE: components/layout/Navbar.jsx
+LINES: 59
+==========================================
+
+import { useState } from 'react';
+import { Menu, X, LogIn, Layout, FileText, Settings, UserPlus, LogOut } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import GlassCard from '../common/GlassCard';
+import logo from '../../assets/logo.png';
+import BiomeMenu from '../common/BiomeMenu';
+import { useAuth } from '../../context/AuthContext';
+
+const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const { isAuthenticated, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    setIsOpen(false);
+    navigate('/');
+  };
+
+  const navItems = isAuthenticated
+    ? [
+        { title: "Dashboard", href: "/dashboard", icon: <Layout className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/dashboard'); } },
+        { title: "Documents", href: "/documents", icon: <FileText className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/documents'); } },
+        { title: "Settings", href: "/profile", icon: <Settings className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/profile'); } },
+        { title: "Logout", icon: <LogOut className="w-4 h-4 text-white" />, onClick: handleLogout },
+      ]
+    : [
+        { title: "Sign In", href: "/login", icon: <LogIn className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/login'); } },
+        { title: "Create Account", href: "/register", icon: <UserPlus className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/register'); } },
+      ];
+
+  return (
+    <>
+      <nav className="flex justify-between items-center w-full relative z-50">
+        <div className="flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 transition-transform" onClick={() => navigate('/')}>
+          <img src={logo} alt="Logo" className="w-8 h-8 lg:w-10 lg:h-10 rounded-lg object-cover" />
+          <span className="font-semibold text-xl lg:text-2xl tracking-tighter text-white">SwiftDocs AI</span>
+        </div>
+        
+        <GlassCard 
+          className="rounded-full px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-white/5 hover:scale-105 active:scale-95 transition-all"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          {isOpen ? <X className="w-4 h-4 text-white" /> : <Menu className="w-4 h-4 text-white/80" />}
+          <span className="text-sm font-medium text-white/80">{isOpen ? 'Close' : 'Menu'}</span>
+        </GlassCard>
+      </nav>
+
+      <BiomeMenu 
+        isOpen={isOpen} 
+        onClose={() => setIsOpen(false)}
+        items={navItems}
+      />
+    </>
+  );
+};
+
+export default Navbar;
+
+
+==========================================
+FILE: components/layout/RightPanel.jsx
+LINES: 66
+==========================================
+
+import { Sparkles, ArrowRight, Wand2, BookOpen } from 'lucide-react';
+import GlassCard from '../common/GlassCard';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+
+import heroImage from '../../assets/hero.png';
+
+const TopBar = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuth();
+  
+  return (
+  <div className="flex justify-end items-center w-full mt-4 lg:mt-0">
+    <GlassCard onClick={() => navigate(isAuthenticated ? '/dashboard' : '/login')} className="rounded-full px-5 py-2.5 flex gap-3 items-center cursor-pointer hover:bg-white/5 transition-transform hover:scale-105 active:scale-95">
+      <Sparkles className="w-4 h-4 text-white/80 fill-white/10" />
+      <span className="text-sm font-medium text-white/80">{isAuthenticated ? user?.displayName || 'Dashboard' : 'Sign In'}</span>
+    </GlassCard>
+  </div>
+)};
+
+const CommunityCard = () => (
+  <GlassCard className="rounded-2xl p-5 w-full lg:w-60 border-l border-t border-white/5 transition-transform hover:scale-105 active:scale-95 cursor-pointer">
+    <p className="text-sm font-semibold text-white tracking-tight">Enter our ecosystem</p>
+    <p className="text-xs text-white/50 font-medium mt-1 leading-relaxed">Built for founders who ship.</p>
+  </GlassCard>
+);
+
+const FeatureCards = () => {
+  const navigate = useNavigate();
+  return (
+  <div className="mt-auto space-y-4 lg:space-y-6 w-full">
+    <div className="flex flex-col sm:flex-row gap-4">
+      <GlassCard className="rounded-3xl p-6 flex-1 flex flex-col items-center text-center transition-transform hover:scale-105 active:scale-95 cursor-pointer">
+        <Wand2 className="w-8 h-8 text-white/60" />
+        <p className="text-sm font-semibold text-white/90 mt-4">Generation</p>
+      </GlassCard>
+      <GlassCard className="rounded-3xl p-6 flex-1 flex flex-col items-center text-center transition-transform hover:scale-105 active:scale-95 cursor-pointer">
+        <BookOpen className="w-8 h-8 text-white/60" />
+        <p className="text-sm font-semibold text-white/90 mt-4 tracking-tight">Archive</p>
+      </GlassCard>
+    </div>
+    <GlassCard onClick={() => navigate('/register')} className="rounded-[2.5rem] p-5 flex gap-5 items-center border border-white/5 transition-transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+      <img src={heroImage} alt="Preview" className="w-20 h-20 sm:w-28 sm:h-20 object-cover rounded-2xl shadow-xl flex-shrink-0" />
+      <div className="flex-1">
+        <p className="text-sm font-semibold text-white leading-tight">Advanced AI Document Sculpting</p>
+        <p className="text-xs text-white/40 mt-2 font-medium">For modern founders who ship fast.</p>
+      </div>
+      <button className="liquid-glass rounded-full w-12 h-12 flex items-center justify-center text-white/80 ml-auto cursor-pointer hover:text-white transition-transform hover:scale-110 active:scale-90 text-2xl font-light">
+        +
+      </button>
+    </GlassCard>
+  </div>
+)};
+
+const RightPanel = () => (
+  <div className="flex flex-col w-full lg:w-[48%] min-h-[50%] lg:h-full px-4 lg:px-6 pb-6 lg:pb-12 lg:pt-10 gap-3 lg:gap-8 overflow-y-auto lg:overflow-hidden">
+    <TopBar />
+    <div className="flex flex-col lg:flex-1 justify-center lg:justify-between h-full gap-3 lg:gap-0">
+      <CommunityCard />
+      <FeatureCards />
+    </div>
+  </div>
+);
+
+export default RightPanel;
+
+
+==========================================
+FILE: components/profile/ProfileCard.jsx
+LINES: 47
+==========================================
+
+import LoadingSpinner from '../common/LoadingSpinner';
+import ProfileInfoLinks from './ProfileInfoLinks';
+
+const ProfileCard = ({ user, subscription, memberSince, isEditing, editData, onChange, onSave, onCancel, isSaving, saveError, onAvatarUpload }) => {
+  const initial = user?.displayName?.charAt(0) || '?';
+
+  return (
+    <div className="liquid-glass-strong rounded-[28px] p-8 flex flex-col items-center">
+      <div className="relative group mt-2">
+        {user?.avatarUrl ? (
+          <img src={user.avatarUrl} alt="Avatar" className="w-32 h-32 rounded-full object-cover" />
+        ) : (
+          <div className="w-32 h-32 rounded-full bg-white/10 flex flex-col items-center justify-center text-4xl text-white font-medium">{initial}</div>
+        )}
+        {isEditing && (
+          <button onClick={onAvatarUpload} className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 liquid-glass rounded-full px-4 py-2 text-xs text-white/70 whitespace-nowrap cursor-pointer hover:text-white transition-colors shadow-lg">Upload Photo</button>
+        )}
+      </div>
+      
+      <div className="mt-10 w-full flex flex-col items-center text-center">
+        {isEditing ? (
+          <div className="w-full space-y-4">
+            <div className="liquid-glass rounded-xl px-4 py-2">
+              <input type="text" value={editData.displayName} onChange={(e) => onChange('displayName', e.target.value)} placeholder="Your name" className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-center text-2xl font-medium" />
+            </div>
+            {saveError && <p className="text-xs text-white/50">{saveError}</p>}
+            <div className="flex gap-3 justify-center pt-2">
+              <button onClick={onSave} disabled={isSaving} className="liquid-glass-strong rounded-full px-6 py-2 text-sm text-white hover:scale-105 transition-transform cursor-pointer flex items-center gap-2">
+                {isSaving ? <LoadingSpinner size="sm" /> : 'Save Changes'}
+              </button>
+              <button onClick={onCancel} className="liquid-glass rounded-full px-6 py-2 text-sm text-white/70 hover:scale-105 transition-transform cursor-pointer">Cancel</button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <h3 className="text-2xl font-medium text-white">{user?.displayName || 'User'}</h3>
+            <p className="text-xs uppercase tracking-[0.35em] text-white/45 mt-1">SwiftDocs AI Member</p>
+          </>
+        )}
+      </div>
+
+      <ProfileInfoLinks user={user} subscription={subscription} memberSince={memberSince} />
+    </div>
+  );
+};
+export default ProfileCard;
+
+
+==========================================
+FILE: components/profile/ProfileHeader.jsx
+LINES: 31
+==========================================
+
+import { ArrowUpRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+
+const ProfileHeader = ({ user }) => {
+  const navigate = useNavigate();
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} className="space-y-6">
+      <div className="liquid-glass inline-flex rounded-full px-4 py-1.5 text-xs uppercase tracking-[0.3em] text-white/70">
+        Your Profile
+      </div>
+      <h2 className="text-2xl lg:text-3xl font-medium tracking-tight text-white">
+        {user?.displayName || 'Welcome'}, <em className="font-serif italic text-white/80">SwiftDocs AI</em>
+      </h2>
+      <p className="text-white/70 text-base leading-relaxed max-w-xl">
+        Manage your account, view your subscription, and upload a photo.
+      </p>
+      <button
+        onClick={() => navigate('/dashboard')}
+        className="liquid-glass-strong rounded-full px-8 py-3 h-12 flex items-center gap-2 hover:scale-105 transition-transform text-white/90 hover:text-white cursor-pointer mt-4"
+      >
+        <span>View My Projects</span>
+        <ArrowUpRight className="w-4 h-4" />
+      </button>
+    </motion.div>
+  );
+};
+
+export default ProfileHeader;
+
+
+==========================================
+FILE: components/profile/ProfileInfoLinks.jsx
+LINES: 34
+==========================================
+
+import { motion } from 'framer-motion';
+import { ArrowUpRight, Mail, Calendar, CreditCard, FileText } from 'lucide-react';
+
+const ProfileInfoLinks = ({ user, subscription, memberSince }) => {
+  const plan = subscription?.plan || 'free';
+  const docsRemaining = plan === 'free' ? '1 project' : 'Unlimited';
+
+  const links = [
+    { icon: Calendar, label: 'Member Since', value: memberSince },
+    { icon: Mail, label: 'Email', value: user?.email },
+    { icon: CreditCard, label: 'Subscription', value: plan.charAt(0).toUpperCase() + plan.slice(1) },
+    { icon: FileText, label: 'Projects Allowed', value: docsRemaining },
+  ];
+
+  return (
+    <div className="mt-8 w-full space-y-3">
+      {links.map((link, i) => (
+        <motion.div key={i} whileHover={{ y: -2 }} className="liquid-glass rounded-2xl px-4 py-3 flex items-center justify-between transition-all">
+          <div className="flex items-center gap-4">
+            <link.icon className="w-5 h-5 text-white/70" />
+            <div className="flex flex-col text-left">
+              <span className="text-xs text-white/50">{link.label}</span>
+              <span className="text-sm font-medium text-white/90">{link.value || '—'}</span>
+            </div>
+          </div>
+          <ArrowUpRight className="w-4 h-4 text-white/30" />
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+export default ProfileInfoLinks;
+
+
+==========================================
+FILE: components/profile/StatsGrid.jsx
+LINES: 30
+==========================================
+
+import { motion } from 'framer-motion';
+
+const StatsGrid = ({ projectsCount, totalDocs, plan }) => {
+  const stats = [
+    { label: 'Projects Created', value: projectsCount, desc: 'Total projects in your workspace' },
+    { label: 'Documents Generated', value: totalDocs, desc: 'AI-sculpted documents so far' },
+    { label: 'Current Plan', value: plan.charAt(0).toUpperCase() + plan.slice(1), desc: 'Active subscription tier' },
+  ];
+
+  return (
+    <div className="flex flex-col gap-4 mt-8 flex-1">
+      {stats.map((stat, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          whileHover={{ y: -4 }}
+          className="liquid-glass rounded-2xl p-5 cursor-default"
+        >
+          <p className="text-xs uppercase tracking-[0.25em] text-white/40">{stat.label}</p>
+          <p className="text-2xl font-medium text-white mt-1">{stat.value}</p>
+          <p className="text-sm text-white/60">{stat.desc}</p>
+        </motion.div>
+      ))}
+    </div>
+  );
+};
+
+export default StatsGrid;
+
+
+==========================================
+FILE: components/project/DocsList.jsx
+LINES: 66
+==========================================
+
+import { FileText, Loader, CheckCircle } from 'lucide-react';
+
+const DOC_LABELS = {
+  prd: 'Product Requirements',
+  srd: 'Software Requirements',
+  techStack: 'Tech Stack',
+  dbSchema: 'Database Schema',
+  userFlows: 'User Flows',
+  mvpPlan: 'MVP Plan',
+  folderStructure: 'Folder Structure',
+  claudeContext: 'Claude Context',
+  agentSystemPrompt: 'Agent Prompts',
+};
+
+const DOC_ORDER = [
+  'prd','srd','techStack','dbSchema','userFlows',
+  'mvpPlan','folderStructure','claudeContext','agentSystemPrompt',
+];
+
+const DocsList = ({ documents, selectedDoc, onSelect, isGenerating }) => (
+  <div className="liquid-glass-strong rounded-3xl p-4 space-y-2">
+    <div className="flex items-center justify-between px-2 mb-3">
+      <span className="text-xs uppercase tracking-widest text-white/50">Documents</span>
+      {isGenerating && (
+        <span className="text-xs text-white/40">{documents.length}/9 ready</span>
+      )}
+    </div>
+    {DOC_ORDER.map((type) => {
+      const doc = documents.find((d) => d.docType === type);
+      const isGenerated = !!doc;
+      const isSelected = selectedDoc?.docType === type;
+      return (
+        <div
+          key={type}
+          onClick={() => isGenerated && onSelect(doc)}
+          className={[
+            'liquid-glass rounded-2xl px-4 py-3 flex items-center gap-3',
+            isSelected ? 'liquid-glass-strong' : '',
+            isGenerated ? 'cursor-pointer hover:scale-[1.02] transition-transform' : 'opacity-50 cursor-not-allowed',
+          ].join(' ')}
+        >
+          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+            {isGenerated
+              ? <FileText className="w-4 h-4 text-white/70" />
+              : isGenerating
+                ? <Loader className="w-4 h-4 text-white/30 animate-spin" />
+                : <span className="text-white/20 text-xs">—</span>
+            }
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className={`text-sm truncate ${isGenerated ? 'text-white/80' : 'text-white/40'}`}>
+              {DOC_LABELS[type]}
+            </p>
+            {isGenerated && (
+              <p className="text-xs text-white/40">v{doc.version}</p>
+            )}
+          </div>
+          {isGenerated && <CheckCircle className="w-4 h-4 text-white/50 flex-shrink-0" />}
+        </div>
+      );
+    })}
+  </div>
+);
+
+export default DocsList;
+
+
+==========================================
+FILE: components/project/DocumentEditor.jsx
+LINES: 13
+==========================================
+
+const DocumentEditor = ({ content, onChange, saveError }) => (
+  <div className="liquid-glass rounded-2xl p-4 h-full flex flex-col">
+    <textarea
+      className="bg-transparent text-white/80 text-sm leading-relaxed outline-none w-full resize-none font-mono flex-1 min-h-[500px]"
+      value={content}
+      onChange={(e) => onChange(e.target.value)}
+    />
+    {saveError && <p className="text-xs text-white/50 mt-2">{saveError}</p>}
+  </div>
+);
+
+export default DocumentEditor;
+
+
+==========================================
+FILE: components/project/DocumentViewer.jsx
+LINES: 85
+==========================================
+
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { Copy, Pencil, Lock } from 'lucide-react';
+import LoadingSpinner from '../common/LoadingSpinner';
+import { updateDocument } from '../../services/documentService';
+import { mdComponents, DOC_LABELS } from './markdownComponents';
+import DocumentEditor from './DocumentEditor';
+
+const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => {
+  const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(document.content);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
+
+  useEffect(() => {
+    setEditContent(document.content);
+    setIsEditing(false);
+  }, [document]);
+
+  const isPro = user?.role === 'admin' || ['pro', 'team'].includes(subscription?.plan);
+  const handleCopy = () => navigator.clipboard.writeText(document.content);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    setSaveError('');
+    try {
+      const updated = await updateDocument(project._id, document.docType, editContent);
+      onUpdate(updated);
+      setIsEditing(false);
+    } catch (err) {
+      setSaveError(err.response?.data?.error || 'Save failed.');
+    } finally { setIsSaving(false); }
+  };
+
+  const renderButtons = () => {
+    if (!isPro) return (
+      <button onClick={() => navigate('/pricing')} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/30 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
+        <Lock className="w-3.5 h-3.5" /> Edit (Pro)
+      </button>
+    );
+    if (!isEditing) return (
+      <button onClick={() => setIsEditing(true)} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
+        <Pencil className="w-3.5 h-3.5" /> Edit
+      </button>
+    );
+    return (
+      <>
+        <button onClick={() => { setIsEditing(false); setEditContent(document.content); }} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/50 hover:scale-105 transition-transform cursor-pointer">Cancel</button>
+        <button onClick={handleSave} disabled={isSaving} className="liquid-glass-strong rounded-full px-4 py-2 text-xs text-white flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
+          {isSaving ? <LoadingSpinner size="sm" /> : 'Save'}
+        </button>
+      </>
+    );
+  };
+
+  return (
+    <div className="liquid-glass-strong rounded-3xl flex flex-col min-h-[600px]">
+      <div className="flex items-center justify-between px-6 py-4">
+        <div>
+          <p className="text-lg font-medium text-white">{DOC_LABELS[document.docType]}</p>
+          <p className="text-xs text-white/40 mt-0.5">v{document.version} · {document.modelUsed}</p>
+        </div>
+        <div className="flex gap-2 items-center">
+          <button onClick={handleCopy} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
+            <Copy className="w-3.5 h-3.5" /> Copy
+          </button>
+          {renderButtons()}
+        </div>
+      </div>
+      <div className="h-px bg-white/10 mx-6" />
+      <div className="flex-1 overflow-y-auto px-6 py-6">
+        {isEditing ? (
+          <DocumentEditor content={editContent} onChange={setEditContent} saveError={saveError} />
+        ) : (
+          <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{document.content}</ReactMarkdown>
+        )}
+      </div>
+    </div>
+  );
+};
+export default DocumentViewer;
+
+
+==========================================
+FILE: components/project/ErrorState.jsx
+LINES: 18
+==========================================
+
+import { AlertCircle } from 'lucide-react';
+
+const ErrorState = ({ onRetry }) => (
+  <div className="liquid-glass-strong rounded-3xl p-12 text-center flex flex-col items-center gap-4">
+    <AlertCircle className="w-12 h-12 text-white/40" />
+    <h2 className="text-xl font-medium text-white">Generation failed</h2>
+    <p className="text-sm text-white/60">Something went wrong while generating your documents.</p>
+    <button
+      onClick={onRetry}
+      className="liquid-glass-strong rounded-full px-8 py-3 text-white text-sm hover:scale-105 transition-transform cursor-pointer mt-2"
+    >
+      Try Again
+    </button>
+  </div>
+);
+
+export default ErrorState;
+
+
+==========================================
+FILE: components/project/GeneratingState.jsx
+LINES: 26
+==========================================
+
+import { Sparkles } from 'lucide-react';
+
+const GeneratingState = ({ docsGenerated }) => {
+  const count = docsGenerated?.length || 0;
+  const pct = Math.round((count / 9) * 100);
+
+  return (
+    <div className="liquid-glass-strong rounded-3xl p-12 text-center flex flex-col items-center gap-6">
+      <div className="w-20 h-20 rounded-full liquid-glass flex items-center justify-center">
+        <Sparkles className="w-8 h-8 text-white/70 animate-pulse" />
+      </div>
+      <h2 className="text-xl font-medium text-white">Generating your documents...</h2>
+      <p className="text-sm text-white/60">{count} of 9 documents ready</p>
+      <div className="liquid-glass rounded-full h-2 w-full max-w-xs overflow-hidden">
+        <div
+          className="bg-white/50 rounded-full h-full transition-all duration-500"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <p className="text-xs text-white/40">This usually takes 2–3 minutes. Page updates automatically.</p>
+    </div>
+  );
+};
+
+export default GeneratingState;
+
+
+==========================================
+FILE: components/project/GenerationProgress.jsx
+LINES: 19
+==========================================
+
+export default function GenerationProgress({ current, total = 9 }) {
+  return (
+    <div className="mt-12 pt-8 border-t border-white/5">
+      <h3 className="text-xs uppercase tracking-[0.3em] text-white/30 mb-6">Generation Progress</h3>
+      <div className="grid grid-cols-3 gap-3">
+        {Array.from({ length: total }).map((_, i) => (
+          <div 
+            key={i} 
+            className={`h-1.5 rounded-full ${i < current ? 'bg-white/60' : 'bg-white/10'}`} 
+          />
+        ))}
+      </div>
+      <p className="text-xs text-white/40 mt-4 uppercase tracking-widest">
+        {current} of {total} documents generated
+      </p>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: components/project/markdownComponents.jsx
+LINES: 30
+==========================================
+
+import React from 'react';
+
+export const mdComponents = {
+  h1: ({ children }) => <h1 className="text-2xl font-medium text-white mt-6 mb-3">{children}</h1>,
+  h2: ({ children }) => <h2 className="text-xl font-medium text-white/90 mt-5 mb-2">{children}</h2>,
+  h3: ({ children }) => <h3 className="text-lg font-medium text-white/80 mt-4 mb-2">{children}</h3>,
+  p: ({ children }) => <p className="text-white/70 text-sm leading-relaxed mb-3">{children}</p>,
+  ul: ({ children }) => <ul className="text-white/70 text-sm space-y-1 mb-3 list-disc list-inside">{children}</ul>,
+  ol: ({ children }) => <ol className="text-white/70 text-sm space-y-1 mb-3 list-decimal list-inside">{children}</ol>,
+  li: ({ children }) => <li className="text-white/70">{children}</li>,
+  strong: ({ children }) => <strong className="text-white font-medium">{children}</strong>,
+  blockquote: ({ children }) => <blockquote className="border-l-2 border-white/20 pl-4 text-white/60 italic mb-3">{children}</blockquote>,
+  hr: () => <hr className="border-white/10 my-4" />,
+  table: ({ children }) => <table className="w-full text-sm mb-3">{children}</table>,
+  th: ({ children }) => <th className="text-left text-white/80 font-medium pb-2 border-b border-white/10 pr-4">{children}</th>,
+  td: ({ children }) => <td className="text-white/60 py-2 border-b border-white/5 pr-4">{children}</td>,
+  code: ({ inline, children }) => inline
+    ? <code className="bg-white/10 text-white/80 px-1.5 py-0.5 rounded text-xs font-mono">{children}</code>
+    : <code className="text-white/70 text-xs font-mono">{children}</code>,
+  pre: ({ children }) => <pre className="liquid-glass rounded-xl p-4 mb-3 overflow-x-auto">{children}</pre>,
+};
+
+export const DOC_LABELS = {
+  prd: 'Product Requirements', srd: 'Software Requirements',
+  techStack: 'Tech Stack', dbSchema: 'Database Schema',
+  userFlows: 'User Flows', mvpPlan: 'MVP Plan',
+  folderStructure: 'Folder Structure', claudeContext: 'Claude Context',
+  agentSystemPrompt: 'Agent Prompts',
+};
+
+
+==========================================
+FILE: components/project/ProjectHeader.jsx
+LINES: 45
+==========================================
+
+import { ChevronLeft, Download } from 'lucide-react';
+
+const STATUS_STYLES = {
+  draft: 'text-white/40',
+  generating: 'text-white/70 animate-pulse',
+  complete: 'text-white/80',
+  error: 'text-white/40',
+};
+
+const ProjectHeader = ({ project, onBack }) => (
+  <div className="flex items-center justify-between mb-6">
+    <div>
+      <button
+        onClick={onBack}
+        className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer"
+      >
+        <ChevronLeft className="w-4 h-4 text-white/70" />
+        <span className="text-sm text-white/70">Dashboard</span>
+      </button>
+      <div className="mt-3">
+        <h1 className="text-2xl font-medium text-white">{project.title}</h1>
+        <div className="flex items-center gap-3 mt-1">
+          <span className="liquid-glass rounded-full px-3 py-1 text-xs text-white/50 capitalize">
+            {project.projectType}
+          </span>
+          <span className={`liquid-glass rounded-full px-3 py-1 text-xs capitalize ${STATUS_STYLES[project.status] || 'text-white/50'}`}>
+            {project.status}
+          </span>
+        </div>
+      </div>
+    </div>
+    {project.status === 'complete' && (
+      <button
+        onClick={() => console.log('ZIP download - coming soon')}
+        className="liquid-glass rounded-full px-5 py-2.5 flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer"
+      >
+        <Download className="w-4 h-4 text-white/70" />
+        <span className="text-sm text-white/70">Download All</span>
+      </button>
+    )}
+  </div>
+);
+
+export default ProjectHeader;
+
+
+==========================================
+FILE: components/project/ProjectStatusCard.jsx
+LINES: 52
+==========================================
+
+import LoadingSpinner from '../common/LoadingSpinner';
+
+export default function ProjectStatusCard({ project, onBack, onRetry, onViewDocs }) {
+  const isGenerating = project.status === 'generating';
+
+  return (
+    <div className="w-full liquid-glass-strong rounded-[32px] p-10 text-center">
+      <span className="liquid-glass rounded-full px-4 py-1.5 text-xs uppercase tracking-widest text-white/60 mb-6 inline-block">
+        {isGenerating ? 'AI SCULPTING IN PROGRESS' : 'PROJECT READY'}
+      </span>
+      
+      <h1 className="text-4xl font-medium text-white mb-4">{project.title}</h1>
+      <p className="text-white/50 mb-8 max-w-lg mx-auto">
+        {isGenerating 
+          ? "Our AI agents are currently architecting your technical foundation. This typically takes 2-4 minutes."
+          : "Your documentation suite is complete. Welcome to the future of startup building."}
+      </p>
+
+      <div className="flex flex-col gap-4 items-center">
+        {isGenerating && <LoadingSpinner size="lg" />}
+        
+        <div className="flex flex-wrap gap-3 justify-center mt-6">
+          <button 
+            onClick={onBack}
+            className="liquid-glass rounded-full px-8 py-3 text-sm text-white/70 hover:text-white transition-all"
+          >
+            Back to Dashboard
+          </button>
+          
+          {project.status === 'complete' && (
+            <button 
+              onClick={onViewDocs}
+              className="liquid-glass-strong rounded-full px-8 py-3 text-sm text-white font-medium hover:scale-105 transition-transform"
+            >
+              View Document Suite
+            </button>
+          )}
+
+          {project.status === 'error' && (
+            <button 
+              onClick={onRetry}
+              className="liquid-glass-strong rounded-full px-8 py-3 text-sm text-white font-medium hover:scale-105 transition-transform"
+            >
+              Retry Generation
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: components/wizard/index.js
+LINES: 6
+==========================================
+
+export { default as WizardShell } from './WizardShell';
+export { default as WizardStep1Identity } from './WizardStep1Identity';
+export { default as WizardStep2Requirements } from './WizardStep2Requirements';
+export { default as WizardStep3Tech } from './WizardStep3Tech';
+export { default as WizardStep4Review } from './WizardStep4Review';
+
+
+==========================================
+FILE: components/wizard/WizardShell.jsx
+LINES: 70
+==========================================
+
+import { motion, AnimatePresence } from 'framer-motion';
+import LoadingSpinner from '../common/LoadingSpinner';
+
+export default function WizardShell({ step, totalSteps, onNext, onBack, onSubmit, isSubmitting, error, children }) {
+  return (
+    <div className="liquid-glass-strong rounded-3xl p-8 md:p-10 w-full max-w-2xl relative overflow-hidden">
+      <div className="flex gap-2 justify-center mb-10">
+        {Array.from({ length: totalSteps }).map((_, i) => {
+          const num = i + 1;
+          const isActive = step === num;
+          const isCompleted = step > num;
+          return (
+            <div 
+              key={num} 
+              className={`h-2 rounded-full transition-all duration-500 ${
+                isActive ? 'w-8 bg-white' : isCompleted ? 'w-2 bg-white/40' : 'w-2 bg-white/10'
+              }`} 
+            />
+          );
+        })}
+      </div>
+
+      <div className="mb-0">
+        <AnimatePresence mode="wait">
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+              className="liquid-glass rounded-xl px-4 py-3 text-sm text-white/80 mb-6 border-l-2 border-white/20"
+            >
+              {error}
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.3 }}
+            className="min-h-[300px]"
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      <div className="flex justify-between mt-12 pt-8 border-t border-white/5">
+        {step > 1 ? (
+          <button 
+            onClick={onBack}
+            className="liquid-glass rounded-full px-8 py-3 text-white/70 text-sm hover:text-white transition-all active:scale-95"
+          >
+            Back
+          </button>
+        ) : <div />}
+        
+        <button 
+          disabled={isSubmitting}
+          onClick={step === totalSteps ? onSubmit : onNext}
+          className="liquid-glass-strong rounded-full px-10 py-3 text-white text-sm font-medium hover:scale-105 active:scale-95 transition-all flex items-center gap-3 shadow-[0_0_30px_rgba(255,255,255,0.05)]"
+        >
+          {isSubmitting ? <><LoadingSpinner size="sm" /><span>Processing</span></> : (step === totalSteps ? "Generate Docs" : "Continue")}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: components/wizard/WizardStep1Basics.jsx
+LINES: 35
+==========================================
+
+export default function WizardStep1Basics({ formData, onChange }) {
+  const types = ['saas', 'mobile', 'ai', 'ecommerce', 'marketplace', 'other'];
+  return (
+    <div className="space-y-8">
+      <div>
+        <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-4">Project Title</label>
+        <div className="liquid-glass rounded-xl px-4 py-3 flex items-center gap-3">
+          <input 
+            value={formData.title} 
+            onChange={(e) => onChange('title', e.target.value)}
+            placeholder="e.g. AI-powered invoice generator"
+            className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm"
+          />
+        </div>
+      </div>
+      <div>
+        <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-4">Project Type</label>
+        <div className="flex flex-wrap gap-3">
+          {types.map((type) => (
+            <button
+              key={type}
+              onClick={() => onChange('projectType', type)}
+              className={`${
+                formData.projectType === type ? 'liquid-glass-strong text-white shadow-[0_0_20px_rgba(255,255,255,0.1)]' : 'liquid-glass text-white/60'
+              } rounded-full px-5 py-2.5 text-sm cursor-pointer hover:scale-105 transition-all active:scale-95`}
+            >
+              {type.charAt(0).toUpperCase() + type.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: components/wizard/WizardStep1Identity.jsx
+LINES: 55
+==========================================
+
+import { motion } from 'framer-motion';
+
+const types = ['saas', 'mobile', 'ai', 'ecommerce', 'marketplace', 'other'];
+
+export default function WizardStep1Identity({ formData, onChange }) {
+  return (
+    <div className="space-y-8">
+      <div>
+        <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-4">Project Title</label>
+        <div className="liquid-glass rounded-xl px-4 py-3 flex items-center gap-3">
+          <input 
+            value={formData.title} 
+            onChange={(e) => onChange('title', e.target.value)}
+            placeholder="e.g. AI-powered invoice generator"
+            className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-4">Project Type</label>
+        <div className="flex flex-wrap gap-3">
+          {types.map((type) => (
+            <button
+              key={type}
+              onClick={() => onChange('projectType', type)}
+              className={`${
+                formData.projectType === type ? 'liquid-glass-strong text-white shadow-[0_0_20px_rgba(255,255,255,0.1)]' : 'liquid-glass text-white/60'
+              } rounded-full px-5 py-2.5 text-sm cursor-pointer hover:scale-105 transition-all active:scale-95`}
+            >
+              {type.charAt(0).toUpperCase() + type.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-4">Problem Statement</label>
+        <div className="liquid-glass rounded-xl px-4 py-3 w-full">
+          <textarea 
+            value={formData.wizardAnswers.problemStatement}
+            onChange={(e) => onChange('wizardAnswers.problemStatement', e.target.value)}
+            placeholder="What gap in the market are you filling? What is the main pain point?"
+            rows={4}
+            className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
+          />
+        </div>
+        <p className="mt-2 text-[10px] text-white/30 uppercase tracking-wider flex items-center gap-2">
+          <span>💡</span> Tip: Clearly define the frustration you are solving for users.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: components/wizard/WizardStep2Problem.jsx
+LINES: 17
+==========================================
+
+export default function WizardStep2Problem({ formData, onChange }) {
+  return (
+    <div>
+      <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-4">Problem Statement</label>
+      <div className="liquid-glass rounded-xl px-4 py-3 w-full">
+        <textarea 
+          value={formData.wizardAnswers.problemStatement}
+          onChange={(e) => onChange('wizardAnswers.problemStatement', e.target.value)}
+          placeholder="Describe the core problem your product solves..."
+          rows={6}
+          className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
+        />
+      </div>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: components/wizard/WizardStep2Requirements.jsx
+LINES: 38
+==========================================
+
+export default function WizardStep2Requirements({ formData, onChange }) {
+  return (
+    <div className="space-y-8">
+      <div>
+        <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-4">Target Audience</label>
+        <div className="liquid-glass rounded-xl px-4 py-3 w-full">
+          <textarea 
+            value={formData.wizardAnswers.targetAudience}
+            onChange={(e) => onChange('wizardAnswers.targetAudience', e.target.value)}
+            placeholder="Who are your users? Seniors, tech-savvy teens, SMEs?"
+            rows={4}
+            className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
+          />
+        </div>
+        <p className="mt-2 text-[10px] text-white/30 uppercase tracking-wider flex items-center gap-2">
+          <span>💡</span> Tip: Be specific about demographics and their daily constraints.
+        </p>
+      </div>
+
+      <div>
+        <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-4">Core Features (MVP)</label>
+        <div className="liquid-glass rounded-xl px-4 py-3 w-full">
+          <textarea 
+            value={formData.wizardAnswers.coreFeatures}
+            onChange={(e) => onChange('wizardAnswers.coreFeatures', e.target.value)}
+            placeholder="user auth, searchable dashboard, CSV export..."
+            rows={4}
+            className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
+          />
+        </div>
+        <p className="mt-2 text-[10px] text-white/30 uppercase tracking-wider flex items-center gap-2">
+          <span>💡</span> Tip: Separate features with commas. Focus on the core value proposition.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: components/wizard/WizardStep3Audience.jsx
+LINES: 17
+==========================================
+
+export default function WizardStep3Audience({ formData, onChange }) {
+  return (
+    <div>
+      <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-4">Target Audience</label>
+      <div className="liquid-glass rounded-xl px-4 py-3 w-full">
+        <textarea 
+          value={formData.wizardAnswers.targetAudience}
+          onChange={(e) => onChange('wizardAnswers.targetAudience', e.target.value)}
+          placeholder="Who are your users? Roles, pain points, technical level..."
+          rows={6}
+          className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
+        />
+      </div>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: components/wizard/WizardStep3Tech.jsx
+LINES: 48
+==========================================
+
+export default function WizardStep3Tech({ formData, onChange }) {
+  return (
+    <div className="space-y-6">
+      <div>
+        <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-4">Tech Preferences</label>
+        <div className="liquid-glass rounded-xl px-4 py-3 w-full">
+          <textarea 
+            value={formData.wizardAnswers.techPreferences}
+            onChange={(e) => onChange('wizardAnswers.techPreferences', e.target.value)}
+            placeholder="e.g. MERN stack, Next.js, Python, AWS, Supabase..."
+            rows={2}
+            className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
+          />
+        </div>
+        <p className="mt-2 text-[10px] text-white/30 uppercase tracking-wider flex items-center gap-2">
+          <span>💡</span> Tip: Leave blank if you want the AI to recommend the best stack.
+        </p>
+      </div>
+
+      <div>
+        <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-4">Monetization & Scale</label>
+        <div className="liquid-glass rounded-xl px-4 py-3 w-full">
+          <textarea 
+            value={formData.wizardAnswers.monetizationModel}
+            onChange={(e) => onChange('wizardAnswers.monetizationModel', e.target.value)}
+            placeholder="SaaS subscription, one-time payment, ads, open source..."
+            rows={2}
+            className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
+          />
+        </div>
+      </div>
+
+      <div>
+        <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-4">Additional Context</label>
+        <div className="liquid-glass rounded-xl px-4 py-3 w-full">
+          <textarea 
+            value={formData.wizardAnswers.additionalContext}
+            onChange={(e) => onChange('wizardAnswers.additionalContext', e.target.value)}
+            placeholder="Any other specific details, design preferences or constraints..."
+            rows={3}
+            className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: components/wizard/WizardStep4Features.jsx
+LINES: 18
+==========================================
+
+export default function WizardStep4Features({ formData, onChange }) {
+  return (
+    <div className="space-y-4">
+      <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-4">Core Features</label>
+      <div className="liquid-glass rounded-xl px-4 py-3 w-full">
+        <textarea 
+          value={formData.wizardAnswers.coreFeatures}
+          onChange={(e) => onChange('wizardAnswers.coreFeatures', e.target.value)}
+          placeholder="user auth, dashboard, AI generation, payments..."
+          rows={6}
+          className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
+        />
+      </div>
+      <p className="text-xs text-white/30 uppercase tracking-[0.1em]">Separate features with commas for better generation</p>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: components/wizard/WizardStep4Review.jsx
+LINES: 49
+==========================================
+
+const DocIcon = ({ name }) => (
+  <div className="flex items-center gap-3 p-2 bg-white/5 rounded-lg border border-white/5">
+    <div className="w-2 h-2 rounded-full bg-white/40" />
+    <span className="text-[10px] uppercase tracking-widest text-white/60">{name}</span>
+  </div>
+);
+
+export default function WizardStep4Review({ formData }) {
+  const docs = ['PRD', 'SRD', 'TRD', 'Master Plan', 'User Stories', 'API Specs', 'Database Schema', 'Security Audit', 'Deployment Guide'];
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="liquid-glass rounded-2xl p-5 border border-white/5">
+          <h3 className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-3">Project Overview</h3>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-white">{formData.title || "Untitled Project"}</p>
+            <p className="text-xs text-white/60 capitalize">{formData.projectType || "Type not selected"}</p>
+          </div>
+        </div>
+        
+        <div className="liquid-glass rounded-2xl p-5 border border-white/5">
+          <h3 className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-3">Core Problem</h3>
+          <p className="text-xs text-white/70 line-clamp-3 italic leading-relaxed">
+            "{formData.wizardAnswers.problemStatement || "No description provided."}"
+          </p>
+        </div>
+      </div>
+
+      <div className="liquid-glass rounded-2xl p-6 border border-white/5">
+        <h3 className="text-[10px] uppercase tracking-[0.3em] text-white/40 mb-4 text-center">What You'll Get</h3>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {docs.map(doc => <DocIcon key={doc} name={doc} />)}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-center gap-4 bg-white/5 rounded-xl p-4 border border-dashed border-white/10">
+        <div className="relative w-2 h-2">
+          <div className="absolute inset-0 bg-white rounded-full animate-ping opacity-75" />
+          <div className="relative bg-white h-2 w-2 rounded-full" />
+        </div>
+        <p className="text-[10px] uppercase tracking-[0.2em] text-white/50">
+          Generation takes ~2-3 minutes. Don't close the tab.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: components/wizard/WizardStep5Tech.jsx
+LINES: 17
+==========================================
+
+export default function WizardStep5Tech({ formData, onChange }) {
+  return (
+    <div>
+      <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-4">Tech Preferences</label>
+      <div className="liquid-glass rounded-xl px-4 py-3 w-full">
+        <textarea 
+          value={formData.wizardAnswers.techPreferences}
+          onChange={(e) => onChange('wizardAnswers.techPreferences', e.target.value)}
+          placeholder="e.g. React, Node.js, MongoDB, or 'no preference'..."
+          rows={6}
+          className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
+        />
+      </div>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: components/wizard/WizardStep6Monetize.jsx
+LINES: 33
+==========================================
+
+export default function WizardStep6Monetize({ formData, onChange }) {
+  const models = ['Free', 'Freemium', 'Subscription', 'One-time', 'Usage-based', 'Not sure'];
+  return (
+    <div className="space-y-8">
+      <div>
+        <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-4">Monetization Model</label>
+        <div className="flex flex-wrap gap-3">
+          {models.map((model) => (
+            <button
+              key={model}
+              onClick={() => onChange('wizardAnswers.monetizationModel', model)}
+              className={`${
+                formData.wizardAnswers.monetizationModel === model ? 'liquid-glass-strong text-white shadow-[0_0_20px_rgba(255,255,255,0.1)]' : 'liquid-glass text-white/60'
+              } rounded-full px-5 py-2.5 text-sm cursor-pointer hover:scale-105 transition-all active:scale-95`}
+            >
+              {model}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="liquid-glass rounded-xl px-4 py-3 w-full">
+        <textarea 
+          value={formData.wizardAnswers.monetizationModel}
+          onChange={(e) => onChange('wizardAnswers.monetizationModel', e.target.value)}
+          placeholder="More details about your pricing strategy..."
+          rows={3}
+          className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
+        />
+      </div>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: components/wizard/WizardStep7Final.jsx
+LINES: 38
+==========================================
+
+export default function WizardStep7Final({ formData, onChange }) {
+  return (
+    <div className="space-y-6">
+      <div>
+        <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-4">Additional Context</label>
+        <div className="liquid-glass rounded-xl px-4 py-3 w-full">
+          <textarea 
+            value={formData.wizardAnswers.additionalContext}
+            onChange={(e) => onChange('wizardAnswers.additionalContext', e.target.value)}
+            placeholder="Scale expectations, competitors, or any unique constraints..."
+            rows={4}
+            className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
+          />
+        </div>
+      </div>
+      <div className="liquid-glass rounded-2xl p-6">
+        <h3 className="text-xs uppercase tracking-[0.3em] text-white/50 mb-4">Review Your Project</h3>
+        <div className="space-y-3">
+          <div className="flex justify-between items-center bg-white/5 rounded-lg px-4 py-3">
+            <span className="text-xs text-white/30 uppercase tracking-widest">Project</span>
+            <span className="text-sm text-white font-medium">{formData.title || "Untitled"}</span>
+          </div>
+          <div className="flex justify-between items-center bg-white/5 rounded-lg px-4 py-3">
+            <span className="text-xs text-white/30 uppercase tracking-widest">Type</span>
+            <span className="text-sm text-white font-medium capitalize">{formData.projectType || "Not selected"}</span>
+          </div>
+          <div className="bg-white/5 rounded-lg px-4 py-3">
+            <span className="text-xs text-white/30 uppercase tracking-widest block mb-1">Problem</span>
+            <p className="text-sm text-white/70 line-clamp-2">
+              {formData.wizardAnswers.problemStatement || "No description provided."}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+==========================================
+FILE: services/api.js
+LINES: 67
+==========================================
+
+import axios from 'axios';
+
+// Initialize access token from localStorage for persistence across refreshes
+let _accessToken = localStorage.getItem('accessToken');
+
+export const getAccessToken = () => _accessToken;
+export const setAccessToken = (token) => {
+  _accessToken = token;
+  if (token) {
+    localStorage.setItem('accessToken', token);
+  } else {
+    localStorage.removeItem('accessToken');
+  }
+};
+
+const api = axios.create({
+  // Use relative URL for unified deployment, fallback to env or localhost
+  baseURL: import.meta.env.VITE_API_URL || (window.location.origin + '/api'),
+  withCredentials: true,
+});
+
+api.interceptors.request.use(
+  (config) => {
+    const token = getAccessToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
+
+    // Avoid infinite loop if refresh token fails
+    if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/auth/refresh') {
+      originalRequest._retry = true;
+
+      try {
+        const response = await axios.post(
+          `${api.defaults.baseURL}/auth/refresh`,
+          {},
+          { withCredentials: true }
+        );
+        const newAccessToken = response.data.data.accessToken;
+        setAccessToken(newAccessToken);
+
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        return api(originalRequest);
+      } catch (refreshError) {
+        setAccessToken(null);
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+        return Promise.reject(refreshError);
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+export default api;
+
+
+==========================================
+FILE: services/authService.js
+LINES: 41
+==========================================
+
+import api, { setAccessToken } from './api';
+import { auth, googleProvider } from '../config/firebase';
+import { signInWithRedirect, getRedirectResult } from 'firebase/auth';
+
+export async function registerUser(name, email, password) {
+  const response = await api.post('/auth/register', { displayName: name, email, password });
+  setAccessToken(response.data.data.accessToken);
+  return response.data.data.user;
+}
+
+export async function loginUser(email, password) {
+  const response = await api.post('/auth/login', { email, password });
+  setAccessToken(response.data.data.accessToken);
+  return response.data.data.user;
+}
+
+export async function loginWithGoogle() {
+  await signInWithRedirect(auth, googleProvider);
+}
+
+export async function checkGoogleRedirect() {
+  const result = await getRedirectResult(auth);
+  if (!result) return null;
+  const { user: firebaseUser } = result;
+  const idToken = await firebaseUser.getIdToken();
+  const response = await api.post('/auth/google', { idToken });
+  setAccessToken(response.data.data.accessToken);
+  return response.data.data.user;
+}
+
+export async function logoutUser() {
+  await api.post('/auth/logout');
+  setAccessToken(null);
+}
+
+export async function refreshAccessToken() {
+  const response = await api.post('/auth/refresh');
+  setAccessToken(response.data.data.accessToken);
+  return response.data.data.accessToken;
+}
+
+
+==========================================
+FILE: services/documentService.js
+LINES: 17
+==========================================
+
+import api from './api';
+
+export async function getProjectDocuments(projectId) {
+  const response = await api.get(`/projects/${projectId}/documents`);
+  return response.data.data;
+}
+
+export async function getSingleDocument(projectId, docType) {
+  const response = await api.get(`/projects/${projectId}/documents/${docType}`);
+  return response.data.data;
+}
+
+export async function updateDocument(projectId, docType, content) {
+  const response = await api.patch(`/projects/${projectId}/documents/${docType}`, { content });
+  return response.data.data;
+}
+
+
+==========================================
+FILE: services/projectService.js
+LINES: 32
+==========================================
+
+import api from './api';
+
+export async function getProjects() {
+  const response = await api.get('/projects');
+  return response.data?.data || [];
+}
+
+export async function createProject(data) {
+  const response = await api.post('/projects', data);
+  return response.data.data;
+}
+
+export async function getProject(id) {
+  const response = await api.get(`/projects/${id}`);
+  return response.data.data;
+}
+
+export async function updateProject(id, data) {
+  const response = await api.patch(`/projects/${id}`, data);
+  return response.data.data;
+}
+
+export async function deleteProject(id) {
+  await api.delete(`/projects/${id}`);
+  return true;
+}
+
+export async function triggerGeneration(id) {
+  const response = await api.post(`/projects/${id}/generate`);
+  return response.data.data;
+}
+
+
+==========================================
+FILE: services/subscriptionService.js
+LINES: 7
+==========================================
+
+import api from './api';
+
+export async function getMySubscription() {
+  const response = await api.get('/subscriptions/me');
+  return response.data.data.subscription;
+}
+
+
+==========================================
+FILE: services/userService.js
+LINES: 23
+==========================================
+
+import api from './api';
+
+export async function getMe() {
+  const response = await api.get('/users/me');
+  return response.data.data.user;
+}
+
+export async function updateMe(data) {
+  const response = await api.patch('/users/me', data);
+  return response.data.data.user;
+}
+
+export async function uploadAvatar(file) {
+  const formData = new FormData();
+  formData.append('avatar', file);
+  const response = await api.patch('/users/me/avatar', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  return response.data.data.user;
+}
+
+
+==========================================
+FILE: routes/AppRoutes.jsx
+LINES: 31
+==========================================
+
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Home from '../pages/Home';
+import Login from '../pages/Login';
+import Register from '../pages/Register';
+import ForgotPassword from '../pages/ForgotPassword';
+import Dashboard from '../pages/Dashboard';
+import Profile from '../pages/Profile';
+import CreateProject from '../pages/CreateProject';
+import ProjectDetail from '../pages/ProjectDetail';
+import PrivateRoute from '../components/common/PrivateRoute';
+
+export default function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      
+      {/* Protected Routes */}
+      <Route element={<PrivateRoute />}>
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/projects/new" element={<CreateProject />} />
+        <Route path="/projects/:id" element={<ProjectDetail />} />
+      </Route>
+    </Routes>
+  );
+}
+
+
+==========================================
+FILE: context/AuthContext.jsx
+LINES: 133
+==========================================
+
+import React, { createContext, useContext, useEffect, useReducer } from 'react';
+import {
+  loginUser as apiLogin,
+  registerUser as apiRegister,
+  loginWithGoogle as apiLoginGoogle,
+  checkGoogleRedirect,
+  logoutUser as apiLogout,
+  refreshAccessToken,
+} from '../services/authService';
+import { getMe } from '../services/userService';
+
+const AuthContext = createContext();
+
+const initialState = {
+  user: null,
+  isLoading: true,
+  isAuthenticated: false,
+};
+
+function authReducer(state, action) {
+  switch (action.type) {
+    case 'SET_USER':
+      return {
+        ...state,
+        user: action.payload,
+        isAuthenticated: !!action.payload,
+      };
+    case 'CLEAR_USER':
+      return {
+        ...state,
+        user: null,
+        isAuthenticated: false,
+      };
+    case 'SET_LOADING':
+      return {
+        ...state,
+        isLoading: action.payload,
+      };
+    default:
+      return state;
+  }
+}
+
+export function AuthProvider({ children }) {
+  const [state, dispatch] = useReducer(authReducer, initialState);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function bootstrap() {
+      try {
+        // Did we just return from Google Redirect?
+        const redirectedUser = await checkGoogleRedirect();
+        if (redirectedUser) {
+          if (isMounted) dispatch({ type: 'SET_USER', payload: redirectedUser });
+          return;
+        }
+
+        // Otherwise normal refresh logic
+        await refreshAccessToken();
+        const user = await getMe();
+        if (isMounted) {
+          dispatch({ type: 'SET_USER', payload: user });
+        }
+      } catch (error) {
+        if (isMounted) {
+          dispatch({ type: 'CLEAR_USER' });
+        }
+      } finally {
+        if (isMounted) {
+          dispatch({ type: 'SET_LOADING', payload: false });
+        }
+      }
+    }
+
+    bootstrap();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const login = async (email, password) => {
+    const user = await apiLogin(email, password);
+    dispatch({ type: 'SET_USER', payload: user });
+  };
+
+  const loginGoogle = async () => {
+    const user = await apiLoginGoogle();
+    dispatch({ type: 'SET_USER', payload: user });
+  };
+
+  const register = async (name, email, password) => {
+    const user = await apiRegister(name, email, password);
+    dispatch({ type: 'SET_USER', payload: user });
+  };
+
+  const logout = async () => {
+    try {
+      await apiLogout();
+    } finally {
+      dispatch({ type: 'CLEAR_USER' });
+    }
+  };
+
+  const updateUser = (data) => {
+    dispatch({ type: 'SET_USER', payload: { ...state.user, ...data } });
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        ...state,
+        login,
+        loginGoogle,
+        register,
+        logout,
+        updateUser,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}

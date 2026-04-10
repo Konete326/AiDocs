@@ -1,6 +1,6 @@
 import api, { setAccessToken } from './api';
 import { auth, googleProvider } from '../config/firebase';
-import { signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { signInWithPopup } from 'firebase/auth';
 
 export async function registerUser(name, email, password) {
   const response = await api.post('/auth/register', { displayName: name, email, password });
@@ -15,14 +15,8 @@ export async function loginUser(email, password) {
 }
 
 export async function loginWithGoogle() {
-  await signInWithRedirect(auth, googleProvider);
-}
-
-export async function checkGoogleRedirect() {
-  const result = await getRedirectResult(auth);
-  if (!result) return null;
-  const { user: firebaseUser } = result;
-  const idToken = await firebaseUser.getIdToken();
+  const result = await signInWithPopup(auth, googleProvider);
+  const idToken = await result.user.getIdToken();
   const response = await api.post('/auth/google', { idToken });
   setAccessToken(response.data.data.accessToken);
   return response.data.data.user;

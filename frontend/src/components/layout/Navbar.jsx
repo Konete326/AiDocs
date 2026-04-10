@@ -20,7 +20,7 @@ const Navbar = () => {
   const navItems = isAuthenticated
     ? [
         { title: "Dashboard", href: "/dashboard", icon: <Layout className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/dashboard'); } },
-        { title: "Documents", href: "/documents", icon: <FileText className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/documents'); } },
+        { title: "Documents", href: "/dashboard", icon: <FileText className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/dashboard'); } },
         { title: "Settings", href: "/profile", icon: <Settings className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/profile'); } },
         { title: "Logout", icon: <LogOut className="w-4 h-4 text-white" />, onClick: handleLogout },
       ]
