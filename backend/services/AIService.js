@@ -4,18 +4,13 @@ const AppError = require('../utils/AppError');
 const NVIDIA_URL = 'https://integrate.api.nvidia.com/v1/chat/completions';
 const OPENROUTER_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
 const providers = [
   {
-    name: 'NVIDIA_LLAMA_405B',
+    name: 'NVIDIA_405B',
     url: NVIDIA_URL,
     model: 'meta/llama-3.1-405b-instruct',
-    getKey: () => process.env.NVIDIA_API_KEY,
-    headers: {}
-  },
-  {
-    name: 'NVIDIA_NEMOTRON_340B',
-    url: NVIDIA_URL,
-    model: 'nvidia/nemotron-4-340b-instruct',
     getKey: () => process.env.NVIDIA_API_KEY,
     headers: {}
   },
@@ -38,6 +33,13 @@ const providers = [
       'HTTP-Referer': process.env.FRONTEND_URL || 'http://localhost:5173',
       'X-Title': 'AiDocs'
     }
+  },
+  {
+    name: 'NVIDIA_NEMOTRON',
+    url: NVIDIA_URL,
+    model: 'nvidia/nemotron-4-340b-instruct',
+    getKey: () => process.env.NVIDIA_API_KEY,
+    headers: {}
   }
 ];
 
@@ -50,7 +52,7 @@ const callProvider = async (provider, prompt) => {
     { model: provider.model, messages: [{ role: 'user', content: prompt }], temperature: 0.2 },
     {
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...provider.headers },
-      timeout: 90000
+      timeout: 120000 // Increased timeout to 2 mins for 405B
     }
   );
 
@@ -60,12 +62,24 @@ const callProvider = async (provider, prompt) => {
 exports.generateText = async (prompt, docType) => {
   const startTime = Date.now();
 
-  for (const provider of providers) {
+  for (let i = 0; i < providers.length; i++) {
+    const provider = providers[i];
     try {
       const content = await callProvider(provider, prompt);
       return { content, modelUsed: provider.name, generationTimeMs: Date.now() - startTime };
     } catch (error) {
       console.error(`[AIService] ${provider.name} failed (${docType}): ${error.message}`);
+      
+      // AI-06: Skip 401/403 errors (invalid/expired keys)
+      if (error.response && [401, 403].includes(error.response.status)) {
+        console.warn(`[AIService] Skipping ${provider.name} due to auth error`);
+        continue;
+      }
+
+      // AI-07: 1.5s delay before next provider
+      if (i < providers.length - 1) {
+        await delay(1500);
+      }
     }
   }
 

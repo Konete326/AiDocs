@@ -14,12 +14,7 @@ const authenticate = async (req, res, next) => {
 
     const decoded = verifyAccessToken(token);
 
-    const currentUser = await User.findById(decoded.id);
-    if (!currentUser) {
-      return next(new AppError('The user belonging to this token does no longer exist.', 401, 'USER_DELETED'));
-    }
-
-    req.user = { id: currentUser._id, role: currentUser.role, email: currentUser.email };
+    req.user = { id: decoded.id, role: decoded.role };
     next();
   } catch (err) {
     next(err);

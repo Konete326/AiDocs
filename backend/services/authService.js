@@ -10,12 +10,12 @@ exports.registerUser = async (email, password, displayName) => {
     throw new AppError('Email already in use', 400, 'USER_EXISTS');
   }
 
-  const salt = await bcrypt.genSalt(10);
+  const salt = await bcrypt.genSalt(12);
   const passwordHash = await bcrypt.hash(password, salt);
 
   const user = await User.create({ email, passwordHash, displayName });
 
-  await Subscription.create({ userId: user._id, plan: 'free', status: 'active', projectLimit: 10 });
+  await Subscription.create({ userId: user._id, plan: 'free', status: 'active', projectLimit: 1 });
 
   const accessToken = generateAccessToken(user._id, user.role);
   const refreshToken = generateRefreshToken(user._id);
@@ -94,7 +94,7 @@ exports.handleFirebaseGoogleUser = async (firebaseUser) => {
       avatarUrl: firebaseUser.picture || null,
       isVerified: true
     });
-    await Subscription.create({ userId: user._id, plan: 'free', status: 'active', projectLimit: 10 });
+    await Subscription.create({ userId: user._id, plan: 'free', status: 'active', projectLimit: 1 });
   } else {
     if (!user.firebaseUid) user.firebaseUid = firebaseUser.uid;
     if (!user.avatarUrl && firebaseUser.picture) user.avatarUrl = firebaseUser.picture;

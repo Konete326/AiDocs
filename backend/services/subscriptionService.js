@@ -11,8 +11,10 @@ exports.getUserSubscription = async (userId) => {
 };
 
 exports.checkProjectLimit = async (userId) => {
-  // TEMPORARY: Allow all projects for testing
-  return true;
+  const sub = await Subscription.findOne({ userId });
+  if (!sub) return false;
+  const projectCount = await Project.countDocuments({ userId, isArchived: false });
+  return projectCount < sub.projectLimit;
 };
 
 exports.canExport = async (userId) => {

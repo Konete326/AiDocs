@@ -1,5 +1,7 @@
 const projectService = require('../services/projectService');
 const asyncWrapper = require('../utils/asyncWrapper');
+const subscriptionService = require('../services/subscriptionService');
+const AppError = require('../utils/AppError');
 
 exports.getAllProjects = asyncWrapper(async (req, res) => {
   const projects = await projectService.getUserProjects(req.user.id);
@@ -32,11 +34,9 @@ exports.triggerGeneration = asyncWrapper(async (req, res) => {
 });
 
 exports.exportProject = asyncWrapper(async (req, res) => {
-  const subscriptionService = require('../services/subscriptionService');
   const isEligible = await subscriptionService.canExport(req.user.id);
   
   if (!isEligible) {
-    const AppError = require('../utils/AppError');
     throw new AppError('Exporting is a Pro feature. Please upgrade your plan.', 403, 'PRO_FEATURE_REQUIRED');
   }
 

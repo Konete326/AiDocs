@@ -702,13 +702,13 @@ After finishing, update the Completion Tracker section of AIDOCS_MASTER_PLAN.md.
 - [x] All 9 prompt builders created
 - [x] documentService created
 - [x] Document controller + routes created
-- [ ] Generation tested end-to-end ← PENDING
+- [x] Generation tested end-to-end (NVIDIA + OpenRouter cascade)
 
 ### Sprint 4 — Subscriptions + Stripe
 - [x] stripeService created
 - [x] subscriptionController + routes created
 - [x] Webhook wired with raw body parser
-- [ ] Stripe flow tested ← PENDING
+- [x] Stripe flow tested (Checkout Session redirection)
 
 ### Sprint 5 — Notifications + Polish
 - [x] notificationService created
@@ -771,6 +771,9 @@ After finishing, update the Completion Tracker section of AIDOCS_MASTER_PLAN.md.
 - [x] RESTful export endpoint implemented with blob steaming
 - [x] Frontend service updated with binary response handling
 - [x] ProjectDetail UI updated with Download action & Pro-only badges
+- [x] Notification System (Bell + Dropdown) implemented
+- [x] Pricing Page (/pricing) with Stripe integration implemented
+- [x] Security Audit Fixes (Salt rounds 12, real limit checks, AI delay, Rate limiting)
 
 ---
 
