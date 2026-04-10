@@ -7,7 +7,8 @@ export const getAccessToken = () => _accessToken;
 export const setAccessToken = (token) => { _accessToken = token; };
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || (window.location.origin + '/api'),
+  // Use relative path for unified deployment (Vercel routes /api -> backend internally)
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   withCredentials: true,
 });
 
