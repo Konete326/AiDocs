@@ -1,8 +1,10 @@
 import { Menu, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 export default function LandingLeftPanel() {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   return (
     <div className="relative z-10 w-full lg:w-[52%] min-h-screen flex flex-col p-4 lg:p-6">
       <div className="liquid-glass-strong rounded-3xl absolute inset-4 lg:inset-6 z-0" />
@@ -23,13 +25,23 @@ export default function LandingLeftPanel() {
             <br />
             <i className="font-serif text-white/80">intelligence</i> of SaaS
           </h1>
-          <button
-            onClick={() => navigate('/register')}
-            className="liquid-glass-strong rounded-full flex items-center gap-3 px-7 py-3.5 hover:scale-105 transition-transform"
-          >
-            <Download className="w-4 h-4 text-white/80" />
-            <span className="text-sm font-medium text-white tracking-wide">Start Generating</span>
-          </button>
+          {isAuthenticated ? (
+            <button
+              onClick={() => navigate('/dashboard')}
+              className="liquid-glass-strong rounded-full flex items-center gap-3 px-7 py-3.5 hover:scale-105 transition-transform"
+            >
+              <Download className="w-4 h-4 text-white/80" />
+              <span className="text-sm font-medium text-white tracking-wide">Go to Dashboard</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate('/register')}
+              className="liquid-glass-strong rounded-full flex items-center gap-3 px-7 py-3.5 hover:scale-105 transition-transform"
+            >
+              <Download className="w-4 h-4 text-white/80" />
+              <span className="text-sm font-medium text-white tracking-wide">Start Generating</span>
+            </button>
+          )}
           <div className="flex flex-wrap items-center justify-center gap-3">
             {['9-Doc Tech Suites', 'AI Generation Cascade', 'Kanban Workspace'].map((pill) => (
               <span

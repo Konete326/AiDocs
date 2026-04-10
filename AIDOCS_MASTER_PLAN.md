@@ -764,19 +764,21 @@ After finishing, update the Completion Tracker section of AIDOCS_MASTER_PLAN.md.
 - [x] AuthContext refactored (reducer extraction)
 - [x] Navbar dead routes fixed (/documents → /dashboard)
 
-### Sprint 10 — Multi-format Export (Pro)
-- [x] Backend `archiver` integration for dynamic ZIP generation
-- [x] Subscription-aware export restrictions (Pro/Team only)
-- [x] Project document bundling logic in `projectService`
-- [x] RESTful export endpoint implemented with blob steaming
-- [x] Frontend service updated with binary response handling
-- [x] ProjectDetail UI updated with Download action & Pro-only badges
-- [x] Pricing page with 3 plan cards (glass theme)
+### Sprint 10 — Final Polish & Constraints Compliance
+- [x] Refactored large components to strictly meet 80-line max limit (Navbar, TopPanel, Dashboard, Pricing)
+- [x] Extracted components into sensible sub-files and used constants (e.g., pricing plans)
+- [x] Migrated auth to memory-only token storage (No localStorage)
+- [x] Restored correct pricing values ($19/month for Pro, $49/month for Team)
 - [x] NotificationBell component in navbar
 - [x] NotificationDropdown with mark-as-read
 - [x] NotificationItem with type icons
 - [x] Pro-only ZIP download button in ProjectHeader
-- [x] /pricing route added
+- [x] /pricing route added with glass theme cards
+- [x] Replaced Google Auth redirect with signInWithPopup
+- [x] Backend `archiver` integration for ZIP generation
+- [x] Subscriptions service updated with Stripe limits logic
+- [x] Global apiLimiter implemented on all /api routes
+- [x] Multi-format Document Export ready for Pro accounts
 - [x] Security Audit Fixes (Salt rounds 12, real limit checks, AI delay, Rate limiting)
 
 ---

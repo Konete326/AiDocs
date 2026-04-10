@@ -26,8 +26,9 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const isRefreshRequest = originalRequest.url && originalRequest.url.includes('/auth/refresh');
 
-    if (error.response?.status === 401 && !originalRequest._retry && originalRequest.url !== '/auth/refresh') {
+    if (error.response?.status === 401 && !originalRequest._retry && !isRefreshRequest) {
       originalRequest._retry = true;
 
       try {
@@ -43,13 +44,12 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         setAccessToken(null);
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
-        }
+        // Let AuthContext and PrivateRoute handle redirection
         return Promise.reject(refreshError);
       }
     }
 
+    // Let AuthContext handle the rejection natively to prevent redirect loops
     return Promise.reject(error);
   }
 );

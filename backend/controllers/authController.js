@@ -1,14 +1,20 @@
 const authService = require('../services/authService');
 const asyncWrapper = require('../utils/asyncWrapper');
 
-const setRefreshCookie = (res, refreshToken) => {
+const getCookieOptions = () => {
   const isProd = process.env.NODE_ENV === 'production';
-  res.cookie('refreshToken', refreshToken, {
+  return {
     httpOnly: true,
-    secure: true, // Always true for cross-site cookies
+    secure: isProd,
     sameSite: isProd ? 'none' : 'lax', // 'none' is required for cross-domain on Vercel
-    maxAge: 7 * 24 * 60 * 60 * 1000,
     path: '/',
+  };
+};
+
+const setRefreshCookie = (res, refreshToken) => {
+  res.cookie('refreshToken', refreshToken, {
+    ...getCookieOptions(),
+    maxAge: 7 * 24 * 60 * 60 * 1000,
   });
 };
 
@@ -48,7 +54,7 @@ exports.logout = asyncWrapper(async (req, res) => {
 
   if (userId) await authService.logoutUser(userId);
 
-  res.clearCookie('refreshToken', { httpOnly: true, secure: process.env.NODE_ENV === 'production', sameSite: 'strict' });
+  res.clearCookie('refreshToken', getCookieOptions());
   res.status(200).json({ success: true, data: null });
 });
 
