@@ -8,6 +8,7 @@ import Dashboard from '../pages/Dashboard';
 import Profile from '../pages/Profile';
 import CreateProject from '../pages/CreateProject';
 import ProjectDetail from '../pages/ProjectDetail';
+import Pricing from '../pages/Pricing';
 import PrivateRoute from '../components/common/PrivateRoute';
 
 export default function AppRoutes() {
@@ -17,6 +18,7 @@ export default function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/register" element={<Register />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/pricing" element={<Pricing />} />
       
       {/* Protected Routes */}
       <Route element={<PrivateRoute />}>

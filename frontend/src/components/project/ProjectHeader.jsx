@@ -1,4 +1,6 @@
-import { ChevronLeft, Download } from 'lucide-react';
+import { ChevronLeft, Download, Lock } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 const STATUS_STYLES = {
   draft: 'text-white/40',
@@ -7,8 +9,15 @@ const STATUS_STYLES = {
   error: 'text-white/40',
 };
 
-const ProjectHeader = ({ project, onBack, onDownload, subscription }) => {
-  const isPro = subscription?.plan === 'pro' || subscription?.plan === 'team';
+const ProjectHeader = ({ project, onBack, subscription }) => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  
+  const isPro = ['pro', 'team'].includes(subscription?.plan) || user?.role === 'admin';
+
+  const handleZipDownload = () => {
+    alert('ZIP download coming soon! Your Pro plan is active.');
+  };
 
   return (
     <div className="flex items-center justify-between mb-8">
@@ -34,16 +43,23 @@ const ProjectHeader = ({ project, onBack, onDownload, subscription }) => {
       </div>
 
       {project.status === 'complete' && (
-        <button
-          onClick={onDownload}
-          className="liquid-glass-strong rounded-full px-6 py-3 flex items-center gap-2 hover:bg-white/10 transition-all cursor-pointer group"
-        >
-          <Download className="w-4 h-4 text-white/80 group-hover:scale-110 transition-transform" />
-          <div className="flex flex-col items-start leading-none">
-            <span className="text-xs text-white/90 font-semibold tracking-wide uppercase">Download Project</span>
-            {!isPro && <span className="text-[9px] text-white/40 mt-0.5">PRO FEATURE</span>}
-          </div>
-        </button>
+        isPro ? (
+          <button
+            onClick={handleZipDownload}
+            className="liquid-glass rounded-full px-5 py-2.5 flex items-center gap-2 hover:scale-105 transition-all cursor-pointer"
+          >
+            <Download className="w-4 h-4 text-white/80" />
+            <span className="text-sm text-white/90 font-medium">Download All</span>
+          </button>
+        ) : (
+          <button
+            onClick={() => navigate('/pricing')}
+            className="liquid-glass rounded-full px-5 py-2.5 flex items-center gap-2 hover:scale-105 transition-all cursor-pointer text-white/40"
+          >
+            <Lock className="w-4 h-4" />
+            <span className="text-sm font-medium">Download All (Pro)</span>
+          </button>
+        )
       )}
     </div>
   );

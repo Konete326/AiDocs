@@ -5,6 +5,7 @@ import GlassCard from '../common/GlassCard';
 import logo from '../../assets/logo.png';
 import BiomeMenu from '../common/BiomeMenu';
 import { useAuth } from '../../context/AuthContext';
+import NotificationBell from '../notifications/NotificationBell';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,13 +38,16 @@ const Navbar = () => {
           <span className="font-semibold text-xl lg:text-2xl tracking-tighter text-white">SwiftDocs AI</span>
         </div>
         
-        <GlassCard 
-          className="rounded-full px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-white/5 hover:scale-105 active:scale-95 transition-all"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          {isOpen ? <X className="w-4 h-4 text-white" /> : <Menu className="w-4 h-4 text-white/80" />}
-          <span className="text-sm font-medium text-white/80">{isOpen ? 'Close' : 'Menu'}</span>
-        </GlassCard>
+        <div className="flex items-center gap-3">
+          {isAuthenticated && <NotificationBell />}
+          <GlassCard 
+            className="rounded-full px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-white/5 hover:scale-105 active:scale-95 transition-all"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {isOpen ? <X className="w-4 h-4 text-white" /> : <Menu className="w-4 h-4 text-white/80" />}
+            <span className="text-sm font-medium text-white/80">{isOpen ? 'Close' : 'Menu'}</span>
+          </GlassCard>
+        </div>
       </nav>
 
       <BiomeMenu 
