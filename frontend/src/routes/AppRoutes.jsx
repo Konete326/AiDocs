@@ -9,6 +9,7 @@ import Profile from '../pages/Profile';
 import CreateProject from '../pages/CreateProject';
 import ProjectDetail from '../pages/ProjectDetail';
 import Pricing from '../pages/Pricing';
+import Workspace from '../pages/Workspace';
 import PrivateRoute from '../components/common/PrivateRoute';
 
 export default function AppRoutes() {
@@ -26,6 +27,7 @@ export default function AppRoutes() {
         <Route path="/profile" element={<Profile />} />
         <Route path="/projects/new" element={<CreateProject />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
+        <Route path="/projects/:id/workspace" element={<Workspace />} />
       </Route>
     </Routes>
   );

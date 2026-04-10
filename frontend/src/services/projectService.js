@@ -36,3 +36,8 @@ export async function exportProject(id) {
   });
   return response.data;
 }
+
+export async function updateKanban(projectId, kanbanColumns) {
+  const response = await api.patch(`/projects/${projectId}`, { kanbanColumns });
+  return response.data?.data?.project || response.data?.data;
+}

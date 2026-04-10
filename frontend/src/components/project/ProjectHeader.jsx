@@ -12,7 +12,7 @@ const STATUS_STYLES = {
 const ProjectHeader = ({ project, onBack, subscription }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const isPro = ['pro', 'team'].includes(subscription?.plan) || user?.role === 'admin';
 
   const handleZipDownload = () => {
@@ -42,25 +42,34 @@ const ProjectHeader = ({ project, onBack, subscription }) => {
         </div>
       </div>
 
-      {project.status === 'complete' && (
-        isPro ? (
-          <button
-            onClick={handleZipDownload}
-            className="liquid-glass rounded-full px-5 py-2.5 flex items-center gap-2 hover:scale-105 transition-all cursor-pointer"
-          >
-            <Download className="w-4 h-4 text-white/80" />
-            <span className="text-sm text-white/90 font-medium">Download All</span>
-          </button>
-        ) : (
-          <button
-            onClick={() => navigate('/pricing')}
-            className="liquid-glass rounded-full px-5 py-2.5 flex items-center gap-2 hover:scale-105 transition-all cursor-pointer text-white/40"
-          >
-            <Lock className="w-4 h-4" />
-            <span className="text-sm font-medium">Download All (Pro)</span>
-          </button>
-        )
-      )}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => navigate('/projects/' + project._id + '/workspace')}
+          className="liquid-glass rounded-full px-5 py-2.5 flex items-center gap-2 hover:scale-105 transition-all cursor-pointer"
+        >
+          <span className="text-sm text-white/80 font-medium">⬡ Workspace</span>
+        </button>
+
+        {project.status === 'complete' && (
+          isPro ? (
+            <button
+              onClick={handleZipDownload}
+              className="liquid-glass rounded-full px-5 py-2.5 flex items-center gap-2 hover:scale-105 transition-all cursor-pointer"
+            >
+              <Download className="w-4 h-4 text-white/80" />
+              <span className="text-sm text-white/90 font-medium">Download All</span>
+            </button>
+          ) : (
+            <button
+              onClick={() => navigate('/pricing')}
+              className="liquid-glass rounded-full px-5 py-2.5 flex items-center gap-2 hover:scale-105 transition-all cursor-pointer text-white/40"
+            >
+              <Lock className="w-4 h-4" />
+              <span className="text-sm font-medium">Download All (Pro)</span>
+            </button>
+          )
+        )}
+      </div>
     </div>
   );
 };
