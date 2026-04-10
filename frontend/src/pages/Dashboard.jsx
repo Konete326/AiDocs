@@ -6,12 +6,18 @@ import DashboardHeader from '../components/dashboard/DashboardHeader';
 import ProjectCard from '../components/dashboard/ProjectCard';
 import EmptyState from '../components/dashboard/EmptyState';
 import SubscriptionBanner from '../components/dashboard/SubscriptionBanner';
+import { useConfirmModal, useAlertModal } from '../hooks/useModal';
+import ConfirmModal from '../components/common/ConfirmModal';
+import AlertModal from '../components/common/AlertModal';
 
 const Dashboard = () => {
   const [projects, setProjects] = useState([]);
   const [subscription, setSubscription] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  
+  const { modal: confirmModal, confirm, close: closeConfirm, handleConfirm } = useConfirmModal();
+  const { modal: alertModal, alert: triggerAlert, close: closeAlert } = useAlertModal();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,17 +39,44 @@ const Dashboard = () => {
   }, []);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this project?')) return;
-    try {
-      await deleteProject(id);
-      setProjects(prev => prev.filter(p => p._id !== id));
-    } catch (err) {
-      alert('Failed to delete project.');
-    }
+    confirm({
+      title: 'Delete Project',
+      message: 'This project and all its documents will be permanently deleted. This cannot be undone.',
+      confirmLabel: 'Delete',
+      onConfirm: async () => {
+        try {
+          await deleteProject(id);
+          setProjects(prev => prev.filter(p => p._id !== id));
+        } catch (err) {
+          triggerAlert({
+            title: 'Delete Failed',
+            message: 'We could not delete the project at this time.'
+          });
+        }
+      }
+    });
   };
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black">
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmLabel={confirmModal.confirmLabel}
+        cancelLabel={confirmModal.cancelLabel}
+        onConfirm={handleConfirm}
+        onCancel={closeConfirm}
+      />
+      
+      <AlertModal
+        isOpen={alertModal.isOpen}
+        title={alertModal.title}
+        message={alertModal.message}
+        buttonLabel={alertModal.buttonLabel}
+        onClose={closeAlert}
+      />
+
       <video 
         autoPlay muted loop playsInline
         className="absolute inset-0 w-full h-full object-cover z-0 opacity-40"

@@ -806,6 +806,8 @@ After finishing, update the Completion Tracker section of AIDOCS_MASTER_PLAN.md.
 | - [x] Cancel button added (Create Project Wizard)
 | - [x] Navbar updated (Pricing link for auth users)
 | - [x] GeneratingState updated (Back to Dashboard button)
+| - [x] Glass Modal system implemented (`ConfirmModal`, `AlertModal`, `useModal`)
+| - [x] Native dialogs (`alert`, `confirm`) replaced across frontend
 | - [x] Sprint complete and documentation updated
 |
 

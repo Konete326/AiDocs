@@ -9,18 +9,32 @@ const STATUS_STYLES = {
   error: 'text-white/40',
 };
 
+import { useAlertModal } from '../../hooks/useModal';
+import AlertModal from '../common/AlertModal';
+
 const ProjectHeader = ({ project, onBack, subscription }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { modal, alert: triggerAlert, close } = useAlertModal();
 
   const isPro = ['pro', 'team'].includes(subscription?.plan) || user?.role === 'admin';
 
   const handleZipDownload = () => {
-    alert('ZIP download coming soon! Your Pro plan is active.');
+    triggerAlert({
+      title: 'Coming Soon',
+      message: 'ZIP download feature is currently in development. Your Pro plan will give you full access once it launches!'
+    });
   };
 
   return (
     <div className="flex items-center justify-between mb-8">
+      <AlertModal
+        isOpen={modal.isOpen}
+        title={modal.title}
+        message={modal.message}
+        buttonLabel={modal.buttonLabel}
+        onClose={close}
+      />
       <div>
         <button
           onClick={onBack}
