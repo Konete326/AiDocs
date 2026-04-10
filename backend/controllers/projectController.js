@@ -30,3 +30,15 @@ exports.triggerGeneration = asyncWrapper(async (req, res) => {
   const project = await projectService.triggerGeneration(req.params.id, req.user.id);
   res.status(200).json({ success: true, data: project });
 });
+
+exports.exportProject = asyncWrapper(async (req, res) => {
+  const subscriptionService = require('../services/subscriptionService');
+  const isEligible = await subscriptionService.canExport(req.user.id);
+  
+  if (!isEligible) {
+    const AppError = require('../utils/AppError');
+    throw new AppError('Exporting is a Pro feature. Please upgrade your plan.', 403, 'PRO_FEATURE_REQUIRED');
+  }
+
+  await projectService.exportProjectAsZip(req.params.id, req.user.id, res);
+});

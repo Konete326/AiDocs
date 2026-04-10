@@ -58,3 +58,28 @@ exports.triggerGeneration = async (projectId, userId) => {
   
   return project;
 };
+
+exports.exportProjectAsZip = async (projectId, userId, res) => {
+  const project = await Project.findOne({ _id: projectId, userId, isArchived: false });
+  if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');
+  
+  if (project.status !== 'complete') {
+    throw new AppError('Project generation is not complete yet', 400, 'PROJECT_NOT_READY');
+  }
+
+  const Document = require('../models/Document');
+  const documents = await Document.find({ projectId });
+  
+  const archiver = require('archiver');
+  const archive = archiver('zip', { zlib: { level: 9 } });
+
+  res.attachment(`${project.title.replace(/\s+/g, '_')}_AiDocs.zip`);
+  archive.pipe(res);
+
+  for (const doc of documents) {
+    const filename = `${doc.docType.toUpperCase()}.md`;
+    archive.append(doc.content, { name: filename });
+  }
+
+  await archive.finalize();
+};

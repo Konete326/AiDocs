@@ -15,6 +15,12 @@ exports.checkProjectLimit = async (userId) => {
   return true;
 };
 
+exports.canExport = async (userId) => {
+  const sub = await Subscription.findOne({ userId });
+  if (!sub) return false;
+  return sub.plan === 'pro' || sub.plan === 'team';
+};
+
 exports.upgradePlan = async (userId, stripeData) => {
   return await Subscription.findOneAndUpdate(
     { userId },

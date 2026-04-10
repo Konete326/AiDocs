@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
-import { triggerGeneration } from '../services/projectService';
+import { triggerGeneration, exportProject } from '../services/projectService';
 import { useProjectPolling } from '../hooks/useProjectPolling';
 import ProjectHeader from '../components/project/ProjectHeader';
 import DocsList from '../components/project/DocsList';
@@ -25,6 +25,21 @@ const ProjectDetail = () => {
   const handleRetry = async () => {
     await triggerGeneration(id);
     setProject((prev) => ({ ...prev, status: 'generating' }));
+  };
+
+  const handleDownload = async () => {
+    try {
+      const blob = await exportProject(id);
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${project.title.replace(/\s+/g, '_')}_AiDocs.zip`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode.removeChild(link);
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to download project. This feature may require a Pro subscription.');
+    }
   };
 
   if (isLoading) return <div className="h-screen flex items-center justify-center bg-black"><LoadingSpinner /></div>;
@@ -58,7 +73,12 @@ const ProjectDetail = () => {
       <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" src={VIDEO_URL} />
       <div className="relative z-10 px-6 py-8 md:px-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-7xl mx-auto">
-          <ProjectHeader project={project} onBack={() => navigate('/dashboard')} />
+          <ProjectHeader 
+            project={project} 
+            onBack={() => navigate('/dashboard')} 
+            onDownload={handleDownload}
+            subscription={subscription}
+          />
           <div className="flex flex-col lg:flex-row gap-6">
             <div className="w-full lg:w-72 flex-shrink-0">
               <DocsList documents={documents} selectedDoc={selectedDoc} onSelect={setSelectedDoc} isGenerating={project.status === 'generating'} />

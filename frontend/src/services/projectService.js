@@ -29,3 +29,10 @@ export async function triggerGeneration(id) {
   const response = await api.post(`/projects/${id}/generate`);
   return response.data.data;
 }
+
+export async function exportProject(id) {
+  const response = await api.get(`/projects/${id}/export`, {
+    responseType: 'blob'
+  });
+  return response.data;
+}

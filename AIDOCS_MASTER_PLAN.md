@@ -764,6 +764,14 @@ After finishing, update the Completion Tracker section of AIDOCS_MASTER_PLAN.md.
 - [x] AuthContext refactored (reducer extraction)
 - [x] Navbar dead routes fixed (/documents → /dashboard)
 
+### Sprint 10 — Multi-format Export (Pro)
+- [x] Backend `archiver` integration for dynamic ZIP generation
+- [x] Subscription-aware export restrictions (Pro/Team only)
+- [x] Project document bundling logic in `projectService`
+- [x] RESTful export endpoint implemented with blob steaming
+- [x] Frontend service updated with binary response handling
+- [x] ProjectDetail UI updated with Download action & Pro-only badges
+
 ---
 
 ## 13. Sprint 6 — Testing + Firebase Google Auth + Cloudinary
