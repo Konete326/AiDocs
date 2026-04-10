@@ -29,6 +29,7 @@ const GeneratingState = ({ docsGenerated }) => {
         />
       </div>
       <p className="text-xs text-white/40">This usually takes 2–3 minutes. Page updates automatically.</p>
+      </div>
     </div>
   );
 };
