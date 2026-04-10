@@ -7,7 +7,7 @@ export const getAccessToken = () => _accessToken;
 export const setAccessToken = (token) => { _accessToken = token; };
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: import.meta.env.VITE_API_URL || (window.location.origin + '/api'),
   withCredentials: true,
 });
 
@@ -44,10 +44,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         setAccessToken(null);
-        if (window.location.pathname !== '/login' && 
-            window.location.pathname !== '/register') {
-          window.location.href = '/login';
-        }
+        // Let AuthContext and PrivateRoute handle redirection
         return Promise.reject(refreshError);
       }
     }
