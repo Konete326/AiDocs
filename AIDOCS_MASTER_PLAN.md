@@ -754,6 +754,16 @@ After finishing, update the Completion Tracker section of AIDOCS_MASTER_PLAN.md.
 - [x] End-to-end frontend-backend connectivity verified
 - [x] Wizard refactored into 7 separate step components with Shell-Step architecture
 
+### Sprint 9 — Security Cleanup & Component Refactoring
+- [x] Memory-only token state implemented (XSS mitigation)
+- [x] Google Auth switched to popup (zero-state-loss flow)
+- [x] Native redirect auth logic removed
+- [x] Dead code/files deleted (wizard steps, duplicates)
+- [x] Landing page refactored (split into sub-components)
+- [x] BiomeMenu refactored (split into sub-components)
+- [x] AuthContext refactored (reducer extraction)
+- [x] Navbar dead routes fixed (/documents → /dashboard)
+
 ---
 
 ## 13. Sprint 6 — Testing + Firebase Google Auth + Cloudinary
