@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Camera } from 'lucide-react';
 
-const UserAvatar = ({ user, size = 'md', showUpload = false, onUpload, className = '' }) => {
+const UserAvatar = ({ user, size = 'md', showUpload = false, onUpload, className = '', onClick }) => {
   const fileInputRef = useRef(null);
   const [imgError, setImgError] = useState(false);
 
@@ -31,7 +31,10 @@ const UserAvatar = ({ user, size = 'md', showUpload = false, onUpload, className
   };
 
   return (
-    <div className={`relative group ${sizeClasses[size]} ${className}`}>
+    <div 
+      onClick={onClick}
+      className={`relative group ${sizeClasses[size]} ${className}`}
+    >
       {hasAvatar ? (
         <img
           src={user.avatarUrl}
