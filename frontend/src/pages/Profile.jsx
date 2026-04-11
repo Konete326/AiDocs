@@ -35,16 +35,20 @@ const Profile = () => {
           <ChevronLeft className="w-4 h-4 text-white/70" />
           <span className="text-sm text-white/70 font-medium">Dashboard</span>
         </button>
-        <GlassCard strong className="rounded-[2rem] p-6 sm:p-8 md:p-12 relative">
-          {!isEditing && (
-            <button onClick={handleEditToggle} className="absolute top-4 sm:top-6 right-4 sm:right-6 liquid-glass rounded-full px-4 py-2 text-sm text-white/80 flex items-center gap-2 hover:scale-105 transition-transform z-20 cursor-pointer">
-              <Pencil className="w-4 h-4" />
-              <span className="hidden sm:inline">Edit Profile</span>
-            </button>
-          )}
-          <div className="grid gap-12 lg:grid-cols-2 mt-10 sm:mt-0">
-            <div className="space-y-8 flex flex-col">
+        <GlassCard strong className="rounded-[2rem] p-6 sm:p-8 md:p-12 relative overflow-visible">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6 mb-8">
+            <div className="flex-1">
               <ProfileHeader user={user} />
+            </div>
+            {!isEditing && (
+              <button onClick={handleEditToggle} className="liquid-glass rounded-full px-5 py-2.5 text-sm text-white/80 flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer h-fit self-end sm:self-start">
+                <Pencil className="w-4 h-4" />
+                <span>Edit Profile</span>
+              </button>
+            )}
+          </div>
+          <div className="grid gap-12 lg:grid-cols-2">
+            <div className="space-y-8 flex flex-col">
               <StatsGrid projectsCount={projectsCount} totalDocs={totalDocs} plan={subscription?.plan || 'free'} />
             </div>
             <div className="relative">
