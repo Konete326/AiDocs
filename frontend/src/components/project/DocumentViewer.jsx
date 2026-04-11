@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Copy, Pencil, Lock } from 'lucide-react';
+import { Copy, Pencil, Lock, FileText, FileDown } from 'lucide-react';
+import { downloadDocAsPdf, downloadDocAsWord } from '../../services/exportService';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { updateDocument } from '../../services/documentService';
 import { mdComponents, DOC_LABELS } from './markdownComponents';
@@ -66,6 +67,12 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
         <div className="flex gap-2 items-center">
           <button onClick={handleCopy} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
             <Copy className="w-3.5 h-3.5" /> Copy
+          </button>
+          <button onClick={() => downloadDocAsPdf(project._id, document.docType)} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
+            <FileText className="w-3.5 h-3.5" /> PDF
+          </button>
+          <button onClick={() => downloadDocAsWord(project._id, document.docType)} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
+            <FileDown className="w-3.5 h-3.5" /> Word
           </button>
           {renderButtons()}
         </div>

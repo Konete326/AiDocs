@@ -23,11 +23,25 @@ exports.canExport = async (userId) => {
   return sub.plan === 'pro' || sub.plan === 'team';
 };
 
+const PLAN_LIMITS = {
+  free: 3,
+  pro: 10,
+  team: 999999,
+};
+
 exports.upgradePlan = async (userId, stripeData) => {
   return await Subscription.findOneAndUpdate(
     { userId },
-    { ...stripeData },
-    { new: true, upsert: true }
+    {
+      plan: stripeData.plan,
+      status: stripeData.status || 'active',
+      stripeCustomerId: stripeData.stripeCustomerId,
+      stripeSubscriptionId: stripeData.stripeSubscriptionId,
+      currentPeriodStart: stripeData.currentPeriodStart,
+      currentPeriodEnd: stripeData.currentPeriodEnd,
+      projectLimit: PLAN_LIMITS[stripeData.plan] || 3,
+    },
+    { upsert: true, new: true }
   );
 };
 

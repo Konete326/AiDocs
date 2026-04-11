@@ -12,6 +12,7 @@ import Pricing from '../pages/Pricing';
 import Workspace from '../pages/Workspace';
 import PrivateRoute from '../components/common/PrivateRoute';
 import PublicOnlyRoute from '../components/common/PublicOnlyRoute';
+import ProjectChat from '../pages/ProjectChat';
 
 export default function AppRoutes() {
   return (
@@ -31,6 +32,7 @@ export default function AppRoutes() {
         <Route path="/projects/new" element={<CreateProject />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
         <Route path="/projects/:id/workspace" element={<Workspace />} />
+        <Route path="/projects/:id/chat" element={<ProjectChat />} />
       </Route>
     </Routes>
   );

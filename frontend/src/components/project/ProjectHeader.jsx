@@ -1,6 +1,8 @@
-import { ChevronLeft, Download, Lock } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { ChevronLeft } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useAlertModal } from '../../hooks/useModal';
+import AlertModal from '../common/AlertModal';
+import ProjectHeaderActions from './ProjectHeaderActions';
 
 const STATUS_STYLES = {
   draft: 'text-white/40',
@@ -9,14 +11,9 @@ const STATUS_STYLES = {
   error: 'text-white/40',
 };
 
-import { useAlertModal } from '../../hooks/useModal';
-import AlertModal from '../common/AlertModal';
-
 const ProjectHeader = ({ project, onBack, subscription }) => {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const { modal, alert: triggerAlert, close } = useAlertModal();
-
   const isPro = ['pro', 'team'].includes(subscription?.plan) || user?.role === 'admin';
 
   const handleZipDownload = () => {
@@ -28,62 +25,22 @@ const ProjectHeader = ({ project, onBack, subscription }) => {
 
   return (
     <div className="flex items-center justify-between mb-8">
-      <AlertModal
-        isOpen={modal.isOpen}
-        title={modal.title}
-        message={modal.message}
-        buttonLabel={modal.buttonLabel}
-        onClose={close}
-      />
-      <div>
-        <button
-          onClick={onBack}
-          className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer"
-        >
-          <ChevronLeft className="w-4 h-4 text-white/70" />
-          <span className="text-sm text-white/70 font-medium">Dashboard</span>
+      <AlertModal isOpen={modal.isOpen} title={modal.title} message={modal.message} onClose={close} />
+      <div className="flex-1">
+        <button onClick={onBack} className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 hover:scale-105 transition-all text-sm text-white/70">
+          <ChevronLeft className="w-4 h-4" /> Dashboard
         </button>
         <div className="mt-4">
           <h1 className="text-3xl font-semibold text-white tracking-tight">{project.title}</h1>
           <div className="flex items-center gap-2 mt-2">
-            <span className="liquid-glass rounded-full px-3 py-1 text-[10px] uppercase tracking-wider text-white/50">
-              {project.projectType}
-            </span>
+            <span className="liquid-glass rounded-full px-3 py-1 text-[10px] uppercase tracking-wider text-white/50">{project.projectType}</span>
             <span className={`liquid-glass rounded-full px-3 py-1 text-[10px] uppercase tracking-wider ${STATUS_STYLES[project.status] || 'text-white/50'}`}>
               {project.status}
             </span>
           </div>
         </div>
       </div>
-
-      <div className="flex items-center gap-3">
-        <button
-          onClick={() => navigate('/projects/' + project._id + '/workspace')}
-          className="liquid-glass rounded-full px-5 py-2.5 flex items-center gap-2 hover:scale-105 transition-all cursor-pointer"
-        >
-          <span className="text-sm text-white/80 font-medium">⬡ Workspace</span>
-        </button>
-
-        {project.status === 'complete' && (
-          isPro ? (
-            <button
-              onClick={handleZipDownload}
-              className="liquid-glass rounded-full px-5 py-2.5 flex items-center gap-2 hover:scale-105 transition-all cursor-pointer"
-            >
-              <Download className="w-4 h-4 text-white/80" />
-              <span className="text-sm text-white/90 font-medium">Download All</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => navigate('/pricing')}
-              className="liquid-glass rounded-full px-5 py-2.5 flex items-center gap-2 hover:scale-105 transition-all cursor-pointer text-white/40"
-            >
-              <Lock className="w-4 h-4" />
-              <span className="text-sm font-medium">Download All (Pro)</span>
-            </button>
-          )
-        )}
-      </div>
+      <ProjectHeaderActions project={project} isPro={isPro} handleZipDownload={handleZipDownload} />
     </div>
   );
 };

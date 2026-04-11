@@ -16,6 +16,8 @@ const projectRoutes = require('./routes/projectRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const subscriptionRoutes = require('./routes/subscriptionRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const chatRoutes = require('./routes/chatRoutes');
+const exportRoutes = require('./routes/exportRoutes');
 
 const app = express();
 
@@ -85,6 +87,8 @@ app.use('/api/projects', projectRoutes);
 app.use('/api/projects/:projectId/documents', documentRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api', chatRoutes);
+app.use('/api', exportRoutes);
 
 // 404 handler
 app.use((req, res, next) => {

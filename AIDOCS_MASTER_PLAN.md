@@ -794,10 +794,19 @@ After finishing, update the Completion Tracker section of AIDOCS_MASTER_PLAN.md.
 - [x] ProjectHeader.jsx updated (Workspace button added)
 - [x] Committed and pushed to GitHub
 |
-| ### Sprint 12 — UX Refinement & Pricing Update
-| - [x] PublicOnlyRoute created (auth bounce logic)
-| - [x] AppRoutes updated (Login/Register protected)
-| - [x] Hero CTA dynamic (Explore Now uses useAuth)
+### Sprint 12 — Bug Fixes + AI Chat + Document Export
+- [x] Backend projectLimit upgrade logic fixed (subscriptionService)
+- [x] SubscriptionBanner updated (dynamic usage/limit display)
+- [x] AI Chat Backend implemented (AIService.generateChat, chatService, routes)
+- [x] AI Chat Frontend implemented (ProjectChat, Glass Chat UI)
+- [x] AI Chat Project-Context awareness added (backend context injection)
+- [x] Document Export Backend implemented (ZIP via archiver, PDF via Styled HTML, Word via docx)
+- [x] Document Export Frontend integrated (Download All, PDF/Word per doc)
+- [x] Pro-only Access Control (Backend and Frontend gates)
+- [x] Adhered to 80-line component limit (Refactored ProjectHeader)
+- [x] ADOCS_MASTER_PLAN.md updated
+- [x] Pushed to GitHub
+
 | - [x] Free tier limit increased (1 → 3 projects)
 | - [x] Pro price updated ($19 → $5)
 | - [x] Team price updated ($49 → $10)

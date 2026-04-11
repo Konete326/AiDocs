@@ -1,5 +1,14 @@
-const AppError = require('../utils/AppError');
 const Subscription = require('../models/Subscription');
+const AppError = require('../utils/AppError');
+const asyncWrapper = require('../utils/asyncWrapper');
+
+const checkSubscription = (allowedPlans) => asyncWrapper(async (req, res, next) => {
+  const sub = await Subscription.findOne({ userId: req.user.id });
+  if (!sub || !allowedPlans.includes(sub.plan)) {
+    throw new AppError('This feature requires a Pro or Team plan', 403, 'PLAN_REQUIRED');
+  }
+  next();
+});
 
 const requirePlan = (plans) => {
   return async (req, res, next) => {
@@ -15,4 +24,4 @@ const requirePlan = (plans) => {
   };
 };
 
-module.exports = { requirePlan };
+module.exports = { checkSubscription, requirePlan };

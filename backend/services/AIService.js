@@ -70,13 +70,10 @@ exports.generateText = async (prompt, docType) => {
     } catch (error) {
       console.error(`[AIService] ${provider.name} failed (${docType}): ${error.message}`);
       
-      // AI-06: Skip 401/403 errors (invalid/expired keys)
       if (error.response && [401, 403].includes(error.response.status)) {
-        console.warn(`[AIService] Skipping ${provider.name} due to auth error`);
         continue;
       }
 
-      // AI-07: 1.5s delay before next provider
       if (i < providers.length - 1) {
         await delay(1500);
       }
@@ -85,3 +82,29 @@ exports.generateText = async (prompt, docType) => {
 
   throw new AppError('AI generation failed across all providers.', 500, 'GENERATION_FAILED');
 };
+
+exports.generateChat = async (messages) => {
+  for (let i = 0; i < providers.length; i++) {
+    const provider = providers[i];
+    try {
+      const token = provider.getKey();
+      if (!token) continue;
+
+      const response = await axios.post(
+        provider.url,
+        { model: provider.model, messages, max_tokens: 1000, temperature: 0.7 },
+        {
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...provider.headers },
+          timeout: 60000
+        }
+      );
+
+      return response.data.choices[0].message.content;
+    } catch (error) {
+      console.error(`[AIService] ${provider.name} chat failed: ${error.message}`);
+      if (i < providers.length - 1) await delay(1500);
+    }
+  }
+  throw new AppError('AI chat failed across all providers.', 500, 'CHAT_FAILED');
+};
+
