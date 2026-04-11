@@ -10,6 +10,7 @@ import Profile from '../pages/Profile';
 import CreateProject from '../pages/CreateProject';
 import ProjectDetail from '../pages/ProjectDetail';
 import Pricing from '../pages/Pricing';
+import Features from '../pages/Features';
 import Workspace from '../pages/Workspace';
 import PrivateRoute from '../components/common/PrivateRoute';
 import PublicOnlyRoute from '../components/common/PublicOnlyRoute';
@@ -26,6 +27,7 @@ export default function AppRoutes() {
         <Route path="/reset-password" element={<ResetPassword />} />
       </Route>
       <Route path="/pricing" element={<Pricing />} />
+      <Route path="/features" element={<Features />} />
       
       {/* Protected Routes */}
       <Route element={<PrivateRoute />}>
