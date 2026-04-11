@@ -28,6 +28,7 @@ const FeedbackModal = ({ isOpen, onClose, onSuccess }) => {
       );
 
       toast.success('Feedback submitted! 🚀');
+      window.dispatchEvent(new Event('notificationRefresh'));
       onSuccess(response.data.data);
       setContent('');
       onClose();

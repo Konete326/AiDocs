@@ -24,6 +24,11 @@ const NotificationBell = () => {
     };
     fetchNotifications();
 
+    const handleRefresh = () => {
+      fetchNotifications();
+    };
+    window.addEventListener('notificationRefresh', handleRefresh);
+
     const handleClickOutside = (e) => {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
         setIsOpen(false);
@@ -34,6 +39,7 @@ const NotificationBell = () => {
     return () => {
       active = false;
       document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('notificationRefresh', handleRefresh);
     };
   }, []);
 
