@@ -12,14 +12,16 @@ const NavLinks = () => {
 
   const links = isAuthenticated
     ? [
-        { name: 'Dashboard', path: '/dashboard' },
-        { name: 'Projects', path: '/dashboard#projects' },
+        { name: 'Home', path: '/' },
+        { name: 'Projects', path: '/dashboard' },
         { name: 'Pricing', path: '/pricing' },
+        { name: 'Review', path: '/feedback' },
         { name: 'Workspace', path: '/dashboard', isProtected: true }
       ]
     : [
         { name: 'Home', path: '/' },
-        { name: 'Pricing', path: '/pricing' }
+        { name: 'Pricing', path: '/pricing' },
+        { name: 'Review', path: '/feedback' }
       ];
 
   const handleLinkClick = (e, link) => {

@@ -28,15 +28,18 @@ const NavMobileMenu = ({ isOpen, onClose }) => {
 
   const menuItems = isAuthenticated 
     ? [
-        { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+        { label: 'Home', href: '/', icon: Home },
+        { label: 'Projects', href: '/dashboard', icon: LayoutDashboard },
         { label: 'Workspace', href: '/dashboard', icon: Briefcase, isProtected: true },
         { label: 'Pricing', href: '/pricing', icon: CreditCard },
+        { label: 'Review', href: '/feedback', icon: User },
         { label: 'Profile', href: '/profile', icon: User },
         { label: 'Logout', action: logout, icon: LogOut, danger: true },
       ]
     : [
         { label: 'Home', href: '/', icon: Home },
         { label: 'Pricing', href: '/pricing', icon: CreditCard },
+        { label: 'Review', href: '/feedback', icon: User },
         { label: 'Sign In', href: '/login', icon: LogIn },
         { label: 'Get Started', href: '/register', icon: UserPlus },
       ];
