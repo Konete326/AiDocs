@@ -1,13 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Bell } from 'lucide-react';
 import { getNotifications, markNotificationRead } from '../../services/notificationService';
-import NotificationDropdown from './NotificationDropdown';
+import NotificationModal from './NotificationModal';
 
 const NotificationBell = () => {
   const [notifications, setNotifications] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const containerRef = useRef(null);
 
   useEffect(() => {
     let active = true;
@@ -28,17 +27,9 @@ const NotificationBell = () => {
       fetchNotifications();
     };
     window.addEventListener('notificationRefresh', handleRefresh);
-
-    const handleClickOutside = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
     
     return () => {
       active = false;
-      document.removeEventListener('mousedown', handleClickOutside);
       window.removeEventListener('notificationRefresh', handleRefresh);
     };
   }, []);
@@ -55,9 +46,9 @@ const NotificationBell = () => {
   const unreadCount = (notifications || []).filter(n => !n.isRead).length;
 
   return (
-    <div className="relative" ref={containerRef}>
+    <div className="relative">
       <button 
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => setIsOpen(true)}
         className="liquid-glass rounded-full w-10 h-10 flex items-center justify-center relative hover:scale-105 transition-transform cursor-pointer border-none outline-none"
       >
         <Bell className="w-4 h-4 text-white/70" />
@@ -68,14 +59,13 @@ const NotificationBell = () => {
         )}
       </button>
 
-      {isOpen && (
-        <NotificationDropdown 
-          notifications={notifications} 
-          onMarkRead={handleMarkRead} 
-          isLoading={isLoading} 
-          onClose={() => setIsOpen(false)}
-        />
-      )}
+      <NotificationModal 
+        isOpen={isOpen}
+        notifications={notifications} 
+        onMarkRead={handleMarkRead} 
+        isLoading={isLoading} 
+        onClose={() => setIsOpen(false)}
+      />
     </div>
   );
 };
