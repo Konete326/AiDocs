@@ -37,8 +37,8 @@ const NotificationModal = ({ isOpen, notifications, onMarkRead, onMarkAllRead, o
                   <div className="flex items-center gap-3">
                     <h2 className="text-xl font-semibold text-white tracking-tight">Notifications</h2>
                     {unreadCount > 0 && (
-                      <span className="bg-white text-black text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
-                        {unreadCount} NEW
+                      <span className="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/20 shadow-lg uppercase tracking-wider">
+                        New
                       </span>
                     )}
                   </div>

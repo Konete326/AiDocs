@@ -6,16 +6,27 @@ import GlassCard from '../components/common/GlassCard';
 import ProfileHeader from '../components/profile/ProfileHeader';
 import StatsGrid from '../components/profile/StatsGrid';
 import ProfileCard from '../components/profile/ProfileCard';
+import { useAuth } from '../context/AuthContext';
 
 
 const Profile = () => {
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const {
     user, subscription, projectsCount, totalDocs,
     isEditing, setIsEditing, isSaving, saveError,
     editData, setEditData, handleEditToggle, handleSave, handleAvatarUpload,
     isUploadingAvatar
   } = useProfileFetch();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
+
+  const handleResetPassword = () => {
+    navigate('/forgot-password');
+  };
 
   const memberSince = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
@@ -59,6 +70,8 @@ const Profile = () => {
                 isSaving={isSaving} saveError={saveError}
                 onAvatarUpload={handleAvatarUpload}
                 isUploadingAvatar={isUploadingAvatar}
+                onLogout={handleLogout}
+                onResetPassword={handleResetPassword}
               />
             </div>
           </div>

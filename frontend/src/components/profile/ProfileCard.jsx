@@ -1,8 +1,12 @@
+import { LogOut, KeyRound } from 'lucide-react';
 import UserAvatar from '../common/UserAvatar';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ProfileInfoLinks from './ProfileInfoLinks';
 
-const ProfileCard = ({ user, subscription, memberSince, isEditing, editData, onChange, onSave, onCancel, isSaving, saveError, onAvatarUpload, isUploadingAvatar }) => {
+const ProfileCard = ({ 
+  user, subscription, memberSince, isEditing, editData, onChange, onSave, onCancel, 
+  isSaving, saveError, onAvatarUpload, isUploadingAvatar, onLogout, onResetPassword 
+}) => {
   return (
     <div className="liquid-glass-strong rounded-[28px] p-8 flex flex-col items-center">
       <div className="relative mt-2">
@@ -42,6 +46,26 @@ const ProfileCard = ({ user, subscription, memberSince, isEditing, editData, onC
       </div>
 
       <ProfileInfoLinks user={user} subscription={subscription} memberSince={memberSince} />
+
+      {!isEditing && (
+        <div className="mt-8 w-full pt-8 border-t border-white/5 space-y-3">
+          <button 
+            onClick={onResetPassword}
+            className="w-full liquid-glass rounded-2xl px-4 py-3 flex items-center gap-3 text-white/70 hover:text-white hover:bg-white/5 transition-all active:scale-95 cursor-pointer"
+          >
+            <KeyRound className="w-5 h-5 opacity-70" />
+            <span className="text-sm font-medium">Reset Password</span>
+          </button>
+          
+          <button 
+            onClick={onLogout}
+            className="w-full liquid-glass rounded-2xl px-4 py-3 flex items-center gap-3 text-red-400/60 hover:text-red-400 hover:bg-red-400/5 transition-all active:scale-95 cursor-pointer"
+          >
+            <LogOut className="w-5 h-5 opacity-70" />
+            <span className="text-sm font-medium">Logout Account</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };
