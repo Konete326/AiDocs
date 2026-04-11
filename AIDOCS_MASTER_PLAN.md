@@ -818,6 +818,16 @@ After finishing, update the Completion Tracker section of AIDOCS_MASTER_PLAN.md.
 | - [x] Glass Modal system implemented (`ConfirmModal`, `AlertModal`, `useModal`)
 | - [x] Native dialogs (`alert`, `confirm`) replaced across frontend
 | - [x] Sprint complete and documentation updated
+| ### Sprint 13 — Production Stability & Password Reset
+- [x] Vercel deployment overhaul (SPA redirect fix)
+- [x] CORS fixed (dynamic origin validation)
+- [x] Cross-origin cookies fixed (sameSite: 'none', secure: true)
+- [x] Nodemailer integrated (real SMTP emails)
+- [x] Secure password reset flow (SHA-256 hashed tokens)
+- [x] Forgot password interface (real API connection)
+- [x] Reset password interface (token validation, password confirmation)
+- [x] VERCEL_ENV_SETUP.md and EMAIL_SETUP.md created
+- [x] Sprint 13 completion tracked and documentation updated
 |
 
 ---

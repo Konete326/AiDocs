@@ -26,7 +26,7 @@ export default function ResetPassword() {
     try {
       await resetPasswordApi(token, password);
       setSuccess(true);
-      setTimeout(() => navigate('/login'), 3000);
+      setTimeout(() => navigate('/login'), 5000);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to reset password');
     } finally {
@@ -39,11 +39,11 @@ export default function ResetPassword() {
       <AuthLayout title="Success!" subtitle="Your password has been updated">
         <div className="text-center space-y-6">
           <div className="flex justify-center">
-            <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center border border-green-500/30">
-              <CheckCircle className="w-8 h-8 text-green-500" />
+            <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center border border-white/20">
+              <CheckCircle className="w-8 h-8 text-white/60" />
             </div>
           </div>
-          <p className="text-sm text-white/60">Redirecting you to login in a moment...</p>
+          <p className="text-sm text-white/60">Redirecting you to login in 5 seconds...</p>
           <Link to="/login" className="block text-xs text-white/40 hover:text-white/80">Click here if you aren't redirected</Link>
         </div>
       </AuthLayout>
