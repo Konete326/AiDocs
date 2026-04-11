@@ -71,9 +71,7 @@ const NotificationBell = () => {
       >
         <Bell className="w-4 h-4 text-white/70" />
         {unreadCount > 0 && (
-          <div className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-white flex items-center justify-center text-[9px] text-black font-extrabold shadow-[0_0_10px_rgba(255,255,255,0.5)]">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </div>
+          <div className="absolute top-2 right-2.5 w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]" />
         )}
       </button>
 

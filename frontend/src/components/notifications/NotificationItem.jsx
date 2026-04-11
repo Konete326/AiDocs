@@ -29,7 +29,7 @@ const NotificationItem = ({ notification, onMarkRead, onDelete }) => {
 
   return (
     <div 
-      className={`group relative px-5 py-4 flex items-start gap-4 transition-all border-b border-white/[0.03] ${!notification.isRead ? 'bg-white/[0.04] hover:bg-white/[0.06]' : 'hover:bg-white/[0.02]'}`}
+      className={`group relative px-5 py-4 flex items-start gap-4 transition-all rounded-2xl border-b border-white/[0.03] ${!notification.isRead ? 'bg-white/[0.04] hover:bg-white/[0.06]' : 'hover:bg-white/[0.02]'}`}
       onClick={() => !notification.isRead && onMarkRead(notification._id)}
     >
       <div className={`p-2 rounded-xl bg-white/[0.03] ${colorClass} mt-0.5`}>
