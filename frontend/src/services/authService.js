@@ -32,3 +32,13 @@ export async function refreshAccessToken() {
   setAccessToken(response.data.data.accessToken);
   return response.data.data.accessToken;
 }
+
+export async function forgotPasswordApi(email) {
+  const { data } = await api.post('/auth/forgot-password', { email });
+  return data;
+}
+
+export async function resetPasswordApi(token, password) {
+  const { data } = await api.post('/auth/reset-password', { token, password });
+  return data;
+}

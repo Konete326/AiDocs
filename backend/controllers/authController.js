@@ -1,13 +1,15 @@
 const authService = require('../services/authService');
 const asyncWrapper = require('../utils/asyncWrapper');
+const AppError = require('../utils/AppError');
 
 const getCookieOptions = () => {
   const isProd = process.env.NODE_ENV === 'production';
   return {
     httpOnly: true,
     secure: isProd,
-    sameSite: isProd ? 'none' : 'lax', // 'none' is required for cross-domain on Vercel
+    sameSite: isProd ? 'none' : 'lax',
     path: '/',
+    domain: isProd ? undefined : undefined,
   };
 };
 
@@ -63,4 +65,19 @@ exports.googleFirebaseAuth = asyncWrapper(async (req, res) => {
 
   setRefreshCookie(res, refreshToken);
   res.status(200).json({ success: true, data: { user: { id: user._id, email: user.email, displayName: user.displayName, avatarUrl: user.avatarUrl }, accessToken } });
+});
+
+exports.forgotPassword = asyncWrapper(async (req, res) => {
+  const { email } = req.body;
+  if (!email) throw new AppError('Email required', 400, 'VALIDATION_ERROR');
+  await authService.forgotPassword(email);
+  res.json({ success: true, data: { message: 'If this email exists, a reset link has been sent.' } });
+});
+
+exports.resetPassword = asyncWrapper(async (req, res) => {
+  const { token, password } = req.body;
+  if (!token || !password) throw new AppError('Token and password required', 400, 'VALIDATION_ERROR');
+  if (password.length < 8) throw new AppError('Password too short', 400, 'VALIDATION_ERROR');
+  await authService.resetPassword(token, password);
+  res.json({ success: true, data: { message: 'Password reset successfully.' } });
 });

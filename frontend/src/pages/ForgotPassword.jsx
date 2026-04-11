@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Mail, ArrowLeft } from 'lucide-react';
 import AuthLayout from '../components/auth/AuthLayout';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { forgotPasswordApi } from '../services/authService';
 
 export default function ForgotPassword() {
   const [email, setEmail] = useState('');
@@ -10,14 +11,18 @@ export default function ForgotPassword() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email) return setError('Email is required');
     setError(''); setMessage(''); setIsLoading(true);
-    setTimeout(() => {
-      setMessage('If an account exists, a reset link has been sent.');
+    try {
+      const response = await forgotPasswordApi(email);
+      setMessage(response.data.message);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed to send reset link');
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (

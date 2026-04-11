@@ -3,6 +3,8 @@ const Subscription = require('../models/Subscription');
 const AppError = require('../utils/AppError');
 const { generateAccessToken, generateRefreshToken, hashToken } = require('../utils/tokenUtils');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
+const { sendPasswordResetEmail } = require('../utils/emailService');
 
 exports.registerUser = async (email, password, displayName) => {
   const existingUser = await User.findOne({ email });
@@ -108,4 +110,32 @@ exports.handleFirebaseGoogleUser = async (firebaseUser) => {
   await user.save();
 
   return { user, accessToken, refreshToken };
+};
+
+exports.forgotPassword = async (email) => {
+  const user = await User.findOne({ email: email.toLowerCase() });
+  if (!user) return;
+  const rawToken = crypto.randomBytes(32).toString('hex');
+  const hashedToken = crypto.createHash('sha256').update(rawToken).digest('hex');
+  await User.findByIdAndUpdate(user._id, {
+    passwordResetToken: hashedToken,
+    passwordResetExpiry: new Date(Date.now() + 60 * 60 * 1000),
+  });
+  await sendPasswordResetEmail(user.email, rawToken, user.displayName);
+  return true;
+};
+
+exports.resetPassword = async (token, newPassword) => {
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+  const user = await User.findOne({
+    passwordResetToken: hashedToken,
+    passwordResetExpiry: { $gt: new Date() },
+  });
+  if (!user) throw new AppError('Invalid or expired reset token', 400, 'INVALID_TOKEN');
+  const passwordHash = await bcrypt.hash(newPassword, 12);
+  await User.findByIdAndUpdate(user._id, {
+    passwordHash, passwordResetToken: undefined,
+    passwordResetExpiry: undefined, refreshTokenHash: undefined,
+  });
+  return true;
 };

@@ -10,7 +10,9 @@ const userSchema = new mongoose.Schema(
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     isVerified: { type: Boolean, default: false },
     refreshTokenHash: { type: String },
-    refreshTokenExpiry: { type: Date }
+    refreshTokenExpiry: { type: Date },
+    passwordResetToken: { type: String },
+    passwordResetExpiry: { type: Date }
   },
   { timestamps: true }
 );

@@ -14,4 +14,8 @@ router.post('/logout', authController.logout);
 // Firebase Google Auth
 router.post('/google', verifyFirebaseToken, authController.googleFirebaseAuth);
 
+// Password Reset
+router.post('/forgot-password', authController.forgotPassword);
+router.post('/reset-password', authController.resetPassword);
+
 module.exports = router;
