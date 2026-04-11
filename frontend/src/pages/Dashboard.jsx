@@ -77,11 +77,8 @@ const Dashboard = () => {
         onClose={closeAlert}
       />
 
-      <video 
-        autoPlay muted loop playsInline
-        className="absolute inset-0 w-full h-full object-cover z-0 opacity-40"
-        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4"
-      />
+      {/* Dark overlay — video from PersistentBackground in App.jsx */}
+      <div className="fixed inset-0 bg-black/55 z-[1]" />
       
       <div className="relative z-10 pt-20 p-6 md:p-12 lg:p-16 max-w-7xl mx-auto min-h-screen">
         <DashboardHeader projectCount={projects?.length || 0} plan={subscription?.plan || 'free'} />

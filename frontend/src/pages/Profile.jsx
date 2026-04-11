@@ -7,7 +7,6 @@ import ProfileHeader from '../components/profile/ProfileHeader';
 import StatsGrid from '../components/profile/StatsGrid';
 import ProfileCard from '../components/profile/ProfileCard';
 
-const VIDEO_URL = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -24,8 +23,8 @@ const Profile = () => {
 
   return (
     <section className="relative min-h-screen overflow-hidden px-4 sm:px-6 py-24 lg:py-32 bg-black">
-      <video src={VIDEO_URL} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" />
-      <div className="absolute inset-0 bg-black/50 z-[1]" />
+      {/* Dark overlay — video from PersistentBackground in App.jsx */}
+      <div className="absolute inset-0 bg-black/55 z-[1]" />
       
       <div className="relative z-10 mx-auto max-w-6xl">
         <button 

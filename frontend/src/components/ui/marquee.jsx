@@ -38,6 +38,7 @@ export function Marquee({
             {Array.from({ length: repeat }, (_, i) => (
               <div
                 key={i}
+                style={{ willChange: 'transform' }}
                 className={cn(
                   !vertical ? 'flex-row [gap:var(--gap)]' : 'flex-col [gap:var(--gap)]',
                   'flex shrink-0 justify-around',

@@ -64,7 +64,8 @@ export default function ProjectChat() {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden bg-black">
-      <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4" />
+      {/* Dark overlay — video from PersistentBackground in App.jsx */}
+      <div className="absolute inset-0 bg-black/55 z-[1]" />
       <div className="relative z-10 h-screen flex flex-col pt-20 max-w-4xl mx-auto px-6 py-6 overflow-hidden">
         <header className="flex items-center justify-between mb-6">
           <button onClick={() => navigate(`/projects/${id}`)} className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 text-sm text-white/70 hover:scale-105 transition-all">
