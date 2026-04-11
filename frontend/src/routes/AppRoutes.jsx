@@ -15,11 +15,13 @@ import Workspace from '../pages/Workspace';
 import PrivateRoute from '../components/common/PrivateRoute';
 import PublicOnlyRoute from '../components/common/PublicOnlyRoute';
 import ProjectChat from '../pages/ProjectChat';
+import Feedback from '../pages/Feedback';
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/feedback" element={<Feedback />} />
       <Route element={<PublicOnlyRoute />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
