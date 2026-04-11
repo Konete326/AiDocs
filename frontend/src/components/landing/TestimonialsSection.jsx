@@ -96,28 +96,36 @@ export default function TestimonialsSection() {
         </motion.div>
 
         {/* The Marquee Display with 3D Tilt */}
-        <div className="relative flex w-full flex-col items-center justify-center overflow-hidden [perspective:1200px]">
-          <div 
-            className="flex gap-8 px-4"
-            style={{ 
-              transform: 'rotateX(15deg) translateY(-20px)',
-              transformStyle: 'preserve-3d'
+        <div className="relative flex h-[600px] w-full max-w-[900px] flex-row items-center justify-center overflow-hidden gap-1.5 [perspective:300px]">
+          <div
+            className="flex flex-row items-center gap-4"
+            style={{
+              transform:
+                'translateX(-100px) translateY(0px) translateZ(-100px) rotateX(20deg) rotateY(-10deg) rotateZ(20deg)',
             }}
           >
-            {/* Multiple staggered marquees for the 3D effect */}
-            <Marquee vertical repeat={3} className="[--duration:50s] h-[600px]">
-              {testimonials.slice(0, 3).map((item) => (
-                <TestimonialCard key={item.username} {...item} />
+            {/* Vertical Marquee (downwards) */}
+            <Marquee vertical pauseOnHover repeat={3} className="[--duration:40s]">
+              {testimonials.map((review) => (
+                <TestimonialCard key={review.username} {...review} />
               ))}
             </Marquee>
-            <Marquee vertical reverse repeat={3} className="[--duration:40s] h-[600px] mt-12">
-              {testimonials.slice(3, 6).map((item) => (
-                <TestimonialCard key={item.username} {...item} />
+            {/* Vertical Marquee (upwards) */}
+            <Marquee vertical pauseOnHover reverse repeat={3} className="[--duration:40s]">
+              {testimonials.map((review) => (
+                <TestimonialCard key={review.username} {...review} />
               ))}
             </Marquee>
-            <Marquee vertical repeat={3} className="[--duration:60s] h-[600px] hidden md:flex">
-              {testimonials.slice(0, 3).reverse().map((item) => (
-                <TestimonialCard key={item.username} {...item} />
+            {/* Vertical Marquee (downwards) */}
+            <Marquee vertical pauseOnHover repeat={3} className="[--duration:40s]">
+              {testimonials.map((review) => (
+                <TestimonialCard key={review.username} {...review} />
+              ))}
+            </Marquee>
+            {/* Vertical Marquee (upwards) */}
+            <Marquee vertical pauseOnHover reverse repeat={3} className="[--duration:40s]">
+              {testimonials.map((review) => (
+                <TestimonialCard key={review.username} {...review} />
               ))}
             </Marquee>
           </div>
@@ -142,8 +150,10 @@ export default function TestimonialsSection() {
           </div>
 
           {/* Gradients to fade edges */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black via-black/50 to-transparent" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black via-black/50 to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-black to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-black to-transparent" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-black to-transparent" />
         </div>
       </div>
     </section>

@@ -41,8 +41,8 @@ export function Marquee({
                 className={cn(
                   !vertical ? 'flex-row [gap:var(--gap)]' : 'flex-col [gap:var(--gap)]',
                   'flex shrink-0 justify-around',
-                  !vertical && 'animate-marquee flex-row',
-                  vertical && 'animate-marquee-vertical flex-col',
+                  !vertical && '[animation:marquee_var(--duration)_infinite_linear] flex-row',
+                  vertical && '[animation:marquee-vertical_var(--duration)_linear_infinite] flex-col',
                   pauseOnHover && 'group-hover:[animation-play-state:paused]',
                   reverse && '[animation-direction:reverse]',
                 )}
