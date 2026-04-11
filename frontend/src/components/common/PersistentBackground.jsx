@@ -20,7 +20,7 @@ export default function PersistentBackground() {
       style={{
         willChange: 'transform',
         transform: 'translateZ(0)',
-        opacity: 0.35,
+        opacity: 1,
       }}
     />
   );
