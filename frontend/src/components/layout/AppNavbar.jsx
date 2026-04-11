@@ -14,7 +14,6 @@ const AppNavbar = () => {
 
   useEffect(() => { setMobileOpen(false); }, [location]);
 
-
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-3 pointer-events-none">
       <div className="max-w-7xl mx-auto liquid-glass-strong rounded-2xl px-5 h-12 flex items-center justify-between pointer-events-auto shadow-2xl !overflow-visible">
