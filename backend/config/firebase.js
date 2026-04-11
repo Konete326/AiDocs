@@ -3,10 +3,18 @@ const admin = require('firebase-admin');
 let auth;
 
 try {
+  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+  if (privateKey) {
+    // 1. Remove surrounding quotes if they exist
+    privateKey = privateKey.replace(/^"|"$/g, '');
+    // 2. Fix escaped newlines
+    privateKey = privateKey.replace(/\\n/g, '\n');
+  }
+
   const serviceAccount = {
     projectId: process.env.FIREBASE_PROJECT_ID,
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: process.env.FIREBASE_PRIVATE_KEY ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n') : undefined
+    privateKey: privateKey
   };
 
   if (serviceAccount.projectId && serviceAccount.privateKey && serviceAccount.privateKey.includes('-----BEGIN PRIVATE KEY-----')) {

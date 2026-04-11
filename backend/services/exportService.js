@@ -1,5 +1,6 @@
 const JSZip = require('jszip');
-const { marked } = require('marked');
+// marked is an ES Module, so we'll import it dynamically in the function that uses it
+// const { marked } = require('marked');
 const { Document, Paragraph, TextRun, HeadingLevel, Packer } = require('docx');
 const Project = require('../models/Project');
 const DocumentModel = require('../models/Document');
@@ -26,6 +27,7 @@ exports.generatePdf = async (projectId, docType, userId) => {
   const doc = await DocumentModel.findOne({ projectId, userId, docType });
   if (!doc) throw new AppError('Document not found', 404, 'NOT_FOUND');
   
+  const { marked } = await import('marked');
   const html = await marked.parse(doc.content);
   const styledHtml = `
     <!DOCTYPE html>
