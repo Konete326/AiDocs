@@ -28,8 +28,9 @@ const CommunityCard = () => {
     >
     <p className="text-sm font-semibold text-white tracking-tight">Enter our ecosystem</p>
     <p className="text-xs text-white/50 font-medium mt-1 leading-relaxed">Built for founders who ship.</p>
-  </GlassCard>
-);
+    </GlassCard>
+  );
+};
 
 const FeatureCards = () => {
   const navigate = useNavigate();
