@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Menu, X, LogIn, Layout, FileText, Settings, UserPlus, LogOut, CreditCard } from 'lucide-react';
+import { Menu, X, LogIn, Layout, FileText, User, UserPlus, LogOut, CreditCard } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import GlassCard from '../common/GlassCard';
 import logo from '../../assets/logo.png';
@@ -22,7 +22,7 @@ const Navbar = () => {
     ? [
         { title: "Dashboard", href: "/dashboard", icon: <Layout className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/dashboard'); } },
         { title: "Pricing", href: "/pricing", icon: <CreditCard className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/pricing'); } },
-        { title: "Settings", href: "/profile", icon: <Settings className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/profile'); } },
+        { title: "Profile", href: "/profile", icon: <User className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/profile'); } },
         { title: "Logout", icon: <LogOut className="w-4 h-4 text-white" />, onClick: handleLogout },
       ]
     : [
