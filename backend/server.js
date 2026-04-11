@@ -19,8 +19,15 @@ const notificationRoutes = require('./routes/notificationRoutes');
 
 const app = express();
 
-// Database connection
-db().catch(err => console.error('Database initial connection failed:', err));
+// Database connection middleware for Serverless
+app.use(async (req, res, next) => {
+  try {
+    await db();
+    next();
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Database connection failed', details: err.message });
+  }
+});
 
 // 1. Manual CORS Handling (MUST be after app = express())
 app.use((req, res, next) => {
