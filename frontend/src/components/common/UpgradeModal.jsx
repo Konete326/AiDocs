@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Crown, X, Check } from 'lucide-react';
 
@@ -10,10 +11,10 @@ const UpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
     'Unlimited Project Variants'
   ];
 
-  return (
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[999] flex items-center justify-center px-4 md:p-6">
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center px-4 md:p-6" style={{ width: '100vw', height: '100vh' }}>
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -29,7 +30,7 @@ const UpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="relative z-10 w-full max-w-md overflow-hidden"
           >
-            <div className="liquid-glass-strong rounded-[2.5rem] border border-white/10 p-8 md:p-10 text-center shadow-[0_0_50px_rgba(255,255,255,0.05)]">
+            <div className="bg-black/90 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 p-8 md:p-10 text-center shadow-[0_0_50px_rgba(0,0,0,0.8)]">
               {/* Close Button */}
               <button 
                 onClick={onClose}
@@ -82,6 +83,11 @@ const UpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
       )}
     </AnimatePresence>
   );
+
+  if (typeof document !== 'undefined') {
+    return createPortal(modalContent, document.body);
+  }
+  return null;
 };
 
 export default UpgradeModal;
