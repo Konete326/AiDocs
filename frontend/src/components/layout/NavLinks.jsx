@@ -15,13 +15,11 @@ const NavLinks = () => {
         { name: 'Home', path: '/' },
         { name: 'Projects', path: '/dashboard' },
         { name: 'Pricing', path: '/pricing' },
-        { name: 'Review', path: '/feedback' },
         { name: 'Workspace', path: '/dashboard', isProtected: true }
       ]
     : [
         { name: 'Home', path: '/' },
-        { name: 'Pricing', path: '/pricing' },
-        { name: 'Review', path: '/feedback' }
+        { name: 'Pricing', path: '/pricing' }
       ];
 
   const handleLinkClick = (e, link) => {
