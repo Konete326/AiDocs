@@ -5,7 +5,7 @@ import { BellOff, X } from 'lucide-react';
 import LoadingSpinner from '../common/LoadingSpinner';
 import NotificationItem from './NotificationItem';
 
-const NotificationModal = ({ isOpen, notifications, onMarkRead, onMarkAllRead, isLoading, onClose }) => {
+const NotificationModal = ({ isOpen, notifications, onMarkRead, onMarkAllRead, onDelete, isLoading, onClose }) => {
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   const modalContent = (
@@ -77,8 +77,8 @@ const NotificationModal = ({ isOpen, notifications, onMarkRead, onMarkAllRead, i
                 ) : (
                   <div className="flex flex-col gap-2">
                     {notifications.map((n) => (
-                      <div key={n._id} className="bg-white/5 rounded-2xl p-1 border border-white/5">
-                        <NotificationItem notification={n} onMarkRead={onMarkRead} />
+                      <div key={n._id} className="bg-white/5 rounded-2xl p-0.5 border border-white/5 overflow-hidden">
+                        <NotificationItem notification={n} onMarkRead={onMarkRead} onDelete={onDelete} />
                       </div>
                     ))}
                   </div>

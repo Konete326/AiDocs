@@ -30,7 +30,13 @@ exports.register = asyncWrapper(async (req, res) => {
 
 exports.login = asyncWrapper(async (req, res) => {
   const { email, password } = req.body;
-  const { user, accessToken, refreshToken } = await authService.loginUser(email, password);
+  const userAgent = req.get('user-agent');
+  const deviceInfo = {
+    deviceFingerprint: userAgent, // For demo, using UA as fingerprint
+    deviceName: userAgent.split(')')[0].split('(')[1] || 'Web Browser'
+  };
+
+  const { user, accessToken, refreshToken } = await authService.loginUser(email, password, deviceInfo);
 
   setRefreshCookie(res, refreshToken);
   res.status(200).json({ success: true, data: { user: { id: user._id, email: user.email, displayName: user.displayName }, accessToken } });
@@ -61,7 +67,13 @@ exports.logout = asyncWrapper(async (req, res) => {
 });
 
 exports.googleFirebaseAuth = asyncWrapper(async (req, res) => {
-  const { user, accessToken, refreshToken } = await authService.handleFirebaseGoogleUser(req.firebaseUser);
+  const userAgent = req.get('user-agent');
+  const deviceInfo = {
+    deviceFingerprint: userAgent,
+    deviceName: userAgent.split(')')[0].split('(')[1] || 'Web Browser'
+  };
+
+  const { user, accessToken, refreshToken } = await authService.handleFirebaseGoogleUser(req.firebaseUser, deviceInfo);
 
   setRefreshCookie(res, refreshToken);
   res.status(200).json({ success: true, data: { user: { id: user._id, email: user.email, displayName: user.displayName, avatarUrl: user.avatarUrl }, accessToken } });

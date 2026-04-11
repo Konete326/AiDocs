@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Bell } from 'lucide-react';
-import { getNotifications, markNotificationRead, markAllNotificationsRead } from '../../services/notificationService';
+import { getNotifications, markNotificationRead, markAllNotificationsRead, deleteNotification } from '../../services/notificationService';
 import NotificationModal from './NotificationModal';
 
 const NotificationBell = () => {
@@ -52,6 +52,15 @@ const NotificationBell = () => {
     }
   };
 
+  const handleDelete = async (id) => {
+    try {
+      await deleteNotification(id);
+      setNotifications(prev => prev.filter(n => n._id !== id));
+    } catch (err) {
+      console.error('Failed to delete notification', err);
+    }
+  };
+
   const unreadCount = (notifications || []).filter(n => !n.isRead).length;
 
   return (
@@ -73,6 +82,7 @@ const NotificationBell = () => {
         notifications={notifications} 
         onMarkRead={handleMarkRead} 
         onMarkAllRead={handleMarkAllRead}
+        onDelete={handleDelete}
         isLoading={isLoading} 
         onClose={() => setIsOpen(false)}
       />

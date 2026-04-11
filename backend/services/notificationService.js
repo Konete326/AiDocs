@@ -34,3 +34,9 @@ exports.markAllAsRead = async (userId) => {
     { isRead: true }
   );
 };
+
+exports.deleteNotification = async (notificationId, userId) => {
+  const notification = await Notification.findOneAndDelete({ _id: notificationId, userId });
+  if (!notification) throw new AppError('Notification not found', 404, 'NOT_FOUND');
+  return notification;
+};

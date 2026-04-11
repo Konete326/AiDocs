@@ -16,3 +16,8 @@ exports.markAllAsRead = asyncWrapper(async (req, res) => {
   await notificationService.markAllAsRead(req.user.id);
   res.status(200).json({ success: true, data: {} });
 });
+
+exports.deleteNotification = asyncWrapper(async (req, res) => {
+  await notificationService.deleteNotification(req.params.id, req.user.id);
+  res.status(200).json({ success: true, data: null });
+});
