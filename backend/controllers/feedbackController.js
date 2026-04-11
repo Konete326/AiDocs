@@ -1,9 +1,9 @@
 const Feedback = require('../models/Feedback');
 const notificationService = require('../services/notificationService');
-const catchAsync = require('../utils/catchAsync');
+const asyncWrapper = require('../utils/asyncWrapper');
 const AppError = require('../utils/AppError');
 
-exports.createFeedback = catchAsync(async (req, res, next) => {
+exports.createFeedback = asyncWrapper(async (req, res, next) => {
   const { content, rating = 5 } = req.body;
 
   if (!content) {
@@ -34,7 +34,7 @@ exports.createFeedback = catchAsync(async (req, res, next) => {
   });
 });
 
-exports.getAllFeedback = catchAsync(async (req, res, next) => {
+exports.getAllFeedback = asyncWrapper(async (req, res, next) => {
   const feedback = await Feedback.find()
     .sort({ createdAt: -1 })
     .limit(100);
