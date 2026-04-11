@@ -73,6 +73,7 @@ const NotificationBell = () => {
           notifications={notifications} 
           onMarkRead={handleMarkRead} 
           isLoading={isLoading} 
+          onClose={() => setIsOpen(false)}
         />
       )}
     </div>

@@ -1,15 +1,23 @@
-import { BellOff } from 'lucide-react';
+import { BellOff, X } from 'lucide-react';
 import LoadingSpinner from '../common/LoadingSpinner';
 import NotificationItem from './NotificationItem';
 
-const NotificationDropdown = ({ notifications, onMarkRead, isLoading }) => {
+const NotificationDropdown = ({ notifications, onMarkRead, isLoading, onClose }) => {
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   return (
     <div className="absolute right-0 top-12 z-50 w-80 liquid-glass-strong rounded-2xl overflow-hidden cursor-default">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5">
-        <span className="text-sm font-medium text-white">Notifications</span>
-        {unreadCount > 0 && <span className="text-xs text-white/50">{unreadCount} new</span>}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-white/5 bg-white/[0.02]">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-white">Notifications</span>
+          {unreadCount > 0 && <span className="bg-white/10 text-white/60 text-[10px] px-1.5 py-0.5 rounded-full">{unreadCount}</span>}
+        </div>
+        <button 
+          onClick={onClose}
+          className="p-1.5 rounded-lg hover:bg-white/5 transition-colors text-white/30 hover:text-white cursor-pointer"
+        >
+          <X className="w-3.5 h-3.5" />
+        </button>
       </div>
 
       <div className="max-h-80 overflow-y-auto">
