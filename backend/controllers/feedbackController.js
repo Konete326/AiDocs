@@ -1,4 +1,5 @@
 const Feedback = require('../models/Feedback');
+const User = require('../models/User');
 const notificationService = require('../services/notificationService');
 const asyncWrapper = require('../utils/asyncWrapper');
 const AppError = require('../utils/AppError');
@@ -10,18 +11,24 @@ exports.createFeedback = asyncWrapper(async (req, res, next) => {
     return next(new AppError('Please provide feedback content', 400));
   }
 
+  // Fetch full user data since middleware only provides basic info
+  const user = await User.findById(req.user.id);
+  if (!user) {
+    return next(new AppError('User not found', 404));
+  }
+
   const feedback = await Feedback.create({
-    user: req.user._id,
-    name: req.user.name,
-    avatar: req.user.avatar,
-    role: req.user.role || 'Community Member',
+    user: user._id,
+    name: user.displayName || user.name || 'Anonymous',
+    avatar: user.avatarUrl || user.avatar || '',
+    role: user.role || 'Community Member',
     content,
     rating
   });
 
   // Create notification for the user
   await notificationService.createNotification(
-    req.user._id,
+    user._id,
     'system',
     'Feedback Received!',
     'Thank you for your valuable feedback! We appreciate your support in making AiDocs better.',

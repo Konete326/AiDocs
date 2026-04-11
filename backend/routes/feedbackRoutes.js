@@ -1,6 +1,6 @@
 const express = require('express');
 const feedbackController = require('../controllers/feedbackController');
-const { protect } = require('../middleware/authMiddleware');
+const authenticate = require('../middleware/authenticate');
 
 const router = express.Router();
 
@@ -8,6 +8,6 @@ const router = express.Router();
 router.get('/', feedbackController.getAllFeedback);
 
 // Protected route to submit feedback
-router.post('/', protect, feedbackController.createFeedback);
+router.post('/', authenticate, feedbackController.createFeedback);
 
 module.exports = router;

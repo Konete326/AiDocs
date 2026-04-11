@@ -1,4 +1,5 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripeKey = process.env.STRIPE_SECRET_KEY || 'sk_test_mock';
+const stripe = require('stripe')(stripeKey);
 const subscriptionService = require('./subscriptionService');
 const AppError = require('../utils/AppError');
 
