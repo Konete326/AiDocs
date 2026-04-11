@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { MessageSquare, Star, Plus } from 'lucide-react';
-import axios from 'axios';
+import api from '../services/api';
 import Button from '../components/common/Button';
 import FeedbackModal from '../components/landing/FeedbackModal';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // --- Static Dummy Testimonials (as provided) ---
 const DUMMY_TESTIMONIALS = [
@@ -109,7 +107,7 @@ const Feedback = () => {
   useEffect(() => {
     const fetchFeedback = async () => {
       try {
-        const res = await axios.get(`${API_URL}/feedback`);
+        const res = await api.get('/feedback');
         setRealFeedback(res.data.data);
       } catch (err) {
         console.error('Error fetching feedback:', err);

@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Star, AlertCircle } from 'lucide-react';
-import axios from 'axios';
+import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../common/Button';
 import { toast } from 'react-hot-toast';
-
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const FeedbackModal = ({ isOpen, onClose, onSuccess }) => {
   const { user, isAuthenticated } = useAuth();
@@ -25,9 +23,8 @@ const FeedbackModal = ({ isOpen, onClose, onSuccess }) => {
 
     setIsSubmitting(true);
     try {
-      const response = await axios.post(`${API_URL}/feedback`, 
-        { content, rating },
-        { withCredentials: true }
+      const response = await api.post('/feedback', 
+        { content, rating }
       );
 
       toast.success('Feedback submitted! 🚀');
