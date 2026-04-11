@@ -17,7 +17,7 @@ exports.registerUser = async (email, password, displayName) => {
 
   const user = await User.create({ email, passwordHash, displayName });
 
-  await Subscription.create({ userId: user._id, plan: 'free', status: 'active', projectLimit: 1 });
+  await Subscription.create({ userId: user._id, plan: 'free', status: 'active', projectLimit: 3 });
 
   const accessToken = generateAccessToken(user._id, user.role);
   const refreshToken = generateRefreshToken(user._id);
@@ -96,7 +96,7 @@ exports.handleFirebaseGoogleUser = async (firebaseUser) => {
       avatarUrl: firebaseUser.picture || '',
       isVerified: true
     });
-    await Subscription.create({ userId: user._id, plan: 'free', status: 'active', projectLimit: 1 });
+    await Subscription.create({ userId: user._id, plan: 'free', status: 'active', projectLimit: 3 });
   } else {
     const updates = {};
     if (!user.firebaseUid) updates.firebaseUid = firebaseUser.uid;
