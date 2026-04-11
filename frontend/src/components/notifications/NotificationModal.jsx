@@ -27,24 +27,24 @@ const NotificationModal = ({ isOpen, notifications, onMarkRead, onMarkAllRead, i
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="relative z-10 w-full max-w-md overflow-hidden"
+            className="relative z-10 w-full max-w-md"
           >
-            <div className="bg-black/90 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col">
+            <div className="bg-black/95 backdrop-blur-3xl rounded-[2.5rem] border border-white/10 overflow-hidden shadow-[0_40px_100px_rgba(0,0,0,0.9)] flex flex-col">
               
               {/* Header */}
-              <div className="flex flex-col gap-4 px-6 py-5 border-b border-white/10 bg-white/[0.02]">
+              <div className="flex flex-col gap-4 px-6 py-6 border-b border-white/10 bg-white/[0.03]">
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-3">
-                    <h2 className="text-xl font-semibold text-white">Notifications</h2>
+                    <h2 className="text-xl font-semibold text-white tracking-tight">Notifications</h2>
                     {unreadCount > 0 && (
-                      <span className="bg-white/10 text-white/80 text-xs font-medium px-2.5 py-1 rounded-full">
-                        {unreadCount} new
+                      <span className="bg-white text-black text-[10px] font-bold px-2 py-0.5 rounded-full shadow-lg">
+                        {unreadCount} NEW
                       </span>
                     )}
                   </div>
                   <button 
                     onClick={onClose}
-                    className="p-2 rounded-full hover:bg-white/10 transition-colors text-white/40 hover:text-white cursor-pointer"
+                    className="p-2 rounded-full hover:bg-white/10 transition-colors text-white/40 hover:text-white cursor-pointer active:scale-95"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -53,7 +53,7 @@ const NotificationModal = ({ isOpen, notifications, onMarkRead, onMarkAllRead, i
                 {unreadCount > 0 && (
                   <button
                     onClick={onMarkAllRead}
-                    className="w-fit text-[11px] font-semibold text-white/40 hover:text-white hover:bg-white/5 px-3 py-1.5 rounded-full transition-all border border-white/5 cursor-pointer uppercase tracking-wider"
+                    className="w-fit text-[10px] font-bold text-white/40 hover:text-white hover:bg-white/5 px-4 py-2 rounded-xl transition-all border border-white/5 cursor-pointer uppercase tracking-widest"
                   >
                     Mark all as read
                   </button>
@@ -61,7 +61,7 @@ const NotificationModal = ({ isOpen, notifications, onMarkRead, onMarkAllRead, i
               </div>
 
               {/* Content Area */}
-              <div className="overflow-y-auto max-h-[60vh] p-4 custom-scrollbar">
+              <div className="overflow-y-auto max-h-[60vh] p-5 custom-scrollbar px-2 mr-2">
                 {isLoading ? (
                   <div className="py-12 flex justify-center">
                     <LoadingSpinner size="md" />
