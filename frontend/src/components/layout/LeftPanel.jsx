@@ -52,9 +52,9 @@ const BottomQuote = () => (
 );
 
 const LeftPanel = () => (
-  <div className="relative flex flex-col w-full lg:w-[52%] min-h-[50%] lg:h-full p-2 sm:p-4 lg:p-6 overflow-y-auto lg:overflow-hidden">
+  <div className="relative flex flex-col w-full lg:w-[52%] p-2 sm:p-4 lg:p-6 overflow-y-visible">
     <GlassCard strong className="absolute inset-2 sm:inset-4 lg:inset-6 rounded-3xl lg:rounded-[2.5rem] z-0" />
-    <div className="relative z-10 flex flex-col h-full m-2 lg:m-4 flex-1">
+    <div className="relative z-10 flex flex-col m-2 lg:m-4 flex-1 h-full min-h-[400px]">
       <HeroText />
       <BottomQuote />
     </div>

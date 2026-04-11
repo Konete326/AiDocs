@@ -5,18 +5,6 @@ import { useAuth } from '../../context/AuthContext';
 
 import heroImage from '../../assets/hero.png';
 
-const TopBar = () => {
-  const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
-  
-  return (
-  <div className="flex justify-end items-center w-full mt-4 lg:mt-0">
-    <GlassCard onClick={() => navigate(isAuthenticated ? '/dashboard' : '/login')} className="rounded-full px-5 py-2.5 flex gap-3 items-center cursor-pointer hover:bg-white/5 transition-transform hover:scale-105 active:scale-95">
-      <Sparkles className="w-4 h-4 text-white/80 fill-white/10" />
-      <span className="text-sm font-medium text-white/80">{isAuthenticated ? user?.displayName || 'Dashboard' : 'Sign In'}</span>
-    </GlassCard>
-  </div>
-)};
 
 const CommunityCard = () => {
   const navigate = useNavigate();
@@ -67,9 +55,8 @@ const FeatureCards = () => {
 )};
 
 const RightPanel = () => (
-  <div className="flex flex-col w-full lg:w-[48%] min-h-[50%] lg:h-full px-4 lg:px-6 pb-6 lg:pb-12 lg:pt-10 gap-3 lg:gap-8 overflow-y-auto lg:overflow-hidden">
-    <TopBar />
-    <div className="flex flex-col lg:flex-1 justify-center lg:justify-between h-full gap-3 lg:gap-0">
+  <div className="flex flex-col w-full lg:w-[48%] px-4 lg:px-6 pb-6 lg:pb-12 gap-3 lg:gap-8 overflow-y-visible">
+    <div className="flex flex-col lg:flex-1 justify-start lg:justify-between h-full gap-3 lg:gap-8 mt-4 lg:mt-0">
       <CommunityCard />
       <FeatureCards />
     </div>
