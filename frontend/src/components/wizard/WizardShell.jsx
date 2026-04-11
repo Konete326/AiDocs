@@ -1,9 +1,20 @@
 import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, X } from 'lucide-react';
 import LoadingSpinner from '../common/LoadingSpinner';
 
-export default function WizardShell({ step, totalSteps, onNext, onBack, onSubmit, isSubmitting, error, children }) {
+export default function WizardShell({ step, totalSteps, onNext, onBack, onSubmit, onClose, isSubmitting, error, children }) {
   return (
     <div className="liquid-glass-strong rounded-3xl p-8 md:p-10 w-full max-w-2xl relative overflow-hidden">
+      {onClose && (
+        <button 
+          onClick={onClose}
+          className="absolute top-6 right-6 z-20 text-white/40 hover:text-white transition-colors cursor-pointer p-2 hover:bg-white/5 rounded-full"
+          title="Cancel and exit"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      )}
+
       <div className="flex gap-2 justify-center mb-10">
         {Array.from({ length: totalSteps }).map((_, i) => {
           const num = i + 1;
@@ -50,8 +61,9 @@ export default function WizardShell({ step, totalSteps, onNext, onBack, onSubmit
         {step > 1 ? (
           <button 
             onClick={onBack}
-            className="liquid-glass rounded-full px-8 py-3 text-white/70 text-sm hover:text-white transition-all active:scale-95"
+            className="liquid-glass rounded-full pr-8 pl-6 py-3 text-white/70 text-sm hover:text-white transition-all active:scale-95 flex items-center gap-2"
           >
+            <ArrowLeft className="w-4 h-4" />
             Back
           </button>
         ) : <div />}
