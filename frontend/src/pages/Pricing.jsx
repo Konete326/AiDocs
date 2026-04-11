@@ -38,7 +38,8 @@ const Pricing = () => {
       const url = await createCheckoutSession(plan);
       window.location.href = url;
     } catch (err) {
-      setCheckoutError(err.response?.data?.error || 'Checkout failed. Please try again.');
+      const msg = err.response?.data?.error;
+      setCheckoutError(typeof msg === 'string' ? msg : msg?.message || 'Checkout failed. Please try again.');
     } finally {
       setIsLoading(false);
     }

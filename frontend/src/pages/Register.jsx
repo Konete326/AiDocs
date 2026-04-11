@@ -26,7 +26,10 @@ export default function Register() {
     if (form.password !== form.confirmPassword) return setError('Passwords mismatch.');
     setError(''); setIsLoading(true);
     try { await register(form.name, form.email, form.password); navigate('/dashboard'); }
-    catch (err) { setError(err.response?.data?.error || 'Registration failed.'); }
+    catch (err) { 
+      const msg = err.response?.data?.error;
+      setError(typeof msg === 'string' ? msg : msg?.message || 'Registration failed.'); 
+    }
     finally { setIsLoading(false); }
   };
 

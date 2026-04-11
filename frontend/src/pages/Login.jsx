@@ -22,7 +22,10 @@ export default function Login() {
     if (!email || !password) return setError('Please fill in all fields.');
     setError(''); setIsLoading(true);
     try { await login(email, password); navigate('/dashboard'); }
-    catch (err) { setError(err.response?.data?.error || 'Login failed.'); }
+    catch (err) { 
+      const msg = err.response?.data?.error;
+      setError(typeof msg === 'string' ? msg : msg?.message || 'Login failed.'); 
+    }
     finally { setIsLoading(false); }
   };
 

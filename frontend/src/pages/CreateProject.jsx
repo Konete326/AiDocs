@@ -52,7 +52,8 @@ const CreateProject = () => {
       localStorage.removeItem(STORAGE_KEY);
       navigate(`/projects/${proj._id}`);
     } catch (err) {
-      setError(err.response?.data?.error || 'Generation failed');
+      const msg = err.response?.data?.error;
+      setError(typeof msg === 'string' ? msg : msg?.message || 'Generation failed');
       setIsSubmitting(false);
     }
   };

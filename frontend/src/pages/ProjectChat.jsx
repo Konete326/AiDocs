@@ -53,7 +53,8 @@ export default function ProjectChat() {
       const reply = await sendChatMessage(id, updated);
       setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
     } catch (err) {
-      setError(err.response?.data?.error || 'Failed to send message.');
+      const msg = err.response?.data?.error;
+      setError(typeof msg === 'string' ? msg : msg?.message || 'Failed to send message.');
     } finally {
       setIsSending(false);
     }

@@ -32,7 +32,8 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
       onUpdate(updated);
       setIsEditing(false);
     } catch (err) {
-      setSaveError(err.response?.data?.error || 'Save failed.');
+      const msg = err.response?.data?.error;
+      setSaveError(typeof msg === 'string' ? msg : msg?.message || 'Save failed.');
     } finally { setIsSaving(false); }
   };
 
@@ -63,6 +64,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
         <div>
           <p className="text-lg font-medium text-white">{DOC_LABELS[document.docType]}</p>
           <p className="text-xs text-white/40 mt-0.5">v{document.version} · {document.modelUsed}</p>
+          {saveError && <p className="text-xs text-white/50 mt-2">{saveError}</p>}
         </div>
         <div className="flex gap-2 items-center">
           <button onClick={handleCopy} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
