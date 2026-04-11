@@ -1,7 +1,7 @@
 import React from 'react';
 
 const AuthLayout = ({ children, title, subtitle }) => (
-  <div className="relative min-h-screen overflow-hidden bg-black">
+  <div className="relative min-h-screen overflow-hidden">
     {/* Video from PersistentBackground in App.jsx — no local video needed */}
     <div className="absolute inset-0 bg-black/55 z-[1]" />
     <div className="relative z-10 min-h-screen flex items-center justify-center px-4 py-8">

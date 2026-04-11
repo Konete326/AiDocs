@@ -136,7 +136,7 @@ const Feedback = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-black overflow-hidden flex flex-col">
+    <div className="relative min-h-screen w-full overflow-hidden flex flex-col">
       {/* Dark overlay — video from PersistentBackground in App.jsx */}
       <div className="fixed inset-0 bg-black/60 z-[1] backdrop-blur-[2px]" />
 

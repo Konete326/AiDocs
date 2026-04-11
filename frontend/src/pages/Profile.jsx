@@ -22,7 +22,7 @@ const Profile = () => {
     : 'N/A';
 
   return (
-    <section className="relative min-h-screen overflow-hidden px-4 sm:px-6 py-24 lg:py-32 bg-black">
+    <section className="relative min-h-screen overflow-hidden px-4 sm:px-6 py-24 lg:py-32">
       {/* Dark overlay — video from PersistentBackground in App.jsx */}
       <div className="absolute inset-0 bg-black/55 z-[1]" />
       

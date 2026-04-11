@@ -58,7 +58,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-black">
+    <div className="relative min-h-screen w-full overflow-hidden">
       <ConfirmModal
         isOpen={confirmModal.isOpen}
         title={confirmModal.title}

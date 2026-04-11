@@ -27,8 +27,8 @@ const ProjectDetail = () => {
     setProject((prev) => ({ ...prev, status: 'generating' }));
   };
 
-  if (isLoading) return <div className="h-screen flex items-center justify-center bg-black"><LoadingSpinner /></div>;
-  if (error || !project) return <div className="h-screen flex items-center justify-center bg-black text-white/60">{error || 'Project not found.'}</div>;
+  if (isLoading) return <div className="h-screen flex items-center justify-center"><LoadingSpinner /></div>;
+  if (error || !project) return <div className="h-screen flex items-center justify-center text-white/60">{error || 'Project not found.'}</div>;
 
   const renderContent = () => {
     if (project.status === 'generating') return <GeneratingState docsGenerated={project.docsGenerated} />;
@@ -54,7 +54,7 @@ const ProjectDetail = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-black overflow-hidden">
+    <div className="relative min-h-screen w-full overflow-hidden">
       {/* Dark overlay — video from PersistentBackground in App.jsx */}
       <div className="fixed inset-0 bg-black/55 z-[1]" />
       <div className="relative z-10 pt-20 px-6 py-8 md:px-12">

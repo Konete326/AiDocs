@@ -63,7 +63,7 @@ export default function ProjectChat() {
   if (isLoading) return null;
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-black">
+    <div className="relative min-h-screen w-full overflow-hidden">
       {/* Dark overlay — video from PersistentBackground in App.jsx */}
       <div className="absolute inset-0 bg-black/55 z-[1]" />
       <div className="relative z-10 h-screen flex flex-col pt-20 max-w-4xl mx-auto px-6 py-6 overflow-hidden">

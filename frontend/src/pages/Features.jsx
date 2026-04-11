@@ -3,7 +3,7 @@ import FeatureSection from '../components/features/FeatureSection';
 
 const Features = () => {
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden text-white">
+    <div className="min-h-screen relative overflow-hidden text-white">
 
       <div className="fixed inset-0 bg-black/40 z-[1]" />
       

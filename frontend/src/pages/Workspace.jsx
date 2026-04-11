@@ -16,13 +16,13 @@ const Workspace = () => {
   } = useKanban(id);
 
   if (isLoading) return (
-    <div className="h-screen flex items-center justify-center bg-black">
+    <div className="h-screen flex items-center justify-center">
       <LoadingSpinner />
     </div>
   );
 
   return (
-    <section className="relative min-h-screen bg-black overflow-hidden">
+    <section className="relative min-h-screen overflow-hidden">
       {/* Dark overlay — video from PersistentBackground in App.jsx */}
       <div className="absolute inset-0 bg-black/65 z-[1]" />
 

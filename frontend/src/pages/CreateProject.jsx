@@ -65,7 +65,7 @@ const CreateProject = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center justify-center pt-20 p-6 bg-black">
+    <div className="relative min-h-screen w-full flex flex-col items-center justify-center pt-20 p-6">
       {/* Dark overlay — video from PersistentBackground in App.jsx */}
       <div className="fixed inset-0 bg-black/55 z-[1]" />
       

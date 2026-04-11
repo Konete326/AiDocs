@@ -3,7 +3,7 @@ import RightPanel from '../components/layout/RightPanel';
 import TestimonialsSection from '../components/landing/TestimonialsSection';
 
 const Home = () => (
-  <div className="relative min-h-screen w-full bg-black">
+  <div className="relative min-h-screen w-full">
     {/* Dark overlay — video comes from PersistentBackground in App.jsx */}
     <div className="fixed inset-0 bg-black/55 z-[1]" />
 

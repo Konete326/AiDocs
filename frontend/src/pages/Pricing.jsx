@@ -36,7 +36,7 @@ const Pricing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden text-white">
+    <div className="min-h-screen relative overflow-hidden text-white">
       {/* Video from PersistentBackground — no local video needed */}
       <div className="fixed inset-0 bg-black/55 z-[1]" />
 
