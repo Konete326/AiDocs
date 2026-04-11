@@ -23,10 +23,9 @@ const NavLinks = () => {
           <NavLink
             to={link.path}
             className={({ isActive }) => `
-              relative text-sm transition-colors px-3 py-1.5 
-              ${isActive ? 'text-white font-medium' : 'text-white/60 hover:text-white'}
-              ${link.disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-              ${isActive ? 'after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:rounded-full after:bg-white/60' : ''}
+              relative text-sm transition-all duration-300 px-4 py-1.5 rounded-full
+              ${isActive ? 'text-white font-semibold liquid-glass scale-105' : 'text-white/60 hover:text-white/90 hover:scale-105'}
+              ${link.disabled ? 'opacity-30 cursor-not-allowed pointer-events-none' : 'cursor-pointer'}
             `}
           >
             {link.name}
