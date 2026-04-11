@@ -12,6 +12,7 @@ export const useProfileFetch = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [editData, setEditData] = useState({ displayName: '' });
 
   useEffect(() => {
@@ -41,16 +42,22 @@ export const useProfileFetch = () => {
     finally { setIsSaving(false); }
   };
 
-  const handleAvatarChange = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const updated = await uploadAvatar(file);
-    updateUser(updated);
+  const handleAvatarUpload = async (file) => {
+    setIsUploadingAvatar(true);
+    try {
+      const updated = await uploadAvatar(file);
+      updateUser(updated);
+    } catch { 
+      // silent fail
+    } finally {
+      setIsUploadingAvatar(false);
+    }
   };
 
   return {
     user, subscription, projectsCount, totalDocs,
     isEditing, setIsEditing, isSaving, saveError,
-    editData, setEditData, handleEditToggle, handleSave, handleAvatarChange
+    editData, setEditData, handleEditToggle, handleSave, handleAvatarUpload,
+    isUploadingAvatar
   };
 };

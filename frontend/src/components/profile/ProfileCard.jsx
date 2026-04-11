@@ -1,19 +1,21 @@
+import UserAvatar from '../common/UserAvatar';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ProfileInfoLinks from './ProfileInfoLinks';
 
-const ProfileCard = ({ user, subscription, memberSince, isEditing, editData, onChange, onSave, onCancel, isSaving, saveError, onAvatarUpload }) => {
-  const initial = user?.displayName?.charAt(0) || '?';
-
+const ProfileCard = ({ user, subscription, memberSince, isEditing, editData, onChange, onSave, onCancel, isSaving, saveError, onAvatarUpload, isUploadingAvatar }) => {
   return (
     <div className="liquid-glass-strong rounded-[28px] p-8 flex flex-col items-center">
-      <div className="relative group mt-2">
-        {user?.avatarUrl ? (
-          <img src={user.avatarUrl} alt="Avatar" className="w-32 h-32 rounded-full object-cover" />
-        ) : (
-          <div className="w-32 h-32 rounded-full bg-white/10 flex flex-col items-center justify-center text-4xl text-white font-medium">{initial}</div>
-        )}
-        {isEditing && (
-          <button onClick={onAvatarUpload} className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 liquid-glass rounded-full px-4 py-2 text-xs text-white/70 whitespace-nowrap cursor-pointer hover:text-white transition-colors shadow-lg">Upload Photo</button>
+      <div className="relative mt-2">
+        <UserAvatar
+          user={user}
+          size="xl"
+          showUpload={isEditing}
+          onUpload={onAvatarUpload}
+        />
+        {isUploadingAvatar && (
+          <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center">
+            <LoadingSpinner size="md" />
+          </div>
         )}
       </div>
       

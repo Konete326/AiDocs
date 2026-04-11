@@ -4,13 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import GlassCard from '../common/GlassCard';
 import logo from '../../assets/logo.png';
 import BiomeMenu from '../common/BiomeMenu';
+import UserAvatar from '../common/UserAvatar';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../notifications/NotificationBell';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const { isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
 
   const handleLogout = async () => {
     await logout();
@@ -39,7 +40,14 @@ const Navbar = () => {
         </div>
         
         <div className="flex items-center gap-3">
-          {isAuthenticated && <NotificationBell />}
+          {isAuthenticated && (
+            <>
+              <NotificationBell />
+              <div onClick={() => navigate('/profile')} className="cursor-pointer hover:scale-105 transition-transform">
+                <UserAvatar user={user} size="sm" />
+              </div>
+            </>
+          )}
           <GlassCard 
             className="rounded-full px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-white/5 hover:scale-105 active:scale-95 transition-all"
             onClick={() => setIsOpen(!isOpen)}

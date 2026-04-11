@@ -93,13 +93,18 @@ exports.handleFirebaseGoogleUser = async (firebaseUser) => {
       email: firebaseUser.email.toLowerCase(),
       firebaseUid: firebaseUser.uid,
       displayName: firebaseUser.name,
-      avatarUrl: firebaseUser.picture || null,
+      avatarUrl: firebaseUser.picture || '',
       isVerified: true
     });
     await Subscription.create({ userId: user._id, plan: 'free', status: 'active', projectLimit: 1 });
   } else {
-    if (!user.firebaseUid) user.firebaseUid = firebaseUser.uid;
-    if (!user.avatarUrl && firebaseUser.picture) user.avatarUrl = firebaseUser.picture;
+    const updates = {};
+    if (!user.firebaseUid) updates.firebaseUid = firebaseUser.uid;
+    if (!user.avatarUrl && firebaseUser.picture) updates.avatarUrl = firebaseUser.picture;
+    
+    if (Object.keys(updates).length > 0) {
+      user = await User.findByIdAndUpdate(user._id, updates, { new: true });
+    }
   }
 
   const accessToken = generateAccessToken(user._id, user.role);

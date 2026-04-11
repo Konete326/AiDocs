@@ -33,7 +33,7 @@ exports.uploadAvatar = asyncWrapper(async (req, res) => {
 
   const { uploadImage } = require('../services/cloudinaryService');
   
-  const result = await uploadImage(req.file.buffer, 'aidocs/avatars');
+  const result = await uploadImage(req.file.buffer, 'aidocs/avatars', `user_${req.user.id}`);
   
   const user = await User.findByIdAndUpdate(
     req.user.id, 

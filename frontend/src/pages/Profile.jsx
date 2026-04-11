@@ -11,11 +11,11 @@ const VIDEO_URL = 'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIX
 
 const Profile = () => {
   const navigate = useNavigate();
-  const fileRef = useRef(null);
   const {
     user, subscription, projectsCount, totalDocs,
     isEditing, setIsEditing, isSaving, saveError,
-    editData, setEditData, handleEditToggle, handleSave, handleAvatarChange
+    editData, setEditData, handleEditToggle, handleSave, handleAvatarUpload,
+    isUploadingAvatar
   } = useProfileFetch();
 
   const memberSince = user?.createdAt
@@ -26,7 +26,7 @@ const Profile = () => {
     <section className="relative min-h-screen overflow-hidden px-4 sm:px-6 py-24 lg:py-32 bg-black">
       <video src={VIDEO_URL} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-0" />
       <div className="absolute inset-0 bg-black/50 z-[1]" />
-      <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} />
+      
       <div className="relative z-10 mx-auto max-w-6xl">
         <button 
           onClick={() => navigate('/dashboard')}
@@ -54,7 +54,8 @@ const Profile = () => {
                 onChange={(f, v) => setEditData({ ...editData, [f]: v })}
                 onSave={handleSave} onCancel={() => setIsEditing(false)}
                 isSaving={isSaving} saveError={saveError}
-                onAvatarUpload={() => fileRef.current?.click()}
+                onAvatarUpload={handleAvatarUpload}
+                isUploadingAvatar={isUploadingAvatar}
               />
             </div>
           </div>
