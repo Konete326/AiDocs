@@ -133,6 +133,8 @@ const Feedback = () => {
 
   const handleNewFeedback = (feedback) => {
     setRealFeedback(prev => [feedback, ...prev]);
+  };
+
   return (
     <div className="relative min-h-screen w-full bg-black overflow-hidden flex flex-col">
       {/* Dark overlay — video from PersistentBackground in App.jsx */}
