@@ -1,12 +1,12 @@
+import { useState } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { useConfirmModal } from '../../hooks/useModal';
-import ConfirmModal from '../common/ConfirmModal';
+import UpgradeModal from '../common/UpgradeModal';
 
 const NavLinks = () => {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
-  const { modal, confirm, close, handleConfirm } = useConfirmModal();
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   const isFree = !user?.plan || user.plan === 'free';
 
@@ -25,13 +25,7 @@ const NavLinks = () => {
   const handleLinkClick = (e, link) => {
     if (link.isProtected && isFree) {
       e.preventDefault();
-      confirm({
-        title: 'Pro Feature',
-        message: 'The advanced workspace is a Pro feature. Upgrade your plan to unlock AI collaboration and advanced tools.',
-        confirmLabel: 'Upgrade Now',
-        cancelLabel: 'Maybe Later',
-        onConfirm: () => navigate('/pricing')
-      });
+      setShowUpgrade(true);
     }
   };
 
@@ -55,14 +49,13 @@ const NavLinks = () => {
         ))}
       </ul>
 
-      <ConfirmModal
-        isOpen={modal.isOpen}
-        title={modal.title}
-        message={modal.message}
-        confirmLabel={modal.confirmLabel}
-        cancelLabel={modal.cancelLabel}
-        onConfirm={handleConfirm}
-        onCancel={close}
+      <UpgradeModal
+        isOpen={showUpgrade}
+        onClose={() => setShowUpgrade(false)}
+        onUpgrade={() => {
+          setShowUpgrade(false);
+          navigate('/pricing');
+        }}
       />
     </>
   );
