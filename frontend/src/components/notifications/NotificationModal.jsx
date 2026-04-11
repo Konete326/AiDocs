@@ -5,7 +5,7 @@ import { BellOff, X } from 'lucide-react';
 import LoadingSpinner from '../common/LoadingSpinner';
 import NotificationItem from './NotificationItem';
 
-const NotificationModal = ({ isOpen, notifications, onMarkRead, isLoading, onClose }) => {
+const NotificationModal = ({ isOpen, notifications, onMarkRead, onMarkAllRead, isLoading, onClose }) => {
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   const modalContent = (
@@ -32,21 +32,32 @@ const NotificationModal = ({ isOpen, notifications, onMarkRead, isLoading, onClo
             <div className="bg-black/90 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col">
               
               {/* Header */}
-              <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 bg-white/[0.02]">
-                <div className="flex items-center gap-3">
-                  <h2 className="text-xl font-semibold text-white">Notifications</h2>
-                  {unreadCount > 0 && (
-                    <span className="bg-white/10 text-white/80 text-xs font-medium px-2.5 py-1 rounded-full">
-                      {unreadCount} new
-                    </span>
-                  )}
+              <div className="flex flex-col gap-4 px-6 py-5 border-b border-white/10 bg-white/[0.02]">
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-3">
+                    <h2 className="text-xl font-semibold text-white">Notifications</h2>
+                    {unreadCount > 0 && (
+                      <span className="bg-white/10 text-white/80 text-xs font-medium px-2.5 py-1 rounded-full">
+                        {unreadCount} new
+                      </span>
+                    )}
+                  </div>
+                  <button 
+                    onClick={onClose}
+                    className="p-2 rounded-full hover:bg-white/10 transition-colors text-white/40 hover:text-white cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </div>
-                <button 
-                  onClick={onClose}
-                  className="p-2 rounded-full hover:bg-white/10 transition-colors text-white/40 hover:text-white cursor-pointer"
-                >
-                  <X className="w-5 h-5" />
-                </button>
+                
+                {unreadCount > 0 && (
+                  <button
+                    onClick={onMarkAllRead}
+                    className="w-fit text-[11px] font-semibold text-white/40 hover:text-white hover:bg-white/5 px-3 py-1.5 rounded-full transition-all border border-white/5 cursor-pointer uppercase tracking-wider"
+                  >
+                    Mark all as read
+                  </button>
+                )}
               </div>
 
               {/* Content Area */}

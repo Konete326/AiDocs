@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Bell } from 'lucide-react';
-import { getNotifications, markNotificationRead } from '../../services/notificationService';
+import { getNotifications, markNotificationRead, markAllNotificationsRead } from '../../services/notificationService';
 import NotificationModal from './NotificationModal';
 
 const NotificationBell = () => {
@@ -43,6 +43,15 @@ const NotificationBell = () => {
     }
   };
 
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllNotificationsRead();
+      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+    } catch (err) {
+      console.error('Failed to mark all as read', err);
+    }
+  };
+
   const unreadCount = (notifications || []).filter(n => !n.isRead).length;
 
   return (
@@ -53,7 +62,7 @@ const NotificationBell = () => {
       >
         <Bell className="w-4 h-4 text-white/70" />
         {unreadCount > 0 && (
-          <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-white/80 flex items-center justify-center text-[10px] text-black font-bold shadow-sm">
+          <div className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-white flex items-center justify-center text-[9px] text-black font-extrabold shadow-[0_0_10px_rgba(255,255,255,0.5)]">
             {unreadCount > 9 ? '9+' : unreadCount}
           </div>
         )}
@@ -63,6 +72,7 @@ const NotificationBell = () => {
         isOpen={isOpen}
         notifications={notifications} 
         onMarkRead={handleMarkRead} 
+        onMarkAllRead={handleMarkAllRead}
         isLoading={isLoading} 
         onClose={() => setIsOpen(false)}
       />
