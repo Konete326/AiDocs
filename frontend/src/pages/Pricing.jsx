@@ -50,7 +50,7 @@ const Pricing = () => {
       <video src={VIDEO_URL} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" />
       <div className="absolute inset-0 bg-black/50 z-[1]" />
       
-      <div className="relative z-10 min-h-screen px-6 py-16 md:py-24 max-w-5xl mx-auto space-y-16">
+      <div className="relative z-10 min-h-screen pt-20 px-6 py-16 md:py-24 max-w-5xl mx-auto space-y-16">
         <button 
           onClick={() => navigate(-1)}
           className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 mb-8 hover:scale-105 transition-transform cursor-pointer"

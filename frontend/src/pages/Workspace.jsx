@@ -30,7 +30,7 @@ const Workspace = () => {
       <motion.div 
         initial={{ opacity: 0, y: 20 }} 
         animate={{ opacity: 1, y: 0 }}
-        className="relative z-10 min-h-screen px-6 py-8 md:px-12 max-w-[1400px] mx-auto flex flex-col"
+        className="relative z-10 pt-20 min-h-screen px-6 py-8 md:px-12 max-w-[1400px] mx-auto flex flex-col"
       >
         <WorkspaceHeader 
           project={project} 

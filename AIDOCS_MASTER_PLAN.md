@@ -828,6 +828,16 @@ After finishing, update the Completion Tracker section of AIDOCS_MASTER_PLAN.md.
 - [x] Reset password interface (token validation, password confirmation)
 - [x] VERCEL_ENV_SETUP.md and EMAIL_SETUP.md created
 - [x] Sprint 13 completion tracked and documentation updated
+| ### Sprint 14 — Avatar System & User Experience
+- [x] Backend: Google login auto-syncs avatarUrl
+- [x] Backend: Cloudinary optimized upload stream implemented
+- [x] Backend: Avatar upload standardized (overwrite current, aidocs/avatars folder)
+- [x] Frontend: Reusable UserAvatar component (sm/md/lg/xl, initials fallback)
+- [x] Frontend: UserAvatar integrated into ProfileCard with upload overlay
+- [x] Frontend: UserAvatar integrated into Navbar (clickable shortcut)
+- [x] Frontend: UserAvatar integrated into Dashboard Header
+- [x] UX: Profile upload loading state and silent failure handling
+- [x] Sprint 14 documentation updated and pushed
 |
 
 ---

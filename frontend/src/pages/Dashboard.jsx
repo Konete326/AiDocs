@@ -83,7 +83,7 @@ const Dashboard = () => {
         src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260315_073750_51473149-4350-4920-ae24-c8214286f323.mp4"
       />
       
-      <div className="relative z-10 p-6 md:p-12 lg:p-16 max-w-7xl mx-auto min-h-screen">
+      <div className="relative z-10 pt-20 p-6 md:p-12 lg:p-16 max-w-7xl mx-auto min-h-screen">
         <DashboardHeader projectCount={projects?.length || 0} plan={subscription?.plan || 'free'} />
 
         <div className="mt-12 space-y-8">

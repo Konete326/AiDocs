@@ -56,7 +56,7 @@ const ProjectDetail = () => {
   return (
     <div className="relative min-h-screen w-full bg-black overflow-hidden">
       <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover z-0 opacity-40" src={VIDEO_URL} />
-      <div className="relative z-10 px-6 py-8 md:px-12">
+      <div className="relative z-10 pt-20 px-6 py-8 md:px-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-7xl mx-auto">
           <ProjectHeader 
             project={project} 
