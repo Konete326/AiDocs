@@ -18,7 +18,7 @@ const DOC_ORDER = [
 ];
 
 const DocsList = ({ documents, selectedDoc, onSelect, isGenerating }) => (
-  <div className="liquid-glass-strong rounded-3xl p-4 flex flex-col lg:space-y-2">
+  <div className="liquid-glass rounded-3xl p-6 flex flex-col lg:space-y-2 h-full border border-white/5">
     <div className="flex items-center justify-between px-2 mb-3 lg:mb-1">
       <span className="text-xs uppercase tracking-widest text-white/50">Documents</span>
       {isGenerating && (

@@ -59,7 +59,9 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   };
 
   return (
-    <div className="liquid-glass-strong rounded-3xl flex flex-col min-h-[600px]">
+    <div className="liquid-glass-strong rounded-3xl flex flex-col h-full min-h-[600px] overflow-hidden border border-white/10 group shadow-2xl relative">
+      {/* Subtle top light effect matching ProCard */}
+      <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-white/[0.02] blur-3xl pointer-events-none" />
       <div className="flex items-center justify-between px-6 py-4">
         <div>
           <p className="text-lg font-medium text-white">{DOC_LABELS[document.docType]}</p>
