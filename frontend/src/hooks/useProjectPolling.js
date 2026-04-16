@@ -37,7 +37,7 @@ export const useProjectPolling = (id) => {
         if (updatedDocs.length > 0 && !selectedDoc) setSelectedDoc(updatedDocs[0]);
         if (updated.status !== 'generating') clearInterval(interval);
       } catch { clearInterval(interval); }
-    }, 5000);
+    }, 2000);
     return () => clearInterval(interval);
   }, [project?.status, id]);
 

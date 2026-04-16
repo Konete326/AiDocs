@@ -21,7 +21,7 @@ const DOC_ORDER = [
   'mvpPlan','folderStructure','claudeContext','agentSystemPrompt',
 ];
 
-const GeneratingState = ({ project, subscription }) => {
+const GeneratingState = ({ project, subscription, onViewReady }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [upgradeModal, setUpgradeModal] = useState({ open: false, feature: '' });
@@ -30,6 +30,7 @@ const GeneratingState = ({ project, subscription }) => {
   const count = docsGenerated.length;
   const pct = Math.round((count / 9) * 100);
   const isPro = ['pro', 'team'].includes(subscription?.plan) || user?.role === 'admin';
+  const canViewPartial = count >= 3;
 
   const handleProGate = (feature) => {
     if (isPro) {
@@ -83,7 +84,7 @@ const GeneratingState = ({ project, subscription }) => {
         <div className="w-full max-w-2xl space-y-3 relative z-10">
             <div className="flex justify-between items-end px-2">
                 <p className="text-xs text-white/40 uppercase tracking-[0.2em]">{count} of 9 complete</p>
-                <p className="text-2xl font-premium-gradient font-bold">{pct}%</p>
+                <p className="text-2xl font-bold text-white">{pct}%</p>
             </div>
             <div className="liquid-glass rounded-full h-3 w-full overflow-hidden border border-white/5 p-0.5">
                 <div
@@ -91,7 +92,17 @@ const GeneratingState = ({ project, subscription }) => {
                 style={{ width: `${pct}%` }}
                 />
             </div>
-            <p className="text-[10px] text-white/30 uppercase tracking-widest">Page updates automatically as docs are ready</p>
+            <div className="flex items-center justify-between px-2 pt-1">
+              <p className="text-[10px] text-white/30 uppercase tracking-widest">Page updates automatically</p>
+              {canViewPartial && onViewReady && (
+                <button
+                  onClick={onViewReady}
+                  className="text-[11px] text-white/70 hover:text-white underline underline-offset-2 transition-colors cursor-pointer"
+                >
+                  View {count} ready docs →
+                </button>
+              )}
+            </div>
         </div>
       </div>
 

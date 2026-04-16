@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -21,9 +22,13 @@ const ProjectDetail = () => {
     selectedDoc, setSelectedDoc, subscription, isLoading, error
   } = useProjectPolling(id);
 
+  // Allows user to jump into partial bento-grid view during generation
+  const [viewingPartial, setViewingPartial] = useState(false);
+
   const handleRetry = async () => {
     await triggerGeneration(id);
     setProject((prev) => ({ ...prev, status: 'generating' }));
+    setViewingPartial(false);
   };
 
   if (isLoading) return <div className="h-screen flex items-center justify-center"><LoadingSpinner /></div>;
@@ -32,13 +37,15 @@ const ProjectDetail = () => {
   const isGenerating = project.status === 'generating';
   const isComplete = project.status === 'complete';
 
-  if (isGenerating) return (
+  // Show generating screen unless user clicked "View Ready Docs"
+  if (isGenerating && !viewingPartial) return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="fixed inset-0 bg-black/55 z-[1]" />
       <div className="relative z-10 pt-20 px-6 py-8 md:px-12">
-        <GeneratingState 
-          project={project} 
-          subscription={subscription} 
+        <GeneratingState
+          project={project}
+          subscription={subscription}
+          onViewReady={() => setViewingPartial(true)}
         />
       </div>
     </div>
@@ -58,6 +65,28 @@ const ProjectDetail = () => {
       <div className="fixed inset-0 bg-black/55 z-[1]" />
       <div className="relative z-10 pt-20 px-4 py-8 md:px-8">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-7xl mx-auto">
+
+          {/* Generating banner while viewing partial docs */}
+          {isGenerating && viewingPartial && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="liquid-glass rounded-2xl px-6 py-3 mb-6 flex items-center justify-between border border-white/5"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                <span className="text-sm text-white/70">
+                  Still generating — {project.docsGenerated?.length || 0} of 9 docs ready
+                </span>
+              </div>
+              <button
+                onClick={() => setViewingPartial(false)}
+                className="text-xs text-white/50 hover:text-white transition-colors cursor-pointer"
+              >
+                View progress →
+              </button>
+            </motion.div>
+          )}
 
           <ProjectHeader
             project={project}
@@ -80,7 +109,7 @@ const ProjectDetail = () => {
 
             {/* DocumentViewer — col-span-5 (like ProCard) */}
             <div className="md:col-span-1 lg:col-span-5">
-              {isComplete && selectedDoc ? (
+              {selectedDoc ? (
                 <DocumentViewer
                   document={selectedDoc}
                   project={project}
@@ -102,8 +131,15 @@ const ProjectDetail = () => {
                   </button>
                 </div>
               ) : (
-                <div className="liquid-glass rounded-3xl p-10 text-center flex items-center justify-center h-full min-h-[300px]">
-                  <p className="text-white/40 text-sm">Select a document to preview it here.</p>
+                <div className="liquid-glass rounded-3xl p-10 text-center flex flex-col items-center justify-center h-full min-h-[300px] gap-4">
+                  {isGenerating ? (
+                    <>
+                      <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                      <p className="text-white/40 text-sm">Select a ready doc on the left to preview it.</p>
+                    </>
+                  ) : (
+                    <p className="text-white/40 text-sm">Select a document to preview it here.</p>
+                  )}
                 </div>
               )}
             </div>

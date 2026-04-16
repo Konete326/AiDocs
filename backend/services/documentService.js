@@ -15,9 +15,42 @@ const prompts = {
   agentSystemPrompt: require('../prompts/agentSystemPrompt')
 };
 
-const dependencyOrder = [
-  'prd', 'srd', 'techStack', 'dbSchema', 'userFlows', 'mvpPlan', 'folderStructure', 'claudeContext', 'agentSystemPrompt'
+/**
+ * Generation pipeline:
+ *   Group 1 (sequential — each feeds context to next):
+ *     prd → srd → techStack
+ *
+ *   Group 2 (parallel — all depend only on Group 1):
+ *     dbSchema, userFlows, folderStructure
+ *
+ *   Group 3 (sequential — depend on everything above):
+ *     mvpPlan → claudeContext → agentSystemPrompt
+ */
+const PIPELINE = [
+  { parallel: false, types: ['prd', 'srd', 'techStack'] },
+  { parallel: true,  types: ['dbSchema', 'userFlows', 'folderStructure'] },
+  { parallel: false, types: ['mvpPlan', 'claudeContext', 'agentSystemPrompt'] },
 ];
+
+// Helper: generate a single doc, save it, update project.docsGenerated
+const generateOne = async (docType, project, userId, generatedSoFar) => {
+  const promptText = prompts[docType](project.wizardAnswers, generatedSoFar);
+  const { content, modelUsed, generationTimeMs } = await AIService.generateText(promptText, docType);
+  const contentTokenCount = Math.floor(content.length / 4);
+
+  await Document.findOneAndUpdate(
+    { projectId: project._id, docType },
+    { userId, content, modelUsed, generationTimeMs, contentTokenCount, $inc: { version: 1 } },
+    { upsert: true, new: true }
+  );
+
+  // Atomically push to docsGenerated (safe for parallel calls)
+  await Project.findByIdAndUpdate(project._id, {
+    $addToSet: { docsGenerated: docType }
+  });
+
+  return content;
+};
 
 exports.generateAll = async (projectId, userId) => {
   const project = await Project.findOne({ _id: projectId, userId, isArchived: false });
@@ -36,42 +69,35 @@ exports.generateAll = async (projectId, userId) => {
   }
 
   try {
-    for (const docType of dependencyOrder) {
-      // Skip docs that have already been successfully generated
-      if (alreadyDone.has(docType)) {
-        continue;
-      }
+    for (const group of PIPELINE) {
+      const pending = group.types.filter(t => !alreadyDone.has(t));
+      if (pending.length === 0) continue; // Whole group already done
 
-      const promptText = prompts[docType](project.wizardAnswers, generatedSoFar);
-      
-      const { content, modelUsed, generationTimeMs } = await AIService.generateText(promptText, docType);
-      
-      const contentTokenCount = Math.floor(content.length / 4);
-      
-      await Document.findOneAndUpdate(
-        { projectId, docType },
-        {
-          userId,
-          content,
-          modelUsed,
-          generationTimeMs,
-          contentTokenCount,
-          $inc: { version: 1 }
-        },
-        { upsert: true, new: true }
-      );
-
-      generatedSoFar[docType] = content;
-      
-      if (!project.docsGenerated.includes(docType)) {
-        project.docsGenerated.push(docType);
+      if (group.parallel) {
+        // Run all pending types in this group concurrently
+        const results = await Promise.all(
+          pending.map(async (docType) => {
+            const content = await generateOne(docType, project, userId, generatedSoFar);
+            return { docType, content };
+          })
+        );
+        // Merge results into context for next groups
+        for (const { docType, content } of results) {
+          generatedSoFar[docType] = content;
+          alreadyDone.add(docType);
+        }
+      } else {
+        // Sequential within the group
+        for (const docType of pending) {
+          const content = await generateOne(docType, project, userId, generatedSoFar);
+          generatedSoFar[docType] = content;
+          alreadyDone.add(docType);
+        }
       }
-      await project.save();
     }
 
-    project.status = 'complete';
-    await project.save();
-    
+    await Project.findByIdAndUpdate(project._id, { status: 'complete' });
+
     const notificationService = require('./notificationService');
     await notificationService.createNotification(
       userId,
@@ -82,9 +108,8 @@ exports.generateAll = async (projectId, userId) => {
     );
 
   } catch (error) {
-    project.status = 'error';
-    await project.save();
-    
+    await Project.findByIdAndUpdate(project._id, { status: 'error' });
+
     const notificationService = require('./notificationService');
     await notificationService.createNotification(
       userId,
@@ -101,7 +126,6 @@ exports.generateAll = async (projectId, userId) => {
 exports.getDocumentsByProject = async (projectId, userId) => {
   const project = await Project.findOne({ _id: projectId, userId, isArchived: false });
   if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');
-  
   return await Document.find({ projectId }).sort({ createdAt: 1 });
 };
 

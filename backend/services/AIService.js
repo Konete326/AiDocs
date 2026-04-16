@@ -52,7 +52,7 @@ const callProvider = async (provider, prompt) => {
     { model: provider.model, messages: [{ role: 'user', content: prompt }], temperature: 0.2 },
     {
       headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...provider.headers },
-      timeout: 120000 // Increased timeout to 2 mins for 405B
+      timeout: 60000 // 60s per provider — fail fast and try next
     }
   );
 
