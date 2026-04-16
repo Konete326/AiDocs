@@ -23,10 +23,25 @@ exports.generateAll = async (projectId, userId) => {
   const project = await Project.findOne({ _id: projectId, userId, isArchived: false });
   if (!project || project.status === 'error') return;
 
+  // Load already-generated docs from DB to build context and skip re-generation
+  const existingDocs = await Document.find({ projectId });
   const generatedSoFar = {};
+  const alreadyDone = new Set();
+
+  for (const doc of existingDocs) {
+    if (doc.content) {
+      generatedSoFar[doc.docType] = doc.content;
+      alreadyDone.add(doc.docType);
+    }
+  }
 
   try {
     for (const docType of dependencyOrder) {
+      // Skip docs that have already been successfully generated
+      if (alreadyDone.has(docType)) {
+        continue;
+      }
+
       const promptText = prompts[docType](project.wizardAnswers, generatedSoFar);
       
       const { content, modelUsed, generationTimeMs } = await AIService.generateText(promptText, docType);
