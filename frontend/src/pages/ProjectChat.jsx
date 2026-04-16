@@ -68,7 +68,7 @@ export default function ProjectChat() {
       <div className="absolute inset-0 bg-black/55 z-[1]" />
       <div className="relative z-10 h-screen flex flex-col pt-20 max-w-4xl mx-auto px-6 py-6 overflow-hidden">
         <header className="flex items-center justify-between mb-6">
-          <button onClick={() => navigate(`/projects/${id}`)} className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 text-sm text-white/70 hover:scale-105 transition-all">
+          <button onClick={() => navigate(`/projects/${id}`)} className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 text-sm text-white/70 hover:scale-105 transition-all cursor-pointer">
             <ChevronLeft className="w-4 h-4" /> Back
           </button>
           <h1 className="text-lg font-medium text-white truncate max-w-[200px] md:max-w-md">{project?.title} — AI Chat</h1>
@@ -86,7 +86,7 @@ export default function ProjectChat() {
               <h2 className="text-2xl font-semibold text-white mb-2">AI Co-founder is a Pro feature</h2>
               <p className="text-white/60 text-sm max-w-sm mx-auto">Upgrade to Pro to chat with an AI that understands your entire project and documentation.</p>
             </div>
-            <button onClick={() => navigate('/pricing')} className="liquid-glass-strong rounded-full px-10 py-3.5 text-white font-medium hover:scale-105 transition-all">Upgrade to Pro</button>
+            <button onClick={() => navigate('/pricing')} className="liquid-glass-strong rounded-full px-10 py-3.5 text-white font-medium hover:scale-105 transition-all cursor-pointer">Upgrade to Pro</button>
           </div>
         ) : (
           <div className="flex-1 flex flex-col overflow-hidden liquid-glass-strong rounded-[2rem] mb-6 shadow-2xl">
@@ -97,7 +97,7 @@ export default function ProjectChat() {
                   <p className="text-sm font-medium">Ask me anything about your project</p>
                   <div className="flex gap-2 flex-wrap justify-center mt-6">
                     {["What's the tech stack?", "Explain the DB schema", "What are core features?"].map(s => (
-                      <button key={s} onClick={() => handleSend(s)} className="liquid-glass rounded-full px-4 py-2 text-xs hover:scale-105 transition-all">{s}</button>
+                      <button key={s} onClick={() => handleSend(s)} className="liquid-glass rounded-full px-4 py-2 text-xs hover:scale-105 transition-all cursor-pointer">{s}</button>
                     ))}
                   </div>
                 </div>

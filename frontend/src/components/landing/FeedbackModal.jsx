@@ -79,7 +79,8 @@ const FeedbackModal = ({ isOpen, onClose, onSuccess }) => {
                     key={star}
                     type="button"
                     onClick={() => setRating(star)}
-                    className={`p-1 transition-all ${rating >= star ? 'text-yellow-400 scale-110' : 'text-white/20 hover:text-white/40'}`}
+                    className={`p-1 transition-all cursor-pointer ${rating >= star ? 'text-yellow-400 scale-110' : 'text-white/20 hover:text-white/40'}`}
+                    aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
                   >
                     <Star className="w-6 h-6 fill-current" />
                   </button>

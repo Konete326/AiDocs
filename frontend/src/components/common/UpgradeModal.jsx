@@ -66,7 +66,7 @@ const UpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
               <div className="flex flex-col gap-3">
                 <button
                   onClick={onUpgrade}
-                  className="w-full liquid-glass-strong py-4 rounded-2xl text-white font-medium hover:scale-[1.02] active:scale-95 transition-all shadow-[0_20px_40px_rgba(0,0,0,0.3)] border border-white/10 cursor-pointer"
+                  className="w-full liquid-glass-strong py-4 rounded-2xl text-white font-medium hover:scale-[1.02] active:scale-95 disabled:hover:scale-100 disabled:cursor-not-allowed transition-all shadow-[0_20px_40px_rgba(0,0,0,0.3)] border border-white/10 cursor-pointer"
                 >
                   View Pricing
                 </button>

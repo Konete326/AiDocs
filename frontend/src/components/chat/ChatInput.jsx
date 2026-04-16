@@ -32,7 +32,7 @@ export default function ChatInput({ onSend, isDisabled }) {
         onClick={handleSubmit}
         disabled={!text.trim() || isDisabled}
         className={`liquid-glass rounded-full w-10 h-10 flex items-center justify-center flex-shrink-0 transition-all hover:scale-105 ${
-          (!text.trim() || isDisabled) ? 'opacity-50 cursor-not-allowed' : 'opacity-100'
+          (!text.trim() || isDisabled) ? 'opacity-50 cursor-not-allowed' : 'opacity-100 cursor-pointer'
         }`}
       >
         <Send className="w-4 h-4 text-white/70" />

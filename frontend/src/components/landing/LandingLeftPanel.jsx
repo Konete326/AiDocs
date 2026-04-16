@@ -13,7 +13,7 @@ export default function LandingLeftPanel() {
           <span className="text-2xl font-semibold tracking-tighter text-white select-none">
             SwiftDocs
           </span>
-          <button className="liquid-glass rounded-full flex items-center gap-2 px-4 py-2 hover:scale-105 transition-transform">
+          <button className="liquid-glass rounded-full flex items-center gap-2 px-4 py-2 hover:scale-105 transition-transform cursor-pointer">
             <Menu className="w-4 h-4 text-white/80" />
             <span className="text-sm text-white/80 font-light">Menu</span>
           </button>
@@ -28,7 +28,7 @@ export default function LandingLeftPanel() {
           {isAuthenticated ? (
             <button
               onClick={() => navigate('/dashboard')}
-              className="liquid-glass-strong rounded-full flex items-center gap-3 px-7 py-3.5 hover:scale-105 transition-transform"
+              className="liquid-glass-strong rounded-full flex items-center gap-3 px-7 py-3.5 hover:scale-105 transition-transform cursor-pointer"
             >
               <Download className="w-4 h-4 text-white/80" />
               <span className="text-sm font-medium text-white tracking-wide">Go to Dashboard</span>
@@ -36,7 +36,7 @@ export default function LandingLeftPanel() {
           ) : (
             <button
               onClick={() => navigate('/register')}
-              className="liquid-glass-strong rounded-full flex items-center gap-3 px-7 py-3.5 hover:scale-105 transition-transform"
+              className="liquid-glass-strong rounded-full flex items-center gap-3 px-7 py-3.5 hover:scale-105 transition-transform cursor-pointer"
             >
               <Download className="w-4 h-4 text-white/80" />
               <span className="text-sm font-medium text-white tracking-wide">Start Generating</span>

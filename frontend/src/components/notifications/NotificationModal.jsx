@@ -45,6 +45,7 @@ const NotificationModal = ({ isOpen, notifications, onMarkRead, onMarkAllRead, o
                   <button 
                     onClick={onClose}
                     className="p-2 rounded-full hover:bg-white/10 transition-colors text-white/40 hover:text-white cursor-pointer active:scale-95"
+                    aria-label="Close notifications"
                   >
                     <X className="w-5 h-5" />
                   </button>

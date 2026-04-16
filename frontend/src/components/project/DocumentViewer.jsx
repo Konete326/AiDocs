@@ -51,7 +51,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
     return (
       <>
         <button onClick={() => { setIsEditing(false); setEditContent(document.content); }} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/50 hover:scale-105 transition-transform cursor-pointer">Cancel</button>
-        <button onClick={handleSave} disabled={isSaving} className="liquid-glass-strong rounded-full px-4 py-2 text-xs text-white flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
+        <button onClick={handleSave} disabled={isSaving} className="liquid-glass-strong rounded-full px-4 py-2 text-xs text-white flex items-center gap-1.5 hover:scale-105 disabled:hover:scale-100 transition-transform cursor-pointer disabled:cursor-not-allowed">
           {isSaving ? <LoadingSpinner size="sm" /> : 'Save'}
         </button>
       </>
@@ -67,13 +67,13 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
           {saveError && <p className="text-xs text-white/50 mt-2">{saveError}</p>}
         </div>
         <div className="flex gap-2 items-center">
-          <button onClick={handleCopy} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
+          <button onClick={handleCopy} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer" aria-label="Copy to clipboard">
             <Copy className="w-3.5 h-3.5" /> Copy
           </button>
-          <button onClick={() => downloadDocAsPdf(project._id, document.docType)} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
+          <button onClick={() => downloadDocAsPdf(project._id, document.docType)} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer" aria-label="Download as PDF">
             <FileText className="w-3.5 h-3.5" /> PDF
           </button>
-          <button onClick={() => downloadDocAsWord(project._id, document.docType)} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
+          <button onClick={() => downloadDocAsWord(project._id, document.docType)} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer" aria-label="Download as Word">
             <FileDown className="w-3.5 h-3.5" /> Word
           </button>
           {renderButtons()}

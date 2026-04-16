@@ -16,8 +16,9 @@ const Button = ({
       type={type}
       onClick={onClick}
       className={`${base} rounded-full px-8 py-3 text-white font-medium
-        hover:scale-105 active:scale-95 transition-transform cursor-pointer ${className}`}
+        hover:scale-105 active:scale-95 disabled:hover:scale-100 disabled:cursor-not-allowed transition-transform cursor-pointer ${className}`}
       {...props}
+      aria-disabled={props.disabled}
     >
       {children}
     </button>

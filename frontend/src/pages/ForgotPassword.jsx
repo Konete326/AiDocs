@@ -34,7 +34,7 @@ export default function ForgotPassword() {
           <Mail className="w-4 h-4 text-white/40" />
           <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="bg-transparent text-white outline-none w-full text-sm" />
         </div>
-        <button type="submit" disabled={isLoading} className="liquid-glass-strong rounded-full py-3 h-11 w-full mt-4 text-white font-medium text-sm hover:scale-105 transition-all flex justify-center items-center">
+        <button type="submit" disabled={isLoading} className="liquid-glass-strong rounded-full py-3 h-11 w-full mt-4 text-white font-medium text-sm hover:scale-105 disabled:hover:scale-100 transition-all flex justify-center items-center cursor-pointer disabled:cursor-not-allowed">
           {isLoading ? <LoadingSpinner /> : "Send Reset Link"}
         </button>
       </form>

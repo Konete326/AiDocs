@@ -61,7 +61,7 @@ export default function WizardShell({ step, totalSteps, onNext, onBack, onSubmit
         {step > 1 ? (
           <button 
             onClick={onBack}
-            className="liquid-glass rounded-full pr-8 pl-6 py-3 text-white/70 text-sm hover:text-white transition-all active:scale-95 flex items-center gap-2"
+            className="liquid-glass rounded-full pr-8 pl-6 py-3 text-white/70 text-sm hover:text-white transition-all active:scale-95 flex items-center gap-2 cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             Back
@@ -71,7 +71,7 @@ export default function WizardShell({ step, totalSteps, onNext, onBack, onSubmit
         <button 
           disabled={isSubmitting}
           onClick={step === totalSteps ? onSubmit : onNext}
-          className="liquid-glass-strong rounded-full px-10 py-3 text-white text-sm font-medium hover:scale-105 active:scale-95 transition-all flex items-center gap-3 shadow-[0_0_30px_rgba(255,255,255,0.05)]"
+          className="liquid-glass-strong rounded-full px-10 py-3 text-white text-sm font-medium hover:scale-105 active:scale-95 disabled:hover:scale-100 disabled:cursor-not-allowed transition-all flex items-center gap-3 shadow-[0_0_30px_rgba(255,255,255,0.05)] cursor-pointer"
         >
           {isSubmitting ? <><LoadingSpinner size="sm" /><span>Processing</span></> : (step === totalSteps ? "Generate Docs" : "Continue")}
         </button>

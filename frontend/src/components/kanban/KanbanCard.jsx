@@ -22,7 +22,7 @@ const KanbanCard = ({ task, index, columnId, onDelete }) => {
               e.stopPropagation();
               onDelete(columnId, task.id);
             }}
-            className="opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 flex-shrink-0 mt-0.5"
+            className="opacity-0 group-hover:opacity-100 transition-opacity w-6 h-6 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 flex-shrink-0 mt-0.5 cursor-pointer"
           >
             <X className="w-3 h-3 text-white/60" />
           </button>

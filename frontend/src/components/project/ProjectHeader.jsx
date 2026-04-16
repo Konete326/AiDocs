@@ -27,7 +27,7 @@ const ProjectHeader = ({ project, onBack, subscription }) => {
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 md:mb-8">
       <AlertModal isOpen={modal.isOpen} title={modal.title} message={modal.message} onClose={close} />
       <div className="flex-1">
-        <button onClick={onBack} className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 hover:scale-105 transition-all text-sm text-white/70">
+        <button onClick={onBack} className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 hover:scale-105 transition-all cursor-pointer text-sm text-white/70">
           <ChevronLeft className="w-4 h-4" /> Dashboard
         </button>
         <div className="mt-4">

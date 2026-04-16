@@ -15,7 +15,7 @@ const ProfileInfoLinks = ({ user, subscription, memberSince }) => {
   return (
     <div className="mt-8 w-full space-y-3">
       {links.map((link, i) => (
-        <motion.div key={i} whileHover={{ y: -2 }} className="liquid-glass rounded-2xl px-4 py-3 flex items-center justify-between transition-all">
+        <div key={i} className="liquid-glass rounded-2xl px-4 py-3 flex items-center justify-between transition-all hover:bg-white/[0.02] cursor-default group">
           <div className="flex items-center gap-4">
             <link.icon className="w-5 h-5 text-white/70" />
             <div className="flex flex-col text-left">
@@ -23,8 +23,7 @@ const ProfileInfoLinks = ({ user, subscription, memberSince }) => {
               <span className="text-sm font-medium text-white/90">{link.value || '—'}</span>
             </div>
           </div>
-          <ArrowUpRight className="w-4 h-4 text-white/30" />
-        </motion.div>
+        </div>
       ))}
     </div>
   );

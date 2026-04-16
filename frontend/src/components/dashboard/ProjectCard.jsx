@@ -18,7 +18,7 @@ const ProjectCard = ({ project, onDelete }) => {
   return (
     <div 
       onClick={() => navigate(`/projects/${project._id}`)}
-      className={`liquid-glass rounded-3xl p-6 flex flex-col gap-4 hover:scale-[1.02] transition-transform cursor-pointer group ${project.status === 'generating' ? 'animate-pulse' : ''}`}
+      className={`liquid-glass rounded-3xl p-6 flex flex-col gap-4 hover:scale-[1.02] transition-transform cursor-pointer group select-none ${project.status === 'generating' ? 'animate-pulse' : ''}`}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
@@ -53,14 +53,9 @@ const ProjectCard = ({ project, onDelete }) => {
         </span>
         <div className="flex gap-2">
           <button 
-            onClick={(e) => { e.stopPropagation(); navigate(`/projects/${project._id}`); }}
-            className="liquid-glass rounded-full px-4 py-1.5 text-xs uppercase tracking-wider text-white/70 hover:text-white transition-colors"
-          >
-            View
-          </button>
-          <button 
             onClick={(e) => { e.stopPropagation(); onDelete(project._id); }}
-            className="liquid-glass rounded-full w-8 h-8 flex items-center justify-center text-white/40 hover:text-white/70 transition-colors"
+            className="liquid-glass rounded-full w-8 h-8 flex items-center justify-center text-white/40 hover:text-white/70 hover:bg-rose-500/10 hover:text-rose-400 transition-all cursor-pointer"
+            aria-label="Delete project"
           >
             <Trash2 className="w-4 h-4" />
           </button>
