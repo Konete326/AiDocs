@@ -48,16 +48,12 @@ exports.triggerGeneration = async (projectId, userId) => {
   const project = await Project.findOne({ _id: projectId, userId, isArchived: false });
   if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');
 
-  // If already generating (e.g. server restarted), just resume — don't reset
+  // If already generating, just resume — don't reset
   if (project.status !== 'generating') {
     project.status = 'generating';
     await project.save();
   }
 
-  const documentService = require('./documentService');
-  // Fire and forget — runs asynchronously in background, resumes from where it left off
-  documentService.generateAll(projectId, userId).catch(err => console.error("documentService Background Error:", err));
-  
   return project;
 };
 
