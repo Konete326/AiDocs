@@ -36,7 +36,10 @@ const ProjectDetail = () => {
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="fixed inset-0 bg-black/55 z-[1]" />
       <div className="relative z-10 pt-20 px-6 py-8 md:px-12">
-        <GeneratingState docsGenerated={project.docsGenerated} />
+        <GeneratingState 
+          project={project} 
+          subscription={subscription} 
+        />
       </div>
     </div>
   );
