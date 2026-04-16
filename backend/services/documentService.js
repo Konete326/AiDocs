@@ -16,6 +16,18 @@ const prompts = {
 };
 
 /**
+ * Build a concise context string from previously generated documents.
+ * Truncates each to 1500 chars to avoid blowing the LLM context window.
+ */
+const buildContext = (previousDocs) => {
+  const entries = Object.entries(previousDocs);
+  if (entries.length === 0) return 'None yet.';
+  return entries
+    .map(([type, content]) => `### ${type.toUpperCase()}\n${content.substring(0, 1500)}${content.length > 1500 ? '\n...[truncated]' : ''}`)
+    .join('\n\n---\n\n');
+};
+
+/**
  * Generation pipeline:
  *   Group 1 (sequential — each feeds context to next):
  *     prd → srd → techStack
@@ -34,7 +46,8 @@ const PIPELINE = [
 
 // Helper: generate a single doc, save it, update project.docsGenerated
 const generateOne = async (docType, project, userId, generatedSoFar) => {
-  const promptText = prompts[docType](project.wizardAnswers, generatedSoFar);
+  const contextString = buildContext(generatedSoFar);
+  const promptText = prompts[docType](project.wizardAnswers, contextString);
   const { content, modelUsed, generationTimeMs } = await AIService.generateText(promptText, docType);
   const contentTokenCount = Math.floor(content.length / 4);
 
