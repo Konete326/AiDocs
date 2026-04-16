@@ -18,13 +18,15 @@ const DOC_ORDER = [
 ];
 
 const DocsList = ({ documents, selectedDoc, onSelect, isGenerating }) => (
-  <div className="liquid-glass-strong rounded-3xl p-4 space-y-2">
-    <div className="flex items-center justify-between px-2 mb-3">
+  <div className="liquid-glass-strong rounded-3xl p-4 flex flex-col lg:space-y-2">
+    <div className="flex items-center justify-between px-2 mb-3 lg:mb-1">
       <span className="text-xs uppercase tracking-widest text-white/50">Documents</span>
       {isGenerating && (
         <span className="text-xs text-white/40">{documents.length}/9 ready</span>
       )}
     </div>
+    
+    <div className="flex flex-row lg:flex-col gap-3 lg:gap-2 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0 scrollbar-hide">
     {DOC_ORDER.map((type) => {
       const doc = documents.find((d) => d.docType === type);
       const isGenerated = !!doc;
@@ -34,7 +36,7 @@ const DocsList = ({ documents, selectedDoc, onSelect, isGenerating }) => (
           key={type}
           onClick={() => isGenerated && onSelect(doc)}
           className={[
-            'liquid-glass rounded-2xl px-4 py-3 flex items-center gap-3',
+            'liquid-glass rounded-2xl px-4 py-3 flex items-center gap-3 w-56 flex-shrink-0 lg:w-full',
             isSelected ? 'liquid-glass-strong' : '',
             isGenerated ? 'cursor-pointer hover:scale-[1.02] transition-transform' : 'opacity-50 cursor-not-allowed',
           ].join(' ')}
@@ -59,6 +61,7 @@ const DocsList = ({ documents, selectedDoc, onSelect, isGenerating }) => (
         </div>
       );
     })}
+    </div>
   </div>
 );
 

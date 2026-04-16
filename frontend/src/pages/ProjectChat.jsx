@@ -89,7 +89,7 @@ export default function ProjectChat() {
             <button onClick={() => navigate('/pricing')} className="liquid-glass-strong rounded-full px-10 py-3.5 text-white font-medium hover:scale-105 transition-all">Upgrade to Pro</button>
           </div>
         ) : (
-          <div className="flex-1 flex flex-col overflow-hidden glass-strong rounded-[2rem] mb-6 shadow-2xl">
+          <div className="flex-1 flex flex-col overflow-hidden liquid-glass-strong rounded-[2rem] mb-6 shadow-2xl">
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
               {messages.length === 0 && (
                 <div className="h-full flex flex-col items-center justify-center opacity-50">
