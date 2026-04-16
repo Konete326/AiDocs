@@ -69,18 +69,20 @@ const CreateProject = () => {
       {/* Dark overlay — video from PersistentBackground in App.jsx */}
       <div className="fixed inset-0 bg-black/55 z-[1]" />
       
-      <WizardShell 
-        step={step} totalSteps={4} 
-        onNext={validateAndNext} 
-        onBack={() => { setError(''); setStep(s => s - 1); }} 
-        onClose={() => {
-          localStorage.removeItem(STORAGE_KEY);
-          navigate('/dashboard');
-        }}
-        onSubmit={handleSubmit} isSubmitting={isSubmitting} error={error}
-      >
-        {steps[step]}
-      </WizardShell>
+      <div className="relative z-10 w-full flex items-center justify-center">
+        <WizardShell 
+          step={step} totalSteps={4} 
+          onNext={validateAndNext} 
+          onBack={() => { setError(''); setStep(s => s - 1); }} 
+          onClose={() => {
+            localStorage.removeItem(STORAGE_KEY);
+            navigate('/dashboard');
+          }}
+          onSubmit={handleSubmit} isSubmitting={isSubmitting} error={error}
+        >
+          {steps[step]}
+        </WizardShell>
+      </div>
     </div>
   );
 };
