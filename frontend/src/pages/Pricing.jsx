@@ -6,12 +6,14 @@ import PricingHero from '../components/pricing/PricingHero';
 import BentoGrid from '../components/pricing/BentoGrid';
 import PricingFeatures from '../components/pricing/PricingFeatures';
 import PricingFaq from '../components/pricing/PricingFaq';
+import ComingSoonModal from '../components/common/ComingSoonModal';
 
 const Pricing = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [subscription, setSubscription] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showComingSoon, setShowComingSoon] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -24,6 +26,13 @@ const Pricing = () => {
   const handleCheckout = async (plan) => {
     if (!user) return navigate('/register');
     if (plan === 'free') return;
+    
+    // Payments are coming soon
+    setShowComingSoon(true);
+    return;
+    
+    // Original logic commented out
+    /*
     setIsLoading(true);
     try {
       const { data } = await axios.post('/api/payments/create-checkout-session', { plan });
@@ -33,6 +42,7 @@ const Pricing = () => {
     } finally {
       setIsLoading(false);
     }
+    */
   };
 
   return (
@@ -46,6 +56,11 @@ const Pricing = () => {
         <PricingFeatures />
         <PricingFaq />
       </div>
+
+      <ComingSoonModal 
+        isOpen={showComingSoon} 
+        onClose={() => setShowComingSoon(false)} 
+      />
     </div>
   );
 };
