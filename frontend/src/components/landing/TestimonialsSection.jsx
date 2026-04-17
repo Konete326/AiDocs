@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Card, CardContent } from '../ui/card';
 import { Marquee } from '../ui/marquee';
 import { useNavigate } from 'react-router-dom';
+import { SpecialText } from '../ui/SpecialText';
 
 const testimonials = [
   {
@@ -96,7 +97,9 @@ export default function TestimonialsSection() {
           className="text-center mb-16"
         >
           <p className="text-xs font-bold tracking-[0.3em] text-white/40 uppercase mb-4">
-            Community Feedback
+            <SpecialText speed={25} inView={true} className="text-white/40">
+              Community Feedback
+            </SpecialText>
           </p>
           <h2 className="text-4xl md:text-5xl font-medium text-white tracking-tighter">
             Loved by Visionary{' '}

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useState, createElement, useMemo, useCallback, memo } from "react";
+import { useInView } from "motion/react";
 
 export const Tag = {
   H1: "h1",
@@ -30,7 +31,7 @@ export default function VapourTextEffect({
 }) {
   const canvasRef = useRef(null);
   const wrapperRef = useRef(null);
-  const isInView = useIsInView(wrapperRef);
+  const isInView = useInView(wrapperRef, { margin: "-50px" });
   const lastFontRef = useRef(null);
   const particlesRef = useRef([]);
   const animationFrameRef = useRef(null);
@@ -45,7 +46,7 @@ export default function VapourTextEffect({
   // Calculate device pixel ratio
   const globalDpr = useMemo(() => {
     if (typeof window !== "undefined") {
-      return window.devicePixelRatio * 1.5 || 1;
+      return window.devicePixelRatio || 1;
     }
     return 1;
   }, []);
@@ -56,11 +57,13 @@ export default function VapourTextEffect({
     height: "100%",
     pointerEvents: "none",
     position: "relative",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   }), []);
 
   const canvasStyle = useMemo(() => ({
-    minWidth: "30px",
-    minHeight: "20px",
+    display: "block",
     pointerEvents: "none",
   }), []);
 
@@ -73,14 +76,14 @@ export default function VapourTextEffect({
 
   // Memoize font and spread calculations
   const fontConfig = useMemo(() => {
-    const fontSize = parseInt(font.fontSize?.replace("px", "") || "50");
-    const VAPORIZE_SPREAD = calculateVaporizeSpread(fontSize);
+    const fontSizeNum = parseInt(String(font.fontSize).replace("px", "") || "50");
+    const VAPORIZE_SPREAD = calculateVaporizeSpread(fontSizeNum);
     const MULTIPLIED_VAPORIZE_SPREAD = VAPORIZE_SPREAD * spread;
     return {
-      fontSize,
+      fontSize: fontSizeNum,
       VAPORIZE_SPREAD,
       MULTIPLIED_VAPORIZE_SPREAD,
-      font: `${font.fontWeight ?? 400} ${fontSize * globalDpr}px ${font.fontFamily}`,
+      font: `${font.fontWeight ?? 400} ${fontSizeNum * globalDpr}px ${font.fontFamily}`,
     };
   }, [font.fontSize, font.fontWeight, font.fontFamily, spread, globalDpr]);
 
@@ -105,10 +108,7 @@ export default function VapourTextEffect({
   // Start animation cycle when in view
   useEffect(() => {
     if (isInView) {
-      const startAnimationTimeout = setTimeout(() => {
-        setAnimationState("vaporizing");
-      }, 0);
-      return () => clearTimeout(startAnimationTimeout);
+      setAnimationState("vaporizing");
     } else {
       setAnimationState("static");
       if (animationFrameRef.current) {
@@ -130,9 +130,24 @@ export default function VapourTextEffect({
       lastTime = currentTime;
 
       const canvas = canvasRef.current;
-      const ctx = canvas?.getContext("2d");
+      const ctx = canvas?.getContext("2d", { alpha: true });
 
-      if (!canvas || !ctx || !particlesRef.current.length) {
+      if (!canvas || !ctx) {
+        frameId = requestAnimationFrame(animate);
+        return;
+      }
+
+      // If particles aren't loaded yet, try to load them
+      if (!particlesRef.current.length && wrapperSize.width > 0) {
+        renderCanvas({
+          framerProps: { texts, font, color, alignment },
+          canvasRef,
+          wrapperSize,
+          particlesRef,
+          globalDpr,
+          currentTextIndex,
+          transformedDensity,
+        });
         frameId = requestAnimationFrame(animate);
         return;
       }
@@ -145,7 +160,7 @@ export default function VapourTextEffect({
           break;
         }
         case "vaporizing": {
-          vaporizeProgressRef.current += deltaTime * 100 / (animationDurations.VAPORIZE_DURATION / 1000);
+          vaporizeProgressRef.current += deltaTime * 100 / (animationDurations.VAPORIZE_DURATION / 1000 || 1);
           const textBoundaries = canvas.textBoundaries;
           if (!textBoundaries) break;
 
@@ -161,18 +176,19 @@ export default function VapourTextEffect({
             setCurrentTextIndex(prevIndex => (prevIndex + 1) % texts.length);
             setAnimationState("fadingIn");
             fadeOpacityRef.current = 0;
+            vaporizeProgressRef.current = 0;
           }
           break;
         }
         case "fadingIn": {
-          fadeOpacityRef.current += deltaTime * 1000 / animationDurations.FADE_IN_DURATION;
+          fadeOpacityRef.current += deltaTime * 1000 / (animationDurations.FADE_IN_DURATION || 1);
 
           ctx.save();
           ctx.scale(globalDpr, globalDpr);
           particlesRef.current.forEach(particle => {
             particle.x = particle.originalX;
             particle.y = particle.originalY;
-            const opacity = Math.min(fadeOpacityRef.current, 1) * particle.originalAlpha;
+            const opacity = Math.min(fadeOpacityRef.current, 1) * (particle.originalAlpha || 1);
             const colorStr = particle.color.replace(/[\d.]+\)$/, `${opacity})`);
             ctx.fillStyle = colorStr;
             ctx.fillRect(particle.x / globalDpr, particle.y / globalDpr, 1, 1);
@@ -206,63 +222,39 @@ export default function VapourTextEffect({
     animationState, isInView, texts.length, direction, globalDpr,
     memoizedUpdateParticles, memoizedRenderParticles,
     animationDurations.FADE_IN_DURATION, animationDurations.WAIT_DURATION,
-    animationDurations.VAPORIZE_DURATION
+    animationDurations.VAPORIZE_DURATION, wrapperSize, currentTextIndex, texts, font, color, alignment, transformedDensity
   ]);
 
   useEffect(() => {
-    renderCanvas({
-      framerProps: { texts, font, color, alignment },
-      canvasRef,
-      wrapperSize,
-      particlesRef,
-      globalDpr,
-      currentTextIndex,
-      transformedDensity,
-    });
-
-    const currentFont = font.fontFamily || "sans-serif";
-    return handleFontChange({
-      currentFont,
-      lastFontRef,
-      canvasRef,
-      wrapperSize,
-      particlesRef,
-      globalDpr,
-      currentTextIndex,
-      transformedDensity,
-      framerProps: { texts, font, color, alignment },
-    });
+    if (wrapperSize.width > 0 && wrapperSize.height > 0) {
+      renderCanvas({
+        framerProps: { texts, font, color, alignment },
+        canvasRef,
+        wrapperSize,
+        particlesRef,
+        globalDpr,
+        currentTextIndex,
+        transformedDensity,
+      });
+    }
   }, [texts, font, color, alignment, wrapperSize, currentTextIndex, globalDpr, transformedDensity]);
 
   useEffect(() => {
     const container = wrapperRef.current;
     if (!container) return;
 
-    const resizeObserver = new ResizeObserver(entries => {
-      for (const entry of entries) {
-        const { width, height } = entry.contentRect;
-        setWrapperSize({ width, height });
+    const updateSize = () => {
+      const rect = container.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        setWrapperSize({ width: rect.width, height: rect.height });
       }
-      renderCanvas({
-        framerProps: { texts, font, color, alignment },
-        canvasRef,
-        wrapperSize: { width: container.clientWidth, height: container.clientHeight },
-        particlesRef,
-        globalDpr,
-        currentTextIndex,
-        transformedDensity,
-      });
-    });
+    };
 
+    const resizeObserver = new ResizeObserver(updateSize);
     resizeObserver.observe(container);
+    updateSize(); // Initial call
+    
     return () => resizeObserver.disconnect();
-  }, [texts, font, color, alignment, globalDpr, currentTextIndex, transformedDensity]);
-
-  useEffect(() => {
-    if (wrapperRef.current) {
-      const rect = wrapperRef.current.getBoundingClientRect();
-      setWrapperSize({ width: rect.width, height: rect.height });
-    }
   }, []);
 
   return (
@@ -276,8 +268,9 @@ export default function VapourTextEffect({
 const SeoElement = memo(({ tag = Tag.P, texts }) => {
   const style = useMemo(() => ({
     position: "absolute",
-    width: "0",
-    height: "0",
+    width: "1px",
+    height: "1px",
+    opacity: 0,
     overflow: "hidden",
     userSelect: "none",
     pointerEvents: "none",
@@ -286,38 +279,6 @@ const SeoElement = memo(({ tag = Tag.P, texts }) => {
   const safeTag = Object.values(Tag).includes(tag) ? tag : "p";
   return createElement(safeTag, { style }, texts?.join(" ") ?? "");
 });
-
-const handleFontChange = ({
-  currentFont,
-  lastFontRef,
-  canvasRef,
-  wrapperSize,
-  particlesRef,
-  globalDpr,
-  currentTextIndex,
-  transformedDensity,
-  framerProps,
-}) => {
-  if (currentFont !== lastFontRef.current) {
-    lastFontRef.current = currentFont;
-    const timeoutId = setTimeout(() => {
-      cleanup({ canvasRef, particlesRef });
-      renderCanvas({
-        framerProps,
-        canvasRef,
-        wrapperSize,
-        particlesRef,
-        globalDpr,
-        currentTextIndex,
-        transformedDensity,
-      });
-    }, 1000);
-    return () => {
-      clearTimeout(timeoutId);
-      cleanup({ canvasRef, particlesRef });
-    };
-  }
-};
 
 const cleanup = ({ canvasRef, particlesRef }) => {
   const canvas = canvasRef.current;
@@ -337,7 +298,7 @@ const renderCanvas = ({
 }) => {
   const canvas = canvasRef.current;
   if (!canvas || !wrapperSize.width || !wrapperSize.height) return;
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext("2d", { alpha: true });
   if (!ctx) return;
 
   const { width, height } = wrapperSize;
@@ -346,7 +307,7 @@ const renderCanvas = ({
   canvas.width = Math.floor(width * globalDpr);
   canvas.height = Math.floor(height * globalDpr);
 
-  const fontSize = parseInt(framerProps.font?.fontSize?.replace("px", "") || "50");
+  const fontSize = parseInt(String(framerProps.font?.fontSize).replace("px", "") || "50");
   const font = `${framerProps.font?.fontWeight ?? 400} ${fontSize * globalDpr}px ${framerProps.font?.fontFamily ?? "sans-serif"}`;
   const color = parseColor(framerProps.color ?? "rgb(153, 153, 153)");
 
@@ -370,8 +331,6 @@ const createParticles = (ctx, canvas, text, textX, textY, font, color, alignment
   ctx.font = font;
   ctx.textAlign = alignment;
   ctx.textBaseline = "middle";
-  ctx.imageSmoothingQuality = "high";
-  ctx.imageSmoothingEnabled = true;
 
   const metrics = ctx.measureText(text);
   let textLeft;
@@ -382,33 +341,40 @@ const createParticles = (ctx, canvas, text, textX, textY, font, color, alignment
 
   const textBoundaries = { left: textLeft, right: textLeft + textWidth, width: textWidth };
   ctx.fillText(text, textX, textY);
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const data = imageData.data;
-  const currentDPR = canvas.width / parseInt(canvas.style.width);
-  const sampleRate = 1; 
+  
+  try {
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const data = imageData.data;
+    const currentDPR = canvas.width / parseFloat(canvas.style.width);
+    const sampleRate = 2; // Increase sample rate for performance
 
-  for (let y = 0; y < canvas.height; y += sampleRate) {
-    for (let x = 0; x < canvas.width; x += sampleRate) {
-      const index = (y * canvas.width + x) * 4;
-      const alpha = data[index + 3];
-      if (alpha > 0) {
-        const originalAlpha = alpha / 255 * (sampleRate / currentDPR);
-        particles.push({
-          x, y, originalX: x, originalY: y,
-          color: `rgba(${data[index]}, ${data[index + 1]}, ${data[index + 2]}, ${originalAlpha})`,
-          opacity: originalAlpha, originalAlpha,
-          velocityX: 0, velocityY: 0, angle: 0, speed: 0,
-        });
+    for (let y = 0; y < canvas.height; y += sampleRate) {
+      for (let x = 0; x < canvas.width; x += sampleRate) {
+        const index = (y * canvas.width + x) * 4;
+        const alpha = data[index + 3];
+        if (alpha > 50) { // Only capture visible pixels
+          const normalizedAlpha = alpha / 255;
+          particles.push({
+            x, y, originalX: x, originalY: y,
+            color: `rgba(${data[index]}, ${data[index + 1]}, ${data[index + 2]}, ${normalizedAlpha})`,
+            opacity: normalizedAlpha, originalAlpha: normalizedAlpha,
+            velocityX: 0, velocityY: 0, angle: 0, speed: 0,
+          });
+        }
       }
     }
+  } catch (e) {
+    console.warn("Canvas read error:", e);
   }
+  
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   return { particles, textBoundaries };
 };
 
 const updateParticles = (particles, vaporizeX, deltaTime, MULTIPLIED_VAPORIZE_SPREAD, VAPORIZE_DURATION, direction, density) => {
   let allParticlesVaporized = true;
-  particles.forEach(particle => {
+  for (let i = 0; i < particles.length; i++) {
+    const particle = particles[i];
     const shouldVaporize = direction === "left-to-right" ? particle.originalX <= vaporizeX : particle.originalX >= vaporizeX;
     if (shouldVaporize) {
       if (particle.speed === 0) {
@@ -418,47 +384,51 @@ const updateParticles = (particles, vaporizeX, deltaTime, MULTIPLIED_VAPORIZE_SP
         particle.velocityY = Math.sin(particle.angle) * particle.speed;
         particle.shouldFadeQuickly = Math.random() > density;
       }
-      if (particle.shouldFadeQuickly) particle.opacity = Math.max(0, particle.opacity - deltaTime);
+      if (particle.shouldFadeQuickly) particle.opacity = Math.max(0, particle.opacity - deltaTime * 2);
       else {
         const dx = particle.originalX - particle.x;
         const dy = particle.originalY - particle.y;
         const distanceFromOrigin = Math.sqrt(dx * dx + dy * dy);
-        const dampingFactor = Math.max(0.95, 1 - distanceFromOrigin / (100 * MULTIPLIED_VAPORIZE_SPREAD));
-        const randomSpread = MULTIPLIED_VAPORIZE_SPREAD * 3;
-        particle.velocityX = (particle.velocityX + (Math.random() - 0.5) * randomSpread + dx * 0.002) * dampingFactor;
-        particle.velocityY = (particle.velocityY + (Math.random() - 0.5) * randomSpread + dy * 0.002) * dampingFactor;
-        particle.x += particle.velocityX * deltaTime * 20;
-        particle.y += particle.velocityY * deltaTime * 10;
-        particle.opacity = Math.max(0, particle.opacity - deltaTime * 0.25 * (2000 / VAPORIZE_DURATION));
+        const dampingFactor = Math.max(0.9, 1 - distanceFromOrigin / (100 * MULTIPLIED_VAPORIZE_SPREAD));
+        const randomSpread = MULTIPLIED_VAPORIZE_SPREAD * 2;
+        particle.velocityX = (particle.velocityX + (Math.random() - 0.5) * randomSpread + dx * 0.001) * dampingFactor;
+        particle.velocityY = (particle.velocityY + (Math.random() - 0.5) * randomSpread + dy * 0.001) * dampingFactor;
+        particle.x += particle.velocityX * deltaTime * 30;
+        particle.y += particle.velocityY * deltaTime * 20;
+        particle.opacity = Math.max(0, particle.opacity - deltaTime * 0.5);
       }
-      if (particle.opacity > 0.01) allParticlesVaporized = false;
-    } else allParticlesVaporized = false;
-  });
+      if (particle.opacity > 0.05) allParticlesVaporized = false;
+    } else {
+      allParticlesVaporized = false;
+    }
+  }
   return allParticlesVaporized;
 };
 
 const renderParticles = (ctx, particles, globalDpr) => {
   ctx.save();
   ctx.scale(globalDpr, globalDpr);
-  particles.forEach(particle => {
-    if (particle.opacity > 0) {
+  for (let i = 0; i < particles.length; i++) {
+    const particle = particles[i];
+    if (particle.opacity > 0.01) {
       const colorStr = particle.color.replace(/[\d.]+\)$/, `${particle.opacity})`);
       ctx.fillStyle = colorStr;
       ctx.fillRect(particle.x / globalDpr, particle.y / globalDpr, 1, 1);
     }
-  });
+  }
   ctx.restore();
 };
 
 const resetParticles = (particles) => {
-  particles.forEach(particle => {
+  for (let i = 0; i < particles.length; i++) {
+    const particle = particles[i];
     particle.x = particle.originalX;
     particle.y = particle.originalY;
     particle.opacity = particle.originalAlpha;
     particle.speed = 0;
     particle.velocityX = 0;
     particle.velocityY = 0;
-  });
+  }
 };
 
 const calculateVaporizeSpread = (fontSize) => {
@@ -474,9 +444,8 @@ const calculateVaporizeSpread = (fontSize) => {
 };
 
 const parseColor = (color) => {
+  if (color.startsWith("rgba")) return color;
   const rgbMatch = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-  const rgbaMatch = color.match(/rgba\((\d+),\s*(\d+),\s*(\d+),\s*([\d.]+)\)/);
-  if (rgbaMatch) return rgbaMatch[0];
   if (rgbMatch) return `rgba(${rgbMatch[1]}, ${rgbMatch[2]}, ${rgbMatch[3]}, 1)`;
   return "rgba(255, 255, 255, 1)";
 };
@@ -491,15 +460,4 @@ function transformValue(input, inputRange, outputRange, clamp = false) {
     else result = Math.min(Math.max(result, outputMax), outputMin);
   }
   return result;
-}
-
-function useIsInView(ref) {
-  const [isInView, setIsInView] = useState(false);
-  useEffect(() => {
-    if (!ref.current) return;
-    const observer = new IntersectionObserver(([entry]) => setIsInView(entry.isIntersecting), { threshold: 0, rootMargin: '50px' });
-    observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [ref]);
-  return isInView;
 }

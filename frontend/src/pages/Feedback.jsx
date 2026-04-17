@@ -4,6 +4,7 @@ import { MessageSquare, Star, Plus } from 'lucide-react';
 import api from '../services/api';
 import Button from '../components/common/Button';
 import FeedbackModal from '../components/landing/FeedbackModal';
+import { SpecialText } from '../components/ui/SpecialText';
 
 // --- Static Dummy Testimonials (as provided) ---
 const DUMMY_TESTIMONIALS = [
@@ -171,7 +172,9 @@ const Feedback = () => {
             transition={{ delay: 0.1 }}
             className="text-white/40 max-w-xl text-lg"
           >
-            Insights from pioneers building the next generation of documentation and AI-driven workflows.
+            <SpecialText speed={15} delay={0.5} inView={true} className="text-white/40">
+              Insights from pioneers building the next generation of documentation and AI-driven workflows.
+            </SpecialText>
           </motion.p>
         </div>
 

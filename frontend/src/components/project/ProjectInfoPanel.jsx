@@ -1,4 +1,5 @@
 import { Info, Calendar, Database, Target, Users, Zap } from 'lucide-react';
+import { SpecialText } from '../ui/SpecialText';
 
 const ProjectInfoPanel = ({ project, subscription, documents }) => {
   const wizardAnswers = project?.wizardAnswers || {};
@@ -20,7 +21,11 @@ const ProjectInfoPanel = ({ project, subscription, documents }) => {
       <div className="lg:w-1/3 z-10">
         <div className="liquid-glass rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-white/50 w-fit mb-3">Project Blueprint</div>
         <div className="flex items-end gap-2 mb-3">
-          <span className="text-4xl font-semibold text-white tracking-tight">Technical Data</span>
+          <span className="text-4xl font-semibold text-white tracking-tight">
+            <SpecialText speed={20} inView={true} className="text-white">
+              Technical Data
+            </SpecialText>
+          </span>
         </div>
         <p className="text-sm text-white/60 leading-relaxed mb-6">
           Aggregated insights based on your wizard input. Use these parameters to guide your final project implementation.

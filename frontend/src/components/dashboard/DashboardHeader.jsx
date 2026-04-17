@@ -4,6 +4,7 @@ import UserAvatar from '../common/UserAvatar';
 import { useAuth } from '../../context/AuthContext';
 import UpgradeModal from '../common/UpgradeModal';
 import { useState } from 'react';
+import { SpecialText } from '../ui/SpecialText';
 
 export default function DashboardHeader({ projectCount, plan, projectLimit }) {
   const navigate = useNavigate();
@@ -24,8 +25,10 @@ export default function DashboardHeader({ projectCount, plan, projectLimit }) {
         <UserAvatar user={user} size="md" />
         <div>
           <h1 className="text-3xl font-medium text-white">Your Projects</h1>
-          <p className="text-sm text-white/50 mt-1 uppercase tracking-wider">
-            {plan} plan · <span className="text-white/80">{projectCount} / {projectLimit}</span> projects
+          <p className="text-sm text-white/50 mt-1 uppercase tracking-wider flex items-center gap-1">
+            <SpecialText speed={15} inView={true} className="text-white/50">
+              {`${plan} plan · ${projectCount} / ${projectLimit} projects`}
+            </SpecialText>
           </p>
         </div>
       </div>

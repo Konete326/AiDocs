@@ -2,6 +2,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Crown, X, Check } from 'lucide-react';
+import { SpecialText } from '../ui/SpecialText';
 
 const UpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
   const features = [
@@ -47,7 +48,9 @@ const UpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
               {/* Header */}
               <h2 className="text-2xl font-semibold text-white mb-3">Unlock Pro Workspace</h2>
               <p className="text-white/60 text-sm leading-relaxed mb-8">
-                The advanced workspace is a Pro feature. Upgrade your plan to unlock AI collaboration and advanced tools.
+                <SpecialText speed={12} delay={0.2} inView={true} className="text-white/60">
+                  The advanced workspace is a Pro feature. Upgrade your plan to unlock AI collaboration and advanced tools.
+                </SpecialText>
               </p>
 
               {/* Features List */}
