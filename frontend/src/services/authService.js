@@ -1,4 +1,4 @@
-import api, { setAccessToken } from './api';
+import api, { setAccessToken, refreshAccessTokenSilent } from './api';
 import { auth, googleProvider } from '../config/firebase';
 import { signInWithPopup } from 'firebase/auth';
 
@@ -28,9 +28,7 @@ export async function logoutUser() {
 }
 
 export async function refreshAccessToken() {
-  const response = await api.post('/auth/refresh');
-  setAccessToken(response.data.data.accessToken);
-  return response.data.data.accessToken;
+  return await refreshAccessTokenSilent();
 }
 
 export async function forgotPasswordApi(email) {

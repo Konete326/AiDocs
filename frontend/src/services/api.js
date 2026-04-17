@@ -2,6 +2,7 @@ import axios from 'axios';
 
 // Token is memory-only — never stored in localStorage (XSS mitigation)
 let _accessToken = null;
+let refreshPromise = null;
 
 export const getAccessToken = () => _accessToken;
 export const setAccessToken = (token) => { _accessToken = token; };
@@ -10,6 +11,23 @@ const api = axios.create({
   baseURL: '/api',
   withCredentials: true,
 });
+
+export const refreshAccessTokenSilent = async () => {
+  if (!refreshPromise) {
+    refreshPromise = axios.post(
+      `${api.defaults.baseURL}/auth/refresh`,
+      {},
+      { withCredentials: true }
+    ).then(response => {
+      const newAccessToken = response.data.data.accessToken;
+      setAccessToken(newAccessToken);
+      return newAccessToken;
+    }).finally(() => {
+      refreshPromise = null;
+    });
+  }
+  return refreshPromise;
+};
 
 api.interceptors.request.use(
   (config) => {
@@ -32,14 +50,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const response = await axios.post(
-          `${api.defaults.baseURL}/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
-        const newAccessToken = response.data.data.accessToken;
-        setAccessToken(newAccessToken);
-
+        const newAccessToken = await refreshAccessTokenSilent();
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
         return api(originalRequest);
       } catch (refreshError) {
