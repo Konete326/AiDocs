@@ -25,7 +25,7 @@ const Profile = () => {
   };
 
   const handleResetPassword = () => {
-    navigate('/forgot-password');
+    navigate('/forgot-password', { state: { fromProfile: true } });
   };
 
   const memberSince = user?.createdAt

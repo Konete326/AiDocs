@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Mail, ArrowLeft } from 'lucide-react';
 import AuthLayout from '../components/auth/AuthLayout';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { forgotPasswordApi } from '../services/authService';
 
 export default function ForgotPassword() {
+  const location = useLocation();
+  const fromProfile = location.state?.fromProfile;
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -39,8 +41,11 @@ export default function ForgotPassword() {
         </button>
       </form>
       <div className="mt-8 text-center">
-        <Link to="/login" className="text-xs text-white/50 hover:text-white/80 flex items-center justify-center gap-2">
-          <ArrowLeft className="w-3 h-3" /> Back to sign in
+        <Link 
+          to={fromProfile ? "/profile" : "/login"} 
+          className="text-xs text-white/50 hover:text-white/80 flex items-center justify-center gap-2"
+        >
+          <ArrowLeft className="w-3 h-3" /> {fromProfile ? "Back to profile" : "Back to sign in"}
         </Link>
       </div>
     </AuthLayout>
