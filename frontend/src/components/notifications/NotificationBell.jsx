@@ -2,11 +2,15 @@ import { useState, useEffect } from 'react';
 import { Bell } from 'lucide-react';
 import { getNotifications, markNotificationRead, markAllNotificationsRead, deleteNotification } from '../../services/notificationService';
 import NotificationModal from './NotificationModal';
+import { useConfirmModal } from '../../hooks/useModal';
+import ConfirmModal from '../common/ConfirmModal';
 
 const NotificationBell = () => {
   const [notifications, setNotifications] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  const { modal: confirmModal, confirm, close: closeConfirm, handleConfirm } = useConfirmModal();
 
   useEffect(() => {
     let active = true;
@@ -52,13 +56,20 @@ const NotificationBell = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await deleteNotification(id);
-      setNotifications(prev => prev.filter(n => n._id !== id));
-    } catch (err) {
-      console.error('Failed to delete notification', err);
-    }
+  const handleDelete = (id) => {
+    confirm({
+      title: 'Delete Notification',
+      message: 'Are you sure you want to remove this notification?',
+      confirmLabel: 'Delete',
+      onConfirm: async () => {
+        try {
+          await deleteNotification(id);
+          setNotifications(prev => prev.filter(n => n._id !== id));
+        } catch (err) {
+          console.error('Failed to delete notification', err);
+        }
+      }
+    });
   };
 
   const unreadCount = (notifications || []).filter(n => !n.isRead).length;
@@ -83,6 +94,16 @@ const NotificationBell = () => {
         onDelete={handleDelete}
         isLoading={isLoading} 
         onClose={() => setIsOpen(false)}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmLabel={confirmModal.confirmLabel}
+        cancelLabel={confirmModal.cancelLabel}
+        onConfirm={handleConfirm}
+        onCancel={closeConfirm}
       />
     </div>
   );

@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle } from 'lucide-react';
+import { createPortal } from 'react-dom';
 
 const ConfirmModal = ({ 
   isOpen, 
@@ -11,10 +12,10 @@ const ConfirmModal = ({
   onCancel,
   isDangerous = false 
 }) => {
-  return (
+  const modalContent = (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center px-4">
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center px-4">
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -59,6 +60,11 @@ const ConfirmModal = ({
       )}
     </AnimatePresence>
   );
+
+  if (typeof document !== 'undefined') {
+    return createPortal(modalContent, document.body);
+  }
+  return null;
 };
 
 export default ConfirmModal;
