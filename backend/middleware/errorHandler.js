@@ -16,6 +16,11 @@ const errorHandler = (err, req, res, next) => {
     statusCode = 400;
     code = 'INVALID_ID_ERROR';
     message = `Invalid ${err.path}: ${err.value}`;
+  } else if (err.message && (err.message.includes('secret') || err.message.includes('jwt'))) {
+    statusCode = 500;
+    code = 'CONFIG_ERROR';
+    message = 'Server configuration error. Contact support.';
+    console.error('JWT Error:', err.message);
   } else if (err.name === 'JsonWebTokenError') {
     statusCode = 401;
     code = 'INVALID_TOKEN';

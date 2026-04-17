@@ -28,13 +28,17 @@ const buildContext = (previousDocs) => {
 };
 
 /**
- * Generation pipeline optimized for speed:
- *   Group 1: PRD first (backbone of the project)
- *   Group 2: All 8 remaining documents in parallel
+ * Generation pipeline — balanced for speed + rate-limit safety:
+ *   Group 1: PRD first (backbone of the project, must be sequential)
+ *   Group 2: Core specs in parallel (max 3)
+ *   Group 3: Design/flow docs in parallel (max 3)
+ *   Group 4: Remaining docs sequential (context-heavy, needs prior context)
  */
 const PIPELINE = [
   { parallel: false, types: ['prd'] },
-  { parallel: true,  types: ['srd', 'techStack', 'dbSchema', 'userFlows', 'folderStructure', 'mvpPlan', 'claudeContext', 'agentSystemPrompt'] },
+  { parallel: true,  types: ['srd', 'techStack', 'dbSchema'] },
+  { parallel: true,  types: ['userFlows', 'folderStructure', 'mvpPlan'] },
+  { parallel: false, types: ['claudeContext', 'agentSystemPrompt'] },
 ];
 
 // Helper: generate a single doc, save it, update project.docsGenerated
@@ -83,16 +87,27 @@ exports.generateAll = async (projectId, userId) => {
 
       if (group.parallel) {
         // Run all pending types in this group concurrently
-        const results = await Promise.all(
+        // Use allSettled so one doc failure doesn't kill the entire group
+        const results = await Promise.allSettled(
           pending.map(async (docType) => {
             const content = await generateOne(docType, project, userId, generatedSoFar);
             return { docType, content };
           })
         );
-        // Merge results into context for next groups
-        for (const { docType, content } of results) {
-          generatedSoFar[docType] = content;
-          alreadyDone.add(docType);
+
+        const failed = results.filter(r => r.status === 'rejected');
+        if (failed.length > 0) {
+          console.error(`[generateAll] ${failed.length}/${pending.length} docs failed in parallel group:`,
+            failed.map(f => f.reason?.message));
+        }
+
+        // Merge only successful results into context for next groups
+        for (const r of results) {
+          if (r.status === 'fulfilled') {
+            const { docType, content } = r.value;
+            generatedSoFar[docType] = content;
+            alreadyDone.add(docType);
+          }
         }
       } else {
         // Sequential within the group

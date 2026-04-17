@@ -8,9 +8,9 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const providers = [
   {
-    name: 'NVIDIA_405B',
+    name: 'NVIDIA_70B',
     url: NVIDIA_URL,
-    model: 'meta/llama-3.1-405b-instruct',
+    model: 'meta/llama-3.1-70b-instruct',
     getKey: () => process.env.NVIDIA_API_KEY,
     headers: {}
   },
@@ -29,9 +29,9 @@ const providers = [
     headers: { 'HTTP-Referer': 'https://aidocs.com', 'X-Title': 'AiDocs' }
   },
   {
-    name: 'NVIDIA_NEMOTRON_70B',
+    name: 'NVIDIA_8B',
     url: NVIDIA_URL,
-    model: 'nvidia/llama-3.1-nemotron-70b-instruct',
+    model: 'meta/llama-3.1-8b-instruct',
     getKey: () => process.env.NVIDIA_API_KEY,
     headers: {}
   }
