@@ -4,10 +4,12 @@ import { Lock, ArrowLeft, CheckCircle } from 'lucide-react';
 import AuthLayout from '../components/auth/AuthLayout';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { resetPasswordApi } from '../services/authService';
+import { useAuth } from '../context/AuthContext';
 
 export default function ResetPassword() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const token = searchParams.get('token');
   
   const [password, setPassword] = useState('');
@@ -26,7 +28,8 @@ export default function ResetPassword() {
     try {
       await resetPasswordApi(token, password);
       setSuccess(true);
-      setTimeout(() => navigate('/login'), 5000);
+      const redirectTo = isAuthenticated ? '/profile' : '/login';
+      setTimeout(() => navigate(redirectTo), 3000);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to reset password');
     } finally {
@@ -35,6 +38,7 @@ export default function ResetPassword() {
   };
 
   if (success) {
+    const redirectTo = isAuthenticated ? '/profile' : '/login';
     return (
       <AuthLayout title="Success!" subtitle="Your password has been updated">
         <div className="text-center space-y-6">
@@ -43,8 +47,12 @@ export default function ResetPassword() {
               <CheckCircle className="w-8 h-8 text-white/60" />
             </div>
           </div>
-          <p className="text-sm text-white/60">Redirecting you to login in 5 seconds...</p>
-          <Link to="/login" className="block text-xs text-white/40 hover:text-white/80">Click here if you aren't redirected</Link>
+          <p className="text-sm text-white/60">
+            Redirecting you in 3 seconds...
+          </p>
+          <Link to={redirectTo} className="block text-xs text-white/40 hover:text-white/80">
+            Click here if you aren't redirected
+          </Link>
         </div>
       </AuthLayout>
     );
