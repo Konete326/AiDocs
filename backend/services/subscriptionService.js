@@ -12,9 +12,11 @@ exports.getUserSubscription = async (userId) => {
 
 exports.checkProjectLimit = async (userId) => {
   const sub = await Subscription.findOne({ userId });
-  if (!sub) return false;
+  if (!sub) return;
   const projectCount = await Project.countDocuments({ userId, isArchived: false });
-  return projectCount < sub.projectLimit;
+  if (projectCount >= sub.projectLimit) {
+    throw new AppError(`You've reached the project limit for your ${sub.plan} plan. Please upgrade to create more projects.`, 403, 'LIMIT_REACHED');
+  }
 };
 
 exports.canExport = async (userId) => {
