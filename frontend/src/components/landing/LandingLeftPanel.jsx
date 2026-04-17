@@ -1,7 +1,7 @@
 import { Menu, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import VapourTextEffect, { Tag } from '../ui/VapourTextEffect';
+import DynamicHeadline from '../ui/DynamicHeadline';
 
 export default function LandingLeftPanel() {
   const navigate = useNavigate();
@@ -22,26 +22,13 @@ export default function LandingLeftPanel() {
 
         <div className="flex-1 flex flex-col items-center justify-center px-8 text-center gap-8">
           <div className="w-full h-[160px] lg:h-[220px] flex items-center justify-center">
-            <VapourTextEffect
+            <DynamicHeadline
               texts={[
                 "Generating the spirit of your idea",
                 "Architecting your project vision",
                 "Documents at the speed of thought",
                 "Your AI technical partner"
               ]}
-              font={{
-                fontFamily: "Inter, sans-serif",
-                fontSize: "48px",
-                fontWeight: 500
-              }}
-              color="rgba(255, 255, 255, 0.95)"
-              tag={Tag.H1}
-              alignment="center"
-              animation={{
-                vaporizeDuration: 2.5,
-                fadeInDuration: 1.5,
-                waitDuration: 2
-              }}
             />
           </div>
           {isAuthenticated ? (
