@@ -47,7 +47,7 @@ const DUMMY_TESTIMONIALS = [
 
 const TestimonialsColumn = ({ testimonials, duration, className, reverse = false }) => {
   return (
-    <div className={className}>
+    <div className={className} style={{ overflow: 'hidden' }}>
       <motion.ul
         animate={{
           translateY: reverse ? "0%" : "-50%",
@@ -61,13 +61,13 @@ const TestimonialsColumn = ({ testimonials, duration, className, reverse = false
           ease: "linear",
           repeatType: "loop",
         }}
+        style={{ willChange: 'transform' }}
         className="flex flex-col gap-6 pb-6 list-none m-0 p-0"
       >
         {[...testimonials, ...testimonials].map((item, i) => (
-          <motion.li 
+          <li 
             key={item._id || `${item.name}-${i}`}
-            whileHover={{ scale: 1.02, y: -5 }}
-            className="p-8 rounded-[2.5rem] liquid-glass-strong border border-white/5 shadow-2xl w-full max-w-sm cursor-default select-none group"
+            className="p-8 rounded-[2.5rem] liquid-glass-strong border border-white/5 shadow-2xl w-full max-w-sm cursor-default select-none group hover:border-white/10 transition-colors duration-300"
           >
             <div className="flex gap-1 mb-4">
               {[...Array(5)].map((_, idx) => (
@@ -82,6 +82,7 @@ const TestimonialsColumn = ({ testimonials, duration, className, reverse = false
                 src={item.avatar || item.image || `https://ui-avatars.com/api/?name=${item.name}&background=random`}
                 alt={item.name}
                 className="h-10 w-10 rounded-full object-cover ring-2 ring-white/5 group-hover:ring-white/10 transition-all"
+                loading="lazy"
               />
               <div className="flex flex-col">
                 <cite className="font-semibold not-italic text-sm text-white">
@@ -92,7 +93,7 @@ const TestimonialsColumn = ({ testimonials, duration, className, reverse = false
                 </span>
               </div>
             </footer>
-          </motion.li>
+          </li>
         ))}
       </motion.ul>
     </div>
