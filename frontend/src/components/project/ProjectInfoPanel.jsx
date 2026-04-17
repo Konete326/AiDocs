@@ -21,15 +21,13 @@ const ProjectInfoPanel = ({ project, subscription, documents }) => {
       <div className="lg:w-1/3 z-10">
         <div className="liquid-glass rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-white/50 w-fit mb-3">Project Blueprint</div>
         <div className="flex items-end gap-2 mb-3">
-          <span className="text-4xl font-semibold text-white tracking-tight">
-            <SpecialText speed={20} inView={true} className="text-white">
-              Technical Data
-            </SpecialText>
-          </span>
+          <span className="text-4xl font-semibold text-white tracking-tight">Technical Data</span>
         </div>
-        <p className="text-sm text-white/60 leading-relaxed mb-6">
-          Aggregated insights based on your wizard input. Use these parameters to guide your final project implementation.
-        </p>
+        <div className="text-sm text-white/60 font-light leading-relaxed mb-6">
+          <SpecialText speed={10} delay={0.2} inView={true} className="text-white/60">
+            Aggregated insights based on your wizard input. Use these parameters to guide your final project implementation.
+          </SpecialText>
+        </div>
         <div className="flex gap-4">
           <div className="liquid-glass rounded-2xl px-4 py-3 border border-white/5">
                <p className="text-[10px] uppercase text-white/30 tracking-widest mb-1">Status</p>
