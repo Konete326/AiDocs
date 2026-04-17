@@ -61,6 +61,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   };
 
   return (
+    <>
     <div className="liquid-glass-strong rounded-3xl flex flex-col h-full min-h-[600px] overflow-hidden border border-white/10 group shadow-2xl relative">
       {/* Subtle top light effect matching ProCard */}
       <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-white/[0.02] blur-3xl pointer-events-none" />
@@ -97,6 +98,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
         onClose={() => setShowUpgrade(false)}
         onUpgrade={() => { setShowUpgrade(false); navigate('/pricing'); }}
       />
+    </>
   );
 };
 export default DocumentViewer;
