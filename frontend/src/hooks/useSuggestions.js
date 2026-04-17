@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { getAISuggestions } from '../../services/suggestionService';
+import { getAISuggestions } from '../services/suggestionService';
 
 export function useSuggestions(projectTitle, projectType, fieldName, currentValue) {
   const [suggestions, setSuggestions] = useState([]);
