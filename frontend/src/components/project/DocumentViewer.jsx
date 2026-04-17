@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Copy, Pencil, Lock, FileText, FileDown } from 'lucide-react';
+import { Copy, Pencil, Lock, FileText, FileDown, Check } from 'lucide-react';
 import { downloadDocAsPdf, downloadDocAsWord } from '../../services/exportService';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { updateDocument } from '../../services/documentService';
@@ -17,6 +17,10 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [showUpgrade, setShowUpgrade] = useState(false);
+  
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [pdfSuccess, setPdfSuccess] = useState(false);
+  const [wordSuccess, setWordSuccess] = useState(false);
 
   useEffect(() => {
     setEditContent(document.content);
@@ -24,7 +28,24 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   }, [document]);
 
   const isPro = user?.role === 'admin' || ['pro', 'team'].includes(subscription?.plan);
-  const handleCopy = () => navigator.clipboard.writeText(document.content);
+  
+  const handleCopy = () => {
+    navigator.clipboard.writeText(document.content);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 2000);
+  };
+
+  const handleDownloadPdf = async () => {
+    await downloadDocAsPdf(project._id, document.docType);
+    setPdfSuccess(true);
+    setTimeout(() => setPdfSuccess(false), 2000);
+  };
+
+  const handleDownloadWord = async () => {
+    await downloadDocAsWord(project._id, document.docType);
+    setWordSuccess(true);
+    setTimeout(() => setWordSuccess(false), 2000);
+  };
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -72,14 +93,14 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
           {saveError && <p className="text-xs text-white/50 mt-2">{saveError}</p>}
         </div>
         <div className="flex gap-2 items-center">
-          <button onClick={handleCopy} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer" aria-label="Copy to clipboard">
-            <Copy className="w-3.5 h-3.5" /> Copy
+          <button onClick={handleCopy} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer min-w-[85px] justify-center" aria-label="Copy to clipboard">
+            {copySuccess ? <><Check className="w-3.5 h-3.5 text-emerald-400" /> Copied</> : <><Copy className="w-3.5 h-3.5" /> Copy</>}
           </button>
-          <button onClick={() => downloadDocAsPdf(project._id, document.docType)} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer" aria-label="Download as PDF">
-            <FileText className="w-3.5 h-3.5" /> PDF
+          <button onClick={handleDownloadPdf} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer min-w-[75px] justify-center" aria-label="Download as PDF">
+            {pdfSuccess ? <><Check className="w-3.5 h-3.5 text-emerald-400" /> Done</> : <><FileText className="w-3.5 h-3.5" /> PDF</>}
           </button>
-          <button onClick={() => downloadDocAsWord(project._id, document.docType)} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer" aria-label="Download as Word">
-            <FileDown className="w-3.5 h-3.5" /> Word
+          <button onClick={handleDownloadWord} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer min-w-[85px] justify-center" aria-label="Download as Word">
+            {wordSuccess ? <><Check className="w-3.5 h-3.5 text-emerald-400" /> Done</> : <><FileDown className="w-3.5 h-3.5" /> Word</>}
           </button>
           {renderButtons()}
         </div>
