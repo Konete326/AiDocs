@@ -20,7 +20,7 @@ export default function DashboardHeader({ projectCount, plan }) {
       </div>
       <button
         onClick={() => navigate('/projects/new')}
-        className="liquid-glass-strong rounded-full px-6 py-3 flex items-center gap-2 hover:scale-105 transition-transform"
+        className="liquid-glass-strong rounded-full px-6 py-3 flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer"
       >
         <Sparkles className="w-4 h-4 text-white" />
         <span className="text-sm text-white font-medium">New Project</span>

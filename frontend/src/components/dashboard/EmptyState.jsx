@@ -13,7 +13,7 @@ export default function EmptyState() {
         </p>
         <button
           onClick={() => navigate('/projects/new')}
-          className="liquid-glass-strong rounded-full px-8 py-3 mt-6 text-white text-sm font-medium hover:scale-105 transition-transform"
+          className="liquid-glass-strong rounded-full px-8 py-3 mt-6 text-white text-sm font-medium hover:scale-105 transition-transform cursor-pointer"
         >
           Create First Project
         </button>
