@@ -68,7 +68,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
       <div className="flex items-center justify-between px-6 py-4">
         <div>
           <p className="text-lg font-medium text-white">{DOC_LABELS[document.docType]}</p>
-          <p className="text-xs text-white/40 mt-0.5">v{document.version} · {document.modelUsed}</p>
+          {/* v{document.version} · {document.modelUsed} removed per user request */}
           {saveError && <p className="text-xs text-white/50 mt-2">{saveError}</p>}
         </div>
         <div className="flex gap-2 items-center">
