@@ -6,10 +6,15 @@ export function useSuggestions(projectTitle, projectType, fieldName, currentValu
   const [isLoading, setIsLoading] = useState(false);
   const timerRef = useRef(null);
   const abortControllerRef = useRef(null);
-  const lastValueRef = useRef('');
+  const lastValueRef = useRef(null);
 
   useEffect(() => {
-    if (!currentValue || currentValue.trim().length < 3) {
+    // Check if we have enough context to request suggestions
+    const hasContext = projectTitle?.trim().length > 2 || projectType;
+    
+    // If it's a title field, we need at least the projectType to suggest names
+    // For other fields, we ideally need projectTitle
+    if (!hasContext && !currentValue) {
       setSuggestions([]);
       return;
     }
@@ -51,7 +56,7 @@ export function useSuggestions(projectTitle, projectType, fieldName, currentValu
           setIsLoading(false);
         }
       }
-    }, 800);
+    }, 500);
 
     return () => {
       clearTimeout(timerRef.current);
