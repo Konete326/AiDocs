@@ -1,4 +1,21 @@
+import { useSuggestions } from '../../hooks/useSuggestions';
+import SuggestionPills from './SuggestionPills';
+
 export default function WizardStep2Requirements({ formData, onChange }) {
+  const { suggestions: audSugg, isLoading: audLoading } = useSuggestions(
+    formData.title,
+    formData.projectType,
+    'targetAudience',
+    formData.wizardAnswers.targetAudience
+  );
+
+  const { suggestions: featSugg, isLoading: featLoading } = useSuggestions(
+    formData.title,
+    formData.projectType,
+    'coreFeatures',
+    formData.wizardAnswers.coreFeatures
+  );
+
   return (
     <div className="space-y-8">
       <div>
@@ -20,6 +37,12 @@ export default function WizardStep2Requirements({ formData, onChange }) {
             Ex: "Marketing managers at 10-50 person agencies who need quick reports for clients."
           </p>
         </div>
+        <SuggestionPills
+          suggestions={audSugg}
+          isLoading={audLoading}
+          onSelect={(s) => onChange('wizardAnswers.targetAudience', s)}
+          fieldName="audience"
+        />
       </div>
 
       <div>
@@ -41,6 +64,12 @@ export default function WizardStep2Requirements({ formData, onChange }) {
             Ex: "One-click invoice creation, Automated late payment reminders, Stripe integration."
           </p>
         </div>
+        <SuggestionPills
+          suggestions={featSugg}
+          isLoading={featLoading}
+          onSelect={(s) => onChange('wizardAnswers.coreFeatures', s)}
+          fieldName="features"
+        />
       </div>
     </div>
   );

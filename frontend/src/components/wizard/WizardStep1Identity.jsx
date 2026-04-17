@@ -1,8 +1,24 @@
 import { motion } from 'framer-motion';
+import { useSuggestions } from '../../hooks/useSuggestions';
+import SuggestionPills from './SuggestionPills';
 
 const types = ['saas', 'mobile', 'ai', 'ecommerce', 'marketplace', 'other'];
 
 export default function WizardStep1Identity({ formData, onChange }) {
+  const { suggestions: titleSugg, isLoading: titleLoading } = useSuggestions(
+    formData.title,
+    formData.projectType,
+    'title',
+    formData.title
+  );
+
+  const { suggestions: probSugg, isLoading: probLoading } = useSuggestions(
+    formData.title,
+    formData.projectType,
+    'problemStatement',
+    formData.wizardAnswers.problemStatement
+  );
+
   return (
     <div className="space-y-8">
       <div>
@@ -18,6 +34,12 @@ export default function WizardStep1Identity({ formData, onChange }) {
         <p className="mt-2 text-[10px] text-white/30 uppercase tracking-wider">
           Give your idea a working name. You can change it later.
         </p>
+        <SuggestionPills
+          suggestions={titleSugg}
+          isLoading={titleLoading}
+          onSelect={(s) => onChange('title', s)}
+          fieldName="title"
+        />
       </div>
 
       <div>
@@ -57,6 +79,12 @@ export default function WizardStep1Identity({ formData, onChange }) {
             Ex: "Freelancers struggle to track unpaid invoices across multiple platforms, leading to lost revenue."
           </p>
         </div>
+        <SuggestionPills
+          suggestions={probSugg}
+          isLoading={probLoading}
+          onSelect={(s) => onChange('wizardAnswers.problemStatement', s)}
+          fieldName="problem"
+        />
       </div>
     </div>
   );

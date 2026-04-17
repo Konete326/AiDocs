@@ -1,4 +1,28 @@
+import { useSuggestions } from '../../hooks/useSuggestions';
+import SuggestionPills from './SuggestionPills';
+
 export default function WizardStep3Tech({ formData, onChange }) {
+  const { suggestions: techSugg, isLoading: techLoading } = useSuggestions(
+    formData.title,
+    formData.projectType,
+    'techPreferences',
+    formData.wizardAnswers.techPreferences
+  );
+
+  const { suggestions: monSugg, isLoading: monLoading } = useSuggestions(
+    formData.title,
+    formData.projectType,
+    'monetizationModel',
+    formData.wizardAnswers.monetizationModel
+  );
+
+  const { suggestions: ctxSugg, isLoading: ctxLoading } = useSuggestions(
+    formData.title,
+    formData.projectType,
+    'additionalContext',
+    formData.wizardAnswers.additionalContext
+  );
+
   return (
     <div className="space-y-6">
       <div>
@@ -15,6 +39,12 @@ export default function WizardStep3Tech({ formData, onChange }) {
         <p className="mt-2 text-[10px] text-white/30 uppercase tracking-wider flex items-center gap-2">
           <span>💡</span> Tip: Leave blank if you want the AI to recommend the optimal stack.
         </p>
+        <SuggestionPills
+          suggestions={techSugg}
+          isLoading={techLoading}
+          onSelect={(s) => onChange('wizardAnswers.techPreferences', s)}
+          fieldName="tech"
+        />
       </div>
 
       <div>
@@ -31,6 +61,12 @@ export default function WizardStep3Tech({ formData, onChange }) {
         <p className="mt-2 text-[10px] text-white/30 uppercase tracking-wider">
           How will this project make money? Or is it internal tools?
         </p>
+        <SuggestionPills
+          suggestions={monSugg}
+          isLoading={monLoading}
+          onSelect={(s) => onChange('wizardAnswers.monetizationModel', s)}
+          fieldName="monetization"
+        />
       </div>
 
       <div>
@@ -47,6 +83,12 @@ export default function WizardStep3Tech({ formData, onChange }) {
         <p className="mt-2 text-[10px] text-white/30 uppercase tracking-wider">
           Add details about competitors, specific design styles, or future scaling plans.
         </p>
+        <SuggestionPills
+          suggestions={ctxSugg}
+          isLoading={ctxLoading}
+          onSelect={(s) => onChange('wizardAnswers.additionalContext', s)}
+          fieldName="context"
+        />
       </div>
     </div>
   );
