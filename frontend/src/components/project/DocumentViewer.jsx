@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -25,7 +25,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   useEffect(() => {
     setEditContent(document.content);
     setIsEditing(false);
-  }, [document]);
+  }, [document.content, document.docType]); // Only reset editing if content OR type changes
 
   const isPro = user?.role === 'admin' || ['pro', 'team'].includes(subscription?.plan);
   
@@ -60,6 +60,12 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
     } finally { setIsSaving(false); }
   };
 
+  const renderedMarkdown = useMemo(() => (
+    <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+      {document.content}
+    </ReactMarkdown>
+  ), [document.content]);
+
   const renderButtons = () => {
     if (!isPro) return (
       <button onClick={() => setShowUpgrade(true)} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/30 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
@@ -83,7 +89,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
 
   return (
     <>
-    <div className="liquid-glass-strong rounded-3xl flex flex-col h-full min-h-[600px] overflow-hidden border border-white/10 group shadow-2xl relative">
+    <div className="liquid-glass-strong rounded-3xl flex flex-col h-full min-h-[600px] overflow-hidden border border-white/10 group shadow-2xl relative" style={{ willChange: 'transform' }}>
       {/* Subtle top light effect matching ProCard */}
       <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-white/[0.02] blur-3xl pointer-events-none" />
       <div className="flex items-center justify-between px-6 py-4">
@@ -109,9 +115,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
       <div className="flex-1 overflow-y-auto px-6 py-6">
         {isEditing ? (
           <DocumentEditor content={editContent} onChange={setEditContent} saveError={saveError} />
-        ) : (
-          <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>{document.content}</ReactMarkdown>
-        )}
+        ) : renderedMarkdown}
       </div>
     </div>
       <UpgradeModal
@@ -122,4 +126,4 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
     </>
   );
 };
-export default DocumentViewer;
+export default memo(DocumentViewer);

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { FileText, Loader, CheckCircle } from 'lucide-react';
 
 const DOC_LABELS = {
@@ -18,7 +19,7 @@ const DOC_ORDER = [
 ];
 
 const DocsList = ({ documents, selectedDoc, onSelect, isGenerating }) => (
-  <div className="liquid-glass rounded-3xl p-6 flex flex-col lg:space-y-2 h-full border border-white/5">
+  <div className="liquid-glass rounded-3xl p-6 flex flex-col lg:space-y-2 h-full border border-white/5" style={{ willChange: 'transform' }}>
     <div className="flex items-center justify-between px-2 mb-3 lg:mb-1">
       <span className="text-xs uppercase tracking-widest text-white/50">Documents</span>
       {isGenerating && (
@@ -40,6 +41,7 @@ const DocsList = ({ documents, selectedDoc, onSelect, isGenerating }) => (
             isSelected ? 'liquid-glass-strong' : '',
             isGenerated ? 'cursor-pointer hover:scale-[1.02] transition-transform' : 'opacity-50 cursor-not-allowed',
           ].join(' ')}
+          style={{ willChange: isGenerated ? 'transform' : 'auto' }}
         >
           <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
             {isGenerated
@@ -65,4 +67,4 @@ const DocsList = ({ documents, selectedDoc, onSelect, isGenerating }) => (
   </div>
 );
 
-export default DocsList;
+export default memo(DocsList);

@@ -42,9 +42,26 @@ export const useProjectPolling = (id) => {
     const poll = async () => {
       try {
         const [updated, updatedDocs] = await Promise.all([getProject(id), fetchDocs(id)]);
-        setProject(updated);
-        setDocuments(updatedDocs);
-        if (updatedDocs.length > 0 && !selectedDoc) setSelectedDoc(updatedDocs[0]);
+        
+        // Use a more conservative state update - only update if actually changed
+        setProject(prev => {
+          if (prev?.status === updated?.status && prev?.docsGenerated?.length === updated?.docsGenerated?.length) {
+            return prev;
+          }
+          return updated;
+        });
+
+        setDocuments(prev => {
+          if (prev.length === updatedDocs.length) {
+            // Check if content hash or last updated might be better, but count is a good proxy for generation
+            return prev;
+          }
+          return updatedDocs;
+        });
+
+        if (updatedDocs.length > 0 && !selectedDoc) {
+          setSelectedDoc(updatedDocs[0]);
+        }
         
         if (updated.status === 'generating') {
           pollCount++;

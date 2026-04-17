@@ -5,8 +5,8 @@ import { BellOff, X } from 'lucide-react';
 import LoadingSpinner from '../common/LoadingSpinner';
 import NotificationItem from './NotificationItem';
 
-const NotificationModal = ({ isOpen, notifications, onMarkRead, onMarkAllRead, onDelete, isLoading, onClose }) => {
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+const NotificationModal = ({ isOpen, notifications = [], onMarkRead, onMarkAllRead, onDelete, isLoading, onClose }) => {
+  const unreadCount = (notifications || []).filter(n => !n.isRead).length;
 
   const modalContent = (
     <AnimatePresence>

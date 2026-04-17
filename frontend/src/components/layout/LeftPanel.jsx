@@ -27,7 +27,7 @@ const HeroText = () => {
       </span>
       Explore Now
     </Button>
-    <div className="flex gap-2 flex-wrap justify-center max-w-sm mt-4">
+    <div className="flex gap-2 flex-wrap justify-center max-w-sm mt-4 mb-3">
       {['PRD Generation', 'AI Docs', 'Dev-Ready Specs'].map(tag => (
         <Pill key={tag}>{tag}</Pill>
       ))}

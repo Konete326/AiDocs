@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
@@ -25,17 +25,20 @@ const ProjectDetail = () => {
   // Allows user to jump into partial bento-grid view during generation
   const [viewingPartial, setViewingPartial] = useState(false);
 
-  const handleRetry = async () => {
+  const handleRetry = useCallback(async () => {
     await triggerGeneration(id);
     setProject((prev) => ({ ...prev, status: 'generating' }));
     setViewingPartial(false);
-  };
+  }, [id, setProject]);
+
+  const handleDocSelect = useCallback((doc) => {
+    setSelectedDoc(doc);
+  }, [setSelectedDoc]);
 
   if (isLoading) return <div className="h-screen flex items-center justify-center"><LoadingSpinner /></div>;
   if (error || !project) return <div className="h-screen flex items-center justify-center text-white/60">{error || 'Project not found.'}</div>;
 
   const isGenerating = project.status === 'generating';
-  const isComplete = project.status === 'complete';
 
   // Show generating screen unless user clicked "View Ready Docs"
   if (isGenerating && !viewingPartial) return (
@@ -64,7 +67,12 @@ const ProjectDetail = () => {
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="fixed inset-0 bg-black/55 z-[1]" />
       <div className="relative z-10 pt-20 px-4 py-8 md:px-8">
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-7xl mx-auto">
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          className="max-w-7xl mx-auto"
+          style={{ willChange: 'opacity' }}
+        >
 
           {/* Generating banner while viewing partial docs */}
           {isGenerating && viewingPartial && (
@@ -102,7 +110,7 @@ const ProjectDetail = () => {
               <DocsList
                 documents={documents}
                 selectedDoc={selectedDoc}
-                onSelect={setSelectedDoc}
+                onSelect={handleDocSelect}
                 isGenerating={isGenerating}
               />
             </div>
