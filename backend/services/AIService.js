@@ -13,33 +13,6 @@ const providers = [
     model: 'meta/llama-3.1-405b-instruct',
     getKey: () => process.env.NVIDIA_API_KEY,
     headers: {}
-  },
-  {
-    name: 'OPENROUTER_405B',
-    url: OPENROUTER_URL,
-    model: 'meta-llama/llama-3.1-405b',
-    getKey: () => process.env.AI_API_KEY,
-    headers: {
-      'HTTP-Referer': process.env.FRONTEND_URL || 'http://localhost:5173',
-      'X-Title': 'AiDocs'
-    }
-  },
-  {
-    name: 'OPENROUTER_70B',
-    url: OPENROUTER_URL,
-    model: 'meta-llama/llama-3.1-70b',
-    getKey: () => process.env.AI_API_KEY,
-    headers: {
-      'HTTP-Referer': process.env.FRONTEND_URL || 'http://localhost:5173',
-      'X-Title': 'AiDocs'
-    }
-  },
-  {
-    name: 'NVIDIA_NEMOTRON',
-    url: NVIDIA_URL,
-    model: 'nvidia/nemotron-4-340b-instruct',
-    getKey: () => process.env.NVIDIA_API_KEY,
-    headers: {}
   }
 ];
 
