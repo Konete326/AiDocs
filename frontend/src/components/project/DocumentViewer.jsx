@@ -8,6 +8,7 @@ import LoadingSpinner from '../common/LoadingSpinner';
 import { updateDocument } from '../../services/documentService';
 import { mdComponents, DOC_LABELS } from './markdownComponents';
 import DocumentEditor from './DocumentEditor';
+import UpgradeModal from '../common/UpgradeModal';
 
 const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => {
   const navigate = useNavigate();
@@ -15,6 +16,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   const [editContent, setEditContent] = useState(document.content);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
+  const [showUpgrade, setShowUpgrade] = useState(false);
 
   useEffect(() => {
     setEditContent(document.content);
@@ -39,7 +41,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
 
   const renderButtons = () => {
     if (!isPro) return (
-      <button onClick={() => navigate('/pricing')} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/30 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
+      <button onClick={() => setShowUpgrade(true)} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/30 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
         <Lock className="w-3.5 h-3.5" /> Edit (Pro)
       </button>
     );
@@ -90,6 +92,11 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
         )}
       </div>
     </div>
+      <UpgradeModal
+        isOpen={showUpgrade}
+        onClose={() => setShowUpgrade(false)}
+        onUpgrade={() => { setShowUpgrade(false); navigate('/pricing'); }}
+      />
   );
 };
 export default DocumentViewer;
