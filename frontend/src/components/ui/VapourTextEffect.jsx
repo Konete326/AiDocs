@@ -21,9 +21,9 @@ export default function VapourTextEffect({
   spread = 5,
   density = 5,
   animation = {
-    vaporizeDuration: 2,
-    fadeInDuration: 1,
-    waitDuration: 0.5,
+    vaporizeDuration: 2.5,
+    fadeInDuration: 1.5,
+    waitDuration: 2,
   },
   direction = "left-to-right",
   alignment = "center",
@@ -32,7 +32,6 @@ export default function VapourTextEffect({
   const canvasRef = useRef(null);
   const wrapperRef = useRef(null);
   const isInView = useInView(wrapperRef, { margin: "-50px" });
-  const lastFontRef = useRef(null);
   const particlesRef = useRef([]);
   const animationFrameRef = useRef(null);
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
@@ -43,7 +42,6 @@ export default function VapourTextEffect({
   
   const transformedDensity = transformValue(density, [0, 10], [0.3, 1], true);
 
-  // Calculate device pixel ratio
   const globalDpr = useMemo(() => {
     if (typeof window !== "undefined") {
       return window.devicePixelRatio || 1;
@@ -51,7 +49,6 @@ export default function VapourTextEffect({
     return 1;
   }, []);
 
-  // Memoize static styles
   const wrapperStyle = useMemo(() => ({
     width: "100%",
     height: "100%",
@@ -67,14 +64,12 @@ export default function VapourTextEffect({
     pointerEvents: "none",
   }), []);
 
-  // Memoize animation durations
   const animationDurations = useMemo(() => ({
-    VAPORIZE_DURATION: (animation.vaporizeDuration ?? 2) * 1000,
-    FADE_IN_DURATION: (animation.fadeInDuration ?? 1) * 1000,
-    WAIT_DURATION: (animation.waitDuration ?? 0.5) * 1000,
+    VAPORIZE_DURATION: (animation.vaporizeDuration ?? 2.5) * 1000,
+    FADE_IN_DURATION: (animation.fadeInDuration ?? 1.5) * 1000,
+    WAIT_DURATION: (animation.waitDuration ?? 2) * 1000,
   }), [animation.vaporizeDuration, animation.fadeInDuration, animation.waitDuration]);
 
-  // Memoize font and spread calculations
   const fontConfig = useMemo(() => {
     const fontSizeNum = parseInt(String(font.fontSize).replace("px", "") || "50");
     const VAPORIZE_SPREAD = calculateVaporizeSpread(fontSizeNum);
@@ -83,12 +78,11 @@ export default function VapourTextEffect({
       fontSize: fontSizeNum,
       VAPORIZE_SPREAD,
       MULTIPLIED_VAPORIZE_SPREAD,
-      font: `${font.fontWeight ?? 400} ${fontSizeNum * globalDpr}px ${font.fontFamily}`,
+      font: `${font.fontWeight ?? 400} ${fontSizeNum}px ${font.fontFamily}`, // Font logic handled in renderCanvas
     };
-  }, [font.fontSize, font.fontWeight, font.fontFamily, spread, globalDpr]);
+  }, [font.fontSize, font.fontWeight, font.fontFamily, spread]);
 
-  // Memoize particle update function
-  const memoizedUpdateParticles = useCallback((particles, vaporizeX, deltaTime) => {
+  const memoizedUpdateParticles = useCallback((particles, vaporizeX, deltaTime, textBoundaries) => {
     return updateParticles(
       particles,
       vaporizeX,
@@ -96,31 +90,29 @@ export default function VapourTextEffect({
       fontConfig.MULTIPLIED_VAPORIZE_SPREAD,
       animationDurations.VAPORIZE_DURATION,
       direction,
-      transformedDensity
+      transformedDensity,
+      textBoundaries
     );
   }, [fontConfig.MULTIPLIED_VAPORIZE_SPREAD, animationDurations.VAPORIZE_DURATION, direction, transformedDensity]);
 
-  // Memoize render function
   const memoizedRenderParticles = useCallback((ctx, particles) => {
     renderParticles(ctx, particles, globalDpr);
   }, [globalDpr]);
 
-  // Start animation cycle when in view
+  // Handle intersection and initial load
   useEffect(() => {
     if (isInView) {
-      setAnimationState("vaporizing");
+      if (animationState === "static") {
+        setAnimationState("vaporizing");
+      }
     } else {
       setAnimationState("static");
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-        animationFrameRef.current = null;
-      }
     }
   }, [isInView]);
 
-  // Animation loop
+  // Main animation loop
   useEffect(() => {
-    if (!isInView) return;
+    if (!isInView || wrapperSize.width === 0) return;
 
     let lastTime = performance.now();
     let frameId;
@@ -137,8 +129,8 @@ export default function VapourTextEffect({
         return;
       }
 
-      // If particles aren't loaded yet, try to load them
-      if (!particlesRef.current.length && wrapperSize.width > 0) {
+      // Initialize particles if empty
+      if (particlesRef.current.length === 0) {
         renderCanvas({
           framerProps: { texts, font, color, alignment },
           canvasRef,
@@ -146,13 +138,14 @@ export default function VapourTextEffect({
           particlesRef,
           globalDpr,
           currentTextIndex,
-          transformedDensity,
         });
         frameId = requestAnimationFrame(animate);
         return;
       }
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const textBoundaries = canvas.textBoundaries;
 
       switch (animationState) {
         case "static": {
@@ -161,19 +154,18 @@ export default function VapourTextEffect({
         }
         case "vaporizing": {
           vaporizeProgressRef.current += deltaTime * 100 / (animationDurations.VAPORIZE_DURATION / 1000 || 1);
-          const textBoundaries = canvas.textBoundaries;
-          if (!textBoundaries) break;
-
+          
           const progress = Math.min(100, vaporizeProgressRef.current);
           const vaporizeX = direction === "left-to-right"
-            ? textBoundaries.left + textBoundaries.width * progress / 100
-            : textBoundaries.right - textBoundaries.width * progress / 100;
+            ? (textBoundaries?.left ?? 0) + (textBoundaries?.width ?? canvas.width) * progress / 100
+            : (textBoundaries?.right ?? canvas.width) - (textBoundaries?.width ?? canvas.width) * progress / 100;
 
-          const allVaporized = memoizedUpdateParticles(particlesRef.current, vaporizeX, deltaTime);
+          const allVaporized = memoizedUpdateParticles(particlesRef.current, vaporizeX, deltaTime, textBoundaries);
           memoizedRenderParticles(ctx, particlesRef.current);
 
-          if (vaporizeProgressRef.current >= 100 && allVaporized) {
-            setCurrentTextIndex(prevIndex => (prevIndex + 1) % texts.length);
+          if (vaporizeProgressRef.current >= 120 && allVaporized) { // Added buffer to ensure full vaporization
+            const nextIndex = (currentTextIndex + 1) % texts.length;
+            setCurrentTextIndex(nextIndex);
             setAnimationState("fadingIn");
             fadeOpacityRef.current = 0;
             vaporizeProgressRef.current = 0;
@@ -182,25 +174,29 @@ export default function VapourTextEffect({
         }
         case "fadingIn": {
           fadeOpacityRef.current += deltaTime * 1000 / (animationDurations.FADE_IN_DURATION || 1);
+          const currentOpacity = Math.min(1, fadeOpacityRef.current);
 
+          // Fast path for fading in: just draw original positions
           ctx.save();
           ctx.scale(globalDpr, globalDpr);
           particlesRef.current.forEach(particle => {
-            particle.x = particle.originalX;
-            particle.y = particle.originalY;
-            const opacity = Math.min(fadeOpacityRef.current, 1) * (particle.originalAlpha || 1);
-            const colorStr = particle.color.replace(/[\d.]+\)$/, `${opacity})`);
-            ctx.fillStyle = colorStr;
-            ctx.fillRect(particle.x / globalDpr, particle.y / globalDpr, 1, 1);
+            const opacity = currentOpacity * (particle.originalAlpha || 1);
+            if (opacity > 0.01) {
+              const baseColor = particle.color.substring(0, particle.color.lastIndexOf(",") + 1);
+              ctx.fillStyle = `${baseColor} ${opacity})`;
+              ctx.fillRect(particle.originalX / globalDpr, particle.originalY / globalDpr, 1, 1);
+            }
           });
           ctx.restore();
 
           if (fadeOpacityRef.current >= 1) {
             setAnimationState("waiting");
             setTimeout(() => {
-              setAnimationState("vaporizing");
-              vaporizeProgressRef.current = 0;
-              resetParticles(particlesRef.current);
+              if (isInView) {
+                setAnimationState("vaporizing");
+                vaporizeProgressRef.current = 0;
+                resetParticles(particlesRef.current);
+              }
             }, animationDurations.WAIT_DURATION);
           }
           break;
@@ -219,12 +215,12 @@ export default function VapourTextEffect({
       if (frameId) cancelAnimationFrame(frameId);
     };
   }, [
-    animationState, isInView, texts.length, direction, globalDpr,
+    animationState, isInView, texts, direction, globalDpr,
     memoizedUpdateParticles, memoizedRenderParticles,
-    animationDurations.FADE_IN_DURATION, animationDurations.WAIT_DURATION,
-    animationDurations.VAPORIZE_DURATION, wrapperSize, currentTextIndex, texts, font, color, alignment, transformedDensity
+    animationDurations, wrapperSize, currentTextIndex
   ]);
 
+  // Re-render canvas when text/size changes
   useEffect(() => {
     if (wrapperSize.width > 0 && wrapperSize.height > 0) {
       renderCanvas({
@@ -234,11 +230,11 @@ export default function VapourTextEffect({
         particlesRef,
         globalDpr,
         currentTextIndex,
-        transformedDensity,
       });
     }
-  }, [texts, font, color, alignment, wrapperSize, currentTextIndex, globalDpr, transformedDensity]);
+  }, [texts, font, color, alignment, wrapperSize, currentTextIndex, globalDpr]);
 
+  // Resize listener
   useEffect(() => {
     const container = wrapperRef.current;
     if (!container) return;
@@ -252,13 +248,13 @@ export default function VapourTextEffect({
 
     const resizeObserver = new ResizeObserver(updateSize);
     resizeObserver.observe(container);
-    updateSize(); // Initial call
+    updateSize();
     
     return () => resizeObserver.disconnect();
   }, []);
 
   return (
-    <div ref={wrapperRef} style={wrapperStyle}>
+    <div ref={wrapperRef} style={wrapperStyle} className="vapour-text-wrapper">
       <canvas ref={canvasRef} style={canvasStyle} />
       <SeoElement tag={tag} texts={texts} />
     </div>
@@ -280,13 +276,6 @@ const SeoElement = memo(({ tag = Tag.P, texts }) => {
   return createElement(safeTag, { style }, texts?.join(" ") ?? "");
 });
 
-const cleanup = ({ canvasRef, particlesRef }) => {
-  const canvas = canvasRef.current;
-  const ctx = canvas?.getContext("2d");
-  if (canvas && ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
-  if (particlesRef.current) particlesRef.current = [];
-};
-
 const renderCanvas = ({
   framerProps,
   canvasRef,
@@ -294,7 +283,6 @@ const renderCanvas = ({
   particlesRef,
   globalDpr,
   currentTextIndex,
-  transformedDensity,
 }) => {
   const canvas = canvasRef.current;
   if (!canvas || !wrapperSize.width || !wrapperSize.height) return;
@@ -307,24 +295,30 @@ const renderCanvas = ({
   canvas.width = Math.floor(width * globalDpr);
   canvas.height = Math.floor(height * globalDpr);
 
-  const fontSize = parseInt(String(framerProps.font?.fontSize).replace("px", "") || "50");
-  const font = `${framerProps.font?.fontWeight ?? 400} ${fontSize * globalDpr}px ${framerProps.font?.fontFamily ?? "sans-serif"}`;
-  const color = parseColor(framerProps.color ?? "rgb(153, 153, 153)");
+  // Responsive font scaling
+  let fontSize = parseInt(String(framerProps.font?.fontSize).replace("px", "") || "50");
+  if (width < 640 && fontSize > 32) fontSize = 32; // Scale down for mobile if too big
+  
+  const font = `${framerProps.font?.fontWeight ?? 500} ${fontSize * globalDpr}px ${framerProps.font?.fontFamily ?? "Inter, sans-serif"}`;
+  const color = parseColor(framerProps.color ?? "rgba(255, 255, 255, 0.9)");
 
-  let textX;
-  const textY = canvas.height / 2;
-  const currentText = framerProps.texts[currentTextIndex] || "Next.js";
+  const currentText = framerProps.texts[currentTextIndex] || "";
 
-  if (framerProps.alignment === "center") textX = canvas.width / 2;
-  else if (framerProps.alignment === "left") textX = 0;
-  else textX = canvas.width;
-
-  const { particles, textBoundaries } = createParticles(ctx, canvas, currentText, textX, textY, font, color, framerProps.alignment || "left");
+  const { particles, textBoundaries } = createParticles(
+    ctx, 
+    canvas, 
+    currentText, 
+    fontSize * globalDpr, 
+    font, 
+    color, 
+    framerProps.alignment || "center"
+  );
+  
   particlesRef.current = particles;
   canvas.textBoundaries = textBoundaries;
 };
 
-const createParticles = (ctx, canvas, text, textX, textY, font, color, alignment) => {
+const createParticles = (ctx, canvas, text, lineHeight, font, color, alignment) => {
   const particles = [];
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.fillStyle = color;
@@ -332,32 +326,59 @@ const createParticles = (ctx, canvas, text, textX, textY, font, color, alignment
   ctx.textAlign = alignment;
   ctx.textBaseline = "middle";
 
-  const metrics = ctx.measureText(text);
-  let textLeft;
-  const textWidth = metrics.width;
-  if (alignment === "center") textLeft = textX - textWidth / 2;
-  else if (alignment === "left") textLeft = textX;
-  else textLeft = textX - textWidth;
+  const maxWidth = canvas.width * 0.9;
+  const words = text.split(" ");
+  let lines = [];
+  let currentLine = words[0];
 
-  const textBoundaries = { left: textLeft, right: textLeft + textWidth, width: textWidth };
-  ctx.fillText(text, textX, textY);
-  
+  // Helper for multi-line support
+  for (let i = 1; i < words.length; i++) {
+    const word = words[i];
+    const width = ctx.measureText(currentLine + " " + word).width;
+    if (width < maxWidth) {
+      currentLine += " " + word;
+    } else {
+      lines.push(currentLine);
+      currentLine = word;
+    }
+  }
+  lines.push(currentLine);
+
+  const totalHeight = lines.length * lineHeight;
+  let startY = (canvas.height - totalHeight) / 2 + lineHeight / 2;
+  let textX = alignment === "center" ? canvas.width / 2 : alignment === "left" ? canvas.width * 0.05 : canvas.width * 0.95;
+
+  let minX = canvas.width, maxX = 0;
+
+  lines.forEach((line, index) => {
+    const y = startY + index * lineHeight;
+    ctx.fillText(line, textX, y);
+    const metrics = ctx.measureText(line);
+    const lw = metrics.width;
+    const lx = alignment === "center" ? textX - lw / 2 : alignment === "left" ? textX : textX - lw;
+    minX = Math.min(minX, lx);
+    maxX = Math.max(maxX, lx + lw);
+  });
+
+  const textBoundaries = { left: minX, right: maxX, width: maxX - minX };
+
   try {
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const data = imageData.data;
-    const currentDPR = canvas.width / parseFloat(canvas.style.width);
-    const sampleRate = 2; // Increase sample rate for performance
+    const sampleRate = 2;
 
     for (let y = 0; y < canvas.height; y += sampleRate) {
       for (let x = 0; x < canvas.width; x += sampleRate) {
         const index = (y * canvas.width + x) * 4;
         const alpha = data[index + 3];
-        if (alpha > 50) { // Only capture visible pixels
+        if (alpha > 40) {
           const normalizedAlpha = alpha / 255;
           particles.push({
-            x, y, originalX: x, originalY: y,
-            color: `rgba(${data[index]}, ${data[index + 1]}, ${data[index + 2]}, ${normalizedAlpha})`,
-            opacity: normalizedAlpha, originalAlpha: normalizedAlpha,
+            x, y, 
+            originalX: x, originalY: y,
+            color: `rgba(${data[index]}, ${data[index + 1]}, ${data[index + 2]},`,
+            originalAlpha: normalizedAlpha,
+            opacity: normalizedAlpha,
             velocityX: 0, velocityY: 0, angle: 0, speed: 0,
           });
         }
@@ -366,36 +387,42 @@ const createParticles = (ctx, canvas, text, textX, textY, font, color, alignment
   } catch (e) {
     console.warn("Canvas read error:", e);
   }
-  
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   return { particles, textBoundaries };
 };
 
-const updateParticles = (particles, vaporizeX, deltaTime, MULTIPLIED_VAPORIZE_SPREAD, VAPORIZE_DURATION, direction, density) => {
+const updateParticles = (particles, vaporizeX, deltaTime, MULTIPLIED_VAPORIZE_SPREAD, VAPORIZE_DURATION, direction, density, textBoundaries) => {
   let allParticlesVaporized = true;
   for (let i = 0; i < particles.length; i++) {
     const particle = particles[i];
-    const shouldVaporize = direction === "left-to-right" ? particle.originalX <= vaporizeX : particle.originalX >= vaporizeX;
+    const shouldVaporize = direction === "left-to-right" 
+      ? particle.originalX <= vaporizeX 
+      : particle.originalX >= vaporizeX;
+
     if (shouldVaporize) {
       if (particle.speed === 0) {
         particle.angle = Math.random() * Math.PI * 2;
-        particle.speed = (Math.random() * 1 + 0.5) * MULTIPLIED_VAPORIZE_SPREAD;
+        particle.speed = (Math.random() * 1.5 + 0.5) * (MULTIPLIED_VAPORIZE_SPREAD || 1);
         particle.velocityX = Math.cos(particle.angle) * particle.speed;
         particle.velocityY = Math.sin(particle.angle) * particle.speed;
         particle.shouldFadeQuickly = Math.random() > density;
       }
-      if (particle.shouldFadeQuickly) particle.opacity = Math.max(0, particle.opacity - deltaTime * 2);
-      else {
+      
+      if (particle.shouldFadeQuickly) {
+        particle.opacity = Math.max(0, particle.opacity - deltaTime * 1.5);
+      } else {
         const dx = particle.originalX - particle.x;
         const dy = particle.originalY - particle.y;
-        const distanceFromOrigin = Math.sqrt(dx * dx + dy * dy);
-        const dampingFactor = Math.max(0.9, 1 - distanceFromOrigin / (100 * MULTIPLIED_VAPORIZE_SPREAD));
-        const randomSpread = MULTIPLIED_VAPORIZE_SPREAD * 2;
-        particle.velocityX = (particle.velocityX + (Math.random() - 0.5) * randomSpread + dx * 0.001) * dampingFactor;
-        particle.velocityY = (particle.velocityY + (Math.random() - 0.5) * randomSpread + dy * 0.001) * dampingFactor;
-        particle.x += particle.velocityX * deltaTime * 30;
-        particle.y += particle.velocityY * deltaTime * 20;
-        particle.opacity = Math.max(0, particle.opacity - deltaTime * 0.5);
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const damping = Math.max(0.85, 1 - dist / 500);
+        
+        particle.velocityX = (particle.velocityX + (Math.random() - 0.5) * 5) * damping;
+        particle.velocityY = (particle.velocityY + (Math.random() - 0.5) * 5) * damping;
+        
+        particle.x += particle.velocityX * deltaTime * 40;
+        particle.y += particle.velocityY * deltaTime * 30;
+        particle.opacity = Math.max(0, particle.opacity - deltaTime * 0.4);
       }
       if (particle.opacity > 0.05) allParticlesVaporized = false;
     } else {
@@ -411,9 +438,8 @@ const renderParticles = (ctx, particles, globalDpr) => {
   for (let i = 0; i < particles.length; i++) {
     const particle = particles[i];
     if (particle.opacity > 0.01) {
-      const colorStr = particle.color.replace(/[\d.]+\)$/, `${particle.opacity})`);
-      ctx.fillStyle = colorStr;
-      ctx.fillRect(particle.x / globalDpr, particle.y / globalDpr, 1, 1);
+      ctx.fillStyle = `${particle.color} ${particle.opacity})`;
+      ctx.fillRect(particle.x / globalDpr, particle.y / globalDpr, 1.2, 1.2);
     }
   }
   ctx.restore();
@@ -421,43 +447,32 @@ const renderParticles = (ctx, particles, globalDpr) => {
 
 const resetParticles = (particles) => {
   for (let i = 0; i < particles.length; i++) {
-    const particle = particles[i];
-    particle.x = particle.originalX;
-    particle.y = particle.originalY;
-    particle.opacity = particle.originalAlpha;
-    particle.speed = 0;
-    particle.velocityX = 0;
-    particle.velocityY = 0;
+    const p = particles[i];
+    p.x = p.originalX;
+    p.y = p.originalY;
+    p.opacity = p.originalAlpha;
+    p.speed = 0;
+    p.velocityX = 0;
+    p.velocityY = 0;
   }
 };
 
 const calculateVaporizeSpread = (fontSize) => {
   const size = typeof fontSize === "string" ? parseInt(fontSize) : fontSize;
-  const points = [{ size: 20, spread: 0.2 }, { size: 50, spread: 0.5 }, { size: 100, spread: 1.5 }];
-  if (size <= points[0].size) return points[0].spread;
-  if (size >= points[points.length - 1].size) return points[points.length - 1].spread;
-  let i = 0;
-  while (i < points.length - 1 && points[i+1].size < size) i++;
-  const p1 = points[i];
-  const p2 = points[i+1];
-  return p1.spread + (size - p1.size) * (p2.spread - p1.spread) / (p2.size - p1.size);
+  return Math.max(0.2, Math.min(2, size / 60));
 };
 
 const parseColor = (color) => {
   if (color.startsWith("rgba")) return color;
-  const rgbMatch = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
-  if (rgbMatch) return `rgba(${rgbMatch[1]}, ${rgbMatch[2]}, ${rgbMatch[3]}, 1)`;
-  return "rgba(255, 255, 255, 1)";
+  const match = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+  if (match) return `rgba(${match[1]}, ${match[2]}, ${match[3]}, 1)`;
+  return color;
 };
 
 function transformValue(input, inputRange, outputRange, clamp = false) {
-  const [inputMin, inputMax] = inputRange;
-  const [outputMin, outputMax] = outputRange;
-  const progress = (input - inputMin) / (inputMax - inputMin);
-  let result = outputMin + progress * (outputMax - outputMin);
-  if (clamp) {
-    if (outputMax > outputMin) result = Math.min(Math.max(result, outputMin), outputMax);
-    else result = Math.min(Math.max(result, outputMax), outputMin);
-  }
-  return result;
+  const [iMin, iMax] = inputRange;
+  const [oMin, oMax] = outputRange;
+  let progress = (input - iMin) / (iMax - iMin);
+  if (clamp) progress = Math.min(Math.max(progress, 0), 1);
+  return oMin + progress * (oMax - oMin);
 }
