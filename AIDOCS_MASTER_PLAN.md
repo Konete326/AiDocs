@@ -839,6 +839,13 @@ After finishing, update the Completion Tracker section of AIDOCS_MASTER_PLAN.md.
 - [x] UX: Profile upload loading state and silent failure handling
 - [x] Sprint 14 documentation updated and pushed
 |
+| ### Sprint 15 — Wizard AI Suggestions
+- [x] Backend: Created suggestionController with prompt construction for all wizard fields
+- [x] Backend: Created suggestionRoutes and mounted on server `/api/suggestions`
+- [x] Frontend: Created suggestionService and useSuggestions custom hook
+- [x] Frontend: SuggestionPills reusable UI component implemented
+- [x] Frontend: Integrated Real-time AI suggestions across Wizard Steps 1, 2, and 3
+- [x] Tested debouncing and context-aware suggestions across all text inputs
 
 ---
 
