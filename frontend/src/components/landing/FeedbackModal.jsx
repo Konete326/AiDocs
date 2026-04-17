@@ -5,12 +5,15 @@ import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import Button from '../common/Button';
 import { toast } from 'react-hot-toast';
+import AlertModal from '../common/AlertModal';
+import { useAlertModal } from '../../hooks/useModal';
 
 const FeedbackModal = ({ isOpen, onClose, onSuccess }) => {
   const { user, isAuthenticated } = useAuth();
   const [content, setContent] = useState('');
   const [rating, setRating] = useState(5);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { modal: alertModal, alert: triggerAlert, close: closeAlert } = useAlertModal();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,11 +30,16 @@ const FeedbackModal = ({ isOpen, onClose, onSuccess }) => {
         { content, rating }
       );
 
-      toast.success('Feedback submitted! 🚀');
+      triggerAlert({
+        title: 'Feedback Received!',
+        message: 'Thank you for your valuable feedback! We appreciate your support in making AiDocs better.',
+        buttonLabel: 'Awesome'
+      });
+      
       window.dispatchEvent(new Event('notificationRefresh'));
       onSuccess(response.data.data);
       setContent('');
-      onClose();
+      // We don't call onClose() immediately so user sees the AlertModal
     } catch (error) {
       console.error('Feedback error:', error);
       toast.error(error.response?.data?.error || 'Failed to submit feedback');
@@ -126,6 +134,16 @@ const FeedbackModal = ({ isOpen, onClose, onSuccess }) => {
           </motion.div>
         </div>
       )}
+      <AlertModal 
+        isOpen={alertModal.isOpen}
+        title={alertModal.title}
+        message={alertModal.message}
+        buttonLabel={alertModal.buttonLabel}
+        onClose={() => {
+          closeAlert();
+          onClose(); // Now close the feedback modal too
+        }}
+      />
     </AnimatePresence>
   );
 };
