@@ -5,6 +5,7 @@ export function useSuggestions(projectTitle, projectType, fieldName, currentValu
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const timerRef = useRef(null);
+  const abortControllerRef = useRef(null);
   const lastValueRef = useRef('');
 
   useEffect(() => {
@@ -16,10 +17,19 @@ export function useSuggestions(projectTitle, projectType, fieldName, currentValu
     if (currentValue === lastValueRef.current) return;
 
     clearTimeout(timerRef.current);
+    
+    // Abort previous request if it's still running
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
 
     timerRef.current = setTimeout(async () => {
       lastValueRef.current = currentValue;
       setIsLoading(true);
+      
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
       try {
         const results = await getAISuggestions(
           projectTitle,
@@ -27,15 +37,28 @@ export function useSuggestions(projectTitle, projectType, fieldName, currentValu
           fieldName,
           currentValue
         );
-        setSuggestions(results || []);
-      } catch {
-        setSuggestions([]);
+        
+        if (!controller.signal.aborted) {
+          setSuggestions(results || []);
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          console.error(`AI Suggestions Error for ${fieldName}:`, err);
+          setSuggestions([]);
+        }
       } finally {
-        setIsLoading(false);
+        if (!controller.signal.aborted) {
+          setIsLoading(false);
+        }
       }
     }, 800);
 
-    return () => clearTimeout(timerRef.current);
+    return () => {
+      clearTimeout(timerRef.current);
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, [currentValue, projectTitle, projectType, fieldName]);
 
   const clearSuggestions = () => setSuggestions([]);

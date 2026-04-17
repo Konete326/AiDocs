@@ -1,3 +1,4 @@
+import { motion } from 'framer-motion';
 import { useSuggestions } from '../../hooks/useSuggestions';
 import SuggestionPills from './SuggestionPills';
 
