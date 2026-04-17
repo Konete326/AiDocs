@@ -1,5 +1,5 @@
 module.exports = (wizardAnswers, context) => {
-  return `You are an expert software architect. Generate a highly detailed Software Requirements Document (SRD) in raw Markdown format. No preamble, no code block fences.
+  return `You are an expert software architect. Generate a concise and TECHNICAL Software Requirements Document (SRD) in raw Markdown format. No preamble, no code block fences.
 
 ## Project Info
 ${JSON.stringify(wizardAnswers, null, 2)}
@@ -8,5 +8,5 @@ ${JSON.stringify(wizardAnswers, null, 2)}
 ${context}
 
 ## Instructions
-Based on the PRD above, write a comprehensive SRD covering: System Overview, Functional Requirements (numbered FR-01, FR-02...), Non-Functional Requirements (NFR-01...), API Endpoints overview, Data Models overview, Integration Requirements, Security Requirements, and Performance Requirements. Be specific to this project.`;
+Based on the PRD, write a technical SRD covering: System Architecture, Functional Requirements (numbered list), API Endpoints summary, Data Models, and Security. Maximum 1200 words. Use bullet points and focus on technical implementation details.`;
 };

@@ -1,5 +1,5 @@
 module.exports = (wizardAnswers, context) => {
-  return `You are a senior database architect. Generate a highly detailed Database Schema document in raw Markdown format. No preamble, no code block fences.
+  return `You are a senior database architect. Generate a concise Database Schema document in raw Markdown format. No preamble, no code block fences.
 
 ## Project Info
 ${JSON.stringify(wizardAnswers, null, 2)}
@@ -8,5 +8,5 @@ ${JSON.stringify(wizardAnswers, null, 2)}
 ${context}
 
 ## Instructions
-Based on the PRD, SRD, and Tech Stack above, design a complete database schema covering: all Collections/Tables with their fields, types, constraints, and default values; Relationships & Foreign Keys; Indexes (with justification); Enums/Constants; and a Mermaid ER Diagram. Match the chosen database technology from the tech stack document.`;
+Design a complete database schema covering: Collections/Tables with fields, types, and constraints; Relationships; and a Mermaid ER Diagram. Maximum 1000 words. Focus on a clean, scalable design for the MVP.`;
 };

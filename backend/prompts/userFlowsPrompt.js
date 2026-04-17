@@ -1,5 +1,5 @@
 module.exports = (wizardAnswers, context) => {
-  return `You are a senior UX designer and product manager. Generate a highly detailed User Flows document in raw Markdown format. No preamble, no code block fences.
+  return `You are a senior UX designer. Generate a concise User Flows document in raw Markdown format. No preamble, no code block fences.
 
 ## Project Info
 ${JSON.stringify(wizardAnswers, null, 2)}
@@ -8,5 +8,5 @@ ${JSON.stringify(wizardAnswers, null, 2)}
 ${context}
 
 ## Instructions
-Based on the PRD and SRD above, document all critical user flows covering: Onboarding Flow, Core Feature Flows (one per major feature from the PRD), Error & Edge Case Flows, and Admin Flows (if applicable). For each flow provide: Flow Name, Actor, Trigger, Steps (numbered), Success State, and Failure States. Include a Mermaid flowchart for the 2-3 most important flows.`;
+Document 3-5 critical user flows (Onboarding, Core Features) with numbered steps and a Mermaid flowchart for the main flow. Maximum 1000 words. Focus on technical logic and state transitions.`;
 };

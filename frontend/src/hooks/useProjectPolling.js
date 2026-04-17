@@ -29,16 +29,34 @@ export const useProjectPolling = (id) => {
 
   useEffect(() => {
     if (project?.status !== 'generating') return;
-    const interval = setInterval(async () => {
+
+    let pollCount = 0;
+    let timerId;
+
+    const getInterval = (count) => {
+      if (count < 10) return 1000;  // First 10s: 1s interval
+      if (count < 20) return 3000;  // Next 30s: 3s interval
+      return 5000;                  // Then: 5s interval
+    };
+
+    const poll = async () => {
       try {
         const [updated, updatedDocs] = await Promise.all([getProject(id), fetchDocs(id)]);
         setProject(updated);
         setDocuments(updatedDocs);
         if (updatedDocs.length > 0 && !selectedDoc) setSelectedDoc(updatedDocs[0]);
-        if (updated.status !== 'generating') clearInterval(interval);
-      } catch { clearInterval(interval); }
-    }, 2000);
-    return () => clearInterval(interval);
+        
+        if (updated.status === 'generating') {
+          pollCount++;
+          timerId = setTimeout(poll, getInterval(pollCount));
+        }
+      } catch (err) {
+        console.error('Polling error:', err);
+      }
+    };
+
+    timerId = setTimeout(poll, 1000);
+    return () => clearTimeout(timerId);
   }, [project?.status, id]);
 
   return {

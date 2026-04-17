@@ -28,27 +28,22 @@ const buildContext = (previousDocs) => {
 };
 
 /**
- * Generation pipeline:
- *   Group 1 (sequential — each feeds context to next):
- *     prd → srd → techStack
- *
- *   Group 2 (parallel — all depend only on Group 1):
- *     dbSchema, userFlows, folderStructure
- *
- *   Group 3 (sequential — depend on everything above):
- *     mvpPlan → claudeContext → agentSystemPrompt
+ * Generation pipeline optimized for speed:
+ *   Group 1: PRD first (backbone of the project)
+ *   Group 2: All 8 remaining documents in parallel
  */
 const PIPELINE = [
-  { parallel: false, types: ['prd', 'srd', 'techStack'] },
-  { parallel: true,  types: ['dbSchema', 'userFlows', 'folderStructure'] },
-  { parallel: false, types: ['mvpPlan', 'claudeContext', 'agentSystemPrompt'] },
+  { parallel: false, types: ['prd'] },
+  { parallel: true,  types: ['srd', 'techStack', 'dbSchema', 'userFlows', 'folderStructure', 'mvpPlan', 'claudeContext', 'agentSystemPrompt'] },
 ];
 
 // Helper: generate a single doc, save it, update project.docsGenerated
 const generateOne = async (docType, project, userId, generatedSoFar) => {
   const contextString = buildContext(generatedSoFar);
   const promptText = prompts[docType](project.wizardAnswers, contextString);
-  const { content, modelUsed, generationTimeMs } = await AIService.generateText(promptText, docType);
+  
+  // Use max_tokens=2048 for faster generation as per performance optimization plan
+  const { content, modelUsed, generationTimeMs } = await AIService.generateText(promptText, docType, 2048);
   const contentTokenCount = Math.floor(content.length / 4);
 
   await Document.findOneAndUpdate(
