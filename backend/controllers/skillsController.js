@@ -97,12 +97,8 @@ exports.toggleProjectSkill = asyncWrapper(async (req, res) => {
   if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');
 
   const exists = project.customSkills.includes(skillId);
-  const defaultSkillIds = ['frontend-design', 'skill-creator', 'find-skills'];
   
   if (exists) {
-    if (defaultSkillIds.includes(skillId)) {
-      throw new AppError('Cannot remove default core skills', 400);
-    }
     project.customSkills = project.customSkills.filter(id => id !== skillId);
   } else {
     // Check if skill exists in master list

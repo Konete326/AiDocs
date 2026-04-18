@@ -3,17 +3,19 @@ import { Search, Plus, Trash2, Library, Terminal } from 'lucide-react';
 import { getProjectSkills, toggleProjectSkill } from '../../services/skillsService';
 import { toast } from 'react-hot-toast';
 import AddSkillsModal from './AddSkillsModal';
+import ConfirmModal from '../common/ConfirmModal';
 
 const SkillsList = ({ projectId }) => {
   const [skills, setSkills] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [quickSkill, setQuickSkill] = useState('');
+  const [skillToToggle, setSkillToToggle] = useState(null);
 
   const loadSkills = async () => {
     try {
       const data = await getProjectSkills(projectId);
-      setSkills(data);
+      setSkills(data || []);
     } catch (err) {
       console.error('Failed to load skills');
     } finally {
@@ -25,13 +27,16 @@ const SkillsList = ({ projectId }) => {
     loadSkills();
   }, [projectId]);
 
-  const handleToggle = async (skillId) => {
+  const handleToggle = async () => {
+    if (!skillToToggle) return;
     try {
-      await toggleProjectSkill(projectId, skillId);
-      loadSkills();
-      toast.success('Skill updated');
+      await toggleProjectSkill(projectId, skillToToggle.id);
+      await loadSkills();
+      toast.success(`Skill "${skillToToggle.name}" updated`);
     } catch (err) {
-      toast.error('Failed to update skill');
+      toast.error(err.response?.data?.message || 'Failed to update skill');
+    } finally {
+      setSkillToToggle(null);
     }
   };
 
@@ -39,19 +44,16 @@ const SkillsList = ({ projectId }) => {
     if (e.key === 'Enter' && quickSkill.trim()) {
       const input = quickSkill.trim();
       
-      // Try to parse skill ID from npx command: --skill [id]
       const skillMatch = input.match(/--skill\s+([a-zA-Z0-9-]+)/);
       const skillId = skillMatch ? skillMatch[1] : input.toLowerCase();
 
       try {
         await toggleProjectSkill(projectId, skillId);
-        loadSkills();
+        await loadSkills();
         toast.success(`Skill ${skillId} updated`);
         setQuickSkill('');
       } catch {
-        // If not a direct match, open modal with search
         setIsModalOpen(true);
-        // keep quickSkill in input for modal to use (if we pass it)
       }
     }
   };
@@ -99,8 +101,8 @@ const SkillsList = ({ projectId }) => {
                 </p>
               </div>
               <button 
-                onClick={() => handleToggle(skill.id)}
-                className="opacity-0 group-hover:opacity-100 p-1 text-white/20 hover:text-red-400 transition-all"
+                onClick={() => setSkillToToggle(skill)}
+                className="opacity-0 group-hover:opacity-100 p-1 text-white/20 hover:text-red-400 transition-all cursor-pointer"
               >
                 <Trash2 className="w-3 h-3" />
               </button>
@@ -121,6 +123,16 @@ const SkillsList = ({ projectId }) => {
           </div>
         ))}
       </div>
+
+      <ConfirmModal 
+        isOpen={!!skillToToggle}
+        title="Remove Skill"
+        message={`Are you sure you want to remove the "${skillToToggle?.name}" skill? This will remove its capabilities from the project documentation.`}
+        confirmLabel="Remove"
+        onConfirm={handleToggle}
+        onCancel={() => setSkillToToggle(null)}
+        isDangerous={true}
+      />
 
       <AddSkillsModal 
         isOpen={isModalOpen} 
