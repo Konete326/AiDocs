@@ -155,7 +155,8 @@ exports.generateZip = async (projectId, userId) => {
 
   const readmeContent = readTemplate('project-readme.md')
     .replace(/{Project Title}/g, project.title)
-    .replace(/{title}/g, slug);
+    .replace(/{title}/g, slug)
+    .replace(/{project_name}/g, slug.replace(/-/g, '_'));
   projectFolder.file('README.md', readmeContent);
 
   if (['saas', 'ecommerce', 'marketplace', 'other'].includes(projectType)) {

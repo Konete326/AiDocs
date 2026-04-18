@@ -35,12 +35,6 @@ ${context}
 ## Instructions
 Create a master system prompt for AI assistants working on this specific project. Include: Role, Core Rules, and 3-5 example task prompts. Maximum 1000 words. Focus on making it practical for immediate use in developer tools.
 
-Include a section called 'Agent Setup Order' that tells the agent:
-1. Install skills first (list the npx commands for this project type)
-2. Scaffold project with commands (not manual file creation)  
-3. Read all docs in order
-4. Build step by step
-
 ## Agent Setup Order
 
 Before writing any code, follow these steps in order:

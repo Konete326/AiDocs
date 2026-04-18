@@ -44,6 +44,14 @@ const ALL_SKILLS = [
     forTypes: ['saas', 'ecommerce', 'marketplace', 'other'],
   },
   {
+    id: 'xlsx',
+    name: 'XLSX Generator',
+    description: 'Teaches agent to create Excel spreadsheets programmatically.',
+    command: 'npx skills add https://github.com/anthropics/skills --skill xlsx',
+    source: 'anthropics',
+    forTypes: ['saas'],
+  },
+  {
     id: 'mobile',
     name: 'Flutter Mobile',
     description: 'Best practices for Flutter app development — state management, navigation, and platform patterns.',
