@@ -1,5 +1,6 @@
 import { memo } from 'react';
 import { FileText, Loader, CheckCircle } from 'lucide-react';
+import SkillsList from './SkillsList';
 
 const DOC_LABELS = {
   prd: 'Product Requirements',
@@ -18,7 +19,7 @@ const DOC_ORDER = [
   'mvpPlan','folderStructure','claudeContext','agentSystemPrompt',
 ];
 
-const DocsList = ({ documents, selectedDoc, onSelect, isGenerating }) => (
+const DocsList = ({ documents, selectedDoc, onSelect, isGenerating, projectId }) => (
   <div className="liquid-glass rounded-3xl p-6 flex flex-col lg:space-y-2 h-full border border-white/5" style={{ willChange: 'transform' }}>
     <div className="flex items-center justify-between px-2 mb-3 lg:mb-1">
       <span className="text-xs uppercase tracking-widest text-white/50">Documents</span>
@@ -64,6 +65,9 @@ const DocsList = ({ documents, selectedDoc, onSelect, isGenerating }) => (
       );
     })}
     </div>
+
+    <div className="h-px bg-white/5 my-2" />
+    <SkillsList projectId={projectId} />
   </div>
 );
 

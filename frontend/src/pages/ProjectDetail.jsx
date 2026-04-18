@@ -112,6 +112,7 @@ const ProjectDetail = () => {
                 selectedDoc={selectedDoc}
                 onSelect={handleDocSelect}
                 isGenerating={isGenerating}
+                projectId={id}
               />
             </div>
 

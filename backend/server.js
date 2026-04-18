@@ -96,6 +96,7 @@ app.use('/api', chatRoutes);
 app.use('/api', exportRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api', suggestionRoutes);
+app.use('/api/projects', require('./routes/skillsRoutes'));
 
 // 404 handler
 app.use((req, res, next) => {
