@@ -1130,3 +1130,20 @@ The ZIP export system was completely overhauled to produce a 3-folder structure 
 | `backend/data/templates/python-requirements.txt` | Created |
 | `backend/data/templates/project-readme.md` | Created |
 | `backend/services/exportService.js` | Rewritten (generateZip only) |
+
+---
+
+## Skills UI and Setup Updates
+*   **Backend:**
+    *   Created `backend/controllers/skillsController.js` and `backend/routes/skillsRoutes.js` for fetching project-specific AI skills natively with hardcoded configurations.
+    *   Added routing bindings directly inside `server.js`.
+    *   `backend/prompts/agentSystemPrompt.js` was improved heavily: appended a new `Agent Setup Order` block directly inside every AI assistant system prompt with `npx skills add` execution, explicitly outlining `Step 1 — Install Skills`, `Step 2 — Scaffold Project with Commands`, `Step 3 — Read Documentation in Order`, and `Step 4 — Build`.
+    *   `backend/data/templates/project-readme.md` updated entirely with scaffolding commands and `npx skills add` step-by-step instructions.
+
+*   **Frontend:**
+    *   Created `frontend/src/services/skillsService.js` to asynchronously fetch skills metadata.
+    *   Created `frontend/src/components/project/SkillsList.jsx` holding full UI matching the exact specifications (liquid-glass card styled with copy buttons parsing lucide-react).
+    *   `frontend/src/components/project/DocsList.jsx` updated to render a divider + `<SkillsList projectId={projectId} />`.
+    *   `frontend/src/pages/ProjectDetail.jsx` passed down the necessary `projectId={id}` property ensuring everything links perfectly to dynamic states.
+
+*Status: Implemented & Confirmed.*
