@@ -9,7 +9,7 @@ const SkillsList = ({ projectId }) => {
   const [skills, setSkills] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [quickSkill, setQuickSkill] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [skillToToggle, setSkillToToggle] = useState(null);
 
   const loadSkills = async () => {
@@ -41,8 +41,8 @@ const SkillsList = ({ projectId }) => {
   };
 
   const handleQuickAdd = async (e) => {
-    if (e.key === 'Enter' && quickSkill.trim()) {
-      const input = quickSkill.trim();
+    if (e.key === 'Enter' && searchQuery.trim()) {
+      const input = searchQuery.trim();
       
       const skillMatch = input.match(/--skill\s+([a-zA-Z0-9-]+)/);
       const skillId = skillMatch ? skillMatch[1] : input.toLowerCase();
@@ -51,12 +51,18 @@ const SkillsList = ({ projectId }) => {
         await toggleProjectSkill(projectId, skillId);
         await loadSkills();
         toast.success(`Skill ${skillId} updated`);
-        setQuickSkill('');
+        setSearchQuery('');
       } catch {
         setIsModalOpen(true);
       }
     }
   };
+
+  const filteredSkills = (skills || []).filter(skill => 
+    skill.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    skill.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    skill.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   if (isLoading) return <div className="text-white/20 text-xs p-4">Loading skills...</div>;
 
@@ -79,49 +85,63 @@ const SkillsList = ({ projectId }) => {
         <Terminal className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30 group-focus-within:text-blue-400 transition-colors" />
         <input 
           type="text"
-          value={quickSkill}
-          onChange={(e) => setQuickSkill(e.target.value)}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
           onKeyDown={handleQuickAdd}
-          placeholder="npx skills add..."
+          placeholder="Search or npx add..."
           className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-9 pr-4 text-xs text-white placeholder:text-white/20 focus:outline-none focus:border-blue-500/50 transition-all shadow-inner"
         />
+        {searchQuery && (
+          <button 
+            onClick={() => setSearchQuery('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white/50 text-[10px]"
+          >
+            Esc
+          </button>
+        )}
       </div>
 
       <div className="flex flex-col gap-2 max-h-[400px] overflow-y-auto pr-1 custom-scrollbar">
-        {skills.map((skill) => (
-          <div 
-            key={skill.id} 
-            className="liquid-glass-strong border border-white/5 rounded-2xl p-3 flex flex-col gap-2 group hover:border-white/20 transition-all"
-          >
-            <div className="flex items-start justify-between gap-2">
-              <div className="flex flex-col gap-0.5">
-                <span className="text-xs font-semibold text-white/90">{skill.name}</span>
-                <p className="text-[10px] text-white/40 leading-relaxed line-clamp-2">
-                  {skill.description}
-                </p>
+        {filteredSkills.length > 0 ? (
+          filteredSkills.map((skill) => (
+            <div 
+              key={skill.id} 
+              className="liquid-glass-strong border border-white/5 rounded-2xl p-3 flex flex-col gap-2 group hover:border-white/20 transition-all"
+            >
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-xs font-semibold text-white/90">{skill.name}</span>
+                  <p className="text-[10px] text-white/40 leading-relaxed line-clamp-2">
+                    {skill.description}
+                  </p>
+                </div>
+                <button 
+                  onClick={() => setSkillToToggle(skill)}
+                  className="opacity-0 group-hover:opacity-100 p-1 text-white/20 hover:text-red-400 transition-all cursor-pointer"
+                >
+                  <Trash2 className="w-3 h-3" />
+                </button>
               </div>
-              <button 
-                onClick={() => setSkillToToggle(skill)}
-                className="opacity-0 group-hover:opacity-100 p-1 text-white/20 hover:text-red-400 transition-all cursor-pointer"
-              >
-                <Trash2 className="w-3 h-3" />
-              </button>
+              
+              <div className="bg-black/40 rounded-lg p-2 flex items-center justify-between gap-2">
+                <code className="text-[9px] text-blue-300 font-mono truncate">{skill.command}</code>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(skill.command);
+                    toast.success('Command copied');
+                  }}
+                  className="text-[9px] text-white/30 hover:text-white transition-colors"
+                >
+                  Copy
+                </button>
+              </div>
             </div>
-            
-            <div className="bg-black/40 rounded-lg p-2 flex items-center justify-between gap-2">
-              <code className="text-[9px] text-blue-300 font-mono truncate">{skill.command}</code>
-              <button 
-                onClick={() => {
-                  navigator.clipboard.writeText(skill.command);
-                  toast.success('Command copied');
-                }}
-                className="text-[9px] text-white/30 hover:text-white transition-colors"
-              >
-                Copy
-              </button>
-            </div>
+          ))
+        ) : (
+          <div className="text-center py-6">
+            <p className="text-[10px] text-white/20">No matching skills found</p>
           </div>
-        ))}
+        )}
       </div>
 
       <ConfirmModal 

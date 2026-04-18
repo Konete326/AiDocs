@@ -101,7 +101,7 @@ exports.toggleProjectSkill = asyncWrapper(async (req, res) => {
   if (exists) {
     project.customSkills = project.customSkills.filter(id => id !== skillId);
   } else {
-    // Check if skill exists in master list
+   
     if (!ALL_SKILLS.find(s => s.id === skillId)) throw new AppError('Invalid skill ID', 400);
     project.customSkills.push(skillId);
   }
