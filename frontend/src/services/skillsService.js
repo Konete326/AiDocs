@@ -1,13 +1,13 @@
 import api from './api';
 
 export async function getAllSkills() {
-  const response = await api.get('/projects/skills');
+  const response = await api.get('/projects/library');
   return response.data.data;
 }
 
 export async function getProjectSkills(projectId) {
   const response = await api.get('/projects/' + projectId + '/skills');
-  return response.data.data;
+  return response.data.data.skills;
 }
 
 export async function toggleProjectSkill(projectId, skillId) {

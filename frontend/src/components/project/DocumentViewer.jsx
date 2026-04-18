@@ -25,12 +25,17 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   useEffect(() => {
     setEditContent(document.content);
     setIsEditing(false);
-  }, [document.content, document.docType]); // Only reset editing if content OR type changes
+  }, [document.content, document.docType]);
 
   const isPro = user?.role === 'admin' || ['pro', 'team'].includes(subscription?.plan);
   
   const handleCopy = () => {
-    navigator.clipboard.writeText(document.content);
+    let content = document.content;
+    if (document.docType === 'skills') {
+      const bashBlocks = document.content.match(/```bash([\s\S]*?)```/);
+      if (bashBlocks) content = bashBlocks[1].trim();
+    }
+    navigator.clipboard.writeText(content);
     setCopySuccess(true);
     setTimeout(() => setCopySuccess(false), 2000);
   };
@@ -90,18 +95,22 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   return (
     <>
     <div className="liquid-glass-strong rounded-3xl flex flex-col h-full min-h-[600px] overflow-hidden border border-white/10 group shadow-2xl relative" style={{ willChange: 'transform' }}>
-      {/* Subtle top light effect matching ProCard */}
       <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-white/[0.02] blur-3xl pointer-events-none" />
       <div className="flex items-center justify-between px-6 py-4">
         <div>
           <p className="text-lg font-medium text-white">{DOC_LABELS[document.docType]}</p>
-          {/* v{document.version} · {document.modelUsed} removed per user request */}
           {saveError && <p className="text-xs text-white/50 mt-2">{saveError}</p>}
         </div>
         <div className="flex gap-2 items-center">
-          <button onClick={handleCopy} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer min-w-[85px] justify-center" aria-label="Copy to clipboard">
-            {copySuccess ? <><Check className="w-3.5 h-3.5 text-emerald-400" /> Copied</> : <><Copy className="w-3.5 h-3.5" /> Copy</>}
-          </button>
+          {document.docType === 'skills' ? (
+            <button onClick={handleCopy} className="liquid-glass-strong rounded-full px-4 py-2 text-xs text-blue-400 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer shadow-lg shadow-blue-500/10" aria-label="Copy all commands">
+              {copySuccess ? <><Check className="w-3.5 h-3.5 text-emerald-400" /> Copied</> : <><Copy className="w-3.5 h-3.5" /> Copy All</>}
+            </button>
+          ) : (
+            <button onClick={handleCopy} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer min-w-[85px] justify-center" aria-label="Copy to clipboard">
+              {copySuccess ? <><Check className="w-3.5 h-3.5 text-emerald-400" /> Copied</> : <><Copy className="w-3.5 h-3.5" /> Copy</>}
+            </button>
+          )}
           <button onClick={handleDownloadPdf} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer min-w-[75px] justify-center" aria-label="Download as PDF">
             {pdfSuccess ? <><Check className="w-3.5 h-3.5 text-emerald-400" /> Done</> : <><FileText className="w-3.5 h-3.5" /> PDF</>}
           </button>

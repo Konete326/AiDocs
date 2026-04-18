@@ -35,13 +35,24 @@ const SkillsList = ({ projectId }) => {
     }
   };
 
-  const handleQuickAdd = (e) => {
+  const handleQuickAdd = async (e) => {
     if (e.key === 'Enter' && quickSkill.trim()) {
-      // In this setup, quick add might be tricky without a predefined skillId.
-      // But we can trigger the modal or just show a message.
-      // For now, let's open the modal with the search query.
-      setIsModalOpen(true);
-      setQuickSkill('');
+      const input = quickSkill.trim();
+      
+      // Try to parse skill ID from npx command: --skill [id]
+      const skillMatch = input.match(/--skill\s+([a-zA-Z0-9-]+)/);
+      const skillId = skillMatch ? skillMatch[1] : input.toLowerCase();
+
+      try {
+        await toggleProjectSkill(projectId, skillId);
+        loadSkills();
+        toast.success(`Skill ${skillId} updated`);
+        setQuickSkill('');
+      } catch {
+        // If not a direct match, open modal with search
+        setIsModalOpen(true);
+        // keep quickSkill in input for modal to use (if we pass it)
+      }
     }
   };
 

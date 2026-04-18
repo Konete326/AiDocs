@@ -5,12 +5,7 @@ const asyncWrapper = require('../utils/asyncWrapper');
 
 const router = express.Router();
 
-router.get('/', authenticate, asyncWrapper(async (req, res) => {
-  const skills = await getAllSkills();
-  res.json({ success: true, data: skills });
-}));
-
-router.get('/available', authenticate, asyncWrapper(async (req, res) => {
+router.get('/library', authenticate, asyncWrapper(async (req, res) => {
   const skills = await getAllAvailableSkills();
   res.json({ success: true, data: skills });
 }));
