@@ -19,11 +19,45 @@ const ProjectDetail = () => {
 
   const {
     project, setProject, documents, setDocuments,
+    skills, setSkills,
     selectedDoc, setSelectedDoc, subscription, isLoading, error
   } = useProjectPolling(id);
 
   // Allows user to jump into partial bento-grid view during generation
   const [viewingPartial, setViewingPartial] = useState(false);
+
+  // ─── Document Synthesis ────────────────────────────────────────────────────
+  const synthesizedDocs = useMemo(() => {
+    const list = [...documents];
+    
+    // Virtual Skills Doc
+    if (skills && skills.length > 0) {
+      let content = `# Project Skills: ${project?.title || 'Loading...'}\n\n`;
+      content += `Copy and run these commands in your terminal to empower your AI assistant for this project.\n\n`;
+      content += `\`\`\`bash\n`;
+      skills.forEach(s => {
+        content += `${s.command}\n`;
+      });
+      content += `\`\`\`\n\n`;
+      
+      content += `## Details\n\n`;
+      skills.forEach(s => {
+        content += `### ${s.name}\n${s.description}\n\n---\n\n`;
+      });
+
+      list.push({ docType: 'skills', content, version: '1.0' });
+    } else if (project) {
+      // Even if no skills yet, show it
+      list.push({ docType: 'skills', content: '# Project Skills\n\nNo skills added yet.', version: '1.0' });
+    }
+    
+    return list;
+  }, [documents, skills, project?.title]);
+
+  const activeDoc = useMemo(() => {
+    if (!selectedDoc) return null;
+    return synthesizedDocs.find(d => d.docType === selectedDoc.docType) || selectedDoc;
+  }, [selectedDoc, synthesizedDocs]);
 
   const handleRetry = useCallback(async () => {
     await triggerGeneration(id);
@@ -108,8 +142,8 @@ const ProjectDetail = () => {
             {/* DocsList — col-span-3 (like FreeCard) */}
             <div className="md:col-span-1 lg:col-span-3">
               <DocsList
-                documents={documents}
-                selectedDoc={selectedDoc}
+                documents={synthesizedDocs}
+                selectedDoc={activeDoc}
                 onSelect={handleDocSelect}
                 isGenerating={isGenerating}
                 projectId={id}
@@ -120,7 +154,7 @@ const ProjectDetail = () => {
             <div className="md:col-span-1 lg:col-span-5">
               {selectedDoc ? (
                 <DocumentViewer
-                  document={selectedDoc}
+                  document={activeDoc}
                   project={project}
                   user={user}
                   subscription={subscription}

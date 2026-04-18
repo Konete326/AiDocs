@@ -170,13 +170,49 @@ exports.generateZip = async (projectId, userId) => {
   return { buffer: await zip.generateAsync({ type: 'nodebuffer' }), slug };
 };
 
+const getSkillsDocContent = async (projectId, userId) => {
+  const project = await Project.findOne({ _id: projectId, userId });
+  if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');
+  
+  const { ALL_SKILLS } = require('../controllers/skillsController');
+  const projectType = project.projectType || 'other';
+  
+  // Filter skills: 1. Default for project type, 2. Manual/Custom skills
+  const skills = ALL_SKILLS.filter(s =>
+    s.forTypes.includes('all') || 
+    s.forTypes.includes(projectType) ||
+    (project.customSkills && project.customSkills.includes(s.id))
+  );
+
+  let content = `# Project Skills: ${project.title}\n\n`;
+  content += `Copy and run these commands in your terminal to empower your AI assistant for this project.\n\n`;
+  content += `\`\`\`bash\n`;
+  skills.forEach(s => {
+    content += `${s.command}\n`;
+  });
+  content += `\`\`\`\n\n`;
+  
+  content += `## Details\n\n`;
+  skills.forEach(s => {
+    content += `### ${s.name}\n${s.description}\n\n---\n\n`;
+  });
+  
+  return content;
+};
+
 // ─── PDF export (unchanged) ───────────────────────────────────────────────────
 exports.generatePdf = async (projectId, docType, userId) => {
-  const doc = await DocumentModel.findOne({ projectId, userId, docType });
-  if (!doc) throw new AppError('Document not found', 404, 'NOT_FOUND');
+  let content = '';
+  if (docType === 'skills') {
+    content = await getSkillsDocContent(projectId, userId);
+  } else {
+    const doc = await DocumentModel.findOne({ projectId, userId, docType });
+    if (!doc) throw new AppError('Document not found', 404, 'NOT_FOUND');
+    content = doc.content;
+  }
 
   const { marked } = await import('marked');
-  const html = await marked.parse(doc.content);
+  const html = await marked.parse(content);
   const styledHtml = `
     <!DOCTYPE html>
     <html>
@@ -201,10 +237,16 @@ exports.generatePdf = async (projectId, docType, userId) => {
 
 // ─── Word export (unchanged) ──────────────────────────────────────────────────
 exports.generateWord = async (projectId, docType, userId) => {
-  const doc = await DocumentModel.findOne({ projectId, userId, docType });
-  if (!doc) throw new AppError('Document not found', 404, 'NOT_FOUND');
+  let content = '';
+  if (docType === 'skills') {
+    content = await getSkillsDocContent(projectId, userId);
+  } else {
+    const doc = await DocumentModel.findOne({ projectId, userId, docType });
+    if (!doc) throw new AppError('Document not found', 404, 'NOT_FOUND');
+    content = doc.content;
+  }
 
-  const lines = doc.content.split('\n');
+  const lines = content.split('\n');
   const children = [];
 
   lines.forEach((line) => {

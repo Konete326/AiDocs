@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { getProject } from '../services/projectService';
 import { getProjectDocuments as fetchDocs } from '../services/documentService';
 import { getMySubscription } from '../services/subscriptionService';
+import { getProjectSkills } from '../services/skillsService';
 
 export const useProjectPolling = (id) => {
   const [project, setProject] = useState(null);
   const [documents, setDocuments] = useState([]);
+  const [skills, setSkills] = useState([]);
   const [selectedDoc, setSelectedDoc] = useState(null);
   const [subscription, setSubscription] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -15,11 +17,17 @@ export const useProjectPolling = (id) => {
     let active = true;
     (async () => {
       try {
-        const [proj, docs, sub] = await Promise.all([getProject(id), fetchDocs(id), getMySubscription()]);
+        const [proj, docs, sub, fetchedSkills] = await Promise.all([
+          getProject(id), 
+          fetchDocs(id), 
+          getMySubscription(),
+          getProjectSkills(id)
+        ]);
         if (!active) return;
         setProject(proj);
         setDocuments(docs);
         setSubscription(sub);
+        setSkills(fetchedSkills);
         if (docs.length > 0) setSelectedDoc(docs[0]);
       } catch { if (active) setError('Failed to load project.'); }
       finally { if (active) setIsLoading(false); }
@@ -41,7 +49,11 @@ export const useProjectPolling = (id) => {
 
     const poll = async () => {
       try {
-        const [updated, updatedDocs] = await Promise.all([getProject(id), fetchDocs(id)]);
+        const [updated, updatedDocs, updatedSkills] = await Promise.all([
+          getProject(id), 
+          fetchDocs(id),
+          getProjectSkills(id)
+        ]);
         
         // Use a more conservative state update - only update if actually changed
         setProject(prev => {
@@ -57,6 +69,11 @@ export const useProjectPolling = (id) => {
             return prev;
           }
           return updatedDocs;
+        });
+
+        setSkills(prev => {
+          if (JSON.stringify(prev) === JSON.stringify(updatedSkills)) return prev;
+          return updatedSkills;
         });
 
         if (updatedDocs.length > 0 && !selectedDoc) {
@@ -78,6 +95,7 @@ export const useProjectPolling = (id) => {
 
   return {
     project, setProject, documents, setDocuments,
+    skills, setSkills,
     selectedDoc, setSelectedDoc, subscription, isLoading, error
   };
 };

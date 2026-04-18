@@ -69,6 +69,8 @@ const ALL_SKILLS = [
   },
 ];
 
+exports.ALL_SKILLS = ALL_SKILLS;
+
 exports.getProjectSkills = asyncWrapper(async (req, res) => {
   const { projectId } = req.params;
   const userId = req.user.id;
@@ -76,9 +78,50 @@ exports.getProjectSkills = asyncWrapper(async (req, res) => {
   const project = await Project.findOne({ _id: projectId, userId, isArchived: false });
   if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');
 
+  // Filter skills: 1. Default for project type, 2. Manual/Custom skills
   const skills = ALL_SKILLS.filter(s =>
-    s.forTypes.includes('all') || s.forTypes.includes(project.projectType)
+    s.forTypes.includes('all') || 
+    s.forTypes.includes(project.projectType) ||
+    (project.customSkills && project.customSkills.includes(s.id))
   );
 
-  res.json({ success: true, data: { skills, projectType: project.projectType } });
+  res.json({ success: true, data: { skills, projectType: project.projectType, customSkills: project.customSkills || [] } });
 });
+
+exports.toggleProjectSkill = asyncWrapper(async (req, res) => {
+  const { projectId } = req.params;
+  const { skillId } = req.body;
+  const userId = req.user.id;
+
+  const project = await Project.findOne({ _id: projectId, userId });
+  if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');
+
+  const exists = project.customSkills.includes(skillId);
+  if (exists) {
+    project.customSkills = project.customSkills.filter(id => id !== skillId);
+  } else {
+    // Check if skill exists in master list
+    if (!ALL_SKILLS.find(s => s.id === skillId)) throw new AppError('Invalid skill ID', 400);
+    project.customSkills.push(skillId);
+  }
+
+  await project.save();
+  
+  // Return updated skill list
+  const skills = ALL_SKILLS.filter(s =>
+    s.forTypes.includes('all') || 
+    s.forTypes.includes(project.projectType) ||
+    project.customSkills.includes(s.id)
+  );
+
+  res.json({ success: true, data: { skills, customSkills: project.customSkills } });
+});
+
+exports.getAllSkills = async () => {
+  return ALL_SKILLS;
+};
+
+exports.getAllAvailableSkills = async () => {
+  return ALL_SKILLS;
+};
+

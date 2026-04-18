@@ -12,11 +12,12 @@ const DOC_LABELS = {
   folderStructure: 'Folder Structure',
   claudeContext: 'Claude Context',
   agentSystemPrompt: 'Agent Prompts',
+  skills: 'Project Skills',
 };
 
 const DOC_ORDER = [
   'prd','srd','techStack','dbSchema','userFlows',
-  'mvpPlan','folderStructure','claudeContext','agentSystemPrompt',
+  'mvpPlan','folderStructure','claudeContext','agentSystemPrompt', 'skills'
 ];
 
 const DocsList = ({ documents, selectedDoc, onSelect, isGenerating, projectId }) => (
@@ -30,7 +31,7 @@ const DocsList = ({ documents, selectedDoc, onSelect, isGenerating, projectId })
     
     <div className="flex flex-row lg:flex-col gap-3 lg:gap-2 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0 scrollbar-hide">
     {DOC_ORDER.map((type) => {
-      const doc = documents.find((d) => d.docType === type);
+      const doc = type === 'skills' ? { docType: 'skills', version: '1.0' } : documents.find((d) => d.docType === type);
       const isGenerated = !!doc;
       const isSelected = selectedDoc?.docType === type;
       return (
@@ -67,7 +68,9 @@ const DocsList = ({ documents, selectedDoc, onSelect, isGenerating, projectId })
     </div>
 
     <div className="h-px bg-white/5 my-2" />
-    <SkillsList projectId={projectId} />
+    <div className="flex flex-col gap-2">
+      <SkillsList projectId={projectId} />
+    </div>
   </div>
 );
 

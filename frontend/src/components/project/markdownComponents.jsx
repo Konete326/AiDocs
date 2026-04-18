@@ -26,4 +26,5 @@ export const DOC_LABELS = {
   userFlows: 'User Flows', mvpPlan: 'MVP Plan',
   folderStructure: 'Folder Structure', claudeContext: 'Claude Context',
   agentSystemPrompt: 'Agent Prompts',
+  skills: 'Project Skills',
 };
