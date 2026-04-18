@@ -1,0 +1,21 @@
+{
+  "name": "{project-name}-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "latest",
+    "mongoose": "latest",
+    "dotenv": "latest",
+    "bcryptjs": "latest",
+    "jsonwebtoken": "latest",
+    "cors": "latest",
+    "helmet": "latest"
+  },
+  "devDependencies": {
+    "nodemon": "latest"
+  }
+}

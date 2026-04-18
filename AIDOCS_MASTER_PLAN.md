@@ -1079,3 +1079,54 @@ After finishing ALL three parts, update Section 12 Sprint 6 tracker in AIDOCS_MA
 ---
 
 *This document is the single source of truth for all backend work. Version 2.0 reflects Sprints 1-5 complete, Sprint 6 in progress.*
+
+---
+
+## Sprint 14 — Skills System + ZIP Structure + Project Scaffolding
+**Status:** ✅ Complete  
+**Date:** 2026-04-18
+
+### What Was Built
+
+The ZIP export system was completely overhauled to produce a 3-folder structure for Pro users:
+
+```
+{slug}-docs/          ← all 9 generated .md documents
+{slug}-skills/        ← AI agent skill guides
+{slug}-project/       ← pre-configured boilerplate code scaffold
+```
+
+### Completion Tracker
+
+- [x] `backend/data/skills/` folder created with all skill .md files
+- [x] `backend/data/templates/` folder created with all templates
+- [x] `exportService.js` generateZip rewritten (3-folder structure)
+- [x] Slug generation working (title → safe folder name via `toSlug()`)
+- [x] Docs folder: all available docs as .md files ✓
+- [x] Skills folder: SKILLS_README.md + 3 default skills always bundled ✓
+- [x] Project-type skills: saas/ecommerce/marketplace → docx+pdf; mobile → mobile; ai → claude-api ✓
+- [x] Project folder: correct scaffold structure per projectType ✓
+- [x] Template substitution working ({title}, {Project Title}, {project-name} replaced) ✓
+- [x] MERN template: package.json valid JSON ✓
+- [x] Flutter template: pubspec.yaml valid YAML ✓
+- [x] Python template: requirements.txt included ✓
+- [x] generatePdf and generateWord unchanged ✓
+- [x] AIDOCS_MASTER_PLAN.md updated ✓
+
+### Files Created/Modified
+| File | Action |
+|------|--------|
+| `backend/data/skills/frontend-design.md` | Created |
+| `backend/data/skills/skill-creator.md` | Created |
+| `backend/data/skills/find-skills.md` | Created |
+| `backend/data/skills/docx.md` | Created |
+| `backend/data/skills/pdf.md` | Created |
+| `backend/data/skills/mobile.md` | Created |
+| `backend/data/skills/claude-api.md` | Created |
+| `backend/data/templates/skills-readme.md` | Created |
+| `backend/data/templates/mern-backend-package.json` | Created |
+| `backend/data/templates/vite-frontend-package.json` | Created |
+| `backend/data/templates/flutter-pubspec.yaml` | Created |
+| `backend/data/templates/python-requirements.txt` | Created |
+| `backend/data/templates/project-readme.md` | Created |
+| `backend/services/exportService.js` | Rewritten (generateZip only) |
