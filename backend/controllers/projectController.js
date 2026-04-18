@@ -54,12 +54,3 @@ exports.triggerGeneration = asyncWrapper(async (req, res) => {
   );
 });
 
-exports.exportProject = asyncWrapper(async (req, res) => {
-  const isEligible = await subscriptionService.canExport(req.user.id);
-  
-  if (!isEligible) {
-    throw new AppError('Exporting is a Pro feature. Please upgrade your plan.', 403, 'PRO_FEATURE_REQUIRED');
-  }
-
-  await projectService.exportProjectAsZip(req.params.id, req.user.id, res);
-});

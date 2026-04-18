@@ -3,10 +3,10 @@ const exportService = require('../services/exportService');
 
 exports.downloadZip = asyncWrapper(async (req, res) => {
   const { projectId } = req.params;
-  const zipBuffer = await exportService.generateZip(projectId, req.user.id);
+  const { buffer, slug } = await exportService.generateZip(projectId, req.user.id);
   res.setHeader('Content-Type', 'application/zip');
-  res.setHeader('Content-Disposition', 'attachment; filename="project-documents.zip"');
-  res.send(zipBuffer);
+  res.setHeader('Content-Disposition', `attachment; filename="${slug}-docs.zip"`);
+  res.send(buffer);
 });
 
 exports.downloadPdf = asyncWrapper(async (req, res) => {

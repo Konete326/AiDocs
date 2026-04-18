@@ -11,9 +11,8 @@ When starting a new Claude conversation:
 
 ## Available Skills
 
-- `frontend-design/` — UI component patterns and design system rules
-- `skill-creator/` — How to create new skills for this project
-- `find-skills/` — How to discover and use skills effectively
+{skillsList}
+
 
 ## Adding More Skills
 

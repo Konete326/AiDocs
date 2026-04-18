@@ -25,7 +25,7 @@ const toSlug = (title) =>
 
 // ─── Skills bundled per project type ─────────────────────────────────────────
 const TYPE_SKILLS = {
-  saas:        ['docx', 'pdf'],
+  saas:        ['docx', 'pdf', 'xlsx'],
   ecommerce:   ['docx', 'pdf'],
   marketplace: ['docx', 'pdf'],
   mobile:      ['mobile'],
@@ -51,7 +51,7 @@ const addMernScaffold = (folder, slug, projectTitle) => {
   // frontend
   const fe = folder.folder('frontend');
   const feSrc = fe.folder('src');
-  ['components', 'pages', 'hooks', 'services'].forEach(
+  ['components', 'pages', 'hooks', 'services', 'context', 'styles'].forEach(
     (d) => feSrc.folder(d).file('.gitkeep', '')
   );
 
@@ -90,6 +90,11 @@ const addAiScaffold = (folder, slug) => {
   // optional web frontend
   const fe = folder.folder('frontend');
   fe.folder('src').file('.gitkeep', '');
+  
+  const fePkg = readTemplate('vite-frontend-package.json')
+    .replace(/{project-name}/g, slug);
+  fe.file('package.json', fePkg);
+  fe.file('vite.config.js', `import { defineConfig } from 'vite';\nimport react from '@vitejs/plugin-react';\n\nexport default defineConfig({\n  plugins: [react()],\n});\n`);
 };
 
 // ─── Main export ──────────────────────────────────────────────────────────────
@@ -113,9 +118,26 @@ exports.generateZip = async (projectId, userId) => {
   // ── 2. Skills folder ────────────────────────────────────────────────────────
   const skillsFolder = zip.folder(`${slug}-skills`);
 
+  const extraSkills = TYPE_SKILLS[projectType] || [];
+  
+  const extraLabels = { 
+    docx: 'Word document generation', 
+    pdf: 'PDF document generation', 
+    xlsx: 'Excel spreadsheet generation', 
+    mobile: 'Flutter best practices', 
+    'claude-api': 'Anthropic Claude API usage' 
+  };
+  
+  let skillsList = '- `frontend-design/` — UI component patterns and design system rules\n- `skill-creator/` — How to create new skills for this project\n- `find-skills/` — How to discover and use skills effectively\n';
+  extraSkills.forEach(name => {
+    skillsList += `- \`${name}/\` — ${extraLabels[name] || name}\n`;
+  });
+
   const skillsReadme = readTemplate('skills-readme.md')
     .replace(/{Project Title}/g, project.title)
-    .replace(/{projectType}/g, projectType);
+    .replace(/{projectType}/g, projectType)
+    .replace(/{skillsList}/g, skillsList);
+    
   skillsFolder.file('SKILLS_README.md', skillsReadme);
 
   // Default 3 skills (always included)
@@ -124,7 +146,6 @@ exports.generateZip = async (projectId, userId) => {
   });
 
   // Project-type specific extra skills
-  const extraSkills = TYPE_SKILLS[projectType] || [];
   extraSkills.forEach((name) => {
     skillsFolder.folder(name).file('SKILL.md', readSkill(name));
   });
@@ -145,7 +166,7 @@ exports.generateZip = async (projectId, userId) => {
     addAiScaffold(projectFolder, slug);
   }
 
-  return await zip.generateAsync({ type: 'nodebuffer' });
+  return { buffer: await zip.generateAsync({ type: 'nodebuffer' }), slug };
 };
 
 // ─── PDF export (unchanged) ───────────────────────────────────────────────────
