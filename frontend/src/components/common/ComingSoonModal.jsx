@@ -20,17 +20,16 @@ const ComingSoonModal = ({ isOpen, onClose }) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 30 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative z-10 liquid-glass-strong rounded-[2.5rem] p-10 w-full max-w-md border border-white/10 overflow-hidden"
+            className="relative z-10 liquid-glass-strong rounded-[2.5rem] p-7 md:p-8 w-full max-w-md border border-white/10 overflow-hidden"
           >
             {/* Background Glow */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-48 h-48 bg-indigo-500/20 blur-[80px] rounded-full -z-1" />
 
             {/* Icon Header */}
-            <div className="flex justify-center mb-8">
+            <div className="flex justify-center mb-6">
               <div className="relative">
-                <div className="absolute inset-0 bg-white/20 blur-xl rounded-full" />
-                <div className="relative w-20 h-20 rounded-[2rem] liquid-glass flex items-center justify-center border border-white/10">
-                  <Sparkles className="w-10 h-10 text-white animate-pulse" />
+                <div className="relative w-16 h-16 rounded-[1.5rem] liquid-glass flex items-center justify-center border border-white/10">
+                  <Sparkles className="w-8 h-8 text-white animate-pulse" />
                 </div>
                 <div className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full liquid-glass-strong flex items-center justify-center border border-white/20">
                   <Calendar className="w-4 h-4 text-white/70" />
@@ -47,14 +46,14 @@ const ComingSoonModal = ({ isOpen, onClose }) => {
             </div>
 
             {/* Features Preview */}
-            <div className="mt-8 space-y-3">
+            <div className="mt-5 space-y-2">
               {[
                 "Unlimited Document Generation",
                 "Advanced AI Custom Models",
                 "Priority Export Options",
                 "Team Collaboration Tools"
               ].map((feat, i) => (
-                <div key={feat} className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white/5 border border-white/5">
+                <div key={feat} className="flex items-center gap-3 px-4 py-2 rounded-xl bg-white/5 border border-white/5">
                   <div className="w-1.5 h-1.5 rounded-full bg-white/40" />
                   <span className="text-sm text-white/70 font-medium">{feat}</span>
                 </div>
@@ -62,7 +61,7 @@ const ComingSoonModal = ({ isOpen, onClose }) => {
             </div>
 
             {/* Footer Buttons */}
-            <div className="mt-10 flex flex-col gap-3">
+            <div className="mt-6 flex flex-col gap-3">
               <button
                 onClick={onClose}
                 className="w-full liquid-glass-strong rounded-2xl py-4 text-sm text-white font-bold hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer border border-white/20 bg-white/5 hover:bg-white/10 shadow-lg shadow-black/20"

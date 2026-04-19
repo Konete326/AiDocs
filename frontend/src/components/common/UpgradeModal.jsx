@@ -31,7 +31,7 @@ const UpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="relative z-10 w-full max-w-md overflow-hidden"
           >
-            <div className="bg-black/90 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 p-8 md:p-10 text-center shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <div className="bg-black/90 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 p-6 md:p-8 text-center shadow-[0_0_50px_rgba(0,0,0,0.8)]">
               {/* Close Button */}
               <button 
                 onClick={onClose}
@@ -41,20 +41,20 @@ const UpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
               </button>
 
               {/* Icon */}
-              <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-white/20 to-transparent flex items-center justify-center mx-auto mb-6 shadow-xl border border-white/5">
-                <Crown className="w-8 h-8 text-white" />
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-white/20 to-transparent flex items-center justify-center mx-auto mb-4 shadow-xl border border-white/5">
+                <Crown className="w-6 h-6 text-white" />
               </div>
 
               {/* Header */}
               <h2 className="text-2xl font-semibold text-white mb-3">Unlock Pro Workspace</h2>
-              <p className="text-white/60 text-sm leading-relaxed mb-8">
+              <p className="text-white/60 text-sm leading-relaxed mb-6">
                 <SpecialText speed={12} delay={0.2} inView={true} className="text-white/60">
                   The advanced workspace is a Pro feature. Upgrade your plan to unlock AI collaboration and advanced tools.
                 </SpecialText>
               </p>
 
               {/* Features List */}
-              <ul className="space-y-3 mb-10 text-left bg-white/5 p-6 rounded-2xl border border-white/5">
+              <ul className="space-y-2 mb-6 text-left bg-white/5 p-4 rounded-xl border border-white/5">
                 {features.map((feat, i) => (
                   <li key={i} className="flex items-center gap-3 text-sm text-white/80">
                     <div className="w-5 h-5 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
