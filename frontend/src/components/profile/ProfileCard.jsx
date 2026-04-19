@@ -58,22 +58,40 @@ const ProfileCard = ({
       <ProfileInfoLinks user={user} subscription={subscription} memberSince={memberSince} />
 
       {!isEditing && (
-        <div className="mt-8 w-full pt-8 border-t border-white/5 space-y-3">
-          <button 
-            onClick={onResetPassword}
-            className="w-full liquid-glass rounded-2xl px-4 py-3 flex items-center gap-3 text-white/70 hover:text-white hover:bg-white/5 transition-all active:scale-95 cursor-pointer"
-          >
-            <KeyRound className="w-5 h-5 opacity-70" />
-            <span className="text-sm font-medium">Reset Password</span>
-          </button>
-          
-          <button 
-            onClick={onLogout}
-            className="w-full liquid-glass rounded-2xl px-4 py-3 flex items-center gap-3 text-red-400/60 hover:text-red-400 hover:bg-red-400/5 transition-all active:scale-95 cursor-pointer"
-          >
-            <LogOut className="w-5 h-5 opacity-70" />
-            <span className="text-sm font-medium">Logout Account</span>
-          </button>
+        <div className="w-full mt-6 space-y-6">
+          {/* Current Plan Section */}
+          <div className="liquid-glass rounded-3xl p-6 border border-white/5 bg-white/[0.01]">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-col">
+                <span className="text-[10px] uppercase tracking-widest text-white/30 mb-1">Current Plan</span>
+                <span className="text-xl font-semibold text-white capitalize">{subscription?.plan || 'Free'}</span>
+              </div>
+              <div className="liquid-glass-strong rounded-full px-3 py-1 text-[10px] text-blue-400 font-bold border border-blue-500/20">
+                ACTIVE
+              </div>
+            </div>
+            <p className="text-xs text-white/40 font-light">
+              Your active subscription tier.
+            </p>
+          </div>
+
+          <div className="pt-2 space-y-3">
+            <button 
+              onClick={onResetPassword}
+              className="w-full liquid-glass rounded-2xl px-4 py-3 flex items-center gap-3 text-white/70 hover:text-white hover:bg-white/5 transition-all active:scale-95 cursor-pointer"
+            >
+              <KeyRound className="w-5 h-5 opacity-70" />
+              <span className="text-sm font-medium">Reset Password</span>
+            </button>
+            
+            <button 
+              onClick={onLogout}
+              className="w-full liquid-glass rounded-2xl px-4 py-3 flex items-center gap-3 text-red-400/60 hover:text-red-400 hover:bg-red-400/5 transition-all active:scale-95 cursor-pointer"
+            >
+              <LogOut className="w-5 h-5 opacity-70" />
+              <span className="text-sm font-medium">Logout Account</span>
+            </button>
+          </div>
         </div>
       )}
     </div>

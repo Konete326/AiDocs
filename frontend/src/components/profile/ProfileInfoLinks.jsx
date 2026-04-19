@@ -9,8 +9,6 @@ const ProfileInfoLinks = ({ user, subscription, memberSince }) => {
   const links = [
     { icon: Calendar, label: 'Member Since', value: memberSince },
     { icon: Mail, label: 'Email', value: user?.email },
-    { icon: CreditCard, label: 'Subscription', value: plan.charAt(0).toUpperCase() + plan.slice(1) },
-    { icon: FileText, label: 'Projects Allowed', value: docsRemaining },
   ];
 
   return (
