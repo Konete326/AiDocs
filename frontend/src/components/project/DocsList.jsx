@@ -12,11 +12,13 @@ const DOC_LABELS = {
   folderStructure: 'Folder Structure',
   claudeContext: 'Claude Context',
   agentSystemPrompt: 'Agent Prompts',
+  skills: 'Project Skills',
+  rules: 'Agent Rules',
 };
 
 const DOC_ORDER = [
   'prd','srd','techStack','dbSchema','userFlows',
-  'mvpPlan','folderStructure','claudeContext','agentSystemPrompt'
+  'mvpPlan','folderStructure','claudeContext','agentSystemPrompt', 'skills', 'rules'
 ];
 
 const DocsList = ({ documents, selectedDoc, onSelect, isGenerating, projectId, skills, onSkillsUpdate }) => (

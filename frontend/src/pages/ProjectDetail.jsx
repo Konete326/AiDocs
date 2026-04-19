@@ -11,6 +11,7 @@ import ErrorState from '../components/project/ErrorState';
 import DocumentViewer from '../components/project/DocumentViewer';
 import ProjectInfoPanel from '../components/project/ProjectInfoPanel';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import { AGENT_RULES_CONTENT } from '../constants/agentRules';
 
 const ProjectDetail = () => {
   const { id } = useParams();
@@ -51,6 +52,9 @@ const ProjectDetail = () => {
       list.push({ docType: 'skills', content: '# Project Skills\n\nNo skills added yet.', version: '1.0' });
     }
     
+    // Virtual Rules Doc
+    list.push({ docType: 'rules', content: AGENT_RULES_CONTENT, version: '1.0' });
+
     return list;
   }, [documents, skills, project?.title]);
 
