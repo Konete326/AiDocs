@@ -24,7 +24,7 @@ const ProjectInfoPanel = ({ project, subscription, documents }) => {
           <span className="text-4xl font-semibold text-white tracking-tight">Technical Data</span>
         </div>
         <div className="text-sm text-white/60 font-light leading-relaxed mb-6">
-          <SpecialText speed={10} delay={0.2} inView={true} className="text-white/60">
+          <SpecialText speed={10} delay={0.2} inView={false} className="text-white/60">
             Aggregated insights based on your wizard input. Use these parameters to guide your final project implementation.
           </SpecialText>
         </div>
