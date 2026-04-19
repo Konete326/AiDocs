@@ -2,6 +2,7 @@ import { LogOut, KeyRound } from 'lucide-react';
 import UserAvatar from '../common/UserAvatar';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ProfileInfoLinks from './ProfileInfoLinks';
+import { SpecialText } from '../ui/SpecialText';
 
 const ProfileCard = ({ 
   user, subscription, memberSince, isEditing, editData, onChange, onSave, onCancel, 
@@ -40,7 +41,16 @@ const ProfileCard = ({
         ) : (
           <>
             <h3 className="text-2xl font-medium text-white">{user?.displayName || 'User'}</h3>
-            <p className="text-xs uppercase tracking-[0.35em] text-white/45 mt-1">SwiftDocs AI Member</p>
+            <div className="mt-1">
+              <SpecialText 
+                inView={true} 
+                speed={20} 
+                delay={0.5} 
+                className="text-[10px] uppercase tracking-[0.35em] text-white/45"
+              >
+                SwiftDocs AI Member
+              </SpecialText>
+            </div>
           </>
         )}
       </div>
