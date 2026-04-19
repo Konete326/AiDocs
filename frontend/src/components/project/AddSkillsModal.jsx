@@ -4,17 +4,21 @@ import { X, Search, Check, Plus, Loader2 } from 'lucide-react';
 import { getAllSkills, toggleProjectSkill } from '../../services/skillsService';
 import { toast } from 'react-hot-toast';
 
-const AddSkillsModal = ({ isOpen, onClose, projectId, currentSkills = [] }) => {
+const AddSkillsModal = ({ isOpen, onClose, projectId, currentSkills = [], onToggleSuccess }) => {
   const [allSkills, setAllSkills] = useState([]);
   const [search, setSearch] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [togglingId, setTogglingId] = useState(null);
+  
+  // Local state to track added skills for instant UI feedback (tick marks)
+  const [localAddedIds, setLocalAddedIds] = useState(currentSkills);
 
   useEffect(() => {
     if (isOpen) {
       loadAllSkills();
+      setLocalAddedIds(currentSkills);
     }
-  }, [isOpen]);
+  }, [isOpen, currentSkills]);
 
   const loadAllSkills = async () => {
     setIsLoading(true);
@@ -30,11 +34,26 @@ const AddSkillsModal = ({ isOpen, onClose, projectId, currentSkills = [] }) => {
 
   const handleToggle = async (skillId) => {
     setTogglingId(skillId);
+    
+    // Optimistic UI update
+    const wasAdded = localAddedIds.includes(skillId);
+    if (wasAdded) {
+      setLocalAddedIds(prev => prev.filter(id => id !== skillId));
+    } else {
+      setLocalAddedIds(prev => [...prev, skillId]);
+    }
+
     try {
       await toggleProjectSkill(projectId, skillId);
-      toast.success('Skill updated');
-      // No need to reload allSkills, parent will reload current active skills
+      toast.success(wasAdded ? 'Skill removed' : 'Skill added');
+      
+      // Notify parent to refresh main list & documentation
+      if (onToggleSuccess) {
+        onToggleSuccess();
+      }
     } catch {
+      // Revert on failure
+      setLocalAddedIds(currentSkills);
       toast.error('Failed to update skill');
     } finally {
       setTogglingId(null);
@@ -110,7 +129,7 @@ const AddSkillsModal = ({ isOpen, onClose, projectId, currentSkills = [] }) => {
             ) : (
               <div className="grid grid-cols-1 gap-3">
                 {filtered.map((skill) => {
-                  const isAdded = currentSkills.includes(skill.id);
+                  const isAdded = localAddedIds.includes(skill.id);
                   return (
                     <div 
                       key={skill.id}
@@ -121,9 +140,13 @@ const AddSkillsModal = ({ isOpen, onClose, projectId, currentSkills = [] }) => {
                         <div className="flex items-center gap-2 mb-1">
                           <h4 className="text-sm font-semibold text-white truncate">{skill.name}</h4>
                           {isAdded && (
-                            <span className="text-[9px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded-full uppercase tracking-wider font-bold">
+                            <motion.span 
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="text-[9px] bg-blue-500/20 text-blue-400 px-1.5 py-0.5 rounded-full uppercase tracking-wider font-bold"
+                            >
                               Added
-                            </span>
+                            </motion.span>
                           )}
                         </div>
                         <p className="text-xs text-white/40 leading-relaxed line-clamp-2">

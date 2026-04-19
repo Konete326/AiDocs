@@ -20,7 +20,7 @@ const DOC_ORDER = [
   'mvpPlan','folderStructure','claudeContext','agentSystemPrompt', 'skills'
 ];
 
-const DocsList = ({ documents, selectedDoc, onSelect, isGenerating, projectId }) => (
+const DocsList = ({ documents, selectedDoc, onSelect, isGenerating, projectId, skills, onSkillsUpdate }) => (
   <div className="liquid-glass rounded-3xl p-6 flex flex-col lg:space-y-2 h-full border border-white/5" style={{ willChange: 'transform' }}>
     <div className="flex items-center justify-between px-2 mb-3 lg:mb-1">
       <span className="text-xs uppercase tracking-widest text-white/50">Documents</span>
@@ -69,7 +69,7 @@ const DocsList = ({ documents, selectedDoc, onSelect, isGenerating, projectId })
 
     <div className="h-px bg-white/5 my-2" />
     <div className="flex flex-col gap-2">
-      <SkillsList projectId={projectId} />
+      <SkillsList projectId={projectId} initialSkills={skills} onSkillsUpdate={onSkillsUpdate} />
     </div>
   </div>
 );

@@ -14,29 +14,26 @@ const CATEGORIES = [
   { id: 'cloud', name: 'Cloud', icon: Cloud },
 ];
 
-const SkillsList = ({ projectId }) => {
-  const [skills, setSkills] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+const SkillsList = ({ projectId, initialSkills = [], onSkillsUpdate }) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
   const [skillToToggle, setSkillToToggle] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
 
+  // Sync skills from props
+  const skills = initialSkills;
+
   const loadSkills = async () => {
+    // We only call this to refresh the parent's state
     try {
       const data = await getProjectSkills(projectId);
-      setSkills(data || []);
+      if (onSkillsUpdate) onSkillsUpdate(data || []);
     } catch (err) {
       console.error('Failed to load skills');
-    } finally {
-      setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    loadSkills();
-  }, [projectId]);
 
   const handleToggle = async () => {
     if (!skillToToggle) return;
@@ -218,6 +215,7 @@ const SkillsList = ({ projectId }) => {
         }} 
         projectId={projectId}
         currentSkills={skills.map(s => s.id)}
+        onToggleSuccess={loadSkills}
       />
     </div>
   );

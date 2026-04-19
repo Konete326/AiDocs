@@ -147,6 +147,8 @@ const ProjectDetail = () => {
                 onSelect={handleDocSelect}
                 isGenerating={isGenerating}
                 projectId={id}
+                skills={skills}
+                onSkillsUpdate={setSkills}
               />
             </div>
 
