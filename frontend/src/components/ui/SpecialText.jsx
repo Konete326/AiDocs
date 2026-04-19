@@ -20,7 +20,7 @@ export function SpecialText({
   once = true,
 }) {
   const containerRef = useRef(null);
-  const isInView = useInView(containerRef, { once, margin: "-100px" });
+  const isInView = useInView(containerRef, { once, margin: "0px" });
   const shouldAnimate = inView ? isInView : true;
   const [hasStarted, setHasStarted] = useState(() => !inView && delay <= 0);
   const text = children || "";
