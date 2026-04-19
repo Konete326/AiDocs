@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Search, Plus, Trash2, Library, Terminal, Code, Cpu, Layout, Cloud, Smartphone } from 'lucide-react';
+import { Search, Plus, Trash2, Library, Terminal, Copy, Cpu, Layout, Cloud, Smartphone, Check } from 'lucide-react';
 import { getProjectSkills, toggleProjectSkill } from '../../services/skillsService';
 import { toast } from 'react-hot-toast';
 import AddSkillsModal from './AddSkillsModal';
@@ -8,7 +8,7 @@ import ConfirmModal from '../common/ConfirmModal';
 const CATEGORIES = [
   { id: 'all', name: 'All', icon: Library },
   { id: 'core', name: 'Core', icon: Cpu },
-  { id: 'mern', name: 'MERN', icon: Code },
+  { id: 'mern', name: 'MERN', icon: Smartphone },
   { id: 'ui', name: 'UI/UX', icon: Layout },
   { id: 'ai', name: 'AI', icon: Cpu },
   { id: 'cloud', name: 'Cloud', icon: Cloud },
@@ -21,6 +21,7 @@ const SkillsList = ({ projectId }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
   const [skillToToggle, setSkillToToggle] = useState(null);
+  const [copiedId, setCopiedId] = useState(null);
 
   const loadSkills = async () => {
     try {
@@ -53,20 +54,18 @@ const SkillsList = ({ projectId }) => {
   const filteredSkills = useMemo(() => {
     let result = skills;
 
-    // 1. Filter by category
     if (activeCategory !== 'all') {
       result = result.filter(s => {
         const id = s.id.toLowerCase();
         if (activeCategory === 'mern') return id.includes('mern') || id.includes('node') || id.includes('mongo') || id.includes('express');
         if (activeCategory === 'ui') return id.includes('design') || id.includes('ui') || id.includes('ux') || id.includes('tailwind');
-        if (activeCategory === 'ai') return id.includes('ai') || id.includes('agent') || id.includes('claude');
+        if (activeCategory === 'ai') return id.includes('ai') || id.includes('agent') || id.includes('claude') || id.includes('soultrace');
         if (activeCategory === 'cloud') return id.includes('deploy') || id.includes('azure') || id.includes('vercel') || id.includes('firebase');
         if (activeCategory === 'core') return id.includes('clean') || id.includes('skill-creator') || id.includes('typescript') || id.includes('structure');
         return true;
       });
     }
 
-    // 2. Filter by search
     if (searchQuery) {
       result = result.filter(skill => 
         skill.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -77,11 +76,17 @@ const SkillsList = ({ projectId }) => {
     return result;
   }, [skills, searchQuery, activeCategory]);
 
+  const handleCopy = (skill) => {
+    navigator.clipboard.writeText(skill.command);
+    setCopiedId(skill.id);
+    toast.success('Command copied');
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   if (isLoading) return <div className="text-white/20 text-xs p-4">Loading skills...</div>;
 
   return (
     <div className="flex flex-col h-full max-h-[calc(100vh-200px)]">
-      {/* Header & Stats */}
       <div className="flex items-center justify-between px-1 mb-4">
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-semibold text-white/90">Project Skills</h3>
@@ -98,7 +103,6 @@ const SkillsList = ({ projectId }) => {
         </button>
       </div>
 
-      {/* Terminal Search */}
       <div className="relative group mb-4">
         <Terminal className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/30 group-focus-within:text-blue-400 transition-colors" />
         <input 
@@ -110,7 +114,6 @@ const SkillsList = ({ projectId }) => {
         />
       </div>
 
-      {/* Category Tabs */}
       <div className="flex items-center gap-1 overflow-x-auto pb-2 scrollbar-none mb-2">
         {CATEGORIES.map((cat) => (
           <button
@@ -129,7 +132,6 @@ const SkillsList = ({ projectId }) => {
         ))}
       </div>
 
-      {/* Compact Skill Cards Wrapper */}
       <div className="flex-1 overflow-y-auto pr-1 space-y-2 custom-scrollbar min-h-0">
         {filteredSkills.length > 0 ? (
           filteredSkills.map((skill) => (
@@ -151,14 +153,15 @@ const SkillsList = ({ projectId }) => {
                   
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button 
-                      onClick={() => {
-                        navigator.clipboard.writeText(skill.command);
-                        toast.success('Command copied');
-                      }}
+                      onClick={() => handleCopy(skill)}
                       className="p-1.5 hover:bg-white/10 rounded-lg text-white/40 hover:text-blue-400 transition-all"
                       title="Copy npx command"
                     >
-                      <Code className="w-3.5 h-3.5" />
+                      {copiedId === skill.id ? (
+                        <Check className="w-3.5 h-3.5 text-green-400" />
+                      ) : (
+                        <Copy className="w-3.5 h-3.5" />
+                      )}
                     </button>
                     <button 
                       onClick={() => setSkillToToggle(skill)}
@@ -170,9 +173,8 @@ const SkillsList = ({ projectId }) => {
                   </div>
                 </div>
 
-                {/* Secret command hint inside card */}
                 <div className="mt-2 h-0 group-hover:h-auto overflow-hidden transition-all border-t border-white/5 pt-2">
-                  <div className="bg-black/40 rounded-lg py-1.5 px-2.5 flex items-center justify-between gap-2 overflow-hidden">
+                  <div className="bg-black/40 rounded-lg py-1.5 px-2.5 flex items-center justify-between gap-2 overflow-hidden border border-white/5">
                     <code className="text-[9px] text-blue-300 font-mono truncate">{skill.command}</code>
                     <div className="text-[8px] text-white/20 font-mono uppercase tracking-widest shrink-0">Terminal Ready</div>
                   </div>
@@ -188,11 +190,10 @@ const SkillsList = ({ projectId }) => {
         )}
       </div>
 
-      {/* FOOTER ACTION */}
       <div className="mt-4 pt-4 border-t border-white/5">
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="w-full py-3 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-2xl text-[11px] font-semibold text-blue-400 flex items-center justify-center gap-2 transition-all group"
+          className="w-full py-3 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-2xl text-[11px] font-semibold text-blue-400 flex items-center justify-center gap-2 transition-all group shadow-lg"
         >
           <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
           Add More Skills
