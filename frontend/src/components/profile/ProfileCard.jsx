@@ -75,20 +75,20 @@ const ProfileCard = ({
             </p>
           </div>
 
-          <div className="pt-2 space-y-3">
+          <div className="pt-2 flex flex-col items-start gap-4">
             <button 
               onClick={onResetPassword}
-              className="w-full liquid-glass rounded-2xl px-4 py-3 flex items-center gap-3 text-white/70 hover:text-white hover:bg-white/5 transition-all active:scale-95 cursor-pointer"
+              className="liquid-glass rounded-2xl px-6 py-3 flex items-center gap-3 text-white/70 hover:text-white hover:bg-white/5 transition-all active:scale-95 cursor-pointer whitespace-nowrap"
             >
-              <KeyRound className="w-5 h-5 opacity-70" />
+              <KeyRound className="w-4 h-4 opacity-70" />
               <span className="text-sm font-medium">Reset Password</span>
             </button>
             
             <button 
               onClick={onLogout}
-              className="w-full liquid-glass rounded-2xl px-4 py-3 flex items-center gap-3 text-red-400/60 hover:text-red-400 hover:bg-red-400/5 transition-all active:scale-95 cursor-pointer"
+              className="liquid-glass rounded-2xl px-6 py-3 flex items-center gap-3 text-red-400/60 hover:text-red-400 hover:bg-red-400/5 transition-all active:scale-95 cursor-pointer whitespace-nowrap"
             >
-              <LogOut className="w-5 h-5 opacity-70" />
+              <LogOut className="w-4 h-4 opacity-70" />
               <span className="text-sm font-medium">Logout Account</span>
             </button>
           </div>
