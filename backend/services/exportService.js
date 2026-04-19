@@ -154,9 +154,11 @@ exports.generateZip = async (projectId, userId) => {
   const projectFolder = zip.folder(`${slug}-project`);
 
   const readmeContent = readTemplate('project-readme.md')
-    .replace(/{Project Title}/g, project.title)
-    .replace(/{title}/g, slug)
-    .replace(/{project_name}/g, slug.replace(/-/g, '_'));
+    .replace(/\{Project Title\}/gi, project.title)
+    .replace(/\{project_title\}/gi, project.title)
+    .replace(/\{title\}/g, slug)
+    .replace(/\{project_name\}/g, slug)
+    .replace(/\{projectType\}/g, project.projectType || 'other');
   projectFolder.file('README.md', readmeContent);
 
   if (['saas', 'ecommerce', 'marketplace', 'other'].includes(projectType)) {
@@ -166,6 +168,16 @@ exports.generateZip = async (projectId, userId) => {
   } else if (projectType === 'ai') {
     addAiScaffold(projectFolder, slug);
   }
+
+  let rulesContent = '';
+  try {
+    const rulesPath = path.join(__dirname, '../../AGENT_RULES.md');
+    rulesContent = fs.readFileSync(rulesPath, 'utf-8');
+    rulesContent = rulesContent.replace(/\[date of project generation\]/g, new Date().toLocaleDateString());
+  } catch (err) {
+    rulesContent = '# Agent Rules\nSee swiftdocsai.vercel.app for agent rules.';
+  }
+  zip.file('AGENT_RULES.md', rulesContent);
 
   return { buffer: await zip.generateAsync({ type: 'nodebuffer' }), slug };
 };

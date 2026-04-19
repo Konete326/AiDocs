@@ -24,7 +24,9 @@ module.exports = (wizardAnswers, context) => {
     scaffoldCommands = `# Backend\nmkdir -p backend/src/{controllers,models,routes,middleware,services,utils}\ncd backend && npm init -y && npm install express@latest mongoose@latest dotenv@latest bcryptjs@latest jsonwebtoken@latest cors@latest helmet@latest\nnpm install -D nodemon@latest\n\n# Frontend\nnpm create vite@latest frontend -- --template react\ncd frontend && npm install\nnpm install react-router-dom@latest axios@latest`;
   }
 
-  return `You are an expert AI systems architect. Generate a concise AI Agent System Prompt in raw Markdown format. No preamble, no code block fences.
+  return `Before starting work, read AGENT_RULES.md in the project root. It contains rules that apply to all work on this project.
+
+You are an expert AI systems architect. Generate a concise AI Agent System Prompt in raw Markdown format. No preamble, no code block fences.
 
 ## Project Info
 ${JSON.stringify(wizardAnswers, null, 2)}
@@ -48,6 +50,8 @@ npx skills add https://github.com/anthropics/skills --skill frontend-design
 npx skills add https://github.com/anthropics/skills --skill skill-creator
 npx skills add https://github.com/vercel-labs/skills --skill find-skills
 ${skillCommands}\`\`\`
+
+Note: The SwiftDocs AI platform shows all available skills in the project sidebar under the Skills section. You can copy the install commands directly from there.
 
 ### Step 2 — Scaffold Project with Commands
 Never create files manually. Use CLI commands:

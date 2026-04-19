@@ -8,7 +8,12 @@
 Run these commands FIRST before doing anything else:
 Skills teach your AI agent how to work on this project.
 
-(skills commands will be listed here based on project type)
+```bash
+npx skills add https://github.com/anthropics/skills --skill frontend-design
+npx skills add https://github.com/anthropics/skills --skill skill-creator
+npx skills add https://github.com/vercel-labs/skills --skill find-skills
+# Additional skills based on your project type (see {title}-skills/ folder)
+```
 
 **Step 2: Scaffold the Project**
 Create the project using CLI commands — never create files manually:
