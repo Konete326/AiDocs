@@ -1147,3 +1147,12 @@ The ZIP export system was completely overhauled to produce a 3-folder structure 
     *   `frontend/src/pages/ProjectDetail.jsx` passed down the necessary `projectId={id}` property ensuring everything links perfectly to dynamic states.
 
 *Status: Implemented & Confirmed.*
+
+ 
+ # #   A g e n t   R u l e s   I m p l e m e n t a t i o n   ( P o s t   S p r i n t ) 
+ *       C r e a t e d   A G E N T _ R U L E S . m d   i n   t h e   p r o j e c t   r o o t   c o n t a i n i n g   s t r i c t   g u i d e l i n e s   f o r   A I   a g e n t s   w o r k i n g   o n   S w i f t D o c s   g e n e r a t e d   c o d e b a s e s . 
+ *       U p d a t e d    a c k e n d / s e r v i c e s / e x p o r t S e r v i c e . j s   t o   e n s u r e   \ A G E N T _ R U L E S . m d \   i s   i n j e c t e d   a t   t h e   r o o t   o f   t h e   e x p o r t e d   z i p . 
+ *       U p d a t e d   \  a c k e n d / d a t a / t e m p l a t e s / p r o j e c t - r e a d m e . m d \   t o   f i x   p l a c e h o l d e r   b u g s   a n d   i n c l u d e   s t a n d a r d   s k i l l   c o m m a n d s . 
+ *       U p d a t e d   \  a c k e n d / p r o m p t s / a g e n t S y s t e m P r o m p t . j s \   t o   r e f e r e n c e   \ A G E N T _ R U L E S . m d \   u p f r o n t   a n d   c o r r e c t   d u p l i c a t e   s e c t i o n s . 
+  
+ 
