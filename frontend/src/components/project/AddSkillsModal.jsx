@@ -75,7 +75,7 @@ const AddSkillsModal = ({ isOpen, onClose, projectId, currentSkills = [] }) => {
             </div>
             <button 
               onClick={onClose}
-              className="p-2 hover:bg-white/5 rounded-full text-white/40 hover:text-white transition-colors"
+              className="p-2 hover:bg-white/5 rounded-full text-white/40 hover:text-white transition-colors cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -167,7 +167,7 @@ const AddSkillsModal = ({ isOpen, onClose, projectId, currentSkills = [] }) => {
             </span>
             <button 
               onClick={onClose}
-              className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white text-xs font-medium rounded-xl transition-all"
+              className="px-6 py-2.5 bg-white/5 hover:bg-white/10 text-white text-xs font-medium rounded-xl transition-all cursor-pointer"
             >
               Done
             </button>

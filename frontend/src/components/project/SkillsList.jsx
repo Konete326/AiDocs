@@ -96,7 +96,7 @@ const SkillsList = ({ projectId }) => {
         </div>
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] text-white/60 hover:text-white transition-all border border-white/5"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] text-white/60 hover:text-white transition-all border border-white/5 cursor-pointer"
         >
           <Library className="w-3 h-3" />
           Browse Library
@@ -120,7 +120,7 @@ const SkillsList = ({ projectId }) => {
             key={cat.id}
             onClick={() => setActiveCategory(cat.id)}
             className={`
-              flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] whitespace-nowrap transition-all border
+              flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] whitespace-nowrap transition-all border cursor-pointer
               ${activeCategory === cat.id 
                 ? 'bg-blue-500/20 border-blue-500/30 text-blue-400' 
                 : 'bg-white/5 border-transparent text-white/40 hover:bg-white/10'}
@@ -154,7 +154,7 @@ const SkillsList = ({ projectId }) => {
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button 
                       onClick={() => handleCopy(skill)}
-                      className="p-1.5 hover:bg-white/10 rounded-lg text-white/40 hover:text-blue-400 transition-all"
+                      className="p-1.5 hover:bg-white/10 rounded-lg text-white/40 hover:text-blue-400 transition-all cursor-pointer"
                       title="Copy npx command"
                     >
                       {copiedId === skill.id ? (
@@ -165,7 +165,7 @@ const SkillsList = ({ projectId }) => {
                     </button>
                     <button 
                       onClick={() => setSkillToToggle(skill)}
-                      className="p-1.5 hover:bg-red-500/20 rounded-lg text-white/20 hover:text-red-400 transition-all"
+                      className="p-1.5 hover:bg-red-500/20 rounded-lg text-white/20 hover:text-red-400 transition-all cursor-pointer"
                       title="Delete Skill"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -193,7 +193,7 @@ const SkillsList = ({ projectId }) => {
       <div className="mt-4 pt-4 border-t border-white/5">
         <button 
           onClick={() => setIsModalOpen(true)}
-          className="w-full py-3 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-2xl text-[11px] font-semibold text-blue-400 flex items-center justify-center gap-2 transition-all group shadow-lg"
+          className="w-full py-3 bg-blue-500/10 hover:bg-blue-500/20 border border-blue-500/20 rounded-2xl text-[11px] font-semibold text-blue-400 flex items-center justify-center gap-2 transition-all group shadow-lg cursor-pointer"
         >
           <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform" />
           Add More Skills
