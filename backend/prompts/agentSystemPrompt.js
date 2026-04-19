@@ -24,7 +24,12 @@ module.exports = (wizardAnswers, context) => {
     scaffoldCommands = `# Backend\nmkdir -p backend/src/{controllers,models,routes,middleware,services,utils}\ncd backend && npm init -y && npm install express@latest mongoose@latest dotenv@latest bcryptjs@latest jsonwebtoken@latest cors@latest helmet@latest\nnpm install -D nodemon@latest\n\n# Frontend\nnpm create vite@latest frontend -- --template react\ncd frontend && npm install\nnpm install react-router-dom@latest axios@latest`;
   }
 
-  return `Before starting work, read AGENT_RULES.md in the project root. It contains rules that apply to all work on this project.
+  return `# Agent System Prompts — ${wizardAnswers?.projectName || 'Project'}
+
+> Before doing anything else, read AGENT_RULES.md in the project root.
+> All rules in that file apply to this project.
+
+---
 
 You are an expert AI systems architect. Generate a concise AI Agent System Prompt in raw Markdown format. No preamble, no code block fences.
 
