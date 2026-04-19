@@ -60,14 +60,12 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// 2. Helmet with Cross-Origin support
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
 
 app.use(morgan('dev'));
 
-// Static files and logs
 const subscriptionController = require('./controllers/subscriptionController');
 app.use('/api/subscriptions/webhook', express.raw({ type: 'application/json' }), subscriptionController.handleWebhook);
 
@@ -76,19 +74,18 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 app.use('/api', apiLimiter);
 
-
-// Trust proxy for Vercel/proxies
 app.set('trust proxy', 1);
 
-// Health check
 app.get('/', (req, res) => {
   res.status(200).json({ status: 'active', message: 'SwiftDocs AI API is running' });
 });
 
-// Routes
+// CRITICAL: Mount skillsRoutes BEFORE projectRoutes to avoid /library being caught by /:id
+app.use('/api/projects', require('./routes/skillsRoutes'));
+app.use('/api/projects', projectRoutes);
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/projects', projectRoutes);
 app.use('/api/projects/:projectId/documents', documentRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/notifications', notificationRoutes);
@@ -96,19 +93,15 @@ app.use('/api', chatRoutes);
 app.use('/api', exportRoutes);
 app.use('/api/feedback', feedbackRoutes);
 app.use('/api', suggestionRoutes);
-app.use('/api/projects', require('./routes/skillsRoutes'));
 
-// 404 handler
 app.use((req, res, next) => {
   res.status(404).json({ success: false, error: 'Route not found' });
 });
 
-// Global Error Handler
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-// Only listen if not in a serverless environment (optional for local)
 if (process.env.NODE_ENV !== 'production') {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
