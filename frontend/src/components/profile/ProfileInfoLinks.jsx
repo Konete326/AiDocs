@@ -3,7 +3,8 @@ import { ArrowUpRight, Mail, Calendar, CreditCard, FileText } from 'lucide-react
 
 const ProfileInfoLinks = ({ user, subscription, memberSince }) => {
   const plan = subscription?.plan || 'free';
-  const docsRemaining = plan === 'free' ? '1 project' : 'Unlimited';
+  const limit = subscription?.projectLimit || (plan === 'free' ? 3 : plan === 'pro' ? 10 : 999999);
+  const docsRemaining = limit > 1000 ? 'Unlimited' : `${limit} Projects`;
 
   const links = [
     { icon: Calendar, label: 'Member Since', value: memberSince },
