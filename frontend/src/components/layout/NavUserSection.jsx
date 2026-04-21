@@ -47,7 +47,7 @@ const NavUserSection = () => {
         className="cursor-pointer hover:scale-105 transition-transform"
       />
       <button 
-        onClick={() => navigate('/profile')}
+        onClick={() => navigate('/settings')}
         className="liquid-glass rounded-full w-9 h-9 flex items-center justify-center transition-all hover:scale-110 hover:text-white group border-none outline-none cursor-pointer"
         title="Settings"
       >

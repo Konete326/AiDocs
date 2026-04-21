@@ -47,7 +47,7 @@ const NavMobileMenu = ({ isOpen, onClose }) => {
         { label: 'Workspace', href: '/dashboard', icon: Briefcase, isProtected: true },
         { label: 'Pricing', href: '/pricing', icon: CreditCard },
         { label: 'Profile', href: '/profile', icon: User },
-        { label: 'Settings', href: '/profile', icon: Settings },
+        { label: 'Settings', href: '/settings', icon: Settings },
         { label: 'Logout', action: logout, icon: LogOut, danger: true },
       ]
     : [

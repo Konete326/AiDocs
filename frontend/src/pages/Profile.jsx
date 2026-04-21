@@ -1,12 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { Pencil, ChevronLeft } from 'lucide-react';
+import { Pencil, ChevronLeft, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useProfileFetch } from '../hooks/useProfileFetch';
 import GlassCard from '../components/common/GlassCard';
 import ProfileHeader from '../components/profile/ProfileHeader';
 import StatsGrid from '../components/profile/StatsGrid';
 import ProfileCard from '../components/profile/ProfileCard';
-import SettingsSection from '../components/profile/SettingsSection';
 import { useAuth } from '../context/AuthContext';
 
 
@@ -77,7 +76,15 @@ const Profile = () => {
             </div>
           </div>
 
-          <SettingsSection />
+          <div className="mt-12 flex justify-center border-t border-white/5 pt-8">
+            <button 
+              onClick={() => navigate('/settings')}
+              className="liquid-glass rounded-2xl px-6 py-4 flex items-center gap-3 hover:scale-[1.02] active:scale-95 transition-all text-white/80 hover:text-white border border-white/5 hover:border-white/20 w-full sm:w-auto"
+            >
+              <Settings className="w-5 h-5 text-blue-400" />
+              <span className="font-medium">Open Settings Configuration</span>
+            </button>
+          </div>
         </GlassCard>
       </div>
     </section>

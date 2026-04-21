@@ -7,6 +7,7 @@ import ForgotPassword from '../pages/ForgotPassword';
 import ResetPassword from '../pages/ResetPassword';
 import Dashboard from '../pages/Dashboard';
 import Profile from '../pages/Profile';
+import Settings from '../pages/Settings';
 import CreateProject from '../pages/CreateProject';
 import ProjectDetail from '../pages/ProjectDetail';
 import Pricing from '../pages/Pricing';
@@ -35,6 +36,7 @@ export default function AppRoutes() {
       <Route element={<PrivateRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/settings" element={<Settings />} />
         <Route path="/projects/new" element={<CreateProject />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
         <Route path="/projects/:id/workspace" element={<Workspace />} />
