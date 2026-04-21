@@ -7,15 +7,22 @@ import BiomeMenu from '../common/BiomeMenu';
 import UserAvatar from '../common/UserAvatar';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../notifications/NotificationBell';
+import ConfirmModal from '../common/ConfirmModal';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
   const { isAuthenticated, user, logout } = useAuth();
 
-  const handleLogout = async () => {
-    await logout();
+  const handleLogoutClick = () => {
     setIsOpen(false);
+    setShowLogoutConfirm(true);
+  };
+
+  const onConfirmLogout = async () => {
+    await logout();
+    setShowLogoutConfirm(false);
     navigate('/');
   };
 
@@ -24,7 +31,7 @@ const Navbar = () => {
         { title: "Dashboard", href: "/dashboard", icon: <Layout className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/dashboard'); } },
         { title: "Pricing", href: "/pricing", icon: <CreditCard className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/pricing'); } },
         { title: "Profile", href: "/profile", icon: <User className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/profile'); } },
-        { title: "Logout", icon: <LogOut className="w-4 h-4 text-white" />, onClick: handleLogout },
+        { title: "Logout", icon: <LogOut className="w-4 h-4 text-white" />, onClick: handleLogoutClick },
       ]
     : [
         { title: "Sign In", href: "/login", icon: <LogIn className="w-4 h-4 text-white" />, onClick: () => { setIsOpen(false); navigate('/login'); } },
@@ -62,6 +69,16 @@ const Navbar = () => {
         isOpen={isOpen} 
         onClose={() => setIsOpen(false)}
         items={navItems}
+      />
+
+      <ConfirmModal
+        isOpen={showLogoutConfirm}
+        title="Logout Account"
+        message="Are you sure you want to logout? You will need to sign in again to access your projects."
+        confirmLabel="Logout Now"
+        onConfirm={onConfirmLogout}
+        onCancel={() => setShowLogoutConfirm(false)}
+        isDangerous={true}
       />
     </>
   );
