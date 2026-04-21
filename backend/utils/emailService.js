@@ -1,12 +1,20 @@
 const nodemailer = require('nodemailer');
 
 const createTransporter = () => {
+  const user = process.env.EMAIL_USER;
+  const pass = process.env.EMAIL_PASS;
+  
+  if (!user || !pass) {
+    console.error('❌ EMAIL ERROR: EMAIL_USER or EMAIL_PASS environment variables are missing');
+    // We throw a custom error that is caught by the asyncWrapper
+    const err = new Error('Email service not configured. Please set EMAIL_USER and EMAIL_PASS in Vercel.');
+    err.code = 'EAUTH_CONFIG_MISSING';
+    throw err;
+  }
+
   return nodemailer.createTransport({
     service: process.env.EMAIL_SERVICE || 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
+    auth: { user, pass },
   });
 };
 
