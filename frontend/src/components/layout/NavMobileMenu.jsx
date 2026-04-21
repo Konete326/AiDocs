@@ -4,11 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import { Home, CreditCard, LayoutDashboard, User, LogOut, LogIn, UserPlus, Briefcase } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import UpgradeModal from '../common/UpgradeModal';
+import ConfirmModal from '../common/ConfirmModal';
 
 const NavMobileMenu = ({ isOpen, onClose }) => {
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const isFree = !user?.plan || user.plan === 'free';
 
@@ -18,12 +20,24 @@ const NavMobileMenu = ({ isOpen, onClose }) => {
       return;
     }
 
+    if (item.label === 'Logout') {
+      setShowLogoutModal(true);
+      return;
+    }
+
     if (item.action) {
       await item.action();
     } else {
       navigate(item.href);
     }
     onClose();
+  };
+
+  const handleLogoutConfirm = async () => {
+    await logout();
+    setShowLogoutModal(false);
+    onClose();
+    navigate('/');
   };
 
   const menuItems = isAuthenticated 
@@ -75,6 +89,16 @@ const NavMobileMenu = ({ isOpen, onClose }) => {
           onClose();
           navigate('/pricing');
         }}
+      />
+
+      <ConfirmModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogoutConfirm}
+        title="Logout Account"
+        message="Are you sure you want to log out? You will need to sign in again to access shared documents and projects."
+        confirmLabel="Logout"
+        variant="danger"
       />
     </>
   );
