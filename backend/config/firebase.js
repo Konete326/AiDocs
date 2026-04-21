@@ -5,29 +5,21 @@ let auth;
 try {
   let privateKey = process.env.FIREBASE_PRIVATE_KEY;
   if (privateKey) {
-    // 1. Initial cleanup
-    privateKey = privateKey.trim().replace(/^["']|["']$/g, '');
+    // 1. Strip surrounding quotes that Vercel may add
+    privateKey = privateKey.replace(/^["']|["']$/g, '').trim();
     
-    // 2. Handle all variations of escaped newlines (\n, \\n, \\\n)
-    privateKey = privateKey.replace(/\\+n/g, '\n');
+    // 2. Convert any escaped \n sequences back to real newlines
+    //    Handles: \n, \\n, and \\\\n (multiple levels of escaping)
+    privateKey = privateKey.replace(/\\n/g, '\n');
     
-    // 3. Ensure header and footer are correctly delimited with newlines
-    if (privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
-      const header = '-----BEGIN PRIVATE KEY-----';
-      const footer = '-----END PRIVATE KEY-----';
-      
-      let body = privateKey
-        .replace(header, '')
-        .replace(footer, '')
-        .replace(/\s/g, '') // Remove all internal whitespace/newlines
-        .trim();
-        
-      // Re-insert newlines every 64 chars (PEM standard)
-      const matches = body.match(/.{1,64}/g);
-      const formattedBody = matches ? matches.join('\n') : body;
-      
-      privateKey = `${header}\n${formattedBody}\n${footer}\n`;
-    }
+    // 3. Normalize: Ensure header and footer have newlines
+    privateKey = privateKey
+      .replace(/-----BEGIN PRIVATE KEY-----\s*/g, '-----BEGIN PRIVATE KEY-----\n')
+      .replace(/\s*-----END PRIVATE KEY-----/g, '\n-----END PRIVATE KEY-----')
+      .trim() + '\n';
+
+    console.log('🔑 Key start:', JSON.stringify(privateKey.substring(0, 40)));
+    console.log('🔑 Key end:', JSON.stringify(privateKey.substring(privateKey.length - 40)));
   }
 
   const serviceAccount = {
@@ -57,16 +49,13 @@ try {
     throw new Error(`Incomplete configuration: ${reasons.join(', ')}`);
   }
 } catch (error) {
-  const rawKey = process.env.FIREBASE_PRIVATE_KEY || 'N/A';
-  // Use the same variable name if reachable, or just re-clean for logging
-  const pk = rawKey.trim().replace(/^["']|["']$/g, '').replace(/\\+n/g, '\n');
-  
-  const debug = `[RawLen: ${rawKey.length}, RepairedStart: ${pk.substring(0, 50)}, RepairedEnd: ${pk.substring(pk.length - 50)}]`;
+  const pk = process.env.FIREBASE_PRIVATE_KEY || 'N/A';
+  const debug = `[Len: ${pk.length}, Start: ${pk.substring(0, 15)}, End: ${pk.substring(pk.length - 15)}]`;
   
   console.error('❌ Firebase SDK Initialization Error:', error.message, debug);
   auth = {
     verifyIdToken: async () => { 
-      throw new Error(`Firebase Auth failed. Error: ${error.message}. Diagnostic: ${debug}.`); 
+      throw new Error(`Firebase Auth logic failed. Error: ${error.message}. Debug: ${debug}. Ensure you redeploy on Vercel.`); 
     }
   };
 }
