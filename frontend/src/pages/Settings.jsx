@@ -55,11 +55,12 @@ const ThemePreview = ({ theme, isActive, onSelect }) => {
          />
          
          {hasError && (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-500/10 gap-2">
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-red-500/10 gap-2 p-4 text-center">
               <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
-                <span className="text-red-400 text-xs">!</span>
+                <span className="text-red-400 text-xs font-bold">!</span>
               </div>
-              <span className="text-[10px] text-red-300/60 uppercase">Load Failed</span>
+              <span className="text-[10px] text-red-300 font-bold uppercase tracking-wider">Load Failed</span>
+              <p className="text-[9px] text-white/30 break-all">{theme.video}</p>
             </div>
          )}
 
