@@ -5,10 +5,17 @@ let auth;
 try {
   let privateKey = process.env.FIREBASE_PRIVATE_KEY;
   if (privateKey) {
-    // 1. Remove surrounding quotes if they exist
-    privateKey = privateKey.replace(/^"|"$/g, '');
-    // 2. Fix escaped newlines
-    privateKey = privateKey.replace(/\\n/g, '\n');
+    // Aggressive cleaning for Vercel/Docker env quirks
+    privateKey = privateKey
+      .trim()
+      .replace(/^['"]|['"]$/g, '') // Remove start/end quotes (single or double)
+      .replace(/\\n/g, '\n')       // Convert escaped literal \n to real newlines
+      .replace(/\r/g, '');         // Remove carriage returns
+    
+    // Ensure it starts/ends correctly for PEM format
+    if (!privateKey.startsWith('-----BEGIN PRIVATE KEY-----')) {
+       console.error('❌ Private Key does not start with BEGIN header');
+    }
   }
 
   const serviceAccount = {
