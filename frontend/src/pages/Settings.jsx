@@ -91,7 +91,7 @@ const ThemePreview = ({ theme, isActive, onSelect }) => {
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { currentTheme, updateTheme, allThemes } = useTheme();
+  const { currentTheme, updateTheme, allThemes, isGlassEnabled, toggleGlass } = useTheme();
   const [activeTab, setActiveTab] = useState('theme');
 
   const tabs = [
@@ -158,10 +158,19 @@ const Settings = () => {
                     <div className="liquid-glass p-6 rounded-3xl border border-white/5 flex items-center justify-between mt-8">
                        <div>
                          <div className="text-sm font-medium text-white">Glassmorphism Engine</div>
-                         <div className="text-xs text-white/40 mt-1">Enable stunning glass effects across the app</div>
+                         <div className={`text-xs mt-1 transition-colors ${isGlassEnabled ? 'text-white/40' : 'text-blue-400 font-medium'}`}>
+                            {isGlassEnabled ? 'Real-time backdrop blur enabled' : 'Performance mode: Blur disabled'}
+                         </div>
                        </div>
-                       <div className="relative inline-flex h-6 w-11 items-center rounded-full bg-blue-500 cursor-pointer shadow-lg shadow-blue-500/20">
-                         <span className="inline-block h-4 w-4 transform rounded-full bg-white transition translate-x-6" />
+                       <div 
+                         onClick={toggleGlass}
+                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer shadow-lg ${
+                            isGlassEnabled ? 'bg-blue-500 shadow-blue-500/20' : 'bg-white/10'
+                         }`}
+                       >
+                         <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            isGlassEnabled ? 'translate-x-6' : 'translate-x-1'
+                         }`} />
                        </div>
                     </div>
                   </div>

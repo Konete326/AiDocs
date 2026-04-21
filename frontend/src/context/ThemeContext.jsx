@@ -46,16 +46,39 @@ export const ThemeProvider = ({ children }) => {
     return localStorage.getItem('app-theme-id') || 'earth';
   });
 
+  const [isGlassEnabled, setIsGlassEnabled] = useState(() => {
+    const saved = localStorage.getItem('app-glass-enabled');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
 
   const currentTheme = THEMES.find(t => t.id === currentThemeId) || THEMES[0];
+
+  useEffect(() => {
+    if (isGlassEnabled) {
+      document.documentElement.classList.remove('no-glass-blur');
+    } else {
+      document.documentElement.classList.add('no-glass-blur');
+    }
+    localStorage.setItem('app-glass-enabled', JSON.stringify(isGlassEnabled));
+  }, [isGlassEnabled]);
 
   const updateTheme = (themeId) => {
     setCurrentThemeId(themeId);
     localStorage.setItem('app-theme-id', themeId);
   };
 
+  const toggleGlass = () => {
+    setIsGlassEnabled(!isGlassEnabled);
+  };
+
   return (
-    <ThemeContext.Provider value={{ currentTheme, updateTheme, allThemes: THEMES }}>
+    <ThemeContext.Provider value={{ 
+      currentTheme, 
+      updateTheme, 
+      allThemes: THEMES,
+      isGlassEnabled,
+      toggleGlass
+    }}>
       {children}
     </ThemeContext.Provider>
   );
