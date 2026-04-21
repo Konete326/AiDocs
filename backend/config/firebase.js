@@ -3,61 +3,50 @@ const admin = require('firebase-admin');
 let auth;
 
 try {
-  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
-  if (privateKey) {
-    // 1. Strip surrounding quotes that Vercel may add
+  let serviceAccount;
+
+  // ── Strategy 1: Full JSON string (most reliable on Vercel) ──────────────
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
+    console.log('✅ Firebase: loaded via FIREBASE_SERVICE_ACCOUNT_JSON');
+  }
+  // ── Strategy 2: Individual vars (fallback) ──────────────────────────────
+  else if (process.env.FIREBASE_PRIVATE_KEY) {
+    let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+    // Strip surrounding quotes that Vercel may add
     privateKey = privateKey.replace(/^["']|["']$/g, '').trim();
-    
-    // 2. Convert any escaped \n sequences back to real newlines
-    //    Handles: \n, \\n, and \\\\n (multiple levels of escaping)
+
+    // Convert escaped \n sequences back to real newlines
     privateKey = privateKey.replace(/\\n/g, '\n');
-    
-    // 3. Normalize: Ensure header and footer have newlines
-    privateKey = privateKey
-      .replace(/-----BEGIN PRIVATE KEY-----\s*/g, '-----BEGIN PRIVATE KEY-----\n')
-      .replace(/\s*-----END PRIVATE KEY-----/g, '\n-----END PRIVATE KEY-----')
-      .trim() + '\n';
 
-    console.log('🔑 Key start:', JSON.stringify(privateKey.substring(0, 40)));
-    console.log('🔑 Key end:', JSON.stringify(privateKey.substring(privateKey.length - 40)));
-  }
+    // Remove stray \r characters (Windows line endings)
+    privateKey = privateKey.replace(/\r/g, '');
 
-  const serviceAccount = {
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    privateKey: privateKey
-  };
-
-  const hasProjectId = !!serviceAccount.projectId;
-  const hasClientEmail = !!serviceAccount.clientEmail;
-  const isKeyFormatted = !!serviceAccount.privateKey && serviceAccount.privateKey.includes('-----BEGIN PRIVATE KEY-----');
-
-  if (hasProjectId && hasClientEmail && isKeyFormatted) {
-    if (!admin.apps.length) {
-      admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount)
-      });
-    }
-    auth = admin.auth();
-    console.log('✅ Firebase Admin SDK initialized successfully');
+    serviceAccount = {
+      projectId:   process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey,
+    };
+    console.log('✅ Firebase: loaded via individual env vars');
   } else {
-    const reasons = [];
-    if (!hasProjectId) reasons.push('PROJECT_ID_MISSING');
-    if (!hasClientEmail) reasons.push('CLIENT_EMAIL_MISSING');
-    if (!isKeyFormatted) reasons.push('PRIVATE_KEY_INVALID_OR_MISSING');
-    
-    throw new Error(`Incomplete configuration: ${reasons.join(', ')}`);
+    throw new Error('No Firebase credentials found. Set FIREBASE_SERVICE_ACCOUNT_JSON in Vercel.');
   }
+
+  if (!admin.apps.length) {
+    admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+  }
+  auth = admin.auth();
+  console.log('✅ Firebase Admin SDK initialized successfully');
+
 } catch (error) {
-  const pk = process.env.FIREBASE_PRIVATE_KEY || 'N/A';
-  const debug = `[Len: ${pk.length}, Start: ${pk.substring(0, 15)}, End: ${pk.substring(pk.length - 15)}]`;
-  
-  console.error('❌ Firebase SDK Initialization Error:', error.message, debug);
+  console.error('❌ Firebase SDK Initialization Error:', error.message);
   auth = {
-    verifyIdToken: async () => { 
-      throw new Error(`Firebase Auth logic failed. Error: ${error.message}. Debug: ${debug}. Ensure you redeploy on Vercel.`); 
+    verifyIdToken: async () => {
+      throw new Error(`Firebase not initialized: ${error.message}`);
     }
   };
 }
 
 module.exports = auth;
+
