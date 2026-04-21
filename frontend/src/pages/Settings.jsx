@@ -60,30 +60,37 @@ const Settings = () => {
                        <h4 className="text-sm font-medium text-white mb-4 px-1">Background Experience</h4>
                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
                          {allThemes.map((theme) => (
-                           <div 
-                             key={theme.id}
-                             onClick={() => updateTheme(theme.id)}
-                             className={`relative group rounded-3xl overflow-hidden cursor-pointer border-2 transition-all duration-300 ${
-                               currentTheme.id === theme.id 
-                                 ? 'border-blue-500 scale-[0.98] shadow-2xl shadow-blue-500/20' 
-                                 : 'border-white/5 hover:border-white/20'
-                             }`}
-                           >
-                              {/* Preview Image */}
-                              <div className="aspect-video relative overflow-hidden">
-                                <img 
-                                  src={theme.thumbnail} 
-                                  alt={theme.name}
-                                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                                
-                                {currentTheme.id === theme.id && (
-                                  <div className="absolute top-3 right-3 bg-blue-500 text-white p-1 rounded-full animate-in zoom-in duration-300">
-                                    <CheckCircle2 className="w-4 h-4" />
-                                  </div>
-                                )}
-                              </div>
+                             <div 
+                               key={theme.id}
+                               onClick={() => updateTheme(theme.id)}
+                               className={`relative group rounded-3xl overflow-hidden cursor-pointer border-2 transition-all duration-300 ${
+                                 currentTheme.id === theme.id 
+                                   ? 'border-blue-500 scale-[0.98] shadow-2xl shadow-blue-500/20' 
+                                   : 'border-white/5 hover:border-white/20'
+                               }`}
+                             >
+                                {/* Video Preview instead of Image */}
+                                <div className="aspect-video relative overflow-hidden bg-black">
+                                  <video 
+                                    src={theme.video}
+                                    muted
+                                    playsInline
+                                    loop
+                                    onMouseEnter={(e) => e.target.play()}
+                                    onMouseLeave={(e) => {
+                                       if (currentTheme.id !== theme.id) e.target.pause();
+                                    }}
+                                    autoPlay={currentTheme.id === theme.id}
+                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                  />
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+                                  
+                                  {currentTheme.id === theme.id && (
+                                    <div className="absolute top-3 right-3 bg-blue-500 text-white p-1 rounded-full animate-in zoom-in duration-300">
+                                      <CheckCircle2 className="w-4 h-4" />
+                                    </div>
+                                  )}
+                                </div>
 
                               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
                                  <div>
