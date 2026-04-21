@@ -5,18 +5,28 @@ let auth;
 try {
   let privateKey = process.env.FIREBASE_PRIVATE_KEY;
   if (privateKey) {
-    // 1. Unquote if wrapped in any quotes
-    privateKey = privateKey.trim().replace(/^["'](.+)["']$/s, '$1');
+    // 1. Initial cleanup
+    privateKey = privateKey.trim().replace(/^["']|["']$/g, '');
     
-    // 2. Handle escaped newlines (both \n and \\n)
-    privateKey = privateKey.replace(/\\n/g, '\n');
+    // 2. Handle all variations of escaped newlines (\n, \\n, \\\n)
+    privateKey = privateKey.replace(/\\+n/g, '\n');
     
-    // 3. Final trim of the result
-    privateKey = privateKey.trim();
-
-    // Diagnostic if it looks wrong
-    if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
-        console.error('❌ KEY ERROR: Headers missing. Current start:', privateKey.substring(0, 20));
+    // 3. Ensure header and footer are correctly delimited with newlines
+    if (privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+      const header = '-----BEGIN PRIVATE KEY-----';
+      const footer = '-----END PRIVATE KEY-----';
+      
+      let body = privateKey
+        .replace(header, '')
+        .replace(footer, '')
+        .replace(/\s/g, '') // Remove all internal whitespace/newlines
+        .trim();
+        
+      // Re-insert newlines every 64 chars (PEM standard)
+      const matches = body.match(/.{1,64}/g);
+      const formattedBody = matches ? matches.join('\n') : body;
+      
+      privateKey = `${header}\n${formattedBody}\n${footer}\n`;
     }
   }
 
