@@ -17,22 +17,31 @@ try {
     privateKey: privateKey
   };
 
-  if (serviceAccount.projectId && serviceAccount.privateKey && serviceAccount.privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+  const hasProjectId = !!serviceAccount.projectId;
+  const hasClientEmail = !!serviceAccount.clientEmail;
+  const isKeyFormatted = !!serviceAccount.privateKey && serviceAccount.privateKey.includes('-----BEGIN PRIVATE KEY-----');
+
+  if (hasProjectId && hasClientEmail && isKeyFormatted) {
     if (!admin.apps.length) {
       admin.initializeApp({
         credential: admin.credential.cert(serviceAccount)
       });
     }
     auth = admin.auth();
-    console.log('Firebase Admin SDK initialized successfully');
+    console.log('✅ Firebase Admin SDK initialized successfully');
   } else {
-    throw new Error('Missing or placeholder credentials');
+    const reasons = [];
+    if (!hasProjectId) reasons.push('PROJECT_ID_MISSING');
+    if (!hasClientEmail) reasons.push('CLIENT_EMAIL_MISSING');
+    if (!isKeyFormatted) reasons.push('PRIVATE_KEY_INVALID_OR_MISSING');
+    
+    throw new Error(`Incomplete configuration: ${reasons.join(', ')}`);
   }
 } catch (error) {
-  console.warn('Firebase Admin SDK is in MOCK mode:', error.message);
+  console.error('❌ Firebase SDK Initialization Error:', error.message);
   auth = {
     verifyIdToken: async () => { 
-      throw new Error('Firebase ID token verification failed: Real credentials not configured on server.'); 
+      throw new Error(`Firebase Auth logic failed. Server message: ${error.message}. Ensure you redeploy on Vercel after adding Env Vars.`); 
     }
   };
 }
