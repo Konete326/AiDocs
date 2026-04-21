@@ -57,13 +57,16 @@ try {
     throw new Error(`Incomplete configuration: ${reasons.join(', ')}`);
   }
 } catch (error) {
-  const pk = process.env.FIREBASE_PRIVATE_KEY || 'N/A';
-  const debug = `[Len: ${pk.length}, Start: ${pk.substring(0, 15)}, End: ${pk.substring(pk.length - 15)}]`;
+  const rawKey = process.env.FIREBASE_PRIVATE_KEY || 'N/A';
+  // Use the same variable name if reachable, or just re-clean for logging
+  const pk = rawKey.trim().replace(/^["']|["']$/g, '').replace(/\\+n/g, '\n');
+  
+  const debug = `[RawLen: ${rawKey.length}, RepairedStart: ${pk.substring(0, 50)}, RepairedEnd: ${pk.substring(pk.length - 50)}]`;
   
   console.error('❌ Firebase SDK Initialization Error:', error.message, debug);
   auth = {
     verifyIdToken: async () => { 
-      throw new Error(`Firebase Auth logic failed. Error: ${error.message}. Debug: ${debug}. Ensure you redeploy on Vercel.`); 
+      throw new Error(`Firebase Auth failed. Error: ${error.message}. Diagnostic: ${debug}.`); 
     }
   };
 }
