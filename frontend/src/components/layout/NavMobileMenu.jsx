@@ -93,7 +93,7 @@ const NavMobileMenu = ({ isOpen, onClose }) => {
 
       <ConfirmModal
         isOpen={showLogoutModal}
-        onClose={() => setShowLogoutModal(false)}
+        onCancel={() => setShowLogoutModal(false)}
         onConfirm={handleLogoutConfirm}
         title="Logout Account"
         message="Are you sure you want to log out? You will need to sign in again to access shared documents and projects."
