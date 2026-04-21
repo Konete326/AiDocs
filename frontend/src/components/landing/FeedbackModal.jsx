@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Send, Star, AlertCircle } from 'lucide-react';
 import api from '../../services/api';
@@ -111,7 +112,9 @@ const FeedbackModal = ({ isOpen, onClose, onSuccess }) => {
               {!isAuthenticated && (
                 <div className="flex items-center gap-2 p-3 bg-red-400/5 border border-red-400/10 rounded-xl">
                   <AlertCircle className="w-4 h-4 text-red-400/50" />
-                  <p className="text-xs text-red-400/60 font-medium">Please login to share your feedback.</p>
+                  <p className="text-xs text-red-400/60 font-medium">
+                    Please <Link to="/login" className="underline hover:text-red-400 transition-colors">login</Link> to share your feedback.
+                  </p>
                 </div>
               )}
 
