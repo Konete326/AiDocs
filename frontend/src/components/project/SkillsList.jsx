@@ -23,6 +23,8 @@ const SkillsList = ({ projectId, initialSkills = [], onSkillsUpdate }) => {
   const [skillToToggle, setSkillToToggle] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
 
+  const [copiedAll, setCopiedAll] = useState(false);
+
   const loadSkills = async () => {
     try {
       const data = await getProjectSkills(projectId);
@@ -57,9 +59,12 @@ const SkillsList = ({ projectId, initialSkills = [], onSkillsUpdate }) => {
   }, [initialSkills, searchQuery, activeCategory]);
 
   const copyAll = () => {
+    if (!initialSkills.length) return;
     const cmds = initialSkills.map(s => s.command).join('\n');
     navigator.clipboard.writeText(cmds);
+    setCopiedAll(true);
     toast.success('All commands copied');
+    setTimeout(() => setCopiedAll(false), 2000);
   };
 
   return (
@@ -70,8 +75,17 @@ const SkillsList = ({ projectId, initialSkills = [], onSkillsUpdate }) => {
           <span className="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full font-bold">{initialSkills.length}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <button onClick={copyAll} className="p-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-white/60 hover:text-white transition-all border border-white/5 cursor-pointer" title="Copy All Commands"><Copy className="w-3 h-3" /></button>
-          <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-1 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] text-white/60 hover:text-white transition-all border border-white/5 cursor-pointer"><Library className="w-3 h-3" /> Library</button>
+          <button 
+            onClick={copyAll} 
+            className={`p-1.5 rounded-lg transition-all border border-white/5 cursor-pointer ${copiedAll ? 'bg-green-500/20 text-green-400 border-green-500/30' : 'bg-white/5 hover:bg-white/10 text-white/60 hover:text-white'}`}
+            title="Copy All Commands"
+          >
+            {copiedAll ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3 h-3" />}
+          </button>
+          <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-1 px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-xl text-[10px] text-white/60 hover:text-white transition-all border border-white/5 cursor-pointer">
+            <Library className="w-3 h-3" /> 
+            Library
+          </button>
         </div>
       </div>
 
