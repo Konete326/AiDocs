@@ -12,31 +12,31 @@ export const THEMES = [
   {
     id: 'animation',
     name: 'Abstract Motion',
-    video: '/backgrounds/animation.mp4',
+    video: 'https://res.cloudinary.com/dwrtj67eh/video/upload/v1776773400/themes/animation.mp4',
     color: '#06b6d4'
   },
   {
     id: 'tree',
     name: 'Sacred Forest',
-    video: '/backgrounds/tree.mp4',
+    video: 'https://res.cloudinary.com/dwrtj67eh/video/upload/v1776773427/themes/tree.mp4',
     color: '#10b981'
   },
   {
     id: 'pink',
     name: 'Sakura Glow',
-    video: '/backgrounds/pink.mp4',
+    video: 'https://res.cloudinary.com/dwrtj67eh/video/upload/v1776773411/themes/pink.mp4',
     color: '#ec4899'
   },
   {
     id: 'relex',
     name: 'Zen Reflection',
-    video: '/backgrounds/relex.mp4',
+    video: 'https://res.cloudinary.com/dwrtj67eh/video/upload/v1776773423/themes/relex.mp4',
     color: '#8b5cf6'
   },
   {
     id: 'horror',
     name: 'Midnight Mist',
-    video: '/backgrounds/horror.mp4',
+    video: 'https://res.cloudinary.com/dwrtj67eh/video/upload/v1776773404/themes/horror.mp4',
     color: '#475569'
   }
 ];
