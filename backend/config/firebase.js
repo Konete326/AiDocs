@@ -5,16 +5,18 @@ let auth;
 try {
   let privateKey = process.env.FIREBASE_PRIVATE_KEY;
   if (privateKey) {
-    // Aggressive cleaning for Vercel/Docker env quirks
-    privateKey = privateKey
-      .trim()
-      .replace(/^['"]|['"]$/g, '') // Remove start/end quotes (single or double)
-      .replace(/\\n/g, '\n')       // Convert escaped literal \n to real newlines
-      .replace(/\r/g, '');         // Remove carriage returns
+    // 1. Unquote if wrapped in any quotes
+    privateKey = privateKey.trim().replace(/^["'](.+)["']$/s, '$1');
     
-    // Ensure it starts/ends correctly for PEM format
-    if (!privateKey.startsWith('-----BEGIN PRIVATE KEY-----')) {
-       console.error('❌ Private Key does not start with BEGIN header');
+    // 2. Handle escaped newlines (both \n and \\n)
+    privateKey = privateKey.replace(/\\n/g, '\n');
+    
+    // 3. Final trim of the result
+    privateKey = privateKey.trim();
+
+    // Diagnostic if it looks wrong
+    if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+        console.error('❌ KEY ERROR: Headers missing. Current start:', privateKey.substring(0, 20));
     }
   }
 
