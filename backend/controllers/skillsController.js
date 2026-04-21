@@ -113,6 +113,14 @@ const ALL_SKILLS = [
     command: 'npx skills add https://github.com/mcp-use/mcp-use --skill mcp-builder',
     source: 'mcp-use',
     forTypes: ['all'],
+  },
+  {
+    id: 'find-skills',
+    name: 'Find Skills',
+    description: 'Utility for discovering and exploring new skills within the Vercel-Labs ecosystem.',
+    command: 'npx skills add https://github.com/vercel-labs/skills --skill find-skills',
+    source: 'vercel',
+    forTypes: ['all'],
   }
 ];
 
