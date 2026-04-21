@@ -47,10 +47,13 @@ try {
     throw new Error(`Incomplete configuration: ${reasons.join(', ')}`);
   }
 } catch (error) {
-  console.error('❌ Firebase SDK Initialization Error:', error.message);
+  const pk = process.env.FIREBASE_PRIVATE_KEY || 'N/A';
+  const debug = `[Len: ${pk.length}, Start: ${pk.substring(0, 15)}, End: ${pk.substring(pk.length - 15)}]`;
+  
+  console.error('❌ Firebase SDK Initialization Error:', error.message, debug);
   auth = {
     verifyIdToken: async () => { 
-      throw new Error(`Firebase Auth logic failed. Server message: ${error.message}. Ensure you redeploy on Vercel after adding Env Vars.`); 
+      throw new Error(`Firebase Auth logic failed. Error: ${error.message}. Debug: ${debug}. Ensure you redeploy on Vercel.`); 
     }
   };
 }
