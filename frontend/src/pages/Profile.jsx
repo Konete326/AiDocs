@@ -6,6 +6,7 @@ import GlassCard from '../components/common/GlassCard';
 import ProfileHeader from '../components/profile/ProfileHeader';
 import StatsGrid from '../components/profile/StatsGrid';
 import ProfileCard from '../components/profile/ProfileCard';
+import SettingsSection from '../components/profile/SettingsSection';
 import { useAuth } from '../context/AuthContext';
 
 
@@ -75,6 +76,8 @@ const Profile = () => {
               />
             </div>
           </div>
+
+          <SettingsSection />
         </GlassCard>
       </div>
     </section>

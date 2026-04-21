@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Home, CreditCard, LayoutDashboard, User, LogOut, LogIn, UserPlus, Briefcase } from 'lucide-react';
+import { Home, CreditCard, LayoutDashboard, User, LogOut, LogIn, UserPlus, Briefcase, Settings } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import UpgradeModal from '../common/UpgradeModal';
 import ConfirmModal from '../common/ConfirmModal';
@@ -47,6 +47,7 @@ const NavMobileMenu = ({ isOpen, onClose }) => {
         { label: 'Workspace', href: '/dashboard', icon: Briefcase, isProtected: true },
         { label: 'Pricing', href: '/pricing', icon: CreditCard },
         { label: 'Profile', href: '/profile', icon: User },
+        { label: 'Settings', href: '/profile', icon: Settings },
         { label: 'Logout', action: logout, icon: LogOut, danger: true },
       ]
     : [
