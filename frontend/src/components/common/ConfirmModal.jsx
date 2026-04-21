@@ -31,8 +31,10 @@ const ConfirmModal = ({
             transition={{ duration: 0.2 }}
             className="relative z-10 liquid-glass-strong rounded-3xl p-8 w-full max-w-sm border border-white/5"
           >
-            <div className="w-12 h-12 rounded-full liquid-glass flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle className="w-5 h-5 text-white/60" />
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${
+              isDangerous ? 'bg-red-500/15 border border-red-500/20' : 'liquid-glass'
+            }`}>
+              <AlertTriangle className={`w-5 h-5 ${isDangerous ? 'text-red-400' : 'text-white/60'}`} />
             </div>
 
             <h3 className="text-lg font-medium text-white text-center">{title}</h3>
@@ -50,7 +52,11 @@ const ConfirmModal = ({
 
               <button
                 onClick={onConfirm}
-                className="liquid-glass-strong rounded-full px-6 py-2.5 text-sm text-white font-medium hover:scale-105 active:scale-95 transition-transform cursor-pointer border border-white/10"
+                className={`rounded-full px-6 py-2.5 text-sm font-medium hover:scale-105 active:scale-95 transition-transform cursor-pointer border ${
+                  isDangerous
+                    ? 'bg-red-500/20 hover:bg-red-500/30 text-red-300 border-red-500/30'
+                    : 'liquid-glass-strong text-white border-white/10'
+                }`}
               >
                 {confirmLabel}
               </button>

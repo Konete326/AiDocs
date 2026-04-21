@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Library, Plus, Cpu, Layout, Cloud, Smartphone, Copy } from 'lucide-react';
+import { Library, Plus, Cpu, Layout, Cloud, Smartphone, Copy, Check } from 'lucide-react';
 import { toggleProjectSkill, getProjectSkills } from '../../services/skillsService';
 import { toast } from 'react-hot-toast';
 import AddSkillsModal from './AddSkillsModal';
@@ -48,10 +48,10 @@ const SkillsList = ({ projectId, initialSkills = [], onSkillsUpdate }) => {
       res = res.filter(s => {
         const id = s.id.toLowerCase();
         if (activeCategory === 'mern') return id.includes('mern') || id.includes('node') || id.includes('mongo');
-        if (activeCategory === 'ui') return id.includes('design') || id.includes('nextjs') || id.includes('tailwind');
+        if (activeCategory === 'ui') return id.includes('tailwind') || id.includes('frontend-design') || id.includes('ui');
         if (activeCategory === 'ai') return id.includes('agent') || id.includes('mcp') || id.includes('ai');
-        if (activeCategory === 'cloud') return id.includes('supabase') || id.includes('firebase') || id.includes('foundry') || id.includes('azure');
-        if (activeCategory === 'core') return id.includes('clean') || id.includes('skill-creator') || id.includes('type') || id.includes('find');
+        if (activeCategory === 'cloud') return id.includes('supabase') || id.includes('firebase') || id.includes('foundry') || id.includes('azure') || id.includes('nextjs');
+        if (activeCategory === 'core') return id.includes('clean') || id.includes('skill-creator') || id.includes('type') || id.includes('find') || id.includes('frontend-design');
         return true;
       });
     }
