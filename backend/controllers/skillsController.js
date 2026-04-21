@@ -125,11 +125,17 @@ exports.getProjectSkills = asyncWrapper(async (req, res) => {
   const project = await Project.findOne({ _id: projectId, userId, isArchived: false });
   if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');
 
-  const skills = ALL_SKILLS.filter(s =>
-    s.forTypes.includes('all') || 
-    s.forTypes.includes(project.projectType) ||
-    (project.customSkills && project.customSkills.includes(s.id))
-  );
+  const skills = ALL_SKILLS.filter(s => {
+    // 1. Must not be explicitly disabled
+    if (project.disabledSkills && project.disabledSkills.includes(s.id)) return false;
+
+    // 2. Must either be CORE, Project-Type specific, or Custom-Added
+    return (
+      s.forTypes.includes('all') || 
+      s.forTypes.includes(project.projectType) ||
+      (project.customSkills && project.customSkills.includes(s.id))
+    );
+  });
 
   res.json({ success: true, data: { skills, projectType: project.projectType, customSkills: project.customSkills || [] } });
 });
@@ -142,25 +148,41 @@ exports.toggleProjectSkill = asyncWrapper(async (req, res) => {
   const project = await Project.findOne({ _id: projectId, userId });
   if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');
 
-  const exists = project.customSkills.includes(skillId);
-  
-  if (exists) {
-    project.customSkills = project.customSkills.filter(id => id !== skillId);
+  const isDefault = ALL_SKILLS.find(s => s.id === skillId && (s.forTypes.includes('all') || s.forTypes.includes(project.projectType)));
+
+  if (isDefault) {
+    // Toggling a default skill moves it in/out of disabledSkills
+    if (!project.disabledSkills) project.disabledSkills = [];
+    const isDisabled = project.disabledSkills.includes(skillId);
+    if (isDisabled) {
+      project.disabledSkills = project.disabledSkills.filter(id => id !== skillId);
+    } else {
+      project.disabledSkills.push(skillId);
+    }
   } else {
-    // Check if it exists in our master list
-    if (!ALL_SKILLS.find(s => s.id === skillId)) throw new AppError('Invalid skill ID', 400);
-    project.customSkills.push(skillId);
+    // Toggling a library skill moves it in/out of customSkills
+    if (!project.customSkills) project.customSkills = [];
+    const exists = project.customSkills.includes(skillId);
+    if (exists) {
+      project.customSkills = project.customSkills.filter(id => id !== skillId);
+    } else {
+      if (!ALL_SKILLS.find(s => s.id === skillId)) throw new AppError('Invalid skill ID', 400);
+      project.customSkills.push(skillId);
+    }
   }
 
   await project.save();
   
-  const skills = ALL_SKILLS.filter(s =>
-    s.forTypes.includes('all') || 
-    s.forTypes.includes(project.projectType) ||
-    (project.customSkills && project.customSkills.includes(s.id))
-  );
+  const skills = ALL_SKILLS.filter(s => {
+    if (project.disabledSkills && project.disabledSkills.includes(s.id)) return false;
+    return (
+      s.forTypes.includes('all') || 
+      s.forTypes.includes(project.projectType) ||
+      (project.customSkills && project.customSkills.includes(s.id))
+    );
+  });
 
-  res.json({ success: true, data: { skills, customSkills: project.customSkills } });
+  res.json({ success: true, data: { skills, customSkills: project.customSkills, disabledSkills: project.disabledSkills } });
 });
 
 exports.getAllAvailableSkills = async () => {

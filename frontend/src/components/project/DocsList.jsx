@@ -62,7 +62,11 @@ const DocsList = ({ documents, selectedDoc, onSelect, isGenerating, projectId, s
               <p className="text-xs text-white/40">v{doc.version}</p>
             )}
           </div>
-          {isGenerated && <CheckCircle className="w-4 h-4 text-white/50 flex-shrink-0" />}
+          {isGenerated && (
+            <CheckCircle 
+              className={`w-4 h-4 flex-shrink-0 transition-colors ${isSelected ? 'text-green-500' : 'text-white/50'}`} 
+            />
+          )}
         </div>
       );
     })}
