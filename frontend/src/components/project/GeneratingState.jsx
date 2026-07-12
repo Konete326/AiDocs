@@ -55,12 +55,12 @@ const GeneratingState = ({ project, subscription, onViewReady }) => {
         {/* Animated Background Light */}
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] animate-pulse" />
         
-        <div className="w-16 h-16 rounded-full liquid-glass flex items-center justify-center relative z-10">
+        <div className="absolute top-6 right-6 w-16 h-16 rounded-full liquid-glass flex items-center justify-center z-10">
           <Sparkles className="w-7 h-7 text-white animate-pulse" />
           <div className="absolute inset-0 rounded-full border border-white/20 animate-ping opacity-20" />
         </div>
         
-        <div className="space-y-2 relative z-10 max-w-xl mx-auto">
+        <div className="space-y-2 relative z-10 max-w-xl mx-auto mt-4">
             <h2 className="text-2xl font-semibold text-white tracking-tight">Generating your business blueprint...</h2>
             <p className="text-xs text-white/50 leading-relaxed px-4">
               Our AI agents are building 9 comprehensive documents based on your requirements.
@@ -107,7 +107,7 @@ const GeneratingState = ({ project, subscription, onViewReady }) => {
                     const isReady = docsGenerated.includes(type);
                     return (
                         <div key={type} className={`liquid-glass no-hover rounded-2xl p-2.5 border border-white/5 flex items-center gap-3 transition-all ${isReady ? 'bg-white/[0.03]' : 'opacity-40'}`}>
-                            <div className="w-7 h-7 rounded-xl bg-white/5 flex items-center justify-center flex-shrink-0">
+                            <div className={`w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 ${isReady ? 'bg-[#6C63FF]' : 'bg-white/5'}`}>
                                 {isReady ? <CheckCircle className="w-3.5 h-3.5 text-white" /> : <Loader className="w-3.5 h-3.5 text-white/40 animate-spin" />}
                             </div>
                             <span className="text-xs text-white/80 font-medium truncate">{DOC_LABELS[type]}</span>
