@@ -94,7 +94,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
 
   return (
     <>
-    <div className="liquid-glass-strong no-hover rounded-3xl flex flex-col h-full min-h-[450px] lg:min-h-0 overflow-hidden border border-white/[0.15] shadow-2xl relative" style={{ willChange: 'transform' }}>
+    <div className="liquid-glass-strong no-hover rounded-3xl flex flex-col h-full min-h-[450px] lg:min-h-0 overflow-hidden ring-1 ring-white/[0.15] shadow-2xl relative" style={{ willChange: 'transform' }}>
       <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-white/[0.02] blur-3xl pointer-events-none" />
       <div className="flex items-center justify-between px-6 py-4">
         <div>
