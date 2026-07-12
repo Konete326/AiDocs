@@ -62,11 +62,11 @@ export default function ResetPassword() {
     <AuthLayout title="New password" subtitle="Enter your new secure password">
       {error && <div className="liquid-glass rounded-xl px-4 py-3 text-sm text-white/80 mb-4">{error}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="liquid-glass rounded-xl px-4 py-3 flex items-center gap-3">
+        <div className="neumorphic-input-wrapper rounded-xl px-4 py-3 flex items-center gap-3">
           <Lock className="w-4 h-4 text-white/40" />
           <input type="password" placeholder="New Password" value={password} onChange={e => setPassword(e.target.value)} required className="bg-transparent text-white outline-none w-full text-sm" />
         </div>
-        <div className="liquid-glass rounded-xl px-4 py-3 flex items-center gap-3">
+        <div className="neumorphic-input-wrapper rounded-xl px-4 py-3 flex items-center gap-3">
           <Lock className="w-4 h-4 text-white/40" />
           <input type="password" placeholder="Confirm Password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} required className="bg-transparent text-white outline-none w-full text-sm" />
         </div>

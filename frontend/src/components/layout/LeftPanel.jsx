@@ -18,7 +18,7 @@ const HeroText = () => {
       <em className="font-serif italic text-white/80">idea</em>
     </h1>
     <Button 
-      variant="strong" 
+      variant="primary" 
       className="flex items-center gap-3" 
       onClick={() => navigate(isAuthenticated ? '/dashboard' : '/register')}
     >

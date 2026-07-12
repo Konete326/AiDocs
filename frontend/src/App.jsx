@@ -4,6 +4,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import AppRoutes from './routes/AppRoutes';
 import AppNavbar from './components/layout/AppNavbar';
 import PersistentBackground from './components/common/PersistentBackground';
+import { Agentation } from 'agentation';
 
 const App = () => (
   <BrowserRouter>
@@ -13,6 +14,12 @@ const App = () => (
         <PersistentBackground />
         <AppNavbar />
         <AppRoutes />
+        {import.meta.env.DEV && (
+          <Agentation 
+            endpoint="http://localhost:4747" 
+            onSessionCreated={(sessionId) => console.log('Session started:', sessionId)}
+          />
+        )}
       </AuthProvider>
     </ThemeProvider>
   </BrowserRouter>

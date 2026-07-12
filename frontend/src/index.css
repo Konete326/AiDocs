@@ -2,9 +2,14 @@
 @import "./styles/glass.css";
 
 @theme {
-  --font-display: 'Poppins', sans-serif;
+  --font-display: 'Plus Jakarta Sans', sans-serif;
   --font-serif: 'Source Serif 4', serif;
-  --font-sans: 'Poppins', sans-serif;
+  --font-sans: 'DM Sans', sans-serif;
+  
+  --color-white: #3D4852;
+  --color-accent: #6C63FF;
+  --color-accent-light: #8B84FF;
+  --color-accent-secondary: #38B2AC;
   
   --animate-marquee: marquee var(--duration) infinite linear;
   --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
@@ -39,43 +44,68 @@ html, body, #root {
 }
 
 body {
-  font-family: var(--font-display);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #000;
-  color: #fff;
+  background-color: #E0E5EC;
+  color: #3D4852;
+}
+
+.z-\[1\], 
+[class*="bg-black/55"][class*="z-[1]"],
+[class*="bg-black/40"][class*="z-[1]"],
+[class*="bg-black/65"][class*="z-[1]"],
+[class*="bg-black/60"][class*="z-[1]"] {
+  display: none !important;
+}
+
+*:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px #E0E5EC, 0 0 0 4px #6C63FF !important;
+}
+
+.min-h-screen.overflow-hidden,
+section.min-h-screen.overflow-hidden,
+div.min-h-screen.overflow-hidden {
+  overflow: visible !important;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 10px;
+  height: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #E0E5EC;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  transition: all 0.3s;
+  background: #A3B1C6;
+  border-radius: 5px;
+  border: 2px solid #E0E5EC;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: #8E9EBC;
 }
 
 .custom-scrollbar::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.116);
+  background: #B8C4D9;
+  border-radius: 3px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: #A3B1C6;
 }
 
 /* Focus Reset */

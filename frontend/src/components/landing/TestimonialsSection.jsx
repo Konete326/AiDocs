@@ -54,21 +54,21 @@ const testimonials = [
 
 function TestimonialCard({ img, name, username, body, country }) {
   return (
-    <Card className="w-72 border-white/5 bg-white/5 backdrop-blur-sm hover:bg-white/8 transition-colors duration-300 rounded-2xl">
+    <Card className="w-72 rounded-2xl bg-[#E0E5EC] shadow-[5px_5px_10px_rgba(163,177,198,0.6),-5px_-5px_10px_rgba(255,255,255,0.5)] border-none text-[#3D4852] hover:scale-[1.02] transition-transform duration-300">
       <CardContent className="pt-5 pb-5">
         <div className="flex items-center gap-3">
-          <Avatar className="size-9 border-white/10 ring-1 ring-white/10">
+          <Avatar className="size-9 border-none shadow-[inset_2px_2px_4px_rgba(163,177,198,0.6),-2px_-2px_4px_rgba(255,255,255,0.5)]">
             <AvatarImage src={img} alt={name} loading="lazy" />
-            <AvatarFallback className="bg-white/5 text-white/50 text-xs">{name[0]}</AvatarFallback>
+            <AvatarFallback className="bg-transparent text-[#6B7280] text-xs">{name[0]}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <div className="text-sm font-semibold text-white flex items-center gap-1.5">
+            <div className="text-sm font-semibold text-[#3D4852] flex items-center gap-1.5">
               {name} <span>{country}</span>
             </div>
-            <p className="text-xs font-medium text-white/40">{username}</p>
+            <p className="text-xs font-medium text-[#6B7280]">{username}</p>
           </div>
         </div>
-        <blockquote className="mt-3 text-sm leading-relaxed text-white/65 italic">
+        <blockquote className="mt-3 text-sm leading-relaxed text-[#6B7280] italic">
           "{body}"
         </blockquote>
       </CardContent>
@@ -78,17 +78,10 @@ function TestimonialCard({ img, name, username, body, country }) {
 
 export default function TestimonialsSection() {
   const navigate = useNavigate();
-  const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <section
-      className="relative py-24 px-4 overflow-hidden"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
+    <section className="relative py-24 px-4 overflow-hidden group">
       <div className="max-w-7xl mx-auto flex flex-col items-center">
-
-        {/* Heading */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -96,35 +89,22 @@ export default function TestimonialsSection() {
           transition={{ duration: 0.5, ease: 'easeOut' }}
           className="text-center mb-16"
         >
-          <p className="text-xs font-bold tracking-[0.3em] text-white/40 uppercase mb-4">
-            <SpecialText speed={25} inView={true} className="text-white/40">
+          <p className="text-xs font-bold tracking-[0.3em] text-[#6B7280] uppercase mb-4">
+            <SpecialText speed={25} inView={true} className="text-[#6B7280]">
               Community Feedback
             </SpecialText>
           </p>
-          <h2 className="text-4xl md:text-5xl font-medium text-white tracking-tighter">
+          <h2 className="text-4xl md:text-5xl font-medium text-[#3D4852] tracking-tighter">
             Loved by Visionary{' '}
-            <span className="font-serif italic text-white/80">Builders</span>
+            <span className="font-serif italic text-[#6B7280]">Builders</span>
           </h2>
         </motion.div>
 
-        {/* Marquee wrapper 
-            - Desktop: h-[580px], 3D tilt for premium look
-            - Mobile: h-[380px], no 3D (saves GPU on phones)
-            - repeat=1 → only 6 cards per column = 18 total (was 72!)
-        */}
         <div
           className="relative w-full max-w-[960px] overflow-hidden rounded-3xl"
           style={{ height: 'clamp(360px, 50vw, 580px)' }}
         >
-          {/* 3D tilt container — hidden on mobile to save GPU */}
-          <div
-            className="hidden md:flex flex-row items-start gap-4 absolute inset-0"
-            style={{
-              transform: 'rotateX(10deg) rotateZ(6deg) scale(1.08)',
-              transformOrigin: 'center center',
-              willChange: 'transform',
-            }}
-          >
+          <div className="hidden md:flex flex-row items-start gap-4 absolute inset-0">
             <Marquee vertical pauseOnHover repeat={1} className="[--duration:32s] h-full">
               {testimonials.map((r) => <TestimonialCard key={r.username + '_a'} {...r} />)}
             </Marquee>
@@ -136,7 +116,6 @@ export default function TestimonialsSection() {
             </Marquee>
           </div>
 
-          {/* Mobile — flat 2 columns, no 3D */}
           <div className="flex md:hidden flex-row items-start gap-3 absolute inset-0">
             <Marquee vertical pauseOnHover repeat={1} className="[--duration:30s] h-full">
               {testimonials.map((r) => <TestimonialCard key={r.username + '_m1'} {...r} />)}
@@ -146,64 +125,30 @@ export default function TestimonialsSection() {
             </Marquee>
           </div>
 
-          {/* Edge fades */}
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-black to-transparent z-10" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black to-transparent z-10" />
-          <div className="pointer-events-none absolute inset-y-0 left-0 w-1/5 bg-gradient-to-r from-black to-transparent z-10" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 w-1/5 bg-gradient-to-l from-black to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-1/4 bg-gradient-to-b from-[#E0E5EC] to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-[#E0E5EC] to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-1/5 bg-gradient-to-r from-[#E0E5EC] to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-1/5 bg-gradient-to-l from-[#E0E5EC] to-transparent z-10" />
 
-          {/* Give Feedback CTA
-              - Desktop: appears only when section is hovered
-              - Mobile: always visible
-          */}
-          {/* Mobile always-visible */}
-          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none md:hidden">
+          <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
             <div className="pointer-events-auto">
               <FeedbackButton onClick={() => navigate('/feedback')} />
             </div>
           </div>
-
-          {/* Desktop hover-reveal */}
-          <AnimatePresence>
-            {isHovered && (
-              <motion.div
-                key="feedback-cta"
-                initial={{ opacity: 0, scale: 0.9, y: 8 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.9, y: 8 }}
-                transition={{ duration: 0.2, ease: 'easeOut' }}
-                className="absolute inset-0 items-center justify-center z-20 pointer-events-auto hidden md:flex"
-              >
-                <FeedbackButton onClick={() => navigate('/feedback')} />
-              </motion.div>
-            )}
-          </AnimatePresence>
         </div>
       </div>
     </section>
   );
 }
 
-/* Glass feedback button — same style as Explore btn, smaller, rounded-2xl */
 function FeedbackButton({ onClick }) {
   return (
     <button
       onClick={onClick}
-      className="
-        liquid-glass
-        flex items-center gap-2.5
-        px-5 py-2.5
-        rounded-2xl
-        border border-white/15
-        text-white/85 text-sm font-medium tracking-wide
-        hover:bg-white/10
-        transition-colors duration-200
-        cursor-pointer
-        shadow-[0_8px_32px_rgba(0,0,0,0.4),inset_0_1px_0_rgba(255,255,255,0.08)]
-      "
+      className="liquid-glass flex items-center gap-2.5 px-5 py-2.5 rounded-2xl text-sm font-medium tracking-wide cursor-pointer"
     >
-      <MessageSquarePlus className="w-4 h-4 text-white/60" />
-      <span>Give Feedback</span>
+      <MessageSquarePlus className="w-4 h-4 text-[#6B7280]" />
+      <span className="text-[#3D4852]">Give Feedback</span>
     </button>
   );
 }

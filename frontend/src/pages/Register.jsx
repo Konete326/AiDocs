@@ -34,24 +34,28 @@ export default function Register() {
   };
 
   const inputCls = "bg-transparent text-white outline-none w-full text-sm";
-  const rowCls = "liquid-glass rounded-xl px-4 py-3 flex items-center gap-3";
+  const rowCls = "neumorphic-input-wrapper rounded-xl px-4 py-2.5 flex items-center gap-3";
 
   return (
     <AuthLayout title="Create account" subtitle="Start generating docs in minutes">
       {error && <div className="liquid-glass rounded-xl px-4 py-3 text-sm text-white/80 mb-4">{error}</div>}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className={rowCls}><User className="w-4 h-4 text-white/40" /><input type="text" placeholder="Full name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className={inputCls} required /></div>
-        <div className={rowCls}><Mail className="w-4 h-4 text-white/40" /><input type="email" placeholder="Email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className={inputCls} required /></div>
-        <div>
-          <div className={rowCls}><Lock className="w-4 h-4 text-white/40" /><input type={show.p ? 'text' : 'password'} placeholder="Password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} className={inputCls} required /><button type="button" onClick={() => setShow({...show, p: !show.p})} aria-label="Toggle password visibility" className="cursor-pointer">{show.p ? <EyeOff className="w-4 h-4 text-white/60" /> : <Eye className="w-4 h-4 text-white/60" />}</button></div>
-          {form.password && <PasswordStrengthMeter score={score} />}
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <div className="grid grid-cols-2 gap-3">
+          <div className={rowCls}><User className="w-4 h-4 text-[#6B7280]" /><input type="text" placeholder="Full name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className={inputCls} required /></div>
+          <div className={rowCls}><Mail className="w-4 h-4 text-[#6B7280]" /><input type="email" placeholder="Email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className={inputCls} required /></div>
         </div>
-        <div className={rowCls}><ShieldCheck className="w-4 h-4 text-white/40" /><input type={show.cp ? 'text' : 'password'} placeholder="Confirm password" value={form.confirmPassword} onChange={e => setForm({...form, confirmPassword: e.target.value})} className={inputCls} required /><button type="button" onClick={() => setShow({...show, cp: !show.cp})} aria-label="Toggle confirm password visibility" className="cursor-pointer">{show.cp ? <EyeOff className="w-4 h-4 text-white/60" /> : <Eye className="w-4 h-4 text-white/60" />}</button></div>
-        <button type="submit" disabled={isLoading} className="liquid-glass-strong rounded-full py-3 h-11 w-full mt-4 text-white font-medium text-sm hover:scale-105 disabled:hover:scale-100 transition-all flex justify-center items-center cursor-pointer disabled:cursor-not-allowed">{isLoading ? <LoadingSpinner /> : "Create Account"}</button>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <div className={rowCls}><Lock className="w-4 h-4 text-[#6B7280]" /><input type={show.p ? 'text' : 'password'} placeholder="Password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} className={inputCls} required /><button type="button" onClick={() => setShow({...show, p: !show.p})} aria-label="Toggle password visibility" className="cursor-pointer">{show.p ? <EyeOff className="w-4 h-4 text-[#6B7280]" /> : <Eye className="w-4 h-4 text-[#6B7280]" />}</button></div>
+            {form.password && <PasswordStrengthMeter score={score} />}
+          </div>
+          <div className={rowCls}><ShieldCheck className="w-4 h-4 text-[#6B7280]" /><input type={show.cp ? 'text' : 'password'} placeholder="Confirm password" value={form.confirmPassword} onChange={e => setForm({...form, confirmPassword: e.target.value})} className={inputCls} required /><button type="button" onClick={() => setShow({...show, cp: !show.cp})} aria-label="Toggle confirm password visibility" className="cursor-pointer">{show.cp ? <EyeOff className="w-4 h-4 text-[#6B7280]" /> : <Eye className="w-4 h-4 text-[#6B7280]" />}</button></div>
+        </div>
+        <button type="submit" disabled={isLoading} className="liquid-glass-strong rounded-2xl py-2.5 h-10 w-full mt-2 text-[#3D4852] font-semibold text-sm hover:scale-105 disabled:hover:scale-100 transition-all flex justify-center items-center cursor-pointer disabled:cursor-not-allowed">{isLoading ? <LoadingSpinner /> : "Create Account"}</button>
       </form>
       <div className="flex items-center gap-3 mt-6"><div className="h-px flex-1 bg-white/10" /><span className="text-xs text-white/40">or</span><div className="h-px flex-1 bg-white/10" /></div>
       <GoogleSignInButton onClick={async () => { try { setIsLoading(true); await loginGoogle(); navigate('/dashboard'); } catch (err) { setError('Google failed.'); } finally { setIsLoading(false); } }} isLoading={isLoading} />
-      <div className="mt-6 text-center"><span className="text-xs text-white/50">Joined? </span><Link to="/login" className="text-xs text-white/80 underline underline-offset-4">Sign in</Link></div>
+      <div className="mt-6 text-center"><span className="text-xs text-[#6B7280]">Joined? </span><Link to="/login" className="text-xs text-[#3D4852] underline underline-offset-4 font-semibold">Sign in</Link></div>
     </AuthLayout>
   );
 }

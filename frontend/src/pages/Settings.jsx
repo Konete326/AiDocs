@@ -138,39 +138,18 @@ const Settings = () => {
              {activeTab === 'theme' && (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <h3 className="text-2xl font-serif italic text-white tracking-tight mb-2">Display & Theme</h3>
-                  <p className="text-white/40 text-sm mb-8">Select a signature background experience for your workspace.</p>
+                  <p className="text-white/40 text-sm mb-8">Your workspace is styled with a premium tactile design system.</p>
                   
                   <div className="space-y-8 max-w-5xl">
-                    <div>
-                       <h4 className="text-xs font-semibold text-white/20 uppercase tracking-[0.2em] mb-4 px-2">Background Library</h4>
-                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                         {allThemes.map((theme) => (
-                           <ThemePreview 
-                             key={theme.id}
-                             theme={theme}
-                             isActive={currentTheme.id === theme.id}
-                             onSelect={updateTheme}
-                           />
-                         ))}
-                       </div>
-                    </div>
-                    
-                    <div className="liquid-glass p-6 rounded-3xl border border-white/5 flex items-center justify-between mt-8">
+                    <div className="liquid-glass p-6 rounded-3xl border border-white/5 flex items-center justify-between">
                        <div>
-                         <div className="text-sm font-medium text-white">Glassmorphism Engine</div>
-                         <div className={`text-xs mt-1 transition-colors ${isGlassEnabled ? 'text-white/40' : 'text-blue-400 font-medium'}`}>
-                            {isGlassEnabled ? 'Real-time backdrop blur enabled' : 'Performance mode: Blur disabled'}
+                         <div className="text-sm font-medium text-white">Neumorphic Soft UI Engine</div>
+                         <div className="text-xs mt-1 text-white/40">
+                            The visual system uses dual-opposing shadows on a cool-monochromatic surface (#E0E5EC) for maximum physical depth and accessibility.
                          </div>
                        </div>
-                       <div 
-                         onClick={toggleGlass}
-                         className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer shadow-lg ${
-                            isGlassEnabled ? 'bg-blue-500 shadow-blue-500/20' : 'bg-white/10'
-                         }`}
-                       >
-                         <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                            isGlassEnabled ? 'translate-x-6' : 'translate-x-1'
-                         }`} />
+                       <div className="text-xs font-bold uppercase tracking-widest text-[#38B2AC] bg-[#38B2AC]/10 px-4 py-2 rounded-full h-fit flex items-center justify-center">
+                         Active
                        </div>
                     </div>
                   </div>
