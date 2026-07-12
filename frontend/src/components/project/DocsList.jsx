@@ -22,7 +22,7 @@ const DOC_ORDER = [
 ];
 
 const DocsList = ({ documents, selectedDoc, onSelect, isGenerating, projectId, skills, onSkillsUpdate }) => (
-  <div className="liquid-glass rounded-3xl p-6 flex flex-col lg:space-y-2 h-full border border-white/5 overflow-hidden" style={{ willChange: 'transform' }}>
+  <div className="liquid-glass no-hover rounded-3xl p-6 flex flex-col lg:space-y-2 h-full border border-white/10 overflow-hidden" style={{ willChange: 'transform' }}>
     <div className="flex items-center justify-between px-2 mb-3 lg:mb-1 flex-shrink-0">
       <span className="text-xs uppercase tracking-widest text-white/50">Documents</span>
       {isGenerating && (
