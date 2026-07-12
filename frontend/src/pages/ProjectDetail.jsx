@@ -103,20 +103,11 @@ const ProjectDetail = () => {
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="fixed inset-0 bg-black/55 z-[1]" />
       <div className="relative z-10 pt-28 px-4 py-8 md:px-8">
-        <motion.div 
-          initial={{ opacity: 0 }} 
-          animate={{ opacity: 1 }} 
-          className="max-w-7xl mx-auto"
-          style={{ willChange: 'opacity' }}
-        >
+        <div className="max-w-7xl mx-auto">
 
           {/* Generating banner while viewing partial docs */}
           {isGenerating && viewingPartial && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="liquid-glass rounded-2xl px-6 py-3 mb-6 flex items-center justify-between border border-white/5"
-            >
+            <div className="liquid-glass rounded-2xl px-6 py-3 mb-6 flex items-center justify-between border border-white/5">
               <div className="flex items-center gap-3">
                 <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
                 <span className="text-sm text-white/70">
@@ -129,7 +120,7 @@ const ProjectDetail = () => {
               >
                 View progress →
               </button>
-            </motion.div>
+            </div>
           )}
 
           <ProjectHeader
@@ -193,7 +184,7 @@ const ProjectDetail = () => {
 
 
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
