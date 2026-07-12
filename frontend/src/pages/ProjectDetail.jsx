@@ -1,6 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { triggerGeneration } from '../services/projectService';
 import { useProjectPolling } from '../hooks/useProjectPolling';
@@ -9,7 +8,6 @@ import DocsList from '../components/project/DocsList';
 import GeneratingState from '../components/project/GeneratingState';
 import ErrorState from '../components/project/ErrorState';
 import DocumentViewer from '../components/project/DocumentViewer';
-import ProjectInfoPanel from '../components/project/ProjectInfoPanel';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { getDynamicAgentRules } from '../constants/agentRules';
 
@@ -56,7 +54,7 @@ const ProjectDetail = () => {
     list.push({ docType: 'rules', content: getDynamicAgentRules(project), version: '1.0' });
 
     return list;
-  }, [documents, skills, project?.title]);
+  }, [documents, skills, project]);
 
   const activeDoc = useMemo(() => {
     if (!selectedDoc) return null;
@@ -141,10 +139,10 @@ const ProjectDetail = () => {
           />
 
           {/* Bento Grid — mirrors pricing page columns */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4 auto-rows-min">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4 lg:h-[calc(100vh-170px)] min-h-[500px] lg:min-h-0">
 
             {/* DocsList — col-span-3 (like FreeCard) */}
-            <div className="md:col-span-1 lg:col-span-3">
+            <div className="md:col-span-1 lg:col-span-3 h-full overflow-hidden">
               <DocsList
                 documents={synthesizedDocs}
                 selectedDoc={activeDoc}
@@ -157,7 +155,7 @@ const ProjectDetail = () => {
             </div>
 
             {/* DocumentViewer — col-span-5 (like ProCard) */}
-            <div className="md:col-span-1 lg:col-span-5">
+            <div className="md:col-span-1 lg:col-span-5 h-full overflow-hidden">
               {selectedDoc ? (
                 <DocumentViewer
                   document={activeDoc}
@@ -193,10 +191,6 @@ const ProjectDetail = () => {
               )}
             </div>
 
-            {/* Project Info Panel — col-span-8 (like TeamCard) */}
-            <div className="md:col-span-2 lg:col-span-8">
-              <ProjectInfoPanel project={project} subscription={subscription} documents={documents} />
-            </div>
 
           </div>
         </motion.div>

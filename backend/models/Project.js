@@ -24,7 +24,8 @@ const projectSchema = new mongoose.Schema(
       dueDate: { type: Date },
       isComplete: { type: Boolean, default: false }
     }],
-    isArchived: { type: Boolean, default: false }
+    isArchived: { type: Boolean, default: false },
+    generationLock: { type: Date }
   },
   { timestamps: true }
 );

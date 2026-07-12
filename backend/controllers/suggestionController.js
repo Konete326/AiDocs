@@ -8,7 +8,7 @@ exports.getSuggestions = asyncWrapper(async (req, res) => {
   if (!fieldName) throw new AppError('fieldName required', 400, 'VALIDATION_ERROR');
 
   const prompt = buildSuggestionPrompt(projectTitle, projectType, fieldName, currentValue);
-  const raw = await AIService.generateText(prompt, 'suggestion');
+  const raw = await AIService.generateText(prompt, 'suggestion', 256);
 
   const suggestions = parseSuggestions(raw.content);
 

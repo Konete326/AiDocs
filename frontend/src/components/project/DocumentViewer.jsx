@@ -94,7 +94,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
 
   return (
     <>
-    <div className="liquid-glass-strong rounded-3xl flex flex-col h-full min-h-[600px] overflow-hidden border border-white/10 group shadow-2xl relative" style={{ willChange: 'transform' }}>
+    <div className="liquid-glass-strong rounded-3xl flex flex-col h-full min-h-[450px] lg:min-h-0 overflow-hidden border border-white/10 group shadow-2xl relative" style={{ willChange: 'transform' }}>
       <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-white/[0.02] blur-3xl pointer-events-none" />
       <div className="flex items-center justify-between px-6 py-4">
         <div>
@@ -121,7 +121,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
         </div>
       </div>
       <div className="h-px bg-white/10 mx-6" />
-      <div className="flex-1 overflow-y-auto px-6 py-6">
+      <div className="flex-1 overflow-y-auto custom-scrollbar px-6 py-6">
         {isEditing ? (
           <DocumentEditor content={editContent} onChange={setEditContent} saveError={saveError} />
         ) : renderedMarkdown}

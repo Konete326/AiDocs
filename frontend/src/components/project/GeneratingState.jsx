@@ -1,8 +1,9 @@
-import { Sparkles, ChevronLeft, CheckCircle, Loader, MessageCircle, Lock } from 'lucide-react';
+import { Sparkles, ChevronLeft, CheckCircle, Loader, MessageCircle, Lock, X, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import UpgradeModal from '../common/UpgradeModal';
+import { updateProject, triggerGeneration } from '../../services/projectService';
 
 const DOC_LABELS = {
   prd: 'Product Requirements',
@@ -25,6 +26,8 @@ const GeneratingState = ({ project, subscription, onViewReady }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [upgradeModal, setUpgradeModal] = useState({ open: false, feature: '' });
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [showRetryConfirm, setShowRetryConfirm] = useState(false);
   
   const docsGenerated = project?.docsGenerated || [];
   const count = docsGenerated.length;
@@ -41,6 +44,27 @@ const GeneratingState = ({ project, subscription, onViewReady }) => {
     }
   };
 
+  const handleCancel = async () => {
+    setShowCancelConfirm(false);
+    try {
+      await updateProject(project._id, { status: 'draft', generationLock: null });
+      window.location.reload();
+    } catch (err) {
+      console.error('[handleCancel] failed:', err);
+    }
+  };
+
+  const handleRetry = async () => {
+    setShowRetryConfirm(false);
+    try {
+      await updateProject(project._id, { generationLock: null });
+      await triggerGeneration(project._id);
+      window.location.reload();
+    } catch (err) {
+      console.error('[handleRetry] failed:', err);
+    }
+  };
+
   return (
     <div className="flex flex-col w-full max-w-5xl mx-auto space-y-3">
       <UpgradeModal
@@ -48,6 +72,56 @@ const GeneratingState = ({ project, subscription, onViewReady }) => {
         onClose={() => setUpgradeModal({ open: false, feature: '' })}
         onUpgrade={() => { setUpgradeModal({ open: false, feature: '' }); navigate('/pricing'); }}
       />
+
+      {showCancelConfirm && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
+          <div className="liquid-glass-strong rounded-3xl p-6 w-full max-w-sm border border-white/10 text-center relative z-10">
+            <h3 className="text-lg font-semibold text-white">Cancel Generation?</h3>
+            <p className="text-xs text-white/60 mt-2 leading-relaxed">
+              Are you sure you want to cancel? This will set the project back to draft, allowing you to edit features or restart.
+            </p>
+            <div className="flex gap-3 mt-6 justify-center">
+              <button
+                onClick={() => setShowCancelConfirm(false)}
+                className="liquid-glass rounded-full px-5 py-2 text-xs text-white/60 hover:text-white transition-all cursor-pointer border border-white/5"
+              >
+                Close
+              </button>
+              <button
+                onClick={handleCancel}
+                className="bg-red-600 hover:bg-red-700 text-white rounded-full px-5 py-2 text-xs font-semibold hover:scale-105 active:scale-95 transition-all cursor-pointer border-none"
+              >
+                Yes, Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showRetryConfirm && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
+          <div className="liquid-glass-strong rounded-3xl p-6 w-full max-w-sm border border-white/10 text-center relative z-10">
+            <h3 className="text-lg font-semibold text-white">Retry / Resume Generation?</h3>
+            <p className="text-xs text-white/60 mt-2 leading-relaxed">
+              Are you sure you want to retry? This will release any active locks and resume the AI document generator.
+            </p>
+            <div className="flex gap-3 mt-6 justify-center">
+              <button
+                onClick={() => setShowRetryConfirm(false)}
+                className="liquid-glass rounded-full px-5 py-2 text-xs text-white/60 hover:text-white transition-all cursor-pointer border border-white/5"
+              >
+                Close
+              </button>
+              <button
+                onClick={handleRetry}
+                className="bg-[#6C63FF] hover:bg-[#5b52e5] text-white rounded-full px-5 py-2 text-xs font-semibold hover:scale-105 active:scale-95 transition-all cursor-pointer border-none"
+              >
+                Yes, Resume
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
 
       {/* Main Status Box - Wider */}
@@ -68,10 +142,28 @@ const GeneratingState = ({ project, subscription, onViewReady }) => {
             </p>
         </div>
 
-        <div className="w-full max-w-2xl space-y-1.5 relative z-10">
-            <div className="flex justify-between items-end px-2">
+        <div className="w-full space-y-1.5 relative z-10">
+            <div className="flex justify-between items-center px-2">
                 <p className="text-[11px] text-white/40 uppercase tracking-[0.2em]">{count} of 9 complete</p>
-                <p className="text-lg font-bold text-white">{pct}%</p>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-1.5 mr-1">
+                    <button
+                      onClick={() => setShowCancelConfirm(true)}
+                      title="Cancel Generation"
+                      className="w-6 h-6 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center border border-white/5 hover:scale-105 active:scale-95 transition-all cursor-pointer text-white/60 hover:text-white"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => setShowRetryConfirm(true)}
+                      title="Retry / Resume"
+                      className="w-6 h-6 rounded-full bg-[#6C63FF]/20 hover:bg-[#6C63FF]/30 flex items-center justify-center border border-[#6C63FF]/30 hover:scale-105 active:scale-95 transition-all cursor-pointer text-white"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <p className="text-lg font-bold text-white">{pct}%</p>
+                </div>
             </div>
             <div className="liquid-glass rounded-full h-2.5 w-full overflow-hidden border border-white/5 p-0.5">
                 <div

@@ -8,7 +8,14 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const providers = [
   {
+    name: 'GEMINI_FLASH',
+    type: 'gemini',
+    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent',
+    getKey: () => process.env.GEMINI_API_KEY
+  },
+  {
     name: 'NVIDIA_70B',
+    type: 'openai',
     url: NVIDIA_URL,
     model: 'meta/llama-3.1-70b-instruct',
     getKey: () => process.env.NVIDIA_API_KEY,
@@ -16,6 +23,7 @@ const providers = [
   },
   {
     name: 'OPENROUTER_405B',
+    type: 'openai',
     url: OPENROUTER_URL,
     model: 'meta-llama/llama-3.1-405b-instruct',
     getKey: () => process.env.OPENROUTER_API_KEY,
@@ -23,6 +31,7 @@ const providers = [
   },
   {
     name: 'OPENROUTER_70B',
+    type: 'openai',
     url: OPENROUTER_URL,
     model: 'meta-llama/llama-3.1-70b-instruct',
     getKey: () => process.env.OPENROUTER_API_KEY,
@@ -30,6 +39,7 @@ const providers = [
   },
   {
     name: 'NVIDIA_8B',
+    type: 'openai',
     url: NVIDIA_URL,
     model: 'meta/llama-3.1-8b-instruct',
     getKey: () => process.env.NVIDIA_API_KEY,
@@ -41,25 +51,57 @@ const callProvider = async (provider, prompt, max_tokens = 2048) => {
   const token = provider.getKey();
   if (!token) throw new Error(`${provider.name} key not configured`);
 
-  const response = await axios.post(
-    provider.url,
-    { 
-      model: provider.model, 
-      messages: [{ role: 'user', content: prompt }], 
-      temperature: 0.2,
-      max_tokens
-    },
-    {
-      headers: { 
-        'Authorization': `Bearer ${token}`, 
-        'Content-Type': 'application/json', 
-        ...provider.headers 
+  if (provider.type === 'gemini') {
+    const response = await axios.post(
+      `${provider.url}?key=${token}`,
+      {
+        contents: [
+          {
+            parts: [
+              {
+                text: prompt
+              }
+            ]
+          }
+        ],
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: max_tokens
+        }
       },
-      timeout: 60000 // 60s per provider — fail fast and try next
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 15000
+      }
+    );
+    
+    if (!response.data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+      throw new Error('Invalid Gemini API response structure');
     }
-  );
+    return response.data.candidates[0].content.parts[0].text;
+  } else {
+    const response = await axios.post(
+      provider.url,
+      { 
+        model: provider.model, 
+        messages: [{ role: 'user', content: prompt }], 
+        temperature: 0.2,
+        max_tokens
+      },
+      {
+        headers: { 
+          'Authorization': `Bearer ${token}`, 
+          'Content-Type': 'application/json', 
+          ...provider.headers 
+        },
+        timeout: 15000
+      }
+    );
 
-  return response.data.choices[0].message.content;
+    return response.data.choices[0].message.content;
+  }
 };
 
 exports.generateText = async (prompt, docType, max_tokens = 2048) => {
@@ -67,19 +109,20 @@ exports.generateText = async (prompt, docType, max_tokens = 2048) => {
 
   for (let i = 0; i < providers.length; i++) {
     const provider = providers[i];
+    if (!provider.getKey()) continue;
+
     try {
       const content = await callProvider(provider, prompt, max_tokens);
       return { content, modelUsed: provider.name, generationTimeMs: Date.now() - startTime };
     } catch (error) {
       console.error(`[AIService] ${provider.name} failed (${docType}): ${error.message}`);
       
-      // If unauthorized, don't retry this specific provider but move to next
       if (error.response && [401, 403].includes(error.response.status)) {
         continue;
       }
 
       if (i < providers.length - 1) {
-        await delay(1000); // Reduced delay for faster transition
+        await delay(500);
       }
     }
   }
@@ -90,23 +133,47 @@ exports.generateText = async (prompt, docType, max_tokens = 2048) => {
 exports.generateChat = async (messages) => {
   for (let i = 0; i < providers.length; i++) {
     const provider = providers[i];
+    const token = provider.getKey();
+    if (!token) continue;
+
     try {
-      const token = provider.getKey();
-      if (!token) continue;
+      if (provider.type === 'gemini') {
+        const contents = messages.map(m => ({
+          role: m.role === 'assistant' ? 'model' : 'user',
+          parts: [{ text: m.content }]
+        }));
 
-      const response = await axios.post(
-        provider.url,
-        { model: provider.model, messages, max_tokens: 1000, temperature: 0.7 },
-        {
-          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...provider.headers },
-          timeout: 60000
-        }
-      );
+        const response = await axios.post(
+          `${provider.url}?key=${token}`,
+          {
+            contents,
+            generationConfig: {
+              maxOutputTokens: 1000,
+              temperature: 0.7
+            }
+          },
+          {
+            headers: { 'Content-Type': 'application/json' },
+            timeout: 15000
+          }
+        );
 
-      return response.data.choices[0].message.content;
+        return response.data.candidates[0].content.parts[0].text;
+      } else {
+        const response = await axios.post(
+          provider.url,
+          { model: provider.model, messages, max_tokens: 1000, temperature: 0.7 },
+          {
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json', ...provider.headers },
+            timeout: 15000
+          }
+        );
+
+        return response.data.choices[0].message.content;
+      }
     } catch (error) {
       console.error(`[AIService] ${provider.name} chat failed: ${error.message}`);
-      if (i < providers.length - 1) await delay(1000);
+      if (i < providers.length - 1) await delay(500);
     }
   }
   throw new AppError('AI chat failed across all providers.', 500, 'CHAT_FAILED');
