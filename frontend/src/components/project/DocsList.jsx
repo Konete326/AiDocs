@@ -30,7 +30,7 @@ const DocsList = ({ documents, selectedDoc, onSelect, isGenerating, projectId, s
       )}
     </div>
     
-    <div className="grid grid-cols-2 gap-2 overflow-y-auto max-h-[160px] lg:max-h-[185px] custom-scrollbar pr-1 p-1 flex-shrink-0">
+    <div className="grid grid-cols-2 gap-2 overflow-y-auto max-h-[160px] lg:max-h-[185px] hover-scrollbar pr-1 p-1 flex-shrink-0">
     {DOC_ORDER.map((type) => {
       const doc = documents.find((d) => d.docType === type);
       const isGenerated = !!doc;

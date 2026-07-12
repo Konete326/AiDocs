@@ -121,7 +121,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
         </div>
       </div>
       <div className="h-px bg-white/10 mx-6" />
-      <div className="flex-1 overflow-y-auto custom-scrollbar px-6 py-6">
+      <div className="flex-1 overflow-y-auto hover-scrollbar px-6 py-6">
         {isEditing ? (
           <DocumentEditor content={editContent} onChange={setEditContent} saveError={saveError} />
         ) : renderedMarkdown}

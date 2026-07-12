@@ -231,3 +231,35 @@ nav .liquid-glass-strong:hover,
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.4) transparent;
 }
+
+.hover-scrollbar::-webkit-scrollbar {
+  height: 5px;
+  width: 5px;
+}
+
+.hover-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.hover-scrollbar::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+.hover-scrollbar:hover::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.35);
+}
+
+.hover-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.55);
+}
+
+.hover-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+.hover-scrollbar:hover {
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
