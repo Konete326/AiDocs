@@ -102,7 +102,7 @@ const ProjectDetail = () => {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="fixed inset-0 bg-black/55 z-[1]" />
-      <div className="relative z-10 pt-28 px-4 py-8 md:px-8">
+      <div className="relative z-10 pt-20 px-4 py-4 md:px-8">
         <div className="max-w-7xl mx-auto">
 
           {/* Generating banner while viewing partial docs */}
@@ -130,7 +130,7 @@ const ProjectDetail = () => {
           />
 
           {/* Bento Grid — mirrors pricing page columns */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4 lg:h-[calc(100vh-170px)] min-h-[500px] lg:min-h-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4 lg:h-[calc(100vh-230px)] min-h-[500px] lg:min-h-0">
 
             {/* DocsList — col-span-3 (like FreeCard) */}
             <div className="md:col-span-1 lg:col-span-3 h-full overflow-hidden">
