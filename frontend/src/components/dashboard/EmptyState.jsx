@@ -5,7 +5,7 @@ export default function EmptyState() {
   const navigate = useNavigate();
   return (
     <div className="flex justify-center">
-      <div className="liquid-glass-strong rounded-3xl p-12 text-center max-w-md">
+      <div className="liquid-glass-strong no-hover rounded-3xl p-12 text-center w-full">
         <FileText className="w-12 h-12 text-white/30 mb-4 mx-auto" />
         <h2 className="text-xl font-medium text-white">No projects yet</h2>
         <p className="text-sm text-white/60 mt-2">
@@ -13,7 +13,7 @@ export default function EmptyState() {
         </p>
         <button
           onClick={() => navigate('/projects/new')}
-          className="liquid-glass-strong rounded-full px-8 py-3 mt-6 text-white text-sm font-medium hover:scale-105 transition-transform cursor-pointer"
+          className="liquid-glass-strong bg-[#6C63FF] rounded-full px-8 py-3 mt-6 text-white text-sm font-medium hover:scale-105 transition-transform cursor-pointer"
         >
           Create First Project
         </button>

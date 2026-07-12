@@ -14,8 +14,7 @@ const StatsGrid = ({ projectsCount, totalDocs, plan }) => {
           key={i}
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          whileHover={{ y: -4 }}
-          className="liquid-glass rounded-2xl p-5 cursor-default"
+          className="liquid-glass no-hover rounded-2xl p-5 cursor-default"
         >
           <p className="text-xs uppercase tracking-[0.25em] text-white/40">{stat.label}</p>
           <p className="text-2xl font-medium text-white mt-1">{stat.value}</p>

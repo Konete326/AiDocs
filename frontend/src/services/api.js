@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
 
 // Token is memory-only — never stored in localStorage (XSS mitigation)
 let _accessToken = null;
@@ -46,7 +47,11 @@ api.interceptors.response.use(
     const originalRequest = error.config;
     const isRefreshRequest = originalRequest.url && originalRequest.url.includes('/auth/refresh');
 
-    if (error.response?.status === 401 && !originalRequest._retry && !isRefreshRequest) {
+    if (error.response && error.response.data && error.response.data.error === 'Database connection failed') {
+      toast.error('Database connection failed');
+    }
+
+    if (error.response && error.response.status === 401 && !originalRequest._retry && !isRefreshRequest) {
       originalRequest._retry = true;
 
       try {

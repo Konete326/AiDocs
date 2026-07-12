@@ -8,13 +8,14 @@ export function useConfirmModal() {
     confirmLabel: 'Confirm',
     cancelLabel: 'Cancel',
     onConfirm: null,
+    isDangerous: false,
   });
 
-  const confirm = ({ title, message, confirmLabel = 'Confirm', cancelLabel = 'Cancel', onConfirm }) => {
-    setModal({ isOpen: true, title, message, confirmLabel, cancelLabel, onConfirm });
+  const confirm = ({ title, message, confirmLabel = 'Confirm', cancelLabel = 'Cancel', onConfirm, isDangerous = false }) => {
+    setModal({ isOpen: true, title, message, confirmLabel, cancelLabel, onConfirm, isDangerous });
   };
 
-  const close = () => setModal(prev => ({ ...prev, isOpen: false, onConfirm: null }));
+  const close = () => setModal(prev => ({ ...prev, isOpen: false, onConfirm: null, isDangerous: false }));
 
   const handleConfirm = () => {
     if (modal.onConfirm) modal.onConfirm();

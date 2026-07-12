@@ -7,7 +7,7 @@ const ProfileHeader = ({ user }) => {
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} className="space-y-6">
-      <div className="liquid-glass inline-flex rounded-full px-4 py-1.5 text-xs uppercase tracking-[0.3em] text-white/70">
+      <div className="liquid-glass no-hover inline-flex rounded-full px-4 py-1.5 text-xs uppercase tracking-[0.3em] text-white/70">
         Your Profile
       </div>
       <h2 className="text-2xl lg:text-3xl font-medium tracking-tight text-white">

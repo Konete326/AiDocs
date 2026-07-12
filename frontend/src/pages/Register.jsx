@@ -44,7 +44,7 @@ export default function Register() {
           <div className={rowCls}><User className="w-4 h-4 text-[#6B7280]" /><input type="text" placeholder="Full name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className={inputCls} required /></div>
           <div className={rowCls}><Mail className="w-4 h-4 text-[#6B7280]" /><input type="email" placeholder="Email" value={form.email} onChange={e => setForm({...form, email: e.target.value})} className={inputCls} required /></div>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3 items-start">
           <div>
             <div className={rowCls}><Lock className="w-4 h-4 text-[#6B7280]" /><input type={show.p ? 'text' : 'password'} placeholder="Password" value={form.password} onChange={e => setForm({...form, password: e.target.value})} className={inputCls} required /><button type="button" onClick={() => setShow({...show, p: !show.p})} aria-label="Toggle password visibility" className="cursor-pointer">{show.p ? <EyeOff className="w-4 h-4 text-[#6B7280]" /> : <Eye className="w-4 h-4 text-[#6B7280]" />}</button></div>
             {form.password && <PasswordStrengthMeter score={score} />}

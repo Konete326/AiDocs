@@ -43,6 +43,7 @@ const Dashboard = () => {
       title: 'Delete Project',
       message: 'This project and all its documents will be permanently deleted. This cannot be undone.',
       confirmLabel: 'Delete',
+      isDangerous: true,
       onConfirm: async () => {
         try {
           await deleteProject(id);
@@ -67,6 +68,7 @@ const Dashboard = () => {
         cancelLabel={confirmModal.cancelLabel}
         onConfirm={handleConfirm}
         onCancel={closeConfirm}
+        isDangerous={confirmModal.isDangerous}
       />
       
       <AlertModal
@@ -80,7 +82,7 @@ const Dashboard = () => {
       {/* Dark overlay — video from PersistentBackground in App.jsx */}
       <div className="fixed inset-0 bg-black/55 z-[1]" />
       
-      <div className="relative z-10 pt-20 p-6 md:p-12 lg:p-16 max-w-7xl mx-auto min-h-screen">
+      <div className="relative z-10 pt-28 p-6 md:p-12 lg:p-16 max-w-7xl mx-auto min-h-screen">
         <DashboardHeader 
           projectCount={projects?.length || 0} 
           plan={subscription?.plan || 'free'} 

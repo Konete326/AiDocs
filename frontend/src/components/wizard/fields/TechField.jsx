@@ -11,8 +11,8 @@ export default function TechField({ formData, onChange }) {
 
   return (
     <div>
-      <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-4">Tech Preferences</label>
-      <div className="liquid-glass rounded-xl px-4 py-3 w-full">
+      <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-2">Tech Preferences</label>
+      <div className="liquid-glass rounded-xl px-4 py-2.5 w-full">
         <textarea 
           value={formData.wizardAnswers.techPreferences}
           onChange={(e) => onChange('wizardAnswers.techPreferences', e.target.value)}
@@ -21,9 +21,6 @@ export default function TechField({ formData, onChange }) {
           className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
         />
       </div>
-      <p className="mt-2 text-[10px] text-white/30 uppercase tracking-wider flex items-center gap-2">
-        <span>💡</span> Tip: Leave blank if you want the AI to recommend the optimal stack.
-      </p>
       <SuggestionPills
         suggestions={suggestions}
         isLoading={isLoading}

@@ -20,7 +20,7 @@ export default function DashboardHeader({ projectCount, plan, projectLimit }) {
   };
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between mt-6">
       <div className="flex items-center gap-4">
         <UserAvatar user={user} size="md" />
         <div>

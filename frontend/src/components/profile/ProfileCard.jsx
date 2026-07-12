@@ -9,7 +9,7 @@ const ProfileCard = ({
   isSaving, saveError, onAvatarUpload, isUploadingAvatar, onLogout, onResetPassword
 }) => {
   return (
-    <div className="liquid-glass-strong rounded-[28px] p-8 flex flex-col items-center">
+    <div className="liquid-glass-strong no-hover rounded-[28px] p-8 flex flex-col items-center">
       <div className="relative mt-2">
         <UserAvatar
           user={user}
@@ -27,7 +27,7 @@ const ProfileCard = ({
       <div className="mt-10 w-full flex flex-col items-center text-center">
         {isEditing ? (
           <div className="w-full space-y-4">
-            <div className="liquid-glass rounded-xl px-4 py-2">
+            <div className="liquid-glass no-hover rounded-xl px-4 py-2">
               <input type="text" value={editData.displayName} onChange={(e) => onChange('displayName', e.target.value)} placeholder="Your name" className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-center text-2xl font-medium" />
             </div>
             {saveError && <p className="text-xs text-white/50">{saveError}</p>}
@@ -60,7 +60,7 @@ const ProfileCard = ({
       {!isEditing && (
         <div className="w-full mt-6 space-y-6">
           {/* Current Plan Section */}
-          <div className="liquid-glass rounded-3xl p-6 border border-white/5 bg-white/[0.01]">
+          <div className="liquid-glass no-hover rounded-3xl p-6 border border-white/5 bg-white/[0.01]">
             <div className="flex items-center justify-between mb-4">
               <div className="flex flex-col">
                 <span className="text-[10px] uppercase tracking-widest text-white/30 mb-1">Current Plan</span>

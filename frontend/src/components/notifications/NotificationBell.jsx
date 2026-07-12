@@ -61,6 +61,7 @@ const NotificationBell = () => {
       title: 'Delete Notification',
       message: 'Are you sure you want to remove this notification?',
       confirmLabel: 'Delete',
+      isDangerous: true,
       onConfirm: async () => {
         try {
           await deleteNotification(id);
@@ -78,11 +79,11 @@ const NotificationBell = () => {
     <div className="relative">
       <button 
         onClick={() => setIsOpen(true)}
-        className="liquid-glass rounded-full w-10 h-10 flex items-center justify-center relative hover:scale-105 transition-transform cursor-pointer border-none outline-none"
+        className="liquid-glass rounded-full size-10 flex items-center justify-center relative hover:scale-105 transition-transform cursor-pointer border-none outline-none"
       >
-        <Bell className="w-4 h-4 text-white/70" />
+        <Bell className="size-3.5 text-white/70" />
         {unreadCount > 0 && (
-          <div className="absolute top-2.5 right-2.5 w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
+          <div className="absolute top-2.5 right-2.5 size-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
         )}
       </button>
 
@@ -104,6 +105,7 @@ const NotificationBell = () => {
         cancelLabel={confirmModal.cancelLabel}
         onConfirm={handleConfirm}
         onCancel={closeConfirm}
+        isDangerous={confirmModal.isDangerous}
       />
     </div>
   );

@@ -5,6 +5,7 @@ import AppRoutes from './routes/AppRoutes';
 import AppNavbar from './components/layout/AppNavbar';
 import PersistentBackground from './components/common/PersistentBackground';
 import { Agentation } from 'agentation';
+import { Toaster } from 'react-hot-toast';
 
 const App = () => (
   <BrowserRouter>
@@ -14,6 +15,7 @@ const App = () => (
         <PersistentBackground />
         <AppNavbar />
         <AppRoutes />
+        <Toaster />
         {import.meta.env.DEV && (
           <Agentation 
             endpoint="http://localhost:4747" 

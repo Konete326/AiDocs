@@ -2,7 +2,8 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Crown, X, Check } from 'lucide-react';
-import { SpecialText } from '../ui/SpecialText';
+
+const Motion = motion;
 
 const UpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
   const features = [
@@ -16,7 +17,7 @@ const UpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[99999] flex items-center justify-center px-4 md:p-6" style={{ width: '100vw', height: '100vh' }}>
-          <motion.div 
+          <Motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -24,14 +25,14 @@ const UpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
             className="absolute inset-0 bg-black/80 backdrop-blur-md"
           />
           
-          <motion.div
+          <Motion.div
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="relative z-10 w-full max-w-md overflow-hidden"
           >
-            <div className="bg-black/90 backdrop-blur-2xl rounded-[2.5rem] border border-white/10 p-6 md:p-8 text-center shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+            <div className="bg-black/90 backdrop-blur-2xl rounded-[2.5rem] border border-white/20 p-6 md:p-8 text-center shadow-[0_0_50px_rgba(0,0,0,0.8)]">
               {/* Close Button */}
               <button 
                 onClick={onClose}
@@ -48,9 +49,7 @@ const UpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
               {/* Header */}
               <h2 className="text-2xl font-semibold text-white mb-3">Unlock Pro Workspace</h2>
               <p className="text-white/60 text-sm leading-relaxed mb-6">
-                <SpecialText speed={12} delay={0.2} inView={true} className="text-white/60">
-                  The advanced workspace is a Pro feature. Upgrade your plan to unlock AI collaboration and advanced tools.
-                </SpecialText>
+                The advanced workspace is a Pro feature. Upgrade your plan to unlock AI collaboration and advanced tools.
               </p>
 
               {/* Features List */}
@@ -81,7 +80,7 @@ const UpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
                 </button>
               </div>
             </div>
-          </motion.div>
+          </Motion.div>
         </div>
       )}
     </AnimatePresence>

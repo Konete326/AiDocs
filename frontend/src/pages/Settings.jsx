@@ -99,7 +99,7 @@ const Settings = () => {
   ];
 
   return (
-    <section className="relative min-h-screen overflow-hidden px-4 sm:px-6 py-24 lg:py-32">
+    <section className="relative min-h-screen overflow-hidden px-4 sm:px-6 pt-28 pb-8">
       <div className="absolute inset-0 bg-black/55 z-[1]" />
       
       <div className="relative z-10 mx-auto max-w-6xl">
@@ -134,7 +134,7 @@ const Settings = () => {
           </GlassCard>
 
           {/* Main Content */}
-          <GlassCard strong className="flex-1 p-6 md:p-8 lg:p-10 rounded-[2.5rem] min-h-[500px]">
+          <GlassCard strong className="flex-1 p-6 md:p-8 lg:p-10 rounded-[2.5rem] min-h-[300px]">
              {activeTab === 'theme' && (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <h3 className="text-2xl font-serif italic text-white tracking-tight mb-2">Display & Theme</h3>

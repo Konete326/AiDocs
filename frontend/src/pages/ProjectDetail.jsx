@@ -82,7 +82,7 @@ const ProjectDetail = () => {
   if (isGenerating && !viewingPartial) return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="fixed inset-0 bg-black/55 z-[1]" />
-      <div className="relative z-10 pt-20 px-6 py-8 md:px-12">
+      <div className="relative z-10 pt-28 px-6 py-8 md:px-12">
         <GeneratingState
           project={project}
           subscription={subscription}
@@ -95,7 +95,7 @@ const ProjectDetail = () => {
   if (project.status === 'error') return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="fixed inset-0 bg-black/55 z-[1]" />
-      <div className="relative z-10 pt-20 px-6 py-8 md:px-12">
+      <div className="relative z-10 pt-28 px-6 py-8 md:px-12">
         <ErrorState onRetry={handleRetry} />
       </div>
     </div>
@@ -104,7 +104,7 @@ const ProjectDetail = () => {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="fixed inset-0 bg-black/55 z-[1]" />
-      <div className="relative z-10 pt-20 px-4 py-8 md:px-8">
+      <div className="relative z-10 pt-28 px-4 py-8 md:px-8">
         <motion.div 
           initial={{ opacity: 0 }} 
           animate={{ opacity: 1 }} 
