@@ -49,19 +49,6 @@ const GeneratingState = ({ project, subscription, onViewReady }) => {
         onUpgrade={() => { setUpgradeModal({ open: false, feature: '' }); navigate('/pricing'); }}
       />
 
-      <div className="flex items-center justify-between px-2">
-        <button 
-          onClick={() => navigate('/dashboard')}
-          className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer"
-        >
-          <ChevronLeft className="w-4 h-4 text-white/70" />
-          <span className="text-sm text-white/70 font-medium">Dashboard</span>
-        </button>
-        <div className="flex items-center gap-2 px-4 py-1.5 liquid-glass rounded-full">
-            <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-            <span className="text-[10px] uppercase tracking-widest text-white/60 font-medium">Live Generation</span>
-        </div>
-      </div>
 
       {/* Main Status Box - Wider */}
       <div className="liquid-glass-strong no-hover rounded-[2.5rem] p-6 md:p-8 text-center flex flex-col items-center gap-5 w-full relative overflow-hidden group">
