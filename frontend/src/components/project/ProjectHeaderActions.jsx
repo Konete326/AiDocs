@@ -57,30 +57,17 @@ const ProjectHeaderActions = ({ project, isPro }) => {
         </button>
 
         {project.status === 'complete' && (
-          isPro ? (
-            <button
-              onClick={handleZipDownload}
-              disabled={isDownloading}
-              className="liquid-glass rounded-full px-5 py-2 flex flex-col items-center justify-center hover:scale-105 disabled:hover:scale-100 transition-all cursor-pointer disabled:cursor-not-allowed flex-shrink-0"
-            >
-              <div className="flex items-center gap-2">
-                {isDownloading ? <Loader2 className="w-4 h-4 animate-spin opacity-70" /> : <Download className="w-4 h-4 text-white/80" />}
-                <span className="text-sm text-white/90 font-medium">Download All</span>
-              </div>
-              <span className="text-[10px] text-white/40 mt-1 leading-none">Docs + Skills + Code</span>
-            </button>
-          ) : (
-            <button
-              onClick={() => setUpgradeModal({ open: true, feature: 'download' })}
-              className="liquid-glass rounded-full px-5 py-2 flex flex-col items-center justify-center hover:scale-105 transition-all cursor-pointer text-white/40 flex-shrink-0"
-            >
-              <div className="flex items-center gap-2 opacity-50">
-                <Lock className="w-4 h-4" />
-                <span className="text-sm font-medium">Download All</span>
-              </div>
-              <span className="text-[10px] text-white/30 mt-1 leading-none">Docs + Skills + Code</span>
-            </button>
-          )
+          <button
+            onClick={handleZipDownload}
+            disabled={isDownloading}
+            className="liquid-glass rounded-full px-5 py-2 flex flex-col items-center justify-center hover:scale-105 disabled:hover:scale-100 transition-all cursor-pointer disabled:cursor-not-allowed flex-shrink-0"
+          >
+            <div className="flex items-center gap-2">
+              {isDownloading ? <Loader2 className="w-4 h-4 animate-spin opacity-70" /> : <Download className="w-4 h-4 text-white/80" />}
+              <span className="text-sm text-white/90 font-medium">Download All</span>
+            </div>
+            <span className="text-[10px] text-white/40 mt-1 leading-none">Docs + Skills + Code</span>
+          </button>
         )}
       </div>
     </>
