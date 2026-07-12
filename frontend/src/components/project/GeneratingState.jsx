@@ -107,7 +107,7 @@ const GeneratingState = ({ project, subscription, onViewReady }) => {
                     const isReady = docsGenerated.includes(type);
                     return (
                         <div key={type} className={`liquid-glass no-hover rounded-2xl p-2.5 border border-white/5 flex items-center gap-3 transition-all ${isReady ? 'bg-white/[0.03]' : 'opacity-40'}`}>
-                            <div className={`w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 ${isReady ? 'bg-[#6C63FF]' : 'bg-white/5'}`}>
+                            <div className={`w-7 h-7 rounded-xl flex items-center justify-center flex-shrink-0 ${isReady ? 'bg-[#6C63FF] shadow-[2px_2px_5px_rgba(108,99,255,0.35),-2px_-2px_5px_rgba(255,255,255,0.5)]' : 'bg-white/5'}`}>
                                 {isReady ? <CheckCircle className="w-3.5 h-3.5 text-white" /> : <Loader className="w-3.5 h-3.5 text-white/40 animate-spin" />}
                             </div>
                             <span className="text-xs text-white/80 font-medium truncate">{DOC_LABELS[type]}</span>
