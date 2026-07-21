@@ -45,7 +45,7 @@ const Workspace = () => {
   );
 
   return (
-    <section className="relative min-h-screen overflow-hidden">
+    <section className="relative h-screen max-h-screen overflow-hidden">
       <div className="absolute inset-0 bg-black/65 z-[1]" />
 
       <motion.div 
@@ -53,7 +53,7 @@ const Workspace = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
         style={{ willChange: 'opacity, transform' }}
-        className="relative z-10 pt-28 min-h-screen px-6 py-8 md:px-12 max-w-[1400px] mx-auto flex flex-col"
+        className="relative z-10 pt-20 sm:pt-22 pb-4 px-4 sm:px-8 max-w-[1450px] mx-auto h-full flex flex-col overflow-hidden"
       >
         <WorkspaceHeader 
           project={project} 
@@ -61,7 +61,7 @@ const Workspace = () => {
           onBack={() => navigate(`/projects/${id}`)} 
         />
 
-        <div className="flex-1 overflow-x-auto">
+        <div className="flex-1 min-h-0 overflow-hidden mt-2">
           <KanbanBoard onDragEnd={handleDragEnd}>
             {columns.map(col => (
               <KanbanColumn
