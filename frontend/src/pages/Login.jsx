@@ -38,7 +38,6 @@ export default function Login() {
 
   return (
     <AuthLayout title="Welcome back" subtitle="Sign in to continue building">
-      {error && <div className="liquid-glass rounded-xl px-4 py-3 text-sm text-white/80 mb-4">{error}</div>}
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="neumorphic-input-wrapper rounded-xl px-4 py-2.5 flex items-center gap-3">
           <Mail className="w-4 h-4 text-[#6B7280]" />

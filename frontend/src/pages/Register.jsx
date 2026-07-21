@@ -50,7 +50,6 @@ export default function Register() {
 
   return (
     <AuthLayout title="Create account" subtitle="Start generating docs in minutes">
-      {error && <div className="liquid-glass rounded-xl px-4 py-3 text-sm text-white/80 mb-4">{error}</div>}
       <form onSubmit={handleSubmit} className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
           <div className={rowCls}><User className="w-4 h-4 text-[#6B7280]" /><input type="text" placeholder="Full name" value={form.name} onChange={e => setForm({...form, name: e.target.value})} className={inputCls} required /></div>
