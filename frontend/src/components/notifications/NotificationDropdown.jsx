@@ -97,7 +97,7 @@ export default function NotificationDropdown({ isOpen, notifications = [], onMar
             <div className="max-h-72 overflow-y-auto pr-1 space-y-3 hover-scrollbar custom-scrollbar">
               {activeGroups.map((group) => (
                 <div key={group} className="space-y-1">
-                  <div className="text-[9px] font-bold uppercase tracking-wider text-white/40 sticky top-0 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded-md z-10">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-[#38B2AC] sticky top-0 bg-black/90 backdrop-blur-md px-2 py-1 rounded-md z-10 border border-white/10 my-1">
                     {group}
                   </div>
                   {grouped[group].map((notification) => (
