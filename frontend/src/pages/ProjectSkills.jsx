@@ -161,10 +161,11 @@ export default function ProjectSkills() {
                       <button
                         onClick={() => handleToggle(s.id)}
                         disabled={togglingId === s.id}
-                        className="bg-red-500/25 hover:bg-red-500/40 text-red-200 rounded-full px-3 py-1 text-[10px] font-medium flex items-center gap-1 transition-all cursor-pointer border border-red-500/40 shadow-sm"
+                        style={{ color: '#ffffff', backgroundColor: '#b91c1c' }}
+                        className="rounded-full px-3 py-1 text-[10px] font-semibold flex items-center gap-1 hover:bg-red-800 transition-all cursor-pointer border border-red-500/50 shadow-md"
                         title="Remove skill from project"
                       >
-                        <Trash2 className="w-3 h-3" /> Remove
+                        <Trash2 className="w-3 h-3 text-white" /> Remove
                       </button>
                     </div>
                     <p className="text-xs text-white/60 leading-relaxed">{s.description}</p>
@@ -222,10 +223,11 @@ export default function ProjectSkills() {
                       <button
                         onClick={() => handleToggle(s.id)}
                         disabled={togglingId === s.id}
-                        className="bg-blue-600 hover:bg-blue-500 text-white rounded-full px-3 py-1 text-[10px] font-medium flex items-center gap-1 transition-all cursor-pointer border border-blue-400/40 shadow-sm"
+                        style={{ color: '#ffffff', backgroundColor: '#2563eb' }}
+                        className="rounded-full px-3 py-1 text-[10px] font-semibold flex items-center gap-1 hover:bg-blue-700 transition-all cursor-pointer border border-blue-400/50 shadow-md"
                         title="Add skill to project"
                       >
-                        <Plus className="w-3 h-3" /> Add to Project
+                        <Plus className="w-3 h-3 text-white" /> Add to Project
                       </button>
                     </div>
                     <p className="text-xs text-white/60 leading-relaxed">{s.description}</p>
