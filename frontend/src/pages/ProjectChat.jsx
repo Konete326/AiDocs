@@ -107,11 +107,11 @@ export default function ProjectChat() {
               </div>
 
               {project?.wizardAnswers?.coreFeatures && project.wizardAnswers.coreFeatures.length > 0 && (
-                <div className="pt-2 border-t border-white/10 flex flex-col gap-1 overflow-hidden">
-                  <span className="text-[9px] uppercase tracking-wider text-white/40 font-medium">Core Features</span>
-                  <div className="flex flex-wrap gap-1">
+                <div className="pt-2.5 border-t border-white/10 flex flex-col gap-1.5 overflow-hidden">
+                  <span className="text-[9.5px] uppercase tracking-wider text-white/40 font-medium">Core Features</span>
+                  <div className="flex flex-wrap gap-1.5 p-1 rounded-2xl bg-white/[0.02]">
                     {project.wizardAnswers.coreFeatures.slice(0, 3).map((f, i) => (
-                      <span key={i} className="liquid-glass rounded-full px-2 py-0.5 text-[9.5px] text-white/70 border border-white/10 truncate max-w-[130px]">
+                      <span key={i} className="liquid-glass rounded-full px-2.5 py-1 text-[10px] text-white/80 border border-white/15 truncate max-w-[130px] shadow-sm">
                         {f}
                       </span>
                     ))}
@@ -128,24 +128,24 @@ export default function ProjectChat() {
                   <span className="text-xs font-semibold uppercase tracking-wider">Suggested Questions</span>
                 </div>
                 <p className="text-xs text-white/50 leading-relaxed">
-                  Click any question to ask your AI Co-founder:
+                  Click any prompt to trigger AI Co-founder actions:
                 </p>
               </div>
 
-              <div className="space-y-2 pt-1 overflow-y-auto hover-scrollbar custom-scrollbar">
+              <div className="space-y-2 p-1 overflow-y-auto hover-scrollbar custom-scrollbar">
                 {[
+                  { label: "Add Stripe Integration skill to project", icon: Sparkles },
+                  { label: "Download PRD in PDF format", icon: FileText },
                   { label: "Download all project files (.zip)", icon: FileText },
-                  { label: "Download PRD as Word (.docx)", icon: FileText },
-                  { label: "Download DB Schema as Excel (.csv)", icon: Layers },
-                  { label: "Update PRD to add Stripe payment gateway", icon: Sparkles }
+                  { label: "Download DB Schema as Excel (.csv)", icon: Layers }
                 ].map(({ label, icon: Icon }) => (
                   <button
                     key={label}
                     onClick={() => handleSend(label)}
-                    className="w-full text-left liquid-glass-strong rounded-2xl px-3 py-2 text-xs text-white/70 hover:text-white hover:border-white/30 transition-all flex items-center justify-between group cursor-pointer border border-white/10"
+                    className="w-full text-left liquid-glass-strong rounded-2xl px-3.5 py-2.5 text-xs text-white/80 hover:text-white hover:border-white/30 transition-all flex items-center justify-between group cursor-pointer border border-white/10 shadow-sm"
                   >
                     <span className="truncate pr-2">{label}</span>
-                    <Icon className="w-3.5 h-3.5 text-white/30 group-hover:text-[#6C63FF] transition-colors flex-shrink-0" />
+                    <Icon className="w-3.5 h-3.5 text-white/40 group-hover:text-[#6C63FF] transition-colors flex-shrink-0" />
                   </button>
                 ))}
               </div>
