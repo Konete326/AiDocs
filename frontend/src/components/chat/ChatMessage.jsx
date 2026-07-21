@@ -125,15 +125,15 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
   return (
     <>
       {previewUrl && (
-        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-8 bg-black/80 backdrop-blur-md">
-          <div className="liquid-glass-strong rounded-3xl w-full max-w-5xl h-[80vh] my-auto flex flex-col border border-white/15 overflow-hidden shadow-2xl relative">
-            <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between bg-black/50 flex-shrink-0 gap-2 flex-wrap sm:flex-nowrap">
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center pt-20 pb-6 px-4 sm:px-8 bg-black/80 backdrop-blur-md">
+          <div className="bg-white rounded-3xl w-full max-w-5xl h-[80vh] my-auto flex flex-col border border-slate-200 overflow-hidden shadow-2xl relative">
+            <div className="px-4 py-3 border-b border-slate-200 flex items-center justify-between bg-slate-50 flex-shrink-0 gap-2 flex-wrap sm:flex-nowrap">
               <div className="flex items-center gap-2 truncate pr-2 max-w-[180px] sm:max-w-xs">
                 <Globe className="w-4 h-4 text-[#6C63FF] flex-shrink-0" />
-                <span className="text-xs font-semibold text-white truncate">{previewUrl}</span>
+                <span className="text-xs font-semibold text-slate-900 truncate">{previewUrl}</span>
               </div>
 
-              <div className="flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/10">
+              <div className="flex items-center gap-1 bg-slate-200/80 p-1 rounded-full border border-slate-300">
                 {[
                   { id: 'mobile', label: 'Mobile (375px)', icon: Smartphone },
                   { id: 'tablet', label: 'Tablet (768px)', icon: Tablet },
@@ -147,7 +147,7 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
                       className={`rounded-full px-2.5 py-0.5 text-[9.5px] flex items-center gap-1 transition-all cursor-pointer ${
                         viewportMode === v.id
                           ? 'bg-[#6C63FF] text-white shadow-sm font-semibold'
-                          : 'text-white/60 hover:text-white'
+                          : 'text-slate-600 hover:text-slate-900'
                       }`}
                       title={v.label}
                     >
@@ -163,13 +163,13 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
                   href={previewUrl.startsWith('http') ? previewUrl : `https://${previewUrl}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="liquid-glass rounded-full px-3 py-1 text-[11px] text-white/80 hover:text-white flex items-center gap-1 transition-all cursor-pointer border border-white/10"
+                  className="bg-white hover:bg-slate-100 text-slate-700 rounded-full px-3 py-1 text-[11px] font-medium flex items-center gap-1 transition-all cursor-pointer border border-slate-300 shadow-sm"
                 >
                   Open New Tab <ExternalLink className="w-3 h-3" />
                 </a>
                 <button
                   onClick={() => { setPreviewUrl(null); setIsIframeLoading(true); }}
-                  className="liquid-glass rounded-full p-1.5 text-white/60 hover:text-white transition-colors cursor-pointer"
+                  className="bg-slate-200 hover:bg-slate-300 text-slate-600 hover:text-slate-900 rounded-full p-1.5 transition-colors cursor-pointer border-none"
                 >
                   <X className="w-4 h-4" />
                 </button>
