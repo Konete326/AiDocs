@@ -16,6 +16,7 @@ import Workspace from '../pages/Workspace';
 import PrivateRoute from '../components/common/PrivateRoute';
 import PublicOnlyRoute from '../components/common/PublicOnlyRoute';
 import ProjectChat from '../pages/ProjectChat';
+import ProjectSkills from '../pages/ProjectSkills';
 import Feedback from '../pages/Feedback';
 
 export default function AppRoutes() {
@@ -41,6 +42,7 @@ export default function AppRoutes() {
         <Route path="/projects/:id" element={<ProjectDetail />} />
         <Route path="/projects/:id/workspace" element={<Workspace />} />
         <Route path="/projects/:id/chat" element={<ProjectChat />} />
+        <Route path="/projects/:id/skills" element={<ProjectSkills />} />
       </Route>
     </Routes>
   );

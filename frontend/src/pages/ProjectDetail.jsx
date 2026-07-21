@@ -132,16 +132,12 @@ const ProjectDetail = () => {
           {/* Bento Grid — mirrors pricing page columns */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4 lg:h-[calc(100vh-230px)] min-h-[500px] lg:min-h-0">
 
-            {/* DocsList — col-span-3 (like FreeCard) */}
             <div className="md:col-span-1 lg:col-span-3 h-full overflow-hidden rounded-3xl">
               <DocsList
                 documents={synthesizedDocs}
                 selectedDoc={activeDoc}
                 onSelect={handleDocSelect}
                 isGenerating={isGenerating}
-                projectId={id}
-                skills={skills}
-                onSkillsUpdate={setSkills}
               />
             </div>
 

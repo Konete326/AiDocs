@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { downloadZip } from '../../services/exportService';
 
-const ProjectHeaderActions = ({ project, onOpenSkills }) => {
+const ProjectHeaderActions = ({ project }) => {
   const navigate = useNavigate();
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -16,17 +16,6 @@ const ProjectHeaderActions = ({ project, onOpenSkills }) => {
       console.error('Export failed:', err);
     } finally {
       setIsDownloading(false);
-    }
-  };
-
-  const handleSkillsClick = () => {
-    if (onOpenSkills) {
-      onOpenSkills();
-    } else {
-      const el = document.getElementById('skills-section');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
     }
   };
 
@@ -48,7 +37,7 @@ const ProjectHeaderActions = ({ project, onOpenSkills }) => {
       </button>
 
       <button
-        onClick={handleSkillsClick}
+        onClick={() => navigate(`/projects/${project._id}/skills`)}
         className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 hover:scale-105 transition-all cursor-pointer flex-shrink-0"
       >
         <Cpu className="w-4 h-4 text-blue-400" />
