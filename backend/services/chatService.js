@@ -27,7 +27,7 @@ const fetchWebsiteSummary = async (url) => {
     const title = titleMatch ? titleMatch[1].trim() : '';
 
     const metaMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["']/i) ||
-                      html.match(/<meta[^>]*content=["']([^"']*)["'][^>]*name=["']description["']/i);
+      html.match(/<meta[^>]*content=["']([^"']*)["'][^>]*name=["']description["']/i);
     const description = metaMatch ? metaMatch[1].trim() : '';
 
     const cleanText = html
@@ -116,17 +116,20 @@ OWNER DISCLOSURE RULES:
 COMPETITOR WEBSITE ANALYSIS INSTRUCTIONS:
 If the user provides a website URL or asks to analyze a competitor website:
 1. Provide a crisp, clinical, to-the-point analysis formatted cleanly in markdown:
-   - 🎯 **Core Features Identified**
-   - ⚡ **Advantages (Pros)**
-   - ⚠️ **Disadvantages (Cons)**
-   - 💡 **Strategic Recommendations for ${project.title}**
+   - **Core Features Identified**
+   - **Advantages (Pros)**
+   - **Disadvantages (Cons)**
+   - **Strategic Recommendations for ${project.title}**
 2. At the end of your analysis, ask the user:
    "Would you like me to update your PRD and SRD documentation to incorporate these features and competitive advantages?"
+
+STRICT EMOJI RULE:
+DO NOT use emoji icons anywhere in your text responses. Use clean Markdown formatting, clean headers, and standard bullet points only.
 
 VISUAL FLOWCHART & DIAGRAM INSTRUCTIONS:
 If the user asks for a flowchart, visual diagram, architecture schema, user flow, or competitor workflow (or asks to visualize anything):
 Generate a valid Mermaid.js flowchart block using markdown code block.
-Example:
+Example format:
 \`\`\`mermaid
 graph TD
   A[User Visit] --> B[Authentication]
@@ -217,7 +220,7 @@ ${docsContext.slice(0, 10000)}`;
         { new: true, upsert: true }
       );
       rawReply = rawReply.replace(/\[UPDATE_DOC:[a-zA-Z]+\]\s*[\s\S]*?\s*\[\/UPDATE_DOC\]/g, '').trim();
-      rawReply += `\n\n✅ **Updated Document:** ${matchedType.toUpperCase()} has been saved directly to your project!`;
+      rawReply += `\n\n**Updated Document:** ${matchedType.toUpperCase()} has been saved directly to your project!`;
     }
   }
 
@@ -245,7 +248,7 @@ ${docsContext.slice(0, 10000)}`;
       }
       await project.save();
       rawReply = rawReply.replace(/\[SKILL_ACTION:(add|remove):[a-zA-Z0-9_-]+\]/g, '').trim();
-      rawReply += `\n\n⚡ **Skill Updated:** ${action === 'add' ? 'Added' : 'Removed'} skill **"${targetSkill.name}"** for your project!`;
+      rawReply += `\n\n**Skill Updated:** ${action === 'add' ? 'Added' : 'Removed'} skill **"${targetSkill.name}"** for your project!`;
     }
   } else {
     if (lastUserMsgLower.includes('add skill') || lastUserMsgLower.includes('skills add') || (lastUserMsgLower.includes('add ') && lastUserMsgLower.includes('skill'))) {
@@ -255,7 +258,7 @@ ${docsContext.slice(0, 10000)}`;
         if (!project.customSkills.includes(foundSkill.id)) {
           project.customSkills.push(foundSkill.id);
           await project.save();
-          rawReply += `\n\n⚡ **Skill Added:** Successfully added **"${foundSkill.name}"** to your project!`;
+          rawReply += `\n\n**Skill Added:** Successfully added **"${foundSkill.name}"** to your project!`;
         }
       }
     } else if (lastUserMsgLower.includes('remove skill') || lastUserMsgLower.includes('delete skill') || (lastUserMsgLower.includes('remove ') && lastUserMsgLower.includes('skill'))) {
@@ -268,7 +271,7 @@ ${docsContext.slice(0, 10000)}`;
           project.disabledSkills.push(foundSkill.id);
         }
         await project.save();
-        rawReply += `\n\n⚡ **Skill Removed:** Successfully removed **"${foundSkill.name}"** from your project!`;
+        rawReply += `\n\n**Skill Removed:** Successfully removed **"${foundSkill.name}"** from your project!`;
       }
     }
   }
