@@ -8,9 +8,9 @@ const KanbanColumn = ({ column, onAddTask, onDeleteTask, onEditTitle }) => {
   const [titleValue, setTitleValue] = useState(column.title);
 
   return (
-    <div className="flex-shrink-0 w-72 sm:w-80 flex flex-col gap-2.5 h-full max-h-full overflow-hidden liquid-glass-strong rounded-3xl p-3 sm:p-3.5 border border-white/10 shadow-xl">
+    <div className="w-full flex flex-col gap-2.5 h-[380px] max-h-[400px] overflow-hidden liquid-glass-strong rounded-3xl p-3.5 border border-white/10 shadow-xl transition-all">
       {/* Header */}
-      <div className="flex items-center justify-between px-1 flex-shrink-0 pb-1 border-b border-white/5">
+      <div className="flex items-center justify-between px-1 flex-shrink-0 pb-1.5 border-b border-white/5">
         {isEditingTitle ? (
           <div className="liquid-glass rounded-xl px-3 py-1 flex-1 mr-2 border border-white/15">
             <input
