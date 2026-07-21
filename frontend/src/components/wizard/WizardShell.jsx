@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, X } from 'lucide-react';
 import LoadingSpinner from '../common/LoadingSpinner';
+import { AlertToast } from '../ui/alert-toast';
 
 const Motion = motion;
 
@@ -75,7 +76,7 @@ const stepsGuide = {
   }
 };
 
-export default function WizardShell({ step, totalSteps, onNext, onBack, onSubmit, onClose, isSubmitting, error, children }) {
+export default function WizardShell({ step, totalSteps, onNext, onBack, onSubmit, onClose, isSubmitting, error, onClearError, children }) {
   return (
     <div className="w-full max-w-5xl h-fit flex flex-col md:flex-row rounded-[32px] overflow-hidden liquid-glass-strong no-hover items-stretch relative">
       {onClose && (
@@ -107,14 +108,17 @@ export default function WizardShell({ step, totalSteps, onNext, onBack, onSubmit
           </div>
 
           <div className="mb-0">
-            <AnimatePresence mode="wait">
+            <AnimatePresence>
               {error && (
-                <Motion.div 
-                  initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                  className="liquid-glass rounded-xl px-4 py-3 text-sm text-white/80 mb-6 border-l-2 border-white/20"
-                >
-                  {error}
-                </Motion.div>
+                <div className="fixed top-24 right-6 z-[999999] max-w-sm pointer-events-auto">
+                  <AlertToast
+                    variant="error"
+                    styleVariant="filled"
+                    title="Required Field"
+                    description={error}
+                    onClose={onClearError}
+                  />
+                </div>
               )}
             </AnimatePresence>
 

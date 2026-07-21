@@ -78,7 +78,7 @@ const CreateProject = () => {
             localStorage.removeItem(STORAGE_KEY);
             navigate('/dashboard');
           }}
-          onSubmit={handleSubmit} isSubmitting={isSubmitting} error={error}
+          onSubmit={handleSubmit} isSubmitting={isSubmitting} error={error} onClearError={() => setError('')}
         >
           {steps[step]}
         </WizardShell>
