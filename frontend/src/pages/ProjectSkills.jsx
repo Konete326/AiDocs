@@ -93,7 +93,7 @@ export default function ProjectSkills() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="absolute inset-0 bg-black/55 z-[1]" />
-      <div className="relative z-10 min-h-screen flex flex-col pt-16 px-4 sm:px-6 py-4 max-w-7xl mx-auto overflow-hidden">
+      <div className="relative z-10 min-h-screen flex flex-col pt-24 px-4 sm:px-6 py-4 max-w-7xl mx-auto overflow-hidden">
         
         <header className="flex items-center justify-between mb-4 flex-shrink-0">
           <div className="flex items-center gap-3">
@@ -113,7 +113,7 @@ export default function ProjectSkills() {
         </header>
 
         {/* 2-Column Split View */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 lg:h-[calc(100vh-140px)] min-h-0 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 lg:h-[calc(100vh-180px)] min-h-0 overflow-hidden">
           
           {/* Left Column: Active Skills */}
           <div className="lg:col-span-6 flex flex-col liquid-glass-strong rounded-3xl p-5 border border-white/10 h-full overflow-hidden">

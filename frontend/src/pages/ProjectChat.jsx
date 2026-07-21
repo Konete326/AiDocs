@@ -67,7 +67,7 @@ export default function ProjectChat() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="absolute inset-0 bg-black/55 z-[1]" />
-      <div className="relative z-10 min-h-screen flex flex-col pt-14 px-3 sm:px-6 py-2 max-w-7xl mx-auto overflow-hidden">
+      <div className="relative z-10 min-h-screen flex flex-col pt-24 px-4 sm:px-6 py-3 max-w-7xl mx-auto overflow-hidden">
         
         {/* Header */}
         <header className="flex items-center justify-between mb-2 flex-shrink-0">
@@ -85,7 +85,7 @@ export default function ProjectChat() {
         </header>
 
         {/* Compact Split Screen Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 flex-1 lg:h-[calc(100vh-160px)] max-h-[510px] min-h-0 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 flex-1 lg:h-[calc(100vh-180px)] max-h-[500px] min-h-0 overflow-hidden">
           
           {/* Left Panel: Project Context & Quick Ref (4 cols) */}
           <div className="lg:col-span-4 flex flex-col space-y-2.5 h-full overflow-y-auto hover-scrollbar custom-scrollbar pr-0.5">
