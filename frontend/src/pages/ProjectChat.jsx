@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Sparkles, FileText, Layers, Lightbulb, Trash2, UploadCloud, AlertCircle, ExternalLink } from 'lucide-react';
+import { ChevronLeft, Sparkles, FileText, Layers, Lightbulb, Trash2, UploadCloud, AlertCircle, ExternalLink, RotateCcw } from 'lucide-react';
 import { getProject } from '../services/projectService';
 import { getMySubscription } from '../services/subscriptionService';
 import { sendChatMessage, getChatHistory, deleteChatHistory } from '../services/chatService';
@@ -69,6 +69,13 @@ export default function ProjectChat() {
       setError(friendly);
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const handleRetry = () => {
+    const lastUserMsg = [...messages].reverse().find(m => m.role === 'user');
+    if (lastUserMsg && !isSending) {
+      handleSend(lastUserMsg.content, lastUserMsg.attachments || []);
     }
   };
 
@@ -330,10 +337,19 @@ export default function ProjectChat() {
                 <ChatMessage message={{ role: 'assistant', content: '...', userQuery: messages[messages.length - 1]?.content || '' }} projectId={id} projectTitle={project?.title} />
               )}
               {error && (
-                <div className="text-center py-1">
-                  <span className="liquid-glass px-3 py-1 rounded-full text-[11px] text-amber-300/90 border border-amber-500/20 inline-block shadow-lg">
-                    {error}
-                  </span>
+                <div className="text-center py-1 flex items-center justify-center">
+                  <div className="liquid-glass px-3.5 py-1.5 rounded-full text-[11px] text-amber-300/90 border border-amber-500/20 inline-flex items-center gap-2.5 shadow-lg">
+                    <span>{error}</span>
+                    <button
+                      onClick={handleRetry}
+                      disabled={isSending}
+                      className="bg-[#6C63FF] hover:bg-[#5b52e5] text-white px-2.5 py-0.5 rounded-full text-[10px] font-semibold flex items-center gap-1 transition-all cursor-pointer shadow-sm hover:scale-105 active:scale-95 border-none disabled:opacity-50"
+                      title="Retry last prompt"
+                    >
+                      <RotateCcw className="w-3 h-3 text-white" />
+                      Retry
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
