@@ -6,30 +6,27 @@ export function useSuggestions(projectTitle, projectType, fieldName, currentValu
   const [isLoading, setIsLoading] = useState(false);
   const timerRef = useRef(null);
   const abortControllerRef = useRef(null);
-  const lastValueRef = useRef(null);
+  const lastKeyRef = useRef(null);
 
   useEffect(() => {
-    // Check if we have enough context to request suggestions
-    const hasContext = projectTitle?.trim().length > 2 || projectType;
-    
-    // If it's a title field, we need at least the projectType to suggest names
-    // For other fields, we ideally need projectTitle
+    const hasContext = projectTitle?.trim().length > 1 || projectType;
+
     if (!hasContext && !currentValue) {
       setSuggestions([]);
       return;
     }
 
-    if (currentValue === lastValueRef.current) return;
+    const currentKey = `${projectTitle || ''}_${projectType || ''}_${fieldName}_${currentValue || ''}`;
+    if (currentKey === lastKeyRef.current) return;
 
     clearTimeout(timerRef.current);
     
-    // Abort previous request if it's still running
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
 
     timerRef.current = setTimeout(async () => {
-      lastValueRef.current = currentValue;
+      lastKeyRef.current = currentKey;
       setIsLoading(true);
       
       const controller = new AbortController();
@@ -56,7 +53,7 @@ export function useSuggestions(projectTitle, projectType, fieldName, currentValu
           setIsLoading(false);
         }
       }
-    }, 500);
+    }, 350);
 
     return () => {
       clearTimeout(timerRef.current);
