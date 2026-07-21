@@ -46,14 +46,14 @@ const KanbanColumn = ({ column, onAddTask, onDeleteTask, onEditTitle }) => {
         </div>
       </div>
 
-      {/* Droppable Task Area */}
+      {/* Droppable Task Area with Auto Scroll */}
       <Droppable droppableId={column.id}>
         {(provided, snapshot) => (
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pr-1 hover-scrollbar custom-scrollbar transition-colors p-1 rounded-2xl ${
-              snapshot.isDraggingOver ? 'bg-white/5' : ''
+            className={`flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pr-1 pb-4 scroll-smooth hover-scrollbar custom-scrollbar transition-all p-1 rounded-2xl ${
+              snapshot.isDraggingOver ? 'bg-white/10 ring-1 ring-[#6C63FF]/50' : ''
             }`}
           >
             {column.tasks.map((task, index) => (
