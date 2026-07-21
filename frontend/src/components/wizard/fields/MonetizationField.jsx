@@ -6,7 +6,8 @@ export default function MonetizationField({ formData, onChange }) {
     formData.title,
     formData.projectType,
     'monetizationModel',
-    formData.wizardAnswers.monetizationModel
+    formData.wizardAnswers.monetizationModel,
+    formData.wizardAnswers
   );
 
   return (

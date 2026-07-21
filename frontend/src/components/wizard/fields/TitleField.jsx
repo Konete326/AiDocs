@@ -6,7 +6,8 @@ export default function TitleField({ formData, onChange }) {
     formData.title,
     formData.projectType,
     'title',
-    formData.title
+    formData.title,
+    formData.wizardAnswers
   );
 
   return (

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { getAISuggestions } from '../services/suggestionService';
 
-export function useSuggestions(projectTitle, projectType, fieldName, currentValue) {
+export function useSuggestions(projectTitle, projectType, fieldName, currentValue, wizardAnswers = {}) {
   const [suggestions, setSuggestions] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const timerRef = useRef(null);
@@ -16,7 +16,8 @@ export function useSuggestions(projectTitle, projectType, fieldName, currentValu
       return;
     }
 
-    const currentKey = `${projectTitle || ''}_${projectType || ''}_${fieldName}_${currentValue || ''}`;
+    const answersKey = Object.values(wizardAnswers || {}).join('_');
+    const currentKey = `${projectTitle || ''}_${projectType || ''}_${fieldName}_${currentValue || ''}_${answersKey}`;
     if (currentKey === lastKeyRef.current) return;
 
     clearTimeout(timerRef.current);
@@ -37,7 +38,8 @@ export function useSuggestions(projectTitle, projectType, fieldName, currentValu
           projectTitle,
           projectType,
           fieldName,
-          currentValue
+          currentValue,
+          wizardAnswers
         );
         
         if (!controller.signal.aborted) {
@@ -61,7 +63,7 @@ export function useSuggestions(projectTitle, projectType, fieldName, currentValu
         abortControllerRef.current.abort();
       }
     };
-  }, [currentValue, projectTitle, projectType, fieldName]);
+  }, [currentValue, projectTitle, projectType, fieldName, wizardAnswers]);
 
   const clearSuggestions = () => setSuggestions([]);
 

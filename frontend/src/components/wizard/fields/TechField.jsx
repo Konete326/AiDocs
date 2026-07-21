@@ -6,7 +6,8 @@ export default function TechField({ formData, onChange }) {
     formData.title,
     formData.projectType,
     'techPreferences',
-    formData.wizardAnswers.techPreferences
+    formData.wizardAnswers.techPreferences,
+    formData.wizardAnswers
   );
 
   return (

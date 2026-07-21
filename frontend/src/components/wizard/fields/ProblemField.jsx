@@ -6,7 +6,8 @@ export default function ProblemField({ formData, onChange }) {
     formData.title,
     formData.projectType,
     'problemStatement',
-    formData.wizardAnswers.problemStatement
+    formData.wizardAnswers.problemStatement,
+    formData.wizardAnswers
   );
 
   return (

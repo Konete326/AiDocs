@@ -1,11 +1,12 @@
 import api from './api';
 
-export async function getAISuggestions(projectTitle, projectType, fieldName, currentValue) {
+export async function getAISuggestions(projectTitle, projectType, fieldName, currentValue, wizardAnswers = {}) {
   const response = await api.post('/suggestions', {
     projectTitle,
     projectType,
     fieldName,
-    currentValue: currentValue || '',
+    currentValue,
+    wizardAnswers
   });
-  return response.data.data.suggestions;
+  return response.data?.data?.suggestions || [];
 }

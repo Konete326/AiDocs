@@ -6,7 +6,8 @@ export default function ContextField({ formData, onChange }) {
     formData.title,
     formData.projectType,
     'additionalContext',
-    formData.wizardAnswers.additionalContext
+    formData.wizardAnswers.additionalContext,
+    formData.wizardAnswers
   );
 
   return (

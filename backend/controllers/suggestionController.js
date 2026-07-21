@@ -3,11 +3,11 @@ const AppError = require('../utils/AppError');
 const AIService = require('../services/AIService');
 
 exports.getSuggestions = asyncWrapper(async (req, res) => {
-  const { projectTitle, projectType, fieldName, currentValue } = req.body;
+  const { projectTitle, projectType, fieldName, currentValue, wizardAnswers } = req.body;
 
   if (!fieldName) throw new AppError('fieldName required', 400, 'VALIDATION_ERROR');
 
-  const prompt = buildSuggestionPrompt(projectTitle, projectType, fieldName, currentValue);
+  const prompt = buildSuggestionPrompt(projectTitle, projectType, fieldName, currentValue, wizardAnswers);
   const raw = await AIService.generateText(prompt, 'suggestion', 256);
 
   const suggestions = parseSuggestions(raw.content);
@@ -15,33 +15,38 @@ exports.getSuggestions = asyncWrapper(async (req, res) => {
   res.json({ success: true, data: { suggestions } });
 });
 
-function buildSuggestionPrompt(title, type, fieldName, currentValue) {
-  const context = title ? `Project: "${title}" (${type || 'app'})` : `Project type: ${type || 'app'}`;
+function buildSuggestionPrompt(title, type, fieldName, currentValue, wizardAnswers = {}) {
+  const categoryStr = type ? `[Category: ${type.toUpperCase()}]` : '[Category: GENERAL]';
+  const titleStr = title ? `[Project Title: "${title}"]` : '';
+  const problemStr = wizardAnswers.problemStatement ? `[Problem: "${wizardAnswers.problemStatement}"]` : '';
+  const audienceStr = wizardAnswers.targetAudience ? `[Target Audience: "${wizardAnswers.targetAudience}"]` : '';
+  const featuresStr = wizardAnswers.coreFeatures ? `[Features: "${wizardAnswers.coreFeatures}"]` : '';
+
+  const contextHeader = [categoryStr, titleStr, problemStr, audienceStr, featuresStr].filter(Boolean).join('\n');
 
   const fieldInstructions = {
-    title: 'Suggest 3 short, catchy product names (2-5 words each). Each on its own line starting with a dash.',
-    problemStatement: 'Suggest 3 concise problem statements (1-2 sentences each). Each on its own line starting with a dash.',
-    targetAudience: 'Suggest 3 specific target audience descriptions (1-2 sentences). Each on its own line starting with a dash.',
-    coreFeatures: 'Suggest 3 comma-separated feature lists (4-6 features each). Each on its own line starting with a dash.',
-    techPreferences: 'Suggest 3 tech stack options appropriate for this project (3-5 techs each). Each on its own line starting with a dash.',
-    monetizationModel: 'Suggest 3 monetization strategies with brief explanation. Each on its own line starting with a dash.',
-    additionalContext: 'Suggest 3 important additional context notes for this project. Each on its own line starting with a dash.',
+    title: `Suggest 3 short, catchy product names (2-5 words each) tailored specifically for a ${type || 'software'} project.`,
+    problemStatement: `Suggest 3 concise, realistic problem statements (1-2 sentences) tailored specifically for a ${type || 'software'} project named "${title || 'this app'}".`,
+    targetAudience: `Suggest 3 specific target audience profiles (1-2 sentences) for a ${type || 'software'} project named "${title || 'this app'}".`,
+    coreFeatures: `Suggest 3 sets of 4-5 comma-separated MVP features designed for a ${type || 'software'} project named "${title || 'this app'}".`,
+    techPreferences: `Suggest 3 tech stack combinations (e.g. React/Node/MongoDB, Next.js/Supabase, React Native/Firebase) ideal for a ${type || 'software'} project.`,
+    monetizationModel: `Suggest 3 monetization models (e.g. SaaS Monthly Subscription, Pay-per-use, Tiered Plans) suitable for a ${type || 'software'} project.`,
+    additionalContext: `Suggest 3 strategic context or competitive advantage notes for a ${type || 'software'} project named "${title || 'this app'}".`,
   };
 
-  const instruction = fieldInstructions[fieldName] || 'Give 3 relevant suggestions. Each on its own line starting with a dash.';
+  const instruction = fieldInstructions[fieldName] || `Suggest 3 ideas tailored for a ${type || 'software'} project.`;
+  const currentContext = currentValue ? `\nCurrent input draft: "${currentValue.slice(0, 100)}"` : '';
 
-  const currentContext = currentValue ? `\nCurrent value: "${currentValue.slice(0, 100)}"` : '';
-
-  return `${context}${currentContext}
+  return `Context:
+${contextHeader}${currentContext}
 
 Task: ${instruction}
 
 Rules:
 - Exactly 3 suggestions
 - Each starts with "- "
-- No numbering
-- No explanations or headers
-- Return ONLY the 3 lines, nothing else`;
+- No numbering or extra formatting
+- Make suggestions highly relevant to the ${type || 'software'} category and project context`;
 }
 
 function parseSuggestions(raw) {

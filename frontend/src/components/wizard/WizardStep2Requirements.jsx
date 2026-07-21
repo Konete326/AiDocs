@@ -6,14 +6,16 @@ export default function WizardStep2Requirements({ formData, onChange }) {
     formData.title,
     formData.projectType,
     'targetAudience',
-    formData.wizardAnswers.targetAudience
+    formData.wizardAnswers.targetAudience,
+    formData.wizardAnswers
   );
 
   const { suggestions: featSugg, isLoading: featLoading } = useSuggestions(
     formData.title,
     formData.projectType,
     'coreFeatures',
-    formData.wizardAnswers.coreFeatures
+    formData.wizardAnswers.coreFeatures,
+    formData.wizardAnswers
   );
 
   return (
