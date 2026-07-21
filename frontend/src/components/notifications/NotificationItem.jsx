@@ -29,36 +29,36 @@ const NotificationItem = ({ notification, onMarkRead, onDelete }) => {
 
   return (
     <div 
-      className={`group relative px-5 py-4 flex items-start gap-4 transition-all rounded-2xl border-b border-white/[0.03] cursor-pointer ${!notification.isRead ? 'bg-white/[0.04] hover:bg-white/[0.06]' : 'hover:bg-white/[0.02]'}`}
+      className={`group relative px-3 py-2 flex items-start gap-2.5 transition-all rounded-xl border-b border-white/[0.03] cursor-pointer ${!notification.isRead ? 'bg-white/[0.05] hover:bg-white/[0.08]' : 'hover:bg-white/[0.03]'}`}
       onClick={() => !notification.isRead && onMarkRead(notification._id)}
     >
-      <div className={`p-2 rounded-xl bg-white/[0.03] ${colorClass} mt-0.5`}>
-        <Icon className="w-4 h-4" />
+      <div className={`p-1.5 rounded-lg bg-white/[0.04] ${colorClass} mt-0.5 flex-shrink-0`}>
+        <Icon className="w-3.5 h-3.5" />
       </div>
 
-      <div className="flex-1 min-w-0 pr-6">
-        <div className="flex items-start justify-between gap-2">
-          <span className={`text-sm font-medium truncate ${!notification.isRead ? 'text-white' : 'text-white/60'}`}>
+      <div className="flex-1 min-w-0 pr-5">
+        <div className="flex items-center justify-between gap-1.5">
+          <span className={`text-xs font-semibold truncate ${!notification.isRead ? 'text-white' : 'text-white/60'}`}>
             {notification.title}
           </span>
           {!notification.isRead && (
-            <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.5)] flex-shrink-0 mt-1.5" />
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#10b981] flex-shrink-0" />
           )}
         </div>
-        <p className="text-xs text-white/40 mt-1 leading-relaxed line-clamp-2">
+        <p className="text-[11px] text-white/50 mt-0.5 leading-snug line-clamp-2">
           {notification.message}
         </p>
-        <div className="text-[10px] text-white/20 mt-2 font-medium tracking-tight">
+        <div className="text-[9px] text-white/30 mt-1 font-medium">
           {new Date(notification.createdAt).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
         </div>
       </div>
 
-      {/* Delete Button - Visible on hover */}
       <button
         onClick={handleDelete}
-        className="absolute right-4 top-1/2 -translate-y-1/2 p-2 rounded-lg opacity-0 group-hover:opacity-100 hover:bg-rose-500/10 hover:text-rose-500 text-white/20 transition-all cursor-pointer"
+        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md opacity-0 group-hover:opacity-100 hover:bg-rose-500/20 text-white/40 hover:text-rose-400 transition-all cursor-pointer"
+        aria-label="Delete notification"
       >
-        <Trash2 className="w-4 h-4" />
+        <Trash2 className="w-3.5 h-3.5" />
       </button>
     </div>
   );

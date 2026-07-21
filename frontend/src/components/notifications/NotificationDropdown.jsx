@@ -57,17 +57,17 @@ export default function NotificationDropdown({ isOpen, notifications = [], onMar
       {isOpen && (
         <motion.div
           ref={containerRef}
-          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+          initial={{ opacity: 0, y: 6, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 10, scale: 0.95 }}
-          transition={{ duration: 0.2 }}
-          className="absolute right-0 top-12 z-[200] w-80 sm:w-96 liquid-glass-strong rounded-3xl p-4 shadow-[0_20px_50px_rgba(0,0,0,0.7)] border border-white/10"
+          exit={{ opacity: 0, y: 6, scale: 0.98 }}
+          transition={{ duration: 0.12 }}
+          className="absolute right-0 top-12 z-[200] w-80 sm:w-96 liquid-glass-strong rounded-2xl p-3 shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/10"
         >
-          <div className="flex items-center justify-between px-2 pb-3">
+          <div className="flex items-center justify-between px-2 pb-2">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-white">Notifications</span>
+              <span className="text-xs font-semibold text-white">Notifications</span>
               {unreadCount > 0 && (
-                <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">
+                <span className="bg-emerald-500/20 text-emerald-300 text-[9px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">
                   {unreadCount} new
                 </span>
               )}
@@ -75,44 +75,42 @@ export default function NotificationDropdown({ isOpen, notifications = [], onMar
             {unreadCount > 0 && (
               <button
                 onClick={onMarkAllRead}
-                className="text-xs text-white/50 hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
+                className="text-[11px] text-white/50 hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
               >
-                <CheckCheck className="w-3.5 h-3.5" /> Mark all read
+                <CheckCheck className="w-3 h-3" /> Mark all read
               </button>
             )}
           </div>
 
-          <Separator className="mb-3" />
+          <Separator className="mb-2" />
 
           {isLoading ? (
-            <div className="py-12 flex justify-center">
-              <LoadingSpinner size="md" />
+            <div className="py-8 flex justify-center">
+              <LoadingSpinner size="sm" />
             </div>
           ) : notifications.length === 0 ? (
-            <div className="py-12 text-center">
-              <BellOff className="w-8 h-8 text-white/20 mx-auto mb-2" />
-              <p className="text-xs text-white/60 font-medium">All caught up!</p>
+            <div className="py-8 text-center">
+              <BellOff className="w-6 h-6 text-white/20 mx-auto mb-1.5" />
+              <p className="text-xs text-white/50 font-medium">All caught up!</p>
             </div>
           ) : (
-            <ScrollArea className="h-80 w-full pr-1">
-              <div className="space-y-4">
-                {activeGroups.map((group) => (
-                  <div key={group} className="space-y-1">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-white/40 sticky top-0 bg-black/60 backdrop-blur-md px-2 py-1 rounded-md z-10">
-                      {group}
-                    </div>
-                    {grouped[group].map((notification) => (
-                      <NotificationItem
-                        key={notification._id}
-                        notification={notification}
-                        onMarkRead={onMarkRead}
-                        onDelete={onDelete}
-                      />
-                    ))}
+            <div className="max-h-72 overflow-y-auto pr-1 space-y-3 hover-scrollbar custom-scrollbar">
+              {activeGroups.map((group) => (
+                <div key={group} className="space-y-1">
+                  <div className="text-[9px] font-bold uppercase tracking-wider text-white/40 sticky top-0 bg-black/80 backdrop-blur-md px-2 py-0.5 rounded-md z-10">
+                    {group}
                   </div>
-                ))}
-              </div>
-            </ScrollArea>
+                  {grouped[group].map((notification) => (
+                    <NotificationItem
+                      key={notification._id}
+                      notification={notification}
+                      onMarkRead={onMarkRead}
+                      onDelete={onDelete}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
           )}
         </motion.div>
       )}

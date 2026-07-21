@@ -27,37 +27,37 @@ const ConfirmModal = ({
           />
           
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ duration: 0.2 }}
-            className="relative z-10 liquid-glass-strong rounded-3xl p-8 w-full max-w-sm border border-white/5"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.12 }}
+            className="relative z-10 liquid-glass-strong rounded-3xl p-6 w-full max-w-sm border border-white/10"
           >
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4 ${
-              isRed ? 'bg-red-500/15 border border-red-500/20' : 'liquid-glass'
+            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center mx-auto mb-3 ${
+              isRed ? 'bg-red-500/20 border border-red-500/30' : 'liquid-glass'
             }`}>
               <AlertTriangle className={`w-5 h-5 ${isRed ? 'text-red-400' : 'text-white/60'}`} />
             </div>
 
-            <h3 className="text-lg font-medium text-white text-center">{title}</h3>
-            <p className="text-sm text-white/60 text-center mt-2 leading-relaxed">
+            <h3 className="text-base font-semibold text-white text-center">{title}</h3>
+            <p className="text-xs text-white/60 text-center mt-1.5 leading-relaxed">
               {message}
             </p>
 
-            <div className="flex gap-3 mt-8 justify-center">
+            <div className="flex gap-3 mt-5 justify-center">
               <button
                 onClick={onCancel}
-                className="liquid-glass rounded-full px-6 py-2.5 text-sm text-white/60 hover:scale-105 transition-transform cursor-pointer"
+                className="liquid-glass rounded-full px-5 py-2 text-xs text-white/70 hover:text-white hover:scale-105 transition-transform cursor-pointer"
               >
                 {cancelLabel}
               </button>
 
               <button
                 onClick={onConfirm}
-                className={`rounded-full px-6 py-2.5 text-sm font-medium hover:scale-105 active:scale-95 transition-transform cursor-pointer border ${
+                className={`rounded-full px-5 py-2 text-xs font-semibold hover:scale-105 active:scale-95 transition-transform cursor-pointer ${
                   isRed
-                    ? 'bg-red-500/20 hover:bg-red-500/30 text-red-300 border-red-500/30'
-                    : 'liquid-glass-strong text-white border-white/10'
+                    ? 'bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/30 border-none'
+                    : 'liquid-glass-strong text-white border border-white/10'
                 }`}
               >
                 {confirmLabel}
