@@ -22,8 +22,8 @@ const NavLinks = () => {
           <NavLink
             to={link.path}
             className={({ isActive }) => `
-              relative text-sm transition-all duration-300 px-4 py-1.5 rounded-full
-              ${isActive ? 'text-white font-semibold liquid-glass scale-105' : 'text-white/60 hover:text-white/90 hover:scale-105'}
+              relative text-sm transition-colors duration-200 px-4 py-1.5 rounded-full
+              ${isActive ? 'text-white font-semibold liquid-glass no-hover' : 'text-white/60 hover:text-white'}
               cursor-pointer
             `}
           >

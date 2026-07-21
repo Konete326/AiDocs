@@ -23,13 +23,13 @@ const NavUserSection = () => {
       <div className="flex items-center gap-2">
         <button
           onClick={() => navigate('/login')}
-          className="liquid-glass rounded-full px-4 py-1.5 text-xs font-medium text-white/70 hover:scale-105 transition-transform border-none outline-none cursor-pointer"
+          className="liquid-glass no-hover rounded-full px-4 py-1.5 text-xs font-medium text-white/70 hover:text-white border-none outline-none cursor-pointer"
         >
           Sign in
         </button>
         <button
           onClick={() => navigate('/register')}
-          className="liquid-glass-strong rounded-full px-4 py-1.5 text-xs font-medium text-white border border-white/10 hover:scale-105 transition-transform cursor-pointer"
+          className="liquid-glass-strong no-hover rounded-full px-4 py-1.5 text-xs font-medium text-white border border-white/10 cursor-pointer"
         >
           Get Started
         </button>
@@ -44,11 +44,11 @@ const NavUserSection = () => {
         size="sm" 
         user={user} 
         onClick={() => navigate('/profile')}
-        className="cursor-pointer hover:scale-105 transition-transform"
+        className="cursor-pointer"
       />
       <button 
         onClick={() => navigate('/settings')}
-        className="liquid-glass rounded-full w-9 h-9 flex items-center justify-center transition-all hover:scale-110 hover:text-white group border-none outline-none cursor-pointer"
+        className="liquid-glass no-hover rounded-full w-9 h-9 flex items-center justify-center hover:text-white group border-none outline-none cursor-pointer"
         title="Settings"
       >
         <Settings className="w-3.5 h-3.5 text-white/50 group-hover:text-white/80" />
@@ -56,7 +56,7 @@ const NavUserSection = () => {
 
       <button 
         onClick={() => setShowLogoutModal(true)}
-        className="liquid-glass rounded-full w-9 h-9 flex items-center justify-center transition-all hover:scale-110 hover:text-white group border-none outline-none cursor-pointer"
+        className="liquid-glass no-hover rounded-full w-9 h-9 flex items-center justify-center hover:text-white group border-none outline-none cursor-pointer"
         title="Logout"
       >
         <LogOut className="w-3.5 h-3.5 text-white/50 group-hover:text-white/80" />
