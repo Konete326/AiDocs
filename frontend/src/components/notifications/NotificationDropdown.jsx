@@ -31,7 +31,7 @@ export default function NotificationDropdown({ isOpen, notifications = [], onMar
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 6, scale: 0.98 }}
           transition={{ duration: 0.12 }}
-          className="absolute right-0 top-12 z-[200] w-80 sm:w-96 liquid-glass-strong rounded-2xl p-3 shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/10"
+          className="absolute right-0 top-12 z-[200] w-80 sm:w-96 liquid-glass-strong no-hover rounded-2xl p-3 shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/10"
         >
           <div className="flex items-center justify-between px-2 pb-2">
             <div className="flex items-center gap-2">
