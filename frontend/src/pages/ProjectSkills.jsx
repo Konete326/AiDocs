@@ -91,11 +91,11 @@ export default function ProjectSkills() {
   if (!project) return <div className="h-screen flex items-center justify-center text-white/60">Project not found.</div>;
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden">
+    <div className="relative h-screen max-h-screen w-full overflow-hidden">
       <div className="absolute inset-0 bg-black/55 z-[1]" />
-      <div className="relative z-10 min-h-screen flex flex-col pt-24 px-4 sm:px-6 py-4 max-w-7xl mx-auto overflow-hidden">
+      <div className="relative z-10 h-full flex flex-col pt-20 sm:pt-22 px-4 sm:px-6 pb-4 max-w-7xl mx-auto overflow-hidden">
         
-        <header className="flex items-center justify-between mb-4 flex-shrink-0">
+        <header className="flex items-center justify-between mb-3 flex-shrink-0">
           <div className="flex items-center gap-3">
             <button 
               onClick={() => navigate(`/projects/${id}`)} 
@@ -112,11 +112,11 @@ export default function ProjectSkills() {
           </div>
         </header>
 
-        {/* 2-Column Split View */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 lg:h-[calc(100vh-180px)] min-h-0 overflow-hidden">
+        {/* 2-Column Split View - Strictly Non-Scrolling Outer Page */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 min-h-0 overflow-hidden">
           
           {/* Left Column: Active Skills */}
-          <div className="lg:col-span-6 flex flex-col liquid-glass-strong rounded-3xl p-5 border border-white/10 h-full overflow-hidden">
+          <div className="lg:col-span-6 flex flex-col liquid-glass-strong rounded-3xl p-4 sm:p-5 border border-white/10 h-full overflow-hidden">
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/5 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <span className="text-xs uppercase tracking-wider text-white/80 font-semibold">Active Project Skills</span>
@@ -144,7 +144,7 @@ export default function ProjectSkills() {
               />
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-2.5 hover-scrollbar custom-scrollbar pr-1">
+            <div className="flex-1 overflow-y-auto space-y-2.5 hover-scrollbar custom-scrollbar pr-1 min-h-0">
               {filteredActive.length === 0 ? (
                 <div className="h-40 flex flex-col items-center justify-center text-center opacity-50 space-y-2">
                   <Cpu className="w-8 h-8 text-white/30" />
@@ -161,7 +161,7 @@ export default function ProjectSkills() {
                       <button
                         onClick={() => handleToggle(s.id)}
                         disabled={togglingId === s.id}
-                        className="liquid-glass rounded-full px-2.5 py-1 text-[10px] text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 flex items-center gap-1 transition-all cursor-pointer border border-rose-500/20"
+                        className="bg-red-500/25 hover:bg-red-500/40 text-red-200 rounded-full px-3 py-1 text-[10px] font-medium flex items-center gap-1 transition-all cursor-pointer border border-red-500/40 shadow-sm"
                         title="Remove skill from project"
                       >
                         <Trash2 className="w-3 h-3" /> Remove
@@ -185,7 +185,7 @@ export default function ProjectSkills() {
           </div>
 
           {/* Right Column: Available Library Skills */}
-          <div className="lg:col-span-6 flex flex-col liquid-glass rounded-3xl p-5 border border-white/5 h-full overflow-hidden">
+          <div className="lg:col-span-6 flex flex-col liquid-glass rounded-3xl p-4 sm:p-5 border border-white/5 h-full overflow-hidden">
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/5 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <Library className="w-4 h-4 text-blue-400" />
@@ -205,7 +205,7 @@ export default function ProjectSkills() {
               />
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-2.5 hover-scrollbar custom-scrollbar pr-1">
+            <div className="flex-1 overflow-y-auto space-y-2.5 hover-scrollbar custom-scrollbar pr-1 min-h-0">
               {filteredAvailable.length === 0 ? (
                 <div className="h-40 flex flex-col items-center justify-center text-center opacity-50 space-y-2">
                   <Library className="w-8 h-8 text-white/30" />
@@ -222,7 +222,7 @@ export default function ProjectSkills() {
                       <button
                         onClick={() => handleToggle(s.id)}
                         disabled={togglingId === s.id}
-                        className="liquid-glass rounded-full px-3 py-1 text-[10px] text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 flex items-center gap-1 transition-all cursor-pointer border border-emerald-500/20 font-medium"
+                        className="bg-blue-600 hover:bg-blue-500 text-white rounded-full px-3 py-1 text-[10px] font-medium flex items-center gap-1 transition-all cursor-pointer border border-blue-400/40 shadow-sm"
                         title="Add skill to project"
                       >
                         <Plus className="w-3 h-3" /> Add to Project
