@@ -3,7 +3,6 @@ const errorHandler = (err, req, res, next) => {
   let code = err.code || 'INTERNAL_SERVER_ERROR';
   let message = err.message || 'An unexpected error occurred';
 
-  // Handle Mongoose/Mongo specific errors if needed
   if (err.name === 'ValidationError') {
     statusCode = 400;
     code = 'VALIDATION_ERROR';
@@ -16,11 +15,14 @@ const errorHandler = (err, req, res, next) => {
     statusCode = 400;
     code = 'INVALID_ID_ERROR';
     message = `Invalid ${err.path}: ${err.value}`;
+  } else if (err.name === 'MongoNetworkError' || err.name === 'MongoServerSelectionError' || (err.message && (err.message.includes('timed out') || err.message.includes('Socket') || err.message.includes('connectTimeoutMS') || err.message.includes('buffering')))) {
+    statusCode = 503;
+    code = 'DATABASE_CONNECTION_ERROR';
+    message = 'Database connection temporarily delayed. Please try again in a moment.';
   } else if (err.message && (err.message.includes('secret') || err.message.includes('jwt'))) {
     statusCode = 500;
     code = 'CONFIG_ERROR';
     message = 'Server configuration error. Contact support.';
-    console.error('JWT Error:', err.message);
   } else if (err.name === 'JsonWebTokenError') {
     statusCode = 401;
     code = 'INVALID_TOKEN';
