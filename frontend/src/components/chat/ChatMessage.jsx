@@ -23,11 +23,37 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
 
   const cleanedContent = message.content ? message.content.replace(/\[DOWNLOAD_ACTION:[a-zA-Z]+:[a-zA-Z]+\]/g, '').trim() : '';
 
-  const urlRegex = /(https?:\/\/[^\s]+|(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?:\/[^\s]*)?)/gi;
-  const urlMatches = cleanedContent.match(urlRegex);
-  const detectedUrl = urlMatches && urlMatches.length > 0 && !urlMatches[0].includes('localhost') && !urlMatches[0].includes('/api/') && urlMatches[0].includes('.') ? urlMatches[0] : null;
+  const extractCleanUrl = (text) => {
+    if (!text) return null;
+    const urlRegex = /(https?:\/\/[^\s<>"')\]]+|(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?:\/[^\s<>"')\]]*)?)/gi;
+    const matches = text.match(urlRegex);
+    if (!matches || matches.length === 0) return null;
+    
+    let raw = matches[0].replace(/[.,;:!()\]]+$/, '');
+    if (raw.includes('localhost') || raw.includes('/api/') || !raw.includes('.')) return null;
+    if (!raw.startsWith('http://') && !raw.startsWith('https://')) {
+      raw = `https://${raw}`;
+    }
+    return raw;
+  };
 
-  const hasDocReference = (cleanedContent.includes('Updated Document:') || cleanedContent.includes('Document Updated:') || message.content?.includes('[UPDATE_DOC:')) && !detectedUrl;
+  const detectedUrl = extractCleanUrl(cleanedContent);
+
+  const queryText = (message.userQuery || '').toLowerCase();
+  const isPreviewRequested = 
+    queryText.includes('preview') || 
+    queryText.includes('website') || 
+    queryText.includes('url') || 
+    queryText.includes('site') || 
+    queryText.includes('link') || 
+    queryText.includes('competitor') || 
+    queryText.includes('http') ||
+    cleanedContent.toLowerCase().includes('website analysis') ||
+    cleanedContent.toLowerCase().includes('competitor website');
+
+  const showPreviewButton = detectedUrl && isPreviewRequested;
+
+  const hasDocReference = (cleanedContent.includes('Updated Document:') || cleanedContent.includes('Document Updated:') || message.content?.includes('[UPDATE_DOC:')) && !showPreviewButton;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(cleanedContent);
@@ -100,7 +126,6 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
   const FormatIcon = getFormatIcon(selectedFormat);
 
   const isThinking = message.content === '...';
-  const queryText = (message.userQuery || '').toLowerCase();
 
   let thinkingText = 'AI is thinking...';
 
@@ -230,14 +255,14 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
               </div>
 
               <div className="mt-2 space-y-1.5">
-                {detectedUrl && (
+                {showPreviewButton && (
                   <button
                     onClick={() => { setIsIframeLoading(true); setPreviewUrl(detectedUrl); }}
                     className="liquid-glass rounded-2xl px-3 py-1.5 text-[11px] text-white/90 hover:text-white flex items-center justify-between border border-white/10 w-full transition-all hover:scale-[1.01] cursor-pointer"
                   >
                     <div className="flex items-center gap-2 truncate">
                       <Globe className="w-3.5 h-3.5 text-[#6C63FF] flex-shrink-0" />
-                      <span className="truncate">Live Website Preview ({detectedUrl.replace(/https?:\/\//, '')})</span>
+                      <span className="truncate">Live Website Preview ({detectedUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')})</span>
                     </div>
                     <ExternalLink className="w-3 h-3 text-white/50 flex-shrink-0" />
                   </button>
