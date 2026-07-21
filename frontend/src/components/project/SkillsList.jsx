@@ -68,7 +68,7 @@ const SkillsList = ({ projectId, initialSkills = [], onSkillsUpdate }) => {
   };
 
   return (
-    <div className="flex flex-col h-full min-h-0 overflow-hidden">
+    <div id="skills-section" className="flex flex-col h-full min-h-0 overflow-hidden">
       <div className="flex items-center justify-between px-1 mb-4">
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-semibold text-white/90">Project Skills</h3>
