@@ -1,37 +1,9 @@
 import React, { useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BellOff, CheckCheck } from 'lucide-react';
-import { ScrollArea } from '../ui/scroll-area';
 import { Separator } from '../ui/separator';
 import NotificationItem from './NotificationItem';
 import LoadingSpinner from '../common/LoadingSpinner';
-
-const getDateGroup = (createdAt) => {
-  if (!createdAt) return 'Today';
-  const date = new Date(createdAt);
-  const now = new Date();
-  const diffMs = now - date;
-  const diffHours = diffMs / (1000 * 60 * 60);
-  const diffDays = diffHours / 24;
-
-  if (diffHours < 24 && date.getDate() === now.getDate()) return 'Today';
-  if (diffDays < 2) return 'Yesterday';
-  if (diffDays < 7) return 'This Week';
-  if (diffDays < 14) return 'Last Week';
-  return 'Older';
-};
-
-const dateGroupOrder = ["Today", "Yesterday", "This Week", "Last Week", "Older"];
-
-const groupNotifications = (list) => {
-  const grouped = {};
-  (list || []).forEach(n => {
-    const group = getDateGroup(n.createdAt);
-    if (!grouped[group]) grouped[group] = [];
-    grouped[group].push(n);
-  });
-  return grouped;
-};
 
 export default function NotificationDropdown({ isOpen, notifications = [], onMarkRead, onMarkAllRead, onDelete, isLoading, onClose }) {
   const containerRef = useRef(null);
@@ -49,8 +21,6 @@ export default function NotificationDropdown({ isOpen, notifications = [], onMar
   }, [isOpen, onClose]);
 
   const unreadCount = (notifications || []).filter(n => !n.isRead).length;
-  const grouped = groupNotifications(notifications);
-  const activeGroups = dateGroupOrder.filter(g => grouped[g] && grouped[g].length > 0);
 
   return (
     <AnimatePresence>
@@ -94,21 +64,14 @@ export default function NotificationDropdown({ isOpen, notifications = [], onMar
               <p className="text-xs text-white/50 font-medium">All caught up!</p>
             </div>
           ) : (
-            <div className="max-h-72 overflow-y-auto pr-1 space-y-3 hover-scrollbar custom-scrollbar">
-              {activeGroups.map((group) => (
-                <div key={group} className="space-y-1">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-[#38B2AC] sticky top-0 bg-black/90 backdrop-blur-md px-2 py-1 rounded-md z-10 border border-white/10 my-1">
-                    {group}
-                  </div>
-                  {grouped[group].map((notification) => (
-                    <NotificationItem
-                      key={notification._id}
-                      notification={notification}
-                      onMarkRead={onMarkRead}
-                      onDelete={onDelete}
-                    />
-                  ))}
-                </div>
+            <div className="max-h-72 overflow-y-auto pr-1 space-y-1 hover-scrollbar custom-scrollbar">
+              {notifications.map((notification) => (
+                <NotificationItem
+                  key={notification._id}
+                  notification={notification}
+                  onMarkRead={onMarkRead}
+                  onDelete={onDelete}
+                />
               ))}
             </div>
           )}
