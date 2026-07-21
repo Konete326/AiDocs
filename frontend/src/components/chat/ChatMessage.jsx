@@ -250,7 +250,7 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
       )}
 
       <div className="flex justify-start group">
-        <div className="liquid-glass rounded-3xl rounded-tl-sm px-4 py-3 max-w-[75%] sm:max-w-[70%] relative border border-white/5 w-fit">
+        <div className="liquid-glass rounded-3xl rounded-tl-sm px-4 py-3 max-w-[85%] sm:max-w-[78%] relative border border-white/5 w-fit overflow-hidden break-words">
           {isThinking ? (
             <div className="flex items-center gap-2.5 py-1">
               <Loader2 className="w-4 h-4 text-[#6C63FF] animate-spin flex-shrink-0" />

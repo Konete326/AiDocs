@@ -34,8 +34,8 @@ const CodeBlock = ({ inline, className, children }) => {
           {copied ? <><Check className="w-3 h-3 text-emerald-400" /> Copied</> : <><Copy className="w-3 h-3" /> Copy Code</>}
         </button>
       </div>
-      <pre className="p-4 overflow-x-auto text-xs font-mono text-white/80 leading-relaxed">
-        <code>{children}</code>
+      <pre className="p-3.5 sm:p-4 text-xs font-mono text-white/80 leading-relaxed whitespace-pre-wrap break-words overflow-hidden">
+        <code className="break-words whitespace-pre-wrap font-mono">{children}</code>
       </pre>
     </div>
   );
