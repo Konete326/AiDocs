@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createProject, triggerGeneration } from '../services/projectService';
+import { showError } from '../utils/toast';
 import {
   WizardShell, WizardStep1Identity, WizardStep2Requirements,
   WizardStep3Tech, WizardStep4Review
@@ -34,10 +35,16 @@ const CreateProject = () => {
 
   const validateAndNext = () => {
     if (step === 1 && (!formData.title || !formData.wizardAnswers.problemStatement)) {
-      setError('Title and Problem Statement are required.'); return;
+      const msg = 'Title and Problem Statement are required.';
+      showError('Required Field', msg);
+      setError(msg);
+      return;
     }
     if (step === 2 && (!formData.wizardAnswers.targetAudience || !formData.wizardAnswers.coreFeatures)) {
-      setError('Audience and Features are required to build your docs.'); return;
+      const msg = 'Audience and Features are required to build your docs.';
+      showError('Required Field', msg);
+      setError(msg);
+      return;
     }
     setError(''); setStep(s => s + 1);
   };
