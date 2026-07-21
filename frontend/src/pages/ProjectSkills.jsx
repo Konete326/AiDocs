@@ -140,7 +140,7 @@ export default function ProjectSkills() {
                 placeholder="Search active skills..."
                 value={activeSearch}
                 onChange={(e) => setActiveSearch(e.target.value)}
-                className="w-full bg-white/5 rounded-2xl pl-9 pr-4 py-2 text-xs text-white placeholder-white/40 border border-white/5 focus:outline-none focus:border-white/20"
+                className="w-full bg-white/5 rounded-2xl pl-9 pr-4 py-2 text-xs text-white placeholder-white/40 border border-white/15 hover:border-white/30 focus:border-[#6C63FF] transition-all focus:outline-none shadow-inner"
               />
             </div>
 
@@ -202,7 +202,7 @@ export default function ProjectSkills() {
                 placeholder="Search skill library..."
                 value={librarySearch}
                 onChange={(e) => setLibrarySearch(e.target.value)}
-                className="w-full bg-white/5 rounded-2xl pl-9 pr-4 py-2 text-xs text-white placeholder-white/40 border border-white/5 focus:outline-none focus:border-white/20"
+                className="w-full bg-white/5 rounded-2xl pl-9 pr-4 py-2 text-xs text-white placeholder-white/40 border border-white/15 hover:border-white/30 focus:border-[#6C63FF] transition-all focus:outline-none shadow-inner"
               />
             </div>
 
