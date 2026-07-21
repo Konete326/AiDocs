@@ -1,25 +1,16 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Home, CreditCard, LayoutDashboard, User, LogOut, LogIn, UserPlus, Briefcase, Settings } from 'lucide-react';
+import { Home, CreditCard, LayoutDashboard, User, LogOut, LogIn, UserPlus, Settings } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import UpgradeModal from '../common/UpgradeModal';
 import ConfirmModal from '../common/ConfirmModal';
 
 const NavMobileMenu = ({ isOpen, onClose }) => {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
-  const [showUpgrade, setShowUpgrade] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
-  const isFree = !user?.plan || user.plan === 'free';
-
   const handleLink = async (item) => {
-    if (item.isProtected && isFree) {
-      setShowUpgrade(true);
-      return;
-    }
-
     if (item.label === 'Logout') {
       setShowLogoutModal(true);
       return;
@@ -44,7 +35,6 @@ const NavMobileMenu = ({ isOpen, onClose }) => {
     ? [
         { label: 'Home', href: '/', icon: Home },
         { label: 'Projects', href: '/dashboard', icon: LayoutDashboard },
-        { label: 'Workspace', href: '/dashboard', icon: Briefcase, isProtected: true },
         { label: 'Pricing', href: '/pricing', icon: CreditCard },
         { label: 'Profile', href: '/profile', icon: User },
         { label: 'Settings', href: '/settings', icon: Settings },
@@ -81,16 +71,6 @@ const NavMobileMenu = ({ isOpen, onClose }) => {
           ))}
         </motion.div>
       </div>
-
-      <UpgradeModal
-        isOpen={showUpgrade}
-        onClose={() => setShowUpgrade(false)}
-        onUpgrade={() => {
-          setShowUpgrade(false);
-          onClose();
-          navigate('/pricing');
-        }}
-      />
 
       <ConfirmModal
         isOpen={showLogoutModal}

@@ -22,12 +22,12 @@ const ProjectCard = ({ project, onDelete }) => {
     >
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <span className="liquid-glass rounded-full px-3 py-1 text-xs uppercase tracking-wider text-white/60 capitalize">
+          <span className="liquid-glass no-hover rounded-full px-3 py-1 text-xs uppercase tracking-wider text-blue-200 bg-blue-500/25 border border-blue-400/30 capitalize">
             {project.projectType}
           </span>
           <h3 className="text-lg font-medium text-white mt-2 line-clamp-2">{project.title}</h3>
         </div>
-        <div className={`rounded-full px-3 py-1 text-xs uppercase tracking-wider liquid-glass ${getStatusStyle(project.status)}`}>
+        <div className={`rounded-full px-3 py-1 text-xs uppercase tracking-wider liquid-glass no-hover bg-blue-500/25 text-blue-200 border border-blue-400/30 ${getStatusStyle(project.status)}`}>
           {project.status}
         </div>
       </div>

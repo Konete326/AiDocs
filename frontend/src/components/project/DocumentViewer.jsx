@@ -27,7 +27,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
     setIsEditing(false);
   }, [document.content, document.docType]);
 
-  const isPro = user?.role === 'admin' || ['pro', 'team'].includes(subscription?.plan);
+  const isPro = true;
   
   const handleCopy = () => {
     let content = document.content;
@@ -72,11 +72,6 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   ), [document.content]);
 
   const renderButtons = () => {
-    if (!isPro) return (
-      <button onClick={() => setShowUpgrade(true)} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/30 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
-        <Lock className="w-3.5 h-3.5" /> Edit (Pro)
-      </button>
-    );
     if (!isEditing) return (
       <button onClick={() => setIsEditing(true)} className="liquid-glass rounded-full px-4 py-2 text-xs text-white/60 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
         <Pencil className="w-3.5 h-3.5" /> Edit
@@ -93,7 +88,6 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   };
 
   return (
-    <>
     <div className="liquid-glass-strong no-hover rounded-3xl flex flex-col h-full min-h-[450px] lg:min-h-0 overflow-hidden ring-1 ring-white/[0.15] shadow-2xl relative" style={{ willChange: 'transform' }}>
       <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-white/[0.02] blur-3xl pointer-events-none" />
       <div className="flex items-center justify-between px-6 py-4">
@@ -127,12 +121,6 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
         ) : renderedMarkdown}
       </div>
     </div>
-      <UpgradeModal
-        isOpen={showUpgrade}
-        onClose={() => setShowUpgrade(false)}
-        onUpgrade={() => { setShowUpgrade(false); navigate('/pricing'); }}
-      />
-    </>
   );
 };
 export default memo(DocumentViewer);

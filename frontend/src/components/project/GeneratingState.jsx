@@ -22,26 +22,19 @@ const DOC_ORDER = [
   'mvpPlan','folderStructure','claudeContext','agentSystemPrompt',
 ];
 
-const GeneratingState = ({ project, subscription, onViewReady }) => {
+const GeneratingState = ({ project, onViewReady }) => {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [upgradeModal, setUpgradeModal] = useState({ open: false, feature: '' });
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [showRetryConfirm, setShowRetryConfirm] = useState(false);
   
   const docsGenerated = project?.docsGenerated || [];
   const count = docsGenerated.length;
   const pct = Math.round((count / 9) * 100);
-  const isPro = ['pro', 'team'].includes(subscription?.plan) || user?.role === 'admin';
   const canViewPartial = count >= 3;
 
   const handleProGate = (feature) => {
-    if (isPro) {
-      if (feature === 'chat') navigate(`/projects/${project._id}/chat`);
-      if (feature === 'workspace') navigate(`/projects/${project._id}/workspace`);
-    } else {
-      setUpgradeModal({ open: true, feature });
-    }
+    if (feature === 'chat') navigate(`/projects/${project._id}/chat`);
+    if (feature === 'workspace') navigate(`/projects/${project._id}/workspace`);
   };
 
   const handleCancel = async () => {
@@ -67,11 +60,6 @@ const GeneratingState = ({ project, subscription, onViewReady }) => {
 
   return (
     <div className="flex flex-col w-full max-w-5xl mx-auto space-y-3">
-      <UpgradeModal
-        isOpen={upgradeModal.open}
-        onClose={() => setUpgradeModal({ open: false, feature: '' })}
-        onUpgrade={() => { setUpgradeModal({ open: false, feature: '' }); navigate('/pricing'); }}
-      />
 
       {showCancelConfirm && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
@@ -223,7 +211,6 @@ const GeneratingState = ({ project, subscription, onViewReady }) => {
                   onClick={() => handleProGate('chat')}
                   className="mt-2.5 w-full liquid-glass rounded-full py-1 text-xs text-white font-medium hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer border border-white/5"
                 >
-                    {!isPro && <Lock className="w-3 h-3" />}
                     Enter Chat
                 </button>
             </div>
@@ -240,7 +227,6 @@ const GeneratingState = ({ project, subscription, onViewReady }) => {
                   onClick={() => handleProGate('workspace')}
                   className="w-full text-[11px] text-white/60 hover:text-white transition-colors flex items-center gap-1 cursor-pointer"
                 >
-                    {!isPro && <Lock className="w-3 h-3" />}
                     Open Kanban Board
                 </button>
             </div>

@@ -2,8 +2,6 @@ import { Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import UserAvatar from '../common/UserAvatar';
 import { useAuth } from '../../context/AuthContext';
-import UpgradeModal from '../common/UpgradeModal';
-import { useState } from 'react';
 import { SpecialText } from '../ui/SpecialText';
 
 export default function DashboardHeader({ projectCount }) {
@@ -22,7 +20,7 @@ export default function DashboardHeader({ projectCount }) {
           <h1 className="text-3xl font-medium text-white">Your Projects</h1>
           <p className="text-sm text-white/50 mt-1 uppercase tracking-wider flex items-center gap-1">
             <SpecialText speed={15} inView={true} className="text-white/50">
-              {`free plan · ${projectCount} / 3 projects (limited time offer - unlimited)`}
+              {`free plan · ${projectCount} projects created (limited time offer - unlimited access)`}
             </SpecialText>
           </p>
         </div>
