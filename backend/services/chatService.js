@@ -1,3 +1,4 @@
+const axios = require('axios');
 const AIService = require('./AIService');
 const Project = require('../models/Project');
 const Document = require('../models/Document');
@@ -8,6 +9,44 @@ const VALID_DOC_TYPES = [
   'prd', 'srd', 'techStack', 'dbSchema', 'userFlows',
   'mvpPlan', 'folderStructure', 'claudeContext', 'agentSystemPrompt', 'skills', 'rules'
 ];
+
+const fetchWebsiteSummary = async (url) => {
+  try {
+    const formattedUrl = url.startsWith('http') ? url : `https://${url}`;
+    const response = await axios.get(formattedUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      },
+      timeout: 7000
+    });
+
+    const html = response.data;
+    if (typeof html !== 'string') return null;
+
+    const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
+    const title = titleMatch ? titleMatch[1].trim() : '';
+
+    const metaMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']*)["']/i) ||
+                      html.match(/<meta[^>]*content=["']([^"']*)["'][^>]*name=["']description["']/i);
+    const description = metaMatch ? metaMatch[1].trim() : '';
+
+    const cleanText = html
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    return {
+      url: formattedUrl,
+      title,
+      description,
+      textSnippet: cleanText.slice(0, 3000)
+    };
+  } catch (err) {
+    return { url, title: '', description: '', textSnippet: 'Analyze based on URL name & domain context.' };
+  }
+};
 
 exports.sendChatMessage = async (projectId, userId, messages) => {
   const project = await Project.findOne({ _id: projectId, userId, isArchived: false });
@@ -20,7 +59,6 @@ exports.sendChatMessage = async (projectId, userId, messages) => {
     `=== ${d.docType.toUpperCase()} ===\n${d.content}`
   ).join('\n\n');
 
-  // Compute active skills for this project
   const activeSkillIds = allSkills
     .filter(s => {
       if (project.disabledSkills && project.disabledSkills.includes(s.id)) return false;
@@ -34,7 +72,26 @@ exports.sendChatMessage = async (projectId, userId, messages) => {
 
   const availableSkillSummary = allSkills.map(s => `- ${s.name} (id: "${s.id}"): ${s.description}`).join('\n');
 
-  const lastUserMsg = [...messages].reverse().find(m => m.role === 'user')?.content.toLowerCase() || '';
+  const lastUserMsgObj = [...messages].reverse().find(m => m.role === 'user');
+  const lastUserMsg = lastUserMsgObj?.content || '';
+  const lastUserMsgLower = lastUserMsg.toLowerCase();
+
+  const urlRegex = /(https?:\/\/[^\s]+|(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?:\/[^\s]*)?)/gi;
+  const urlMatches = lastUserMsg.match(urlRegex);
+
+  let websiteDataPrompt = '';
+  if (urlMatches && urlMatches.length > 0) {
+    const candidateUrl = urlMatches[0];
+    if (!candidateUrl.includes('localhost') && candidateUrl.includes('.')) {
+      const scraped = await fetchWebsiteSummary(candidateUrl);
+      if (scraped) {
+        websiteDataPrompt = `\n\n[COMPETITOR WEBSITE DATA FETCHED FROM ${scraped.url}]:
+Title: ${scraped.title}
+Description: ${scraped.description}
+Text Snippet: ${scraped.textSnippet}`;
+      }
+    }
+  }
 
   const systemPrompt = `You are an AI Co-founder assistant for the project "${project.title}".
 You have access to the complete technical documentation for this project.
@@ -49,6 +106,16 @@ PROJECT OWNER & FOUNDER INFORMATION:
 OWNER DISCLOSURE RULES:
 1. If the user asks generally who owns/created/built this project or platform (e.g. "is project ka malik kon hai", "who is the owner", "founder info"), provide the full details (Name, GitHub, Phone, Email).
 2. If the user asks specifically for ONE detail (e.g. ONLY GitHub, ONLY Phone, ONLY Email, ONLY Name), provide ONLY that specific detail. DO NOT list all details together.
+
+COMPETITOR WEBSITE ANALYSIS INSTRUCTIONS:
+If the user provides a website URL or asks to analyze a competitor website:
+1. Provide a crisp, clinical, to-the-point analysis formatted cleanly in markdown:
+   - 🎯 **Core Features Identified**
+   - ⚡ **Advantages (Pros)**
+   - ⚠️ **Disadvantages (Cons)**
+   - 💡 **Strategic Recommendations for ${project.title}**
+2. At the end of your analysis, ask the user:
+   "Would you like me to update your PRD and SRD documentation to incorporate these features and competitive advantages?"
 
 CURRENT PROJECT SKILLS:
 ${activeSkillIds.join(', ') || 'None'}
@@ -100,6 +167,10 @@ ${docsContext.slice(0, 10000)}`;
     })
   ];
 
+  if (websiteDataPrompt) {
+    aiMessages[aiMessages.length - 1].content += websiteDataPrompt;
+  }
+
   let rawReply = await AIService.generateChat(aiMessages);
 
   // 1. Process Document Update Tags
@@ -150,9 +221,8 @@ ${docsContext.slice(0, 10000)}`;
       rawReply += `\n\n⚡ **Skill Updated:** ${action === 'add' ? 'Added' : 'Removed'} skill **"${targetSkill.name}"** for your project!`;
     }
   } else {
-    // Fallback Skill Action detection if user requested skill add/remove
-    if (lastUserMsg.includes('add skill') || lastUserMsg.includes('skills add') || (lastUserMsg.includes('add ') && lastUserMsg.includes('skill'))) {
-      const foundSkill = allSkills.find(s => lastUserMsg.includes(s.id.toLowerCase()) || lastUserMsg.includes(s.name.toLowerCase()));
+    if (lastUserMsgLower.includes('add skill') || lastUserMsgLower.includes('skills add') || (lastUserMsgLower.includes('add ') && lastUserMsgLower.includes('skill'))) {
+      const foundSkill = allSkills.find(s => lastUserMsgLower.includes(s.id.toLowerCase()) || lastUserMsgLower.includes(s.name.toLowerCase()));
       if (foundSkill) {
         if (!project.customSkills) project.customSkills = [];
         if (!project.customSkills.includes(foundSkill.id)) {
@@ -161,8 +231,8 @@ ${docsContext.slice(0, 10000)}`;
           rawReply += `\n\n⚡ **Skill Added:** Successfully added **"${foundSkill.name}"** to your project!`;
         }
       }
-    } else if (lastUserMsg.includes('remove skill') || lastUserMsg.includes('delete skill') || (lastUserMsg.includes('remove ') && lastUserMsg.includes('skill'))) {
-      const foundSkill = allSkills.find(s => lastUserMsg.includes(s.id.toLowerCase()) || lastUserMsg.includes(s.name.toLowerCase()));
+    } else if (lastUserMsgLower.includes('remove skill') || lastUserMsgLower.includes('delete skill') || (lastUserMsgLower.includes('remove ') && lastUserMsgLower.includes('skill'))) {
+      const foundSkill = allSkills.find(s => lastUserMsgLower.includes(s.id.toLowerCase()) || lastUserMsgLower.includes(s.name.toLowerCase()));
       if (foundSkill) {
         if (!project.customSkills) project.customSkills = [];
         if (!project.disabledSkills) project.disabledSkills = [];
@@ -178,19 +248,19 @@ ${docsContext.slice(0, 10000)}`;
 
   // 3. Fallback Download Tag Detection
   if (!rawReply.includes('[DOWNLOAD_ACTION:')) {
-    if (lastUserMsg.includes('pdf')) {
-      const targetDoc = VALID_DOC_TYPES.find(t => lastUserMsg.includes(t.toLowerCase())) || 'prd';
+    if (lastUserMsgLower.includes('pdf')) {
+      const targetDoc = VALID_DOC_TYPES.find(t => lastUserMsgLower.includes(t.toLowerCase())) || 'prd';
       rawReply += `\n\n[DOWNLOAD_ACTION:pdf:${targetDoc}]`;
-    } else if (lastUserMsg.includes('poora') || lastUserMsg.includes('all file') || lastUserMsg.includes('zip') || lastUserMsg.includes('everything')) {
+    } else if (lastUserMsgLower.includes('poora') || lastUserMsgLower.includes('all file') || lastUserMsgLower.includes('zip') || lastUserMsgLower.includes('everything')) {
       rawReply += `\n\n[DOWNLOAD_ACTION:zip:all]`;
-    } else if (lastUserMsg.includes('excel') || lastUserMsg.includes('csv') || lastUserMsg.includes('sheet')) {
-      const targetDoc = VALID_DOC_TYPES.find(t => lastUserMsg.includes(t.toLowerCase())) || 'dbSchema';
+    } else if (lastUserMsgLower.includes('excel') || lastUserMsgLower.includes('csv') || lastUserMsgLower.includes('sheet')) {
+      const targetDoc = VALID_DOC_TYPES.find(t => lastUserMsgLower.includes(t.toLowerCase())) || 'dbSchema';
       rawReply += `\n\n[DOWNLOAD_ACTION:excel:${targetDoc}]`;
-    } else if (lastUserMsg.includes('word') || lastUserMsg.includes('docx')) {
-      const targetDoc = VALID_DOC_TYPES.find(t => lastUserMsg.includes(t.toLowerCase())) || 'prd';
+    } else if (lastUserMsgLower.includes('word') || lastUserMsgLower.includes('docx')) {
+      const targetDoc = VALID_DOC_TYPES.find(t => lastUserMsgLower.includes(t.toLowerCase())) || 'prd';
       rawReply += `\n\n[DOWNLOAD_ACTION:word:${targetDoc}]`;
-    } else if (lastUserMsg.includes('download') || lastUserMsg.includes('downlaod') || lastUserMsg.includes('export')) {
-      const targetDoc = VALID_DOC_TYPES.find(t => lastUserMsg.includes(t.toLowerCase()));
+    } else if (lastUserMsgLower.includes('download') || lastUserMsgLower.includes('downlaod') || lastUserMsgLower.includes('export')) {
+      const targetDoc = VALID_DOC_TYPES.find(t => lastUserMsgLower.includes(t.toLowerCase()));
       if (targetDoc) {
         rawReply += `\n\n[DOWNLOAD_ACTION:word:${targetDoc}]`;
       }

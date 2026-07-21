@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Sparkles, FileText, Layers, Lightbulb, Trash2, UploadCloud, AlertCircle } from 'lucide-react';
+import { ChevronLeft, Sparkles, FileText, Layers, Lightbulb, Trash2, UploadCloud, AlertCircle, ExternalLink } from 'lucide-react';
 import { getProject } from '../services/projectService';
 import { getMySubscription } from '../services/subscriptionService';
 import { sendChatMessage, getChatHistory, deleteChatHistory } from '../services/chatService';
@@ -272,6 +272,7 @@ export default function ProjectChat() {
 
               <div className="space-y-1.5 p-0.5 overflow-y-auto hover-scrollbar custom-scrollbar flex-1 min-h-0">
                 {[
+                  { label: "Analyze website URL (e.g. https://stripe.com)", icon: ExternalLink },
                   { label: "Add Stripe Integration skill to project", icon: Sparkles },
                   { label: "Download PRD in PDF format", icon: FileText },
                   { label: "Download all project files (.zip)", icon: FileText },
