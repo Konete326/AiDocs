@@ -25,7 +25,13 @@ const projectSchema = new mongoose.Schema(
       isComplete: { type: Boolean, default: false }
     }],
     isArchived: { type: Boolean, default: false },
-    generationLock: { type: Date }
+    generationLock: { type: Date },
+    chatHistory: [{
+      role: { type: String, enum: ['user', 'assistant'] },
+      content: { type: String },
+      attachments: [{ type: Object }],
+      createdAt: { type: Date, default: Date.now }
+    }]
   },
   { timestamps: true }
 );

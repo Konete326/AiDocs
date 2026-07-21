@@ -35,3 +35,13 @@ export async function downloadDocAsExcel(projectId, docType) {
   a.click();
   URL.revokeObjectURL(url);
 }
+
+export async function downloadDocAsMd(projectId, docType) {
+  const response = await api.get(`/projects/${projectId}/export/${docType}/md`, { responseType: 'blob' });
+  const url = URL.createObjectURL(new Blob([response.data], { type: 'text/markdown;charset=utf-8;' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${docType}.md`;
+  a.click();
+  URL.revokeObjectURL(url);
+}

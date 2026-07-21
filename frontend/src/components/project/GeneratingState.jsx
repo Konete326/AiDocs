@@ -145,7 +145,7 @@ const GeneratingState = ({ project, onViewReady }) => {
                     <button
                       onClick={() => setShowRetryConfirm(true)}
                       title="Retry / Resume"
-                      className="w-6 h-6 rounded-full bg-[#6C63FF]/20 hover:bg-[#6C63FF]/30 flex items-center justify-center border border-[#6C63FF]/30 hover:scale-105 active:scale-95 transition-all cursor-pointer text-white"
+                      className="w-6 h-6 rounded-full bg-[#6C63FF] hover:bg-[#5b52e5] flex items-center justify-center shadow-[2px_2px_5px_rgba(108,99,255,0.35)] hover:scale-105 active:scale-95 transition-all cursor-pointer text-white border-none"
                     >
                       <RefreshCw className="w-3.5 h-3.5" />
                     </button>

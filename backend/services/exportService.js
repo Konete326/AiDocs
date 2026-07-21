@@ -444,3 +444,16 @@ exports.generateExcel = async (projectId, docType, userId) => {
 
   return Buffer.from('\uFEFF' + csvRows.join('\n'), 'utf-8');
 };
+
+// ─── Markdown export ────────────────────────────────────────────────────────
+exports.generateMd = async (projectId, docType, userId) => {
+  let content = '';
+  if (docType === 'skills') {
+    content = await getSkillsDocContent(projectId, userId);
+  } else {
+    const doc = await DocumentModel.findOne({ projectId, userId, docType });
+    if (!doc) throw new AppError('Document not found', 404, 'NOT_FOUND');
+    content = doc.content;
+  }
+  return Buffer.from(content, 'utf-8');
+};

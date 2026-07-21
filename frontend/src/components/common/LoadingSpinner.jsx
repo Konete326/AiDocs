@@ -25,9 +25,9 @@ export default function LoadingSpinner({ size = 'md', className = '' }) {
 
   return (
     <div className={`relative flex items-center justify-center ${containerSizes[size] || containerSizes.md} ${className}`}>
-      <div className="absolute inset-0 rounded-full border border-[#6C63FF]/30 bg-[#6C63FF]/10 animate-ping opacity-40" style={{ animationDuration: '1.8s' }} />
+      <div className="absolute inset-0 rounded-full border border-[#6C63FF] animate-ping opacity-30" style={{ animationDuration: '1.8s' }} />
       <div className="absolute inset-[12%] rounded-full border border-white/20 bg-white/5 animate-pulse" />
-      <div className="absolute inset-[25%] rounded-full border border-[#6C63FF]/50 bg-[#6C63FF]/15 shadow-[0_0_12px_rgba(108,99,255,0.4)] animate-pulse" style={{ animationDelay: '0.2s' }} />
+      <div className="absolute inset-[25%] rounded-full border border-[#6C63FF] bg-[#6C63FF] shadow-[0_0_12px_rgba(108,99,255,0.4)] opacity-40 animate-pulse" style={{ animationDelay: '0.2s' }} />
       
       <div className="relative z-10 rounded-full p-1 bg-black/40 backdrop-blur-md border border-white/20 shadow-md flex items-center justify-center">
         <img src={logo} alt="Loading..." className={`${logoSizes[size] || logoSizes.md} rounded-full object-cover animate-pulse`} />

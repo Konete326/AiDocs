@@ -32,3 +32,11 @@ exports.downloadExcel = asyncWrapper(async (req, res) => {
   res.setHeader('Content-Disposition', `attachment; filename="${docType}.csv"`);
   res.send(excelBuffer);
 });
+
+exports.downloadMd = asyncWrapper(async (req, res) => {
+  const { projectId, docType } = req.params;
+  const mdBuffer = await exportService.generateMd(projectId, docType, req.user.id);
+  res.setHeader('Content-Type', 'text/markdown; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="${docType}.md"`);
+  res.send(mdBuffer);
+});

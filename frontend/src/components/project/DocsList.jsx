@@ -41,31 +41,39 @@ const DocsList = ({ documents, selectedDoc, onSelect, isGenerating }) => (
             className={[
               'rounded-2xl px-4 py-3 flex items-center gap-3 w-full transition-all border',
               isSelected 
-                ? 'bg-[#6C63FF]/10 border-[#6C63FF]/40 shadow-[0_0_15px_rgba(108,99,255,0.15)]' 
+                ? 'bg-[#6C63FF] shadow-[3px_3px_8px_rgba(108,99,255,0.3)] border-transparent' 
                 : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04] hover:border-white/10',
               isGenerated ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed',
             ].join(' ')}
             style={{ willChange: isGenerated ? 'transform' : 'auto' }}
           >
-            <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center flex-shrink-0">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isSelected ? 'bg-white/20' : 'bg-white/10'}`}>
               {isGenerated
-                ? <FileText className="w-4 h-4 text-white/70" />
+                ? <FileText className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-white/70'}`} />
                 : isGenerating
                   ? <Loader className="w-4 h-4 text-white/30 animate-spin" />
                   : <span className="text-white/20 text-xs">—</span>
               }
             </div>
             <div className="flex-1 min-w-0">
-              <p className={`text-xs sm:text-sm font-medium truncate ${isGenerated ? 'text-white/90' : 'text-white/40'}`}>
+              <p
+                style={isSelected ? { color: '#ffffff' } : undefined}
+                className={`text-xs sm:text-sm font-medium truncate ${isSelected ? '' : isGenerated ? 'text-white/90' : 'text-white/40'}`}
+              >
                 {DOC_LABELS[type]}
               </p>
               {isGenerated && (
-                <p className="text-[10px] text-white/40 mt-0.5">v{doc.version}</p>
+                <p
+                  style={isSelected ? { color: 'rgba(255, 255, 255, 0.85)' } : undefined}
+                  className={`text-[10px] mt-0.5 ${isSelected ? '' : 'text-white/40'}`}
+                >
+                  v{doc.version}
+                </p>
               )}
             </div>
             {isGenerated && (
               <CheckCircle 
-                className={`w-4 h-4 flex-shrink-0 transition-colors ${isSelected ? 'text-green-500' : 'text-white/40'}`} 
+                className={`w-4 h-4 flex-shrink-0 transition-colors ${isSelected ? 'text-emerald-300' : 'text-white/40'}`} 
               />
             )}
           </div>

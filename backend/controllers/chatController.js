@@ -14,3 +14,19 @@ exports.sendMessage = asyncWrapper(async (req, res) => {
   const reply = await chatService.sendChatMessage(projectId, userId, messages);
   res.json({ success: true, data: { reply } });
 });
+
+exports.getHistory = asyncWrapper(async (req, res) => {
+  const { projectId } = req.params;
+  const userId = req.user.id;
+
+  const history = await chatService.getChatHistory(projectId, userId);
+  res.json({ success: true, data: { history } });
+});
+
+exports.deleteHistory = asyncWrapper(async (req, res) => {
+  const { projectId } = req.params;
+  const userId = req.user.id;
+
+  const result = await chatService.deleteChatHistory(projectId, userId);
+  res.json({ success: true, data: result });
+});

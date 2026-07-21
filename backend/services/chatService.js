@@ -40,15 +40,21 @@ exports.sendChatMessage = async (projectId, userId, messages) => {
 You have access to the complete technical documentation for this project.
 You can answer questions, EDIT/UPDATE any document, DOWNLOAD/EXPORT files, AND ADD/REMOVE project skills.
 
+PROJECT OWNER & FOUNDER INFORMATION:
+- Name: Sameer Akram
+- GitHub: konete326
+- Phone: 03213265524
+- Email: sameerdevexpert@gmail.com
+
+OWNER DISCLOSURE RULES:
+1. If the user asks generally who owns/created/built this project or platform (e.g. "is project ka malik kon hai", "who is the owner", "founder info"), provide the full details (Name, GitHub, Phone, Email).
+2. If the user asks specifically for ONE detail (e.g. ONLY GitHub, ONLY Phone, ONLY Email, ONLY Name), provide ONLY that specific detail. DO NOT list all details together.
+
 CURRENT PROJECT SKILLS:
 ${activeSkillIds.join(', ') || 'None'}
 
 AVAILABLE SYSTEM SKILLS LIBRARY:
 ${availableSkillSummary}
-
-SKILLS RECOMMENDATION INSTRUCTIONS:
-Whenever you recommend or mention relevant technical skills or tools for this project (such as Stripe, React, Node.js, Tailwind, Docker, MongoDB, Next.js, GraphQL, Security, etc.), include a recommendation tag at the end of your response:
-[RECOMMEND_SKILLS:skillId1,skillId2]
 
 SKILLS MANAGEMENT INSTRUCTIONS:
 If the user asks to add, enable, remove, or disable a skill for this project:
@@ -77,7 +83,21 @@ ${docsContext.slice(0, 10000)}`;
 
   const aiMessages = [
     { role: 'system', content: systemPrompt },
-    ...messages.map(m => ({ role: m.role, content: m.content }))
+    ...messages.map(m => {
+      let attachmentText = '';
+      if (m.role === 'user' && Array.isArray(m.attachments) && m.attachments.length > 0) {
+        attachmentText = m.attachments.map(att => {
+          if (att.isImage) {
+            return `\n\n[USER ATTACHED IMAGE: "${att.name}"]\nPlease analyze this attached image/visual for the project context.`;
+          } else if (att.content) {
+            return `\n\n[USER ATTACHED FILE: "${att.name}"]\nContent:\n${att.content.slice(0, 4000)}`;
+          } else {
+            return `\n\n[USER ATTACHED FILE: "${att.name}"]`;
+          }
+        }).join('\n');
+      }
+      return { role: m.role, content: `${m.content || ''}${attachmentText}` };
+    })
   ];
 
   let rawReply = await AIService.generateChat(aiMessages);
@@ -156,21 +176,7 @@ ${docsContext.slice(0, 10000)}`;
     }
   }
 
-  // 3. Auto-populate Skill Recommendation Tags if tech tools are discussed
-  if (!rawReply.includes('[RECOMMEND_SKILLS:')) {
-    const recommended = [];
-    const replyLower = rawReply.toLowerCase();
-    allSkills.forEach(s => {
-      if (replyLower.includes(s.name.toLowerCase()) || replyLower.includes(s.id.toLowerCase())) {
-        recommended.push(s.id);
-      }
-    });
-    if (recommended.length > 0) {
-      rawReply += `\n\n[RECOMMEND_SKILLS:${recommended.slice(0, 3).join(',')}]`;
-    }
-  }
-
-  // 4. Fallback Download Tag Detection
+  // 3. Fallback Download Tag Detection
   if (!rawReply.includes('[DOWNLOAD_ACTION:')) {
     if (lastUserMsg.includes('pdf')) {
       const targetDoc = VALID_DOC_TYPES.find(t => lastUserMsg.includes(t.toLowerCase())) || 'prd';
@@ -191,5 +197,35 @@ ${docsContext.slice(0, 10000)}`;
     }
   }
 
+  // Persist new messages to chatHistory in MongoDB
+  const lastUser = [...messages].reverse().find(m => m.role === 'user');
+  if (lastUser) {
+    if (!project.chatHistory) project.chatHistory = [];
+    project.chatHistory.push({
+      role: 'user',
+      content: lastUser.content,
+      attachments: lastUser.attachments || []
+    });
+    project.chatHistory.push({
+      role: 'assistant',
+      content: rawReply
+    });
+    await project.save();
+  }
+
   return rawReply;
+};
+
+exports.getChatHistory = async (projectId, userId) => {
+  const project = await Project.findOne({ _id: projectId, userId, isArchived: false });
+  if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');
+  return project.chatHistory || [];
+};
+
+exports.deleteChatHistory = async (projectId, userId) => {
+  const project = await Project.findOne({ _id: projectId, userId, isArchived: false });
+  if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');
+  project.chatHistory = [];
+  await project.save();
+  return { message: 'Chat history deleted' };
 };

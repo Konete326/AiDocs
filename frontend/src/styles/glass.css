@@ -143,6 +143,8 @@ select:focus,
 
 button.bg-accent,
 button.bg-\[\#6C63FF\],
+span.bg-\[\#6C63FF\],
+.bg-\[\#6C63FF\],
 button.liquid-glass-strong.bg-\[\#6C63FF\],
 .bg-\[\#6C63FF\] button,
 .bg-accent button {
@@ -179,9 +181,11 @@ button.liquid-glass-strong.bg-\[\#6C63FF\] svg,
 }
 
 nav .liquid-glass-strong:hover,
+nav .liquid-glass-strong,
+nav .max-w-7xl:hover,
 .max-w-7xl.liquid-glass-strong:hover {
   transform: none !important;
-  box-shadow: 12px 12px 20px rgba(163, 177, 198, 0.7), -12px -12px 20px rgba(255, 255, 255, 0.6) !important;
+  box-shadow: 8px 8px 18px rgba(163, 177, 198, 0.6), -5px -5px 12px rgba(255, 255, 255, 0.3) !important;
 }
 
 .liquid-glass:has(form):hover,

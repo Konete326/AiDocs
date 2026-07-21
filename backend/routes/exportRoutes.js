@@ -1,5 +1,5 @@
 const express = require('express');
-const { downloadZip, downloadPdf, downloadWord, downloadExcel } = require('../controllers/exportController');
+const { downloadZip, downloadPdf, downloadWord, downloadExcel, downloadMd } = require('../controllers/exportController');
 const authenticate = require('../middleware/authenticate');
 
 const router = express.Router();
@@ -26,6 +26,12 @@ router.get(
   '/projects/:projectId/export/:docType/excel',
   authenticate,
   downloadExcel
+);
+
+router.get(
+  '/projects/:projectId/export/:docType/md',
+  authenticate,
+  downloadMd
 );
 
 module.exports = router;
