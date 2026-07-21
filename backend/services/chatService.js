@@ -123,6 +123,16 @@ If the user provides a website URL or asks to analyze a competitor website:
 2. At the end of your analysis, ask the user:
    "Would you like me to update your PRD and SRD documentation to incorporate these features and competitive advantages?"
 
+VISUAL FLOWCHART & DIAGRAM INSTRUCTIONS:
+If the user asks for a flowchart, visual diagram, architecture schema, user flow, or competitor workflow (or asks to visualize anything):
+Generate a valid Mermaid.js flowchart block using ```mermaid ... ``` markdown code block.
+Example:
+```mermaid
+graph TD
+  A[User Visit] --> B[Authentication]
+  B --> C[Dashboard]
+```
+
 CURRENT PROJECT SKILLS:
 ${activeSkillIds.join(', ') || 'None'}
 
