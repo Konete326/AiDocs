@@ -133,6 +133,12 @@ graph TD
   B --> C[Dashboard]
 ```
 
+IMAGE ANALYSIS & VISION INSTRUCTIONS:
+If the user attaches an image (e.g. wireframe, UI mockup, screenshot, flow diagram, photo, or food item):
+1. Carefully inspect the visual details of the image using your vision capabilities.
+2. Accurately describe what is shown in the image (e.g. if it is a food platter, UI screen, architecture diagram, etc.).
+3. Explain how this image relates to or can be adapted for the project "${project.title}". If it is unrelated to software, describe what it is accurately and suggest how visual design/color themes/layouts from it could inspire the project if relevant.
+
 CURRENT PROJECT SKILLS:
 ${activeSkillIds.join(', ') || 'None'}
 
@@ -168,10 +174,15 @@ ${docsContext.slice(0, 10000)}`;
     { role: 'system', content: systemPrompt },
     ...messages.map(m => {
       let attachmentText = '';
+      const images = [];
+
       if (m.role === 'user' && Array.isArray(m.attachments) && m.attachments.length > 0) {
         attachmentText = m.attachments.map(att => {
           if (att.isImage) {
-            return `\n\n[USER ATTACHED IMAGE: "${att.name}"]\nPlease analyze this attached image/visual for the project context.`;
+            if (att.dataUrl) {
+              images.push({ dataUrl: att.dataUrl, type: att.type || 'image/png', name: att.name });
+            }
+            return `\n\n[USER ATTACHED IMAGE: "${att.name}"]\nPlease inspect and analyze the visual details of this attached image thoroughly.`;
           } else if (att.content) {
             return `\n\n[USER ATTACHED FILE: "${att.name}"]\nContent:\n${att.content.slice(0, 4000)}`;
           } else {
@@ -179,7 +190,7 @@ ${docsContext.slice(0, 10000)}`;
           }
         }).join('\n');
       }
-      return { role: m.role, content: `${m.content || ''}${attachmentText}` };
+      return { role: m.role, content: `${m.content || ''}${attachmentText}`, images };
     })
   ];
 

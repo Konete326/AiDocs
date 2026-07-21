@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import AuthLayout from '../components/auth/AuthLayout';
 import GoogleSignInButton from '../components/auth/GoogleSignInButton';
@@ -19,12 +20,18 @@ export default function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email || !password) return setError('Please fill in all fields.');
+    if (!email || !password) {
+      const emptyErr = 'Please fill in all fields.';
+      toast.error(emptyErr);
+      return setError(emptyErr);
+    }
     setError(''); setIsLoading(true);
     try { await login(email, password); navigate('/dashboard'); }
     catch (err) { 
       const msg = err.response?.data?.error;
-      setError(typeof msg === 'string' ? msg : msg?.message || 'Login failed.'); 
+      const friendlyMsg = typeof msg === 'string' ? msg : msg?.message || 'Login failed.';
+      toast.error(friendlyMsg);
+      setError(friendlyMsg); 
     }
     finally { setIsLoading(false); }
   };

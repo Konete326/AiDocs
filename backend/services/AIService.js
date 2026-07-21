@@ -138,10 +138,26 @@ exports.generateChat = async (messages) => {
 
     try {
       if (provider.type === 'gemini') {
-        const contents = messages.map(m => ({
-          role: m.role === 'assistant' ? 'model' : 'user',
-          parts: [{ text: m.content }]
-        }));
+        const contents = messages.map(m => {
+          const parts = [{ text: m.content || '' }];
+          if (m.images && Array.isArray(m.images)) {
+            m.images.forEach(img => {
+              if (img.dataUrl) {
+                const base64Data = img.dataUrl.split(',')[1] || img.dataUrl;
+                parts.push({
+                  inline_data: {
+                    mime_type: img.type || 'image/png',
+                    data: base64Data
+                  }
+                });
+              }
+            });
+          }
+          return {
+            role: m.role === 'assistant' ? 'model' : 'user',
+            parts
+          };
+        });
 
         const response = await axios.post(
           `${provider.url}?key=${token}`,

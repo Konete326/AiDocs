@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, User, ShieldCheck } from 'lucide-react';
+import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
 import { usePasswordStrength } from '../hooks/usePasswordStrength';
 import AuthLayout from '../components/auth/AuthLayout';
@@ -21,14 +22,25 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.email || !form.password || !form.confirmPassword) return setError('Fill all fields.');
-    if (score < 3) return setError('Password is too weak.');
-    if (form.password !== form.confirmPassword) return setError('Passwords mismatch.');
+    if (!form.name || !form.email || !form.password || !form.confirmPassword) {
+      toast.error('Fill all fields.');
+      return setError('Fill all fields.');
+    }
+    if (score < 3) {
+      toast.error('Password is too weak.');
+      return setError('Password is too weak.');
+    }
+    if (form.password !== form.confirmPassword) {
+      toast.error('Passwords mismatch.');
+      return setError('Passwords mismatch.');
+    }
     setError(''); setIsLoading(true);
     try { await register(form.name, form.email, form.password); navigate('/dashboard'); }
     catch (err) { 
       const msg = err.response?.data?.error;
-      setError(typeof msg === 'string' ? msg : msg?.message || 'Registration failed.'); 
+      const friendlyMsg = typeof msg === 'string' ? msg : msg?.message || 'Registration failed.';
+      toast.error(friendlyMsg);
+      setError(friendlyMsg); 
     }
     finally { setIsLoading(false); }
   };
