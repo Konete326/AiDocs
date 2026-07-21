@@ -21,12 +21,6 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
             className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-[#38B2AC] to-transparent rounded-full"
           />
         </div>
-
-        <div className="flex gap-2 overflow-x-auto whitespace-nowrap custom-scrollbar pb-1 mt-1 w-full flex-row">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="liquid-glass rounded-full h-6 w-28 animate-pulse flex-shrink-0" />
-          ))}
-        </div>
       </div>
     );
   }
