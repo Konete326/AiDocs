@@ -1,16 +1,46 @@
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { Sparkles, Copy, Check } from 'lucide-react';
+import { Sparkles, Copy, Check, Download, FileSpreadsheet, FileText, Archive } from 'lucide-react';
 import { mdComponents } from '../project/markdownComponents';
+import { downloadZip, downloadDocAsWord, downloadDocAsExcel, downloadDocAsPdf } from '../../services/exportService';
 
-export default function ChatMessage({ message }) {
+export default function ChatMessage({ message, projectId, projectTitle }) {
   const isUser = message.role === 'user';
   const [copied, setCopied] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
 
   const handleCopy = () => {
     navigator.clipboard.writeText(message.content);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const downloadMatch = message.content ? message.content.match(/\[DOWNLOAD_ACTION:([a-zA-Z]+):([a-zA-Z]+)\]/) : null;
+  const format = downloadMatch ? downloadMatch[1].toLowerCase() : null;
+  const docType = downloadMatch ? downloadMatch[2].toLowerCase() : null;
+
+  const cleanedContent = message.content ? message.content.replace(/\[DOWNLOAD_ACTION:[a-zA-Z]+:[a-zA-Z]+\]/g, '').trim() : '';
+
+  const handleDownload = async (fmt, type) => {
+    if (!projectId || isDownloading) return;
+    try {
+      setIsDownloading(true);
+      if (fmt === 'zip' || type === 'all') {
+        await downloadZip(projectId, projectTitle || 'Project');
+      } else if (fmt === 'word') {
+        await downloadDocAsWord(projectId, type);
+      } else if (fmt === 'excel') {
+        await downloadDocAsExcel(projectId, type);
+      } else if (fmt === 'pdf') {
+        await downloadDocAsPdf(projectId, type);
+      } else {
+        await downloadZip(projectId, projectTitle || 'Project');
+      }
+    } catch (err) {
+      console.error('Download failed:', err);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   if (isUser) {
@@ -22,6 +52,14 @@ export default function ChatMessage({ message }) {
       </div>
     );
   }
+
+  const getFormatIcon = () => {
+    if (format === 'excel') return FileSpreadsheet;
+    if (format === 'zip' || docType === 'all') return Archive;
+    return FileText;
+  };
+
+  const FormatIcon = getFormatIcon();
 
   return (
     <div className="flex justify-start gap-2.5 group">
@@ -50,8 +88,30 @@ export default function ChatMessage({ message }) {
               </button>
             </div>
             <div className="text-xs sm:text-sm text-white/80 leading-relaxed font-sans prose-invert">
-              <ReactMarkdown components={mdComponents}>{message.content}</ReactMarkdown>
+              <ReactMarkdown components={mdComponents}>{cleanedContent}</ReactMarkdown>
             </div>
+
+            {/* Interactive Download Action Card */}
+            {format && docType && (
+              <div className="mt-3 pt-2.5 border-t border-white/10">
+                <button
+                  onClick={() => handleDownload(format, docType)}
+                  disabled={isDownloading}
+                  style={{ color: '#ffffff' }}
+                  className="w-full bg-[#6C63FF]/30 hover:bg-[#6C63FF]/50 border border-[#6C63FF]/50 rounded-2xl px-3.5 py-2 text-xs font-semibold flex items-center justify-between gap-2 transition-all cursor-pointer shadow-md group/btn"
+                >
+                  <div className="flex items-center gap-2">
+                    <FormatIcon className="w-4 h-4 text-emerald-400" />
+                    <span>
+                      {format === 'zip' || docType === 'all'
+                        ? 'Download All Project Files (.zip)'
+                        : `Download ${docType.toUpperCase()} (${format.toUpperCase()})`}
+                    </span>
+                  </div>
+                  <Download className="w-3.5 h-3.5 text-white/70 group-hover/btn:scale-110 transition-transform" />
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>

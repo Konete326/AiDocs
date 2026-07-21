@@ -24,3 +24,11 @@ exports.downloadWord = asyncWrapper(async (req, res) => {
   res.setHeader('Content-Disposition', `attachment; filename="${docType}.docx"`);
   res.send(wordBuffer);
 });
+
+exports.downloadExcel = asyncWrapper(async (req, res) => {
+  const { projectId, docType } = req.params;
+  const excelBuffer = await exportService.generateExcel(projectId, docType, req.user.id);
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', `attachment; filename="${docType}.csv"`);
+  res.send(excelBuffer);
+});

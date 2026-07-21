@@ -411,3 +411,36 @@ exports.generateWord = async (projectId, docType, userId) => {
   const wordDoc = new Document({ sections: [{ children }] });
   return await Packer.toBuffer(wordDoc);
 };
+
+// ─── Excel / CSV export ──────────────────────────────────────────────────────
+exports.generateExcel = async (projectId, docType, userId) => {
+  let content = '';
+  if (docType === 'skills') {
+    content = await getSkillsDocContent(projectId, userId);
+  } else {
+    const doc = await DocumentModel.findOne({ projectId, userId, docType });
+    if (!doc) throw new AppError('Document not found', 404, 'NOT_FOUND');
+    content = doc.content;
+  }
+
+  const lines = content.split('\n');
+  let csvRows = ['"Section / Item","Content / Details"'];
+
+  lines.forEach(line => {
+    if (line.trim()) {
+      const clean = line.replace(/"/g, '""').trim();
+      if (line.startsWith('#')) {
+        csvRows.push(`"${clean.replace(/^#+\s*/, '')}","Section Header"`);
+      } else if (line.includes('|') && !line.includes('---')) {
+        const parts = line.split('|').map(p => p.trim()).filter(Boolean);
+        if (parts.length >= 2) {
+          csvRows.push(parts.map(p => `"${p.replace(/"/g, '""')}"`).join(','));
+        }
+      } else {
+        csvRows.push(`"${clean}","Details"`);
+      }
+    }
+  });
+
+  return Buffer.from('\uFEFF' + csvRows.join('\n'), 'utf-8');
+};

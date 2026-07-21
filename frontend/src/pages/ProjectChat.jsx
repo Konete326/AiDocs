@@ -134,10 +134,10 @@ export default function ProjectChat() {
 
               <div className="space-y-2 pt-1 overflow-y-auto hover-scrollbar custom-scrollbar">
                 {[
-                  { label: "Update PRD to add Stripe payment gateway", icon: FileText },
-                  { label: "What is our primary tech stack & DB choice?", icon: Layers },
-                  { label: "Summarize core system & API requirements", icon: FileText },
-                  { label: "What are the main MVP milestones & phases?", icon: Sparkles }
+                  { label: "Download all project files (.zip)", icon: FileText },
+                  { label: "Download PRD as Word (.docx)", icon: FileText },
+                  { label: "Download DB Schema as Excel (.csv)", icon: Layers },
+                  { label: "Update PRD to add Stripe payment gateway", icon: Sparkles }
                 ].map(({ label, icon: Icon }) => (
                   <button
                     key={label}
@@ -163,18 +163,22 @@ export default function ProjectChat() {
                   <div className="space-y-1 max-w-xs">
                     <h3 className="text-sm font-semibold text-white tracking-tight">Welcome! I'm your AI Co-founder</h3>
                     <p className="text-[11px] text-white/60 leading-relaxed">
-                      Ask me anything about <strong className="text-white font-medium">{project?.title || 'your project'}</strong> architecture or stack!
+                      Ask me anything about <strong className="text-white font-medium">{project?.title || 'your project'}</strong>, edit docs, or download project files!
                     </p>
                   </div>
                   <div className="flex gap-1.5 flex-wrap justify-center max-w-md pt-1">
-                    {["What's our tech stack?", "Explain the database schema", "What are key MVP features?"].map(s => (
+                    {["Download all project files", "Download PRD as Word", "Download DB Schema as Excel"].map(s => (
                       <button key={s} onClick={() => handleSend(s)} className="liquid-glass rounded-full px-3 py-1 text-[11px] text-white/70 hover:text-white transition-all cursor-pointer border border-white/5">{s}</button>
                     ))}
                   </div>
                 </div>
               )}
-              {messages.map((m, i) => <ChatMessage key={i} message={m} />)}
-              {isSending && <ChatMessage message={{ role: 'assistant', content: '...' }} />}
+              {messages.map((m, i) => (
+                <ChatMessage key={i} message={m} projectId={id} projectTitle={project?.title} />
+              ))}
+              {isSending && (
+                <ChatMessage message={{ role: 'assistant', content: '...' }} projectId={id} projectTitle={project?.title} />
+              )}
               {error && (
                 <div className="text-center py-1">
                   <span className="liquid-glass px-3 py-1 rounded-full text-[11px] text-amber-300/90 border border-amber-500/20 inline-block shadow-lg">

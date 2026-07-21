@@ -5,7 +5,7 @@ export async function downloadZip(projectId, projectTitle) {
   const url = URL.createObjectURL(new Blob([response.data]));
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${projectTitle.replace(/[^a-z0-9]/gi, '_')}_docs.zip`;
+  a.download = `${(projectTitle || 'project').replace(/[^a-z0-9]/gi, '_')}_docs.zip`;
   a.click();
   URL.revokeObjectURL(url);
 }
@@ -22,6 +22,16 @@ export async function downloadDocAsWord(projectId, docType) {
   const a = document.createElement('a');
   a.href = url;
   a.download = `${docType}.docx`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+export async function downloadDocAsExcel(projectId, docType) {
+  const response = await api.get(`/projects/${projectId}/export/${docType}/excel`, { responseType: 'blob' });
+  const url = URL.createObjectURL(new Blob([response.data], { type: 'text/csv;charset=utf-8;' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${docType}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
