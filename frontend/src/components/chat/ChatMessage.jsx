@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { Copy, Check, Download, FileSpreadsheet, FileText, Archive, Loader2, FileCode, Globe, ExternalLink, X } from 'lucide-react';
+import { Copy, Check, Download, FileSpreadsheet, FileText, Archive, Loader2, FileCode, Globe, ExternalLink, X, Smartphone, Tablet, Monitor } from 'lucide-react';
 import { mdComponents } from '../project/markdownComponents';
 import { downloadZip, downloadDocAsWord, downloadDocAsExcel, downloadDocAsPdf, downloadDocAsMd } from '../../services/exportService';
 
@@ -12,6 +12,8 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [manualFormatToggle, setManualFormatToggle] = useState(false);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [isIframeLoading, setIsIframeLoading] = useState(true);
+  const [viewportMode, setViewportMode] = useState('desktop');
 
   const downloadMatch = message.content ? message.content.match(/\[DOWNLOAD_ACTION:([a-zA-Z]+):([a-zA-Z]+)\]/) : null;
   const initialFormat = downloadMatch ? downloadMatch[1].toLowerCase() : null;
@@ -23,9 +25,9 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
 
   const urlRegex = /(https?:\/\/[^\s]+|(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?:\/[^\s]*)?)/gi;
   const urlMatches = cleanedContent.match(urlRegex);
-  const detectedUrl = urlMatches && urlMatches.length > 0 && !urlMatches[0].includes('localhost') && urlMatches[0].includes('.') ? urlMatches[0] : null;
+  const detectedUrl = urlMatches && urlMatches.length > 0 && !urlMatches[0].includes('localhost') && !urlMatches[0].includes('/api/') && urlMatches[0].includes('.') ? urlMatches[0] : null;
 
-  const hasDocReference = cleanedContent.includes('Updated Document:') || cleanedContent.includes('PRD') || cleanedContent.includes('SRD') || cleanedContent.includes('Tech Stack') || cleanedContent.includes('Database Schema');
+  const hasDocReference = (cleanedContent.includes('Updated Document:') || cleanedContent.includes('Document Updated:') || message.content?.includes('[UPDATE_DOC:')) && !detectedUrl;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(cleanedContent);
@@ -123,13 +125,39 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
   return (
     <>
       {previewUrl && (
-        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md">
-          <div className="liquid-glass-strong rounded-3xl w-full max-w-5xl h-[85vh] flex flex-col border border-white/15 overflow-hidden shadow-2xl relative">
-            <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between bg-black/40 flex-shrink-0">
-              <div className="flex items-center gap-2 truncate pr-4">
+        <div className="fixed inset-0 z-[999999] flex items-center justify-center p-4 sm:p-8 bg-black/80 backdrop-blur-md">
+          <div className="liquid-glass-strong rounded-3xl w-full max-w-5xl h-[80vh] my-auto flex flex-col border border-white/15 overflow-hidden shadow-2xl relative">
+            <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between bg-black/50 flex-shrink-0 gap-2 flex-wrap sm:flex-nowrap">
+              <div className="flex items-center gap-2 truncate pr-2 max-w-[180px] sm:max-w-xs">
                 <Globe className="w-4 h-4 text-[#6C63FF] flex-shrink-0" />
                 <span className="text-xs font-semibold text-white truncate">{previewUrl}</span>
               </div>
+
+              <div className="flex items-center gap-1 bg-white/5 p-1 rounded-full border border-white/10">
+                {[
+                  { id: 'mobile', label: 'Mobile (375px)', icon: Smartphone },
+                  { id: 'tablet', label: 'Tablet (768px)', icon: Tablet },
+                  { id: 'desktop', label: 'Desktop', icon: Monitor }
+                ].map(v => {
+                  const VIcon = v.icon;
+                  return (
+                    <button
+                      key={v.id}
+                      onClick={() => setViewportMode(v.id)}
+                      className={`rounded-full px-2.5 py-0.5 text-[9.5px] flex items-center gap-1 transition-all cursor-pointer ${
+                        viewportMode === v.id
+                          ? 'bg-[#6C63FF] text-white shadow-sm font-semibold'
+                          : 'text-white/60 hover:text-white'
+                      }`}
+                      title={v.label}
+                    >
+                      <VIcon className="w-3 h-3" />
+                      <span>{v.id.toUpperCase()}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
               <div className="flex items-center gap-2 flex-shrink-0">
                 <a
                   href={previewUrl.startsWith('http') ? previewUrl : `https://${previewUrl}`}
@@ -140,20 +168,31 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
                   Open New Tab <ExternalLink className="w-3 h-3" />
                 </a>
                 <button
-                  onClick={() => setPreviewUrl(null)}
+                  onClick={() => { setPreviewUrl(null); setIsIframeLoading(true); }}
                   className="liquid-glass rounded-full p-1.5 text-white/60 hover:text-white transition-colors cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
             </div>
-            <div className="flex-1 w-full bg-white relative overflow-hidden">
-              <iframe
-                src={previewUrl.startsWith('http') ? previewUrl : `https://${previewUrl}`}
-                title="Live Website Preview"
-                className="w-full h-full border-none"
-                sandbox="allow-scripts allow-same-origin allow-forms"
-              />
+            <div className="flex-1 w-full bg-[#0F172A] relative overflow-hidden flex items-center justify-center p-2 sm:p-4">
+              {isIframeLoading && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-900 text-white z-10 space-y-2">
+                  <Loader2 className="w-6 h-6 text-[#6C63FF] animate-spin" />
+                  <span className="text-xs text-white/70">Loading live website preview...</span>
+                </div>
+              )}
+              <div className={`h-full transition-all duration-300 mx-auto rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-white ${
+                viewportMode === 'mobile' ? 'w-[375px]' : viewportMode === 'tablet' ? 'w-[768px]' : 'w-full'
+              }`}>
+                <iframe
+                  src={previewUrl.startsWith('http') ? previewUrl : `https://${previewUrl}`}
+                  title="Live Website Preview"
+                  onLoad={() => setIsIframeLoading(false)}
+                  className="w-full h-full border-none"
+                  sandbox="allow-scripts allow-same-origin allow-forms"
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -193,7 +232,7 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
               <div className="mt-2 space-y-1.5">
                 {detectedUrl && (
                   <button
-                    onClick={() => setPreviewUrl(detectedUrl)}
+                    onClick={() => { setIsIframeLoading(true); setPreviewUrl(detectedUrl); }}
                     className="liquid-glass rounded-2xl px-3 py-1.5 text-[11px] text-white/90 hover:text-white flex items-center justify-between border border-white/10 w-full transition-all hover:scale-[1.01] cursor-pointer"
                   >
                     <div className="flex items-center gap-2 truncate">
