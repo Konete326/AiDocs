@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Bell } from 'lucide-react';
 import { getNotifications, markNotificationRead, markAllNotificationsRead, deleteNotification } from '../../services/notificationService';
-import NotificationModal from './NotificationModal';
+import NotificationDropdown from './NotificationDropdown';
 import { useConfirmModal } from '../../hooks/useModal';
 import ConfirmModal from '../common/ConfirmModal';
 
@@ -15,25 +15,27 @@ const NotificationBell = () => {
   useEffect(() => {
     let active = true;
     const fetchNotifications = async () => {
-      setIsLoading(true);
       try {
         const data = await getNotifications();
         if (active) setNotifications(data || []);
       } catch (err) {
         console.error('Failed to fetch notifications', err);
-      } finally {
-        if (active) setIsLoading(false);
       }
     };
-    fetchNotifications();
+    
+    setIsLoading(true);
+    fetchNotifications().finally(() => { if (active) setIsLoading(false); });
 
     const handleRefresh = () => {
       fetchNotifications();
     };
     window.addEventListener('notificationRefresh', handleRefresh);
     
+    const interval = setInterval(fetchNotifications, 10000);
+
     return () => {
       active = false;
+      clearInterval(interval);
       window.removeEventListener('notificationRefresh', handleRefresh);
     };
   }, []);
@@ -78,7 +80,7 @@ const NotificationBell = () => {
   return (
     <div className="relative">
       <button 
-        onClick={() => setIsOpen(true)}
+        onClick={() => setIsOpen(!isOpen)}
         className="liquid-glass rounded-full size-10 flex items-center justify-center relative hover:scale-105 transition-transform cursor-pointer border-none outline-none"
       >
         <Bell className="size-3.5 text-white/70" />
@@ -87,7 +89,7 @@ const NotificationBell = () => {
         )}
       </button>
 
-      <NotificationModal 
+      <NotificationDropdown
         isOpen={isOpen}
         notifications={notifications} 
         onMarkRead={handleMarkRead} 
