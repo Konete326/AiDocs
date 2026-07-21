@@ -13,6 +13,14 @@ const ALL_SKILLS = [
     forTypes: ['all'],
   },
   {
+    id: 'web-artifacts-builder',
+    name: 'Web Artifacts Builder',
+    description: 'Suite of tools for creating elaborate multi-component HTML/React/Tailwind interactive UI artifacts in chat responses.',
+    command: 'npx skills add https://github.com/anthropics/skills --skill web-artifacts-builder',
+    source: 'anthropics',
+    forTypes: ['all'],
+  },
+  {
     id: 'skill-creator',
     name: 'Skill Creator',
     description: 'Create new skills, modify and improve existing skills, and measure skill performance.',
