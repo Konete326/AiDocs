@@ -37,7 +37,7 @@ export default function NotificationDropdown({ isOpen, notifications = [], onMar
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-white">Notifications</span>
               {unreadCount > 0 && (
-                <span className="bg-emerald-500/20 text-emerald-300 text-[9px] font-bold px-2 py-0.5 rounded-full border border-emerald-500/30">
+                <span style={{ color: '#34d399' }} className="bg-emerald-500/25 text-emerald-300 text-[10px] font-bold px-2.5 py-0.5 rounded-full border border-emerald-500/40">
                   {unreadCount} new
                 </span>
               )}
@@ -45,9 +45,10 @@ export default function NotificationDropdown({ isOpen, notifications = [], onMar
             {unreadCount > 0 && (
               <button
                 onClick={onMarkAllRead}
-                className="text-[11px] text-white/50 hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
+                style={{ color: 'rgba(255, 255, 255, 0.7)' }}
+                className="text-[11px] hover:text-white flex items-center gap-1 transition-colors cursor-pointer"
               >
-                <CheckCheck className="w-3 h-3" /> Mark all read
+                <CheckCheck className="w-3 h-3 text-white/70" /> Mark all read
               </button>
             )}
           </div>

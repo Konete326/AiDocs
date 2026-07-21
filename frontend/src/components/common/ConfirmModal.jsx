@@ -47,16 +47,18 @@ const ConfirmModal = ({
             <div className="flex gap-3 mt-5 justify-center">
               <button
                 onClick={onCancel}
-                className="liquid-glass rounded-full px-5 py-2 text-xs text-white/70 hover:text-white hover:scale-105 transition-transform cursor-pointer"
+                style={{ color: '#ffffff' }}
+                className="liquid-glass rounded-full px-5 py-2 text-xs font-medium hover:scale-105 transition-transform cursor-pointer border border-white/10"
               >
                 {cancelLabel}
               </button>
 
               <button
                 onClick={onConfirm}
+                style={{ color: '#ffffff' }}
                 className={`rounded-full px-5 py-2 text-xs font-semibold hover:scale-105 active:scale-95 transition-transform cursor-pointer ${
                   isRed
-                    ? 'bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/30 border-none'
+                    ? 'bg-red-600 hover:bg-red-700 text-white shadow-lg shadow-red-600/30 border border-red-500/50'
                     : 'liquid-glass-strong text-white border border-white/10'
                 }`}
               >
