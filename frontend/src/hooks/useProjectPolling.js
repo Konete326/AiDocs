@@ -3,13 +3,15 @@ import { getProject } from '../services/projectService';
 import { getProjectDocuments as fetchDocs } from '../services/documentService';
 import { getMySubscription } from '../services/subscriptionService';
 import { getProjectSkills } from '../services/skillsService';
+import { useAuth } from '../context/AuthContext';
 
 export const useProjectPolling = (id) => {
+  const { user } = useAuth();
   const [project, setProject] = useState(null);
   const [documents, setDocuments] = useState([]);
   const [skills, setSkills] = useState([]);
   const [selectedDoc, setSelectedDoc] = useState(null);
-  const [subscription, setSubscription] = useState(null);
+  const [subscription, setSubscription] = useState(user?.subscription || null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -17,23 +19,33 @@ export const useProjectPolling = (id) => {
     let active = true;
     (async () => {
       try {
-        const [proj, docs, sub, fetchedSkills] = await Promise.all([
+        const [proj, docs] = await Promise.all([
           getProject(id), 
-          fetchDocs(id), 
-          getMySubscription(),
-          getProjectSkills(id)
+          fetchDocs(id)
         ]);
         if (!active) return;
         setProject(proj);
         setDocuments(docs);
-        setSubscription(sub);
-        setSkills(fetchedSkills);
         if (docs.length > 0) setSelectedDoc(docs[0]);
-      } catch { if (active) setError('Failed to load project.'); }
-      finally { if (active) setIsLoading(false); }
+        setIsLoading(false);
+
+        Promise.all([
+          getProjectSkills(id).catch(() => []),
+          user?.subscription ? Promise.resolve(user.subscription) : getMySubscription().catch(() => null)
+        ]).then(([fetchedSkills, sub]) => {
+          if (!active) return;
+          if (fetchedSkills) setSkills(fetchedSkills);
+          if (sub) setSubscription(sub);
+        });
+      } catch { 
+        if (active) {
+          setError('Failed to load project.'); 
+          setIsLoading(false);
+        }
+      }
     })();
     return () => { active = false; };
-  }, [id]);
+  }, [id, user?.subscription]);
 
   useEffect(() => {
     if (project?.status !== 'generating') return;
@@ -42,9 +54,9 @@ export const useProjectPolling = (id) => {
     let timerId;
 
     const getInterval = (count) => {
-      if (count < 10) return 1000;  // First 10s: 1s interval
-      if (count < 20) return 3000;  // Next 30s: 3s interval
-      return 5000;                  // Then: 5s interval
+      if (count < 10) return 1000;
+      if (count < 20) return 3000;
+      return 5000;
     };
 
     const poll = async () => {
@@ -55,7 +67,6 @@ export const useProjectPolling = (id) => {
           getProjectSkills(id)
         ]);
         
-        // Use a more conservative state update - only update if actually changed
         setProject(prev => {
           if (prev?.status === updated?.status && prev?.docsGenerated?.length === updated?.docsGenerated?.length) {
             return prev;
@@ -65,7 +76,6 @@ export const useProjectPolling = (id) => {
 
         setDocuments(prev => {
           if (prev.length === updatedDocs.length) {
-            // Check if content hash or last updated might be better, but count is a good proxy for generation
             return prev;
           }
           return updatedDocs;
