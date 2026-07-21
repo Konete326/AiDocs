@@ -3,19 +3,30 @@ import ReactMarkdown from 'react-markdown';
 import { Sparkles, Copy, Check, Download, FileSpreadsheet, FileText, Archive, Loader2 } from 'lucide-react';
 import { mdComponents } from '../project/markdownComponents';
 import { downloadZip, downloadDocAsWord, downloadDocAsExcel, downloadDocAsPdf } from '../../services/exportService';
+import api from '../../services/api';
 
-export default function ChatMessage({ message, projectId, projectTitle }) {
+export default function ChatMessage({ message, projectId, projectTitle, onSkillAdded }) {
   const isUser = message.role === 'user';
   const [copied, setCopied] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [addedSkills, setAddedSkills] = useState({});
+  const [loadingSkill, setLoadingSkill] = useState({});
 
   const downloadMatch = message.content ? message.content.match(/\[DOWNLOAD_ACTION:([a-zA-Z]+):([a-zA-Z]+)\]/) : null;
   const initialFormat = downloadMatch ? downloadMatch[1].toLowerCase() : null;
   const docType = downloadMatch ? downloadMatch[2].toLowerCase() : null;
 
+  const recommendMatch = message.content ? message.content.match(/\[RECOMMEND_SKILLS:([a-zA-Z0-9_,-]+)\]/) : null;
+  const recommendedSkillIds = recommendMatch ? recommendMatch[1].split(',').map(s => s.trim()).filter(Boolean) : [];
+
   const [selectedFormat, setSelectedFormat] = useState(initialFormat || 'word');
 
-  const cleanedContent = message.content ? message.content.replace(/\[DOWNLOAD_ACTION:[a-zA-Z]+:[a-zA-Z]+\]/g, '').trim() : '';
+  const cleanedContent = message.content
+    ? message.content
+        .replace(/\[DOWNLOAD_ACTION:[a-zA-Z]+:[a-zA-Z]+\]/g, '')
+        .replace(/\[RECOMMEND_SKILLS:[a-zA-Z0-9_,-]+\]/g, '')
+        .trim()
+    : '';
 
   const handleCopy = () => {
     navigator.clipboard.writeText(cleanedContent);
@@ -43,6 +54,20 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
       console.error('Download failed:', err);
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleAddSkill = async (skillId) => {
+    if (!projectId || loadingSkill[skillId]) return;
+    try {
+      setLoadingSkill(prev => ({ ...prev, [skillId]: true }));
+      await api.post(`/projects/${projectId}/toggle`, { skillId });
+      setAddedSkills(prev => ({ ...prev, [skillId]: true }));
+      if (onSkillAdded) onSkillAdded();
+    } catch (err) {
+      console.error('Failed to add skill:', err);
+    } finally {
+      setLoadingSkill(prev => ({ ...prev, [skillId]: false }));
     }
   };
 
@@ -93,6 +118,45 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
             <div className="text-xs sm:text-sm text-white/80 leading-relaxed font-sans prose-invert">
               <ReactMarkdown components={mdComponents}>{cleanedContent}</ReactMarkdown>
             </div>
+
+            {/* Skill Suggestion Cards */}
+            {recommendedSkillIds.length > 0 && (
+              <div className="mt-3 pt-2.5 border-t border-white/10 space-y-1.5">
+                <div className="flex items-center gap-1 text-[9.5px] uppercase tracking-wider text-white/50 font-semibold">
+                  <Sparkles className="w-3 h-3 text-[#6C63FF]" />
+                  <span>Recommended Skills:</span>
+                </div>
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
+                  {recommendedSkillIds.map(skillId => {
+                    const isAdded = addedSkills[skillId];
+                    const isLoading = loadingSkill[skillId];
+                    const formattedName = skillId.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+                    return (
+                      <button
+                        key={skillId}
+                        onClick={() => !isAdded && handleAddSkill(skillId)}
+                        disabled={isAdded || isLoading}
+                        style={{ color: '#ffffff' }}
+                        className={`rounded-full px-3 py-1 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer border shadow-sm ${
+                          isAdded
+                            ? 'bg-emerald-500/25 text-emerald-300 border-emerald-500/40 cursor-default'
+                            : 'bg-blue-600/30 hover:bg-blue-600/50 text-white border-blue-500/40 hover:scale-105 active:scale-95'
+                        }`}
+                      >
+                        {isLoading ? (
+                          <Loader2 className="w-3 h-3 animate-spin text-white flex-shrink-0" />
+                        ) : isAdded ? (
+                          <Check className="w-3 h-3 text-emerald-400 flex-shrink-0" />
+                        ) : (
+                          <span className="text-blue-300 font-bold flex-shrink-0">+</span>
+                        )}
+                        <span>{isAdded ? `Added ${formattedName}` : `Add ${formattedName}`}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Interactive Multi-Format Download Action Card */}
             {initialFormat && docType && (

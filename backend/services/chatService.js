@@ -46,6 +46,10 @@ ${activeSkillIds.join(', ') || 'None'}
 AVAILABLE SYSTEM SKILLS LIBRARY:
 ${availableSkillSummary}
 
+SKILLS RECOMMENDATION INSTRUCTIONS:
+Whenever you recommend or mention relevant technical skills or tools for this project (such as Stripe, React, Node.js, Tailwind, Docker, MongoDB, Next.js, GraphQL, Security, etc.), include a recommendation tag at the end of your response:
+[RECOMMEND_SKILLS:skillId1,skillId2]
+
 SKILLS MANAGEMENT INSTRUCTIONS:
 If the user asks to add, enable, remove, or disable a skill for this project:
 1. Confirm the action in your text response.
@@ -152,7 +156,21 @@ ${docsContext.slice(0, 10000)}`;
     }
   }
 
-  // 3. Fallback Download Tag Detection
+  // 3. Auto-populate Skill Recommendation Tags if tech tools are discussed
+  if (!rawReply.includes('[RECOMMEND_SKILLS:')) {
+    const recommended = [];
+    const replyLower = rawReply.toLowerCase();
+    allSkills.forEach(s => {
+      if (replyLower.includes(s.name.toLowerCase()) || replyLower.includes(s.id.toLowerCase())) {
+        recommended.push(s.id);
+      }
+    });
+    if (recommended.length > 0) {
+      rawReply += `\n\n[RECOMMEND_SKILLS:${recommended.slice(0, 3).join(',')}]`;
+    }
+  }
+
+  // 4. Fallback Download Tag Detection
   if (!rawReply.includes('[DOWNLOAD_ACTION:')) {
     if (lastUserMsg.includes('pdf')) {
       const targetDoc = VALID_DOC_TYPES.find(t => lastUserMsg.includes(t.toLowerCase())) || 'prd';
