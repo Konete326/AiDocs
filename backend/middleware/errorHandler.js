@@ -19,10 +19,6 @@ const errorHandler = (err, req, res, next) => {
     statusCode = 503;
     code = 'DATABASE_CONNECTION_ERROR';
     message = 'Database connection temporarily delayed. Please try again in a moment.';
-  } else if (err.message && (err.message.includes('secret') || err.message.includes('jwt'))) {
-    statusCode = 500;
-    code = 'CONFIG_ERROR';
-    message = 'Server configuration error. Contact support.';
   } else if (err.name === 'JsonWebTokenError') {
     statusCode = 401;
     code = 'INVALID_TOKEN';
@@ -31,6 +27,10 @@ const errorHandler = (err, req, res, next) => {
     statusCode = 401;
     code = 'TOKEN_EXPIRED';
     message = 'Your token has expired. Please log in again.';
+  } else if (err.message && (err.message.includes('secret') || err.message.includes('jwt')) && (!process.env.JWT_ACCESS_SECRET && !process.env.JWT_SECRET)) {
+    statusCode = 500;
+    code = 'CONFIG_ERROR';
+    message = 'Server configuration error. Contact support.';
   }
 
   res.status(statusCode).json({
