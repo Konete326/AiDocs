@@ -112,38 +112,37 @@ const RecentProjects = () => {
               onClick={() => navigate(`/projects/${project._id}`)}
               className={`
                 group relative flex flex-col max-w-[85%] p-4 rounded-2xl transition-all cursor-pointer
-                border border-white/5 hover:border-white/20 hover:shadow-2xl hover:shadow-white/5
+                border border-blue-500/30 hover:border-blue-400/50 hover:shadow-2xl hover:shadow-blue-500/20
                 glass-card hover:-translate-y-1 active:scale-95
                 ${isLeft ? 'self-start rounded-tl-none' : 'self-end rounded-tr-none'}
               `}
               style={{
                 background: isLeft 
-                  ? 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%)' 
-                  : 'linear-gradient(225deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%)'
+                  ? 'linear-gradient(135deg, rgba(30, 58, 138, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%)' 
+                  : 'linear-gradient(225deg, rgba(29, 78, 216, 0.4) 0%, rgba(30, 58, 138, 0.35) 100%)'
               }}
             >
               <div className="flex items-start gap-3">
-                <div className={`p-2 rounded-lg bg-white/5 group-hover:bg-white/10 transition-colors`}>
-                  <Icon className="w-4 h-4 text-white/70" />
+                <div className={`p-2 rounded-lg bg-blue-500/20 text-blue-300 group-hover:bg-blue-500/30 transition-colors`}>
+                  <Icon className="w-4 h-4 text-blue-200" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <h4 className="text-xs font-bold text-white/90 truncate group-hover:text-white">
+                    <h4 className="text-xs font-bold text-white truncate group-hover:text-blue-100">
                       {project.title}
                     </h4>
-                    <div className={`flex items-center gap-1.5 px-1.5 py-0.5 rounded-full bg-white/5`}>
+                    <div className={`flex items-center gap-1.5 px-1.5 py-0.5 rounded-full bg-blue-900/40 border border-blue-500/30`}>
                       <div className={`w-1 h-1 rounded-full ${status.color}`} />
-                      <span className="text-[8px] font-bold uppercase text-white/40">{status.label}</span>
+                      <span className="text-[8px] font-bold uppercase text-blue-200">{status.label}</span>
                     </div>
                   </div>
-                  <p className="text-[10px] text-white/40 line-clamp-2 leading-relaxed italic">
+                  <p className="text-[10px] text-white/50 line-clamp-2 leading-relaxed italic">
                     {project.wizardAnswers?.problemStatement || `An innovative ${project.projectType} solution.`}
                   </p>
                 </div>
               </div>
 
-              {/* Decorative side indicator */}
-              <div className={`absolute top-0 w-1 h-8 rounded-full bg-white/10 group-hover:bg-white/30 transition-colors ${isLeft ? '-left-1' : '-right-1'}`} />
+              <div className={`absolute top-0 w-1 h-8 rounded-full bg-blue-400/50 group-hover:bg-blue-300 transition-colors ${isLeft ? '-left-1' : '-right-1'}`} />
             </div>
           );
         })}
