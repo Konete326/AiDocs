@@ -44,7 +44,7 @@ const ProjectHeaderActions = ({ project, onOpenSkills }) => {
         onClick={() => navigate(`/projects/${project._id}/workspace`)}
         className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 hover:scale-105 transition-all cursor-pointer flex-shrink-0"
       >
-        <span className="text-xs sm:text-sm text-white/80 font-medium">⬡ Workspace</span>
+        <span className="text-xs sm:text-sm text-white/80 font-medium">Workspace</span>
       </button>
 
       <button
@@ -52,7 +52,7 @@ const ProjectHeaderActions = ({ project, onOpenSkills }) => {
         className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 hover:scale-105 transition-all cursor-pointer flex-shrink-0"
       >
         <Cpu className="w-4 h-4 text-blue-400" />
-        <span className="text-xs sm:text-sm text-white/80 font-medium">⚡ Skills</span>
+        <span className="text-xs sm:text-sm text-white/80 font-medium">Skills</span>
       </button>
 
       {project.status === 'complete' && (

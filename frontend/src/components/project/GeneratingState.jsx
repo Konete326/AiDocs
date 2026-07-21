@@ -217,7 +217,7 @@ const GeneratingState = ({ project, onViewReady }) => {
 
             <div className="liquid-glass no-hover rounded-[2rem] p-3 border border-white/5 group hover:border-white/10 transition-all">
                 <div className="flex items-center justify-between mb-1">
-                    <span className="text-white/80 text-xs font-medium">⬡ Workspace</span>
+                    <span className="text-white/80 text-xs font-medium">Workspace</span>
                     <div className="w-6 h-6 rounded-full bg-white/5 flex items-center justify-center">
                         <ChevronLeft className="w-3.5 h-3.5 text-white/40 rotate-180" />
                     </div>

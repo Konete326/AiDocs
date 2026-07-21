@@ -67,10 +67,10 @@ export default function ProjectChat() {
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
       <div className="absolute inset-0 bg-black/55 z-[1]" />
-      <div className="relative z-10 min-h-screen flex flex-col pt-20 px-4 sm:px-6 py-4 max-w-7xl mx-auto overflow-hidden">
+      <div className="relative z-10 min-h-screen flex flex-col pt-16 px-4 sm:px-6 py-3 max-w-7xl mx-auto overflow-hidden">
         
         {/* Header */}
-        <header className="flex items-center justify-between mb-4 flex-shrink-0">
+        <header className="flex items-center justify-between mb-3 flex-shrink-0">
           <div className="flex items-center gap-3">
             <button onClick={() => navigate(`/projects/${id}`)} className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 text-xs sm:text-sm text-white/70 hover:text-white transition-all cursor-pointer">
               <ChevronLeft className="w-4 h-4" /> Back to Project
@@ -85,7 +85,7 @@ export default function ProjectChat() {
         </header>
 
         {/* Split Screen Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 lg:h-[calc(100vh-140px)] min-h-0 overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 lg:h-[calc(100vh-150px)] min-h-0 overflow-hidden">
           
           {/* Left Panel: Project Context & Quick Ref (4 cols) */}
           <div className="lg:col-span-4 flex flex-col space-y-3 h-full overflow-y-auto hover-scrollbar custom-scrollbar pr-0.5">
@@ -161,7 +161,7 @@ export default function ProjectChat() {
                     <Sparkles className="w-6 h-6 animate-pulse" />
                   </div>
                   <div className="space-y-1 max-w-sm">
-                    <h3 className="text-base font-semibold text-white tracking-tight">Welcome! I'm your AI Co-founder 🚀</h3>
+                    <h3 className="text-base font-semibold text-white tracking-tight">Welcome! I'm your AI Co-founder</h3>
                     <p className="text-xs text-white/60 leading-relaxed">
                       Ask me anything about <strong className="text-white font-medium">{project?.title || 'your project'}</strong> architecture, stack, or strategy!
                     </p>

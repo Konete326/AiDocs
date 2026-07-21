@@ -11,11 +11,11 @@ const stepsGuide = {
     description: 'Give your project a name and choose its category. Then, explain the core problem you are trying to solve.',
     sections: [
       {
-        label: '💡 Problem statement Tip',
+        label: 'Problem statement Tip',
         value: 'Clearly define the frustration you are solving.'
       },
       {
-        label: '📝 Example',
+        label: 'Example',
         value: '"Freelancers struggle to track unpaid invoices across multiple platforms, leading to lost revenue."'
       }
     ]
@@ -25,19 +25,19 @@ const stepsGuide = {
     description: 'Outline your target audience and list the core features of your minimum viable product (MVP).',
     sections: [
       {
-        label: '💡 Target Audience Tip',
+        label: 'Target Audience Tip',
         value: 'Be specific about demographics and daily constraints.'
       },
       {
-        label: '📝 Example',
+        label: 'Example',
         value: '"Marketing managers at 10-50 person agencies who need quick reports for clients."'
       },
       {
-        label: '💡 Core Features Tip',
+        label: 'Core Features Tip',
         value: 'Separate with commas. Focus on the core value.'
       },
       {
-        label: '📝 Example',
+        label: 'Example',
         value: '"One-click invoice creation, Automated late payment reminders, Stripe integration."'
       }
     ]
@@ -47,15 +47,15 @@ const stepsGuide = {
     description: 'Choose your preferred tech stack and monetization model. Add any extra constraints or competitor notes.',
     sections: [
       {
-        label: '💡 Tech Preferences',
+        label: 'Tech Preferences',
         value: 'Leave blank if you want the AI to recommend the optimal stack.'
       },
       {
-        label: '💡 Monetization & Scale',
+        label: 'Monetization & Scale',
         value: 'Define how this project will make money (e.g. SaaS, subscription, one-time payment) or if it is an internal tool.'
       },
       {
-        label: '💡 Additional Context',
+        label: 'Additional Context',
         value: 'Add details about competitors, specific design styles, or future scaling plans.'
       }
     ]
@@ -65,11 +65,11 @@ const stepsGuide = {
     description: 'Verify your project details. Once submitted, our AI will generate a complete technical documentation suite.',
     sections: [
       {
-        label: '📋 Generated Artifacts',
+        label: 'Generated Artifacts',
         value: '9 distinct product specifications including PRD, API schemas, and deployment guides.'
       },
       {
-        label: '⏳ Generation Time',
+        label: 'Generation Time',
         value: 'This process takes ~2-3 minutes. Please keep the browser window open.'
       }
     ]
