@@ -12,7 +12,7 @@ export default function LandingLeftPanel() {
       <div className="relative z-10 flex flex-col min-h-full">
         <nav className="flex items-center justify-between px-6 pt-6">
           <span className="text-2xl font-semibold tracking-tighter text-white select-none">
-            SwiftDocs
+            ClarifyAI
           </span>
           <button className="liquid-glass rounded-full flex items-center gap-2 px-4 py-2 hover:scale-105 transition-transform cursor-pointer">
             <Menu className="w-4 h-4 text-white/80" />
@@ -71,7 +71,7 @@ export default function LandingLeftPanel() {
           <div className="flex items-center gap-3 justify-center">
             <div className="flex-1 h-px bg-white/15" />
             <span className="text-xs text-white/50 font-light tracking-wide whitespace-nowrap">
-              AiDocs Engine
+              ClarifyAI Engine
             </span>
             <div className="flex-1 h-px bg-white/15" />
           </div>

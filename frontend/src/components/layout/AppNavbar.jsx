@@ -23,7 +23,7 @@ const AppNavbar = () => {
         >
           <img src={logo} alt="Logo" className="w-7 h-7 rounded-lg object-cover" />
           <span className="hidden sm:block text-sm font-semibold tracking-tighter text-white">
-            SwiftDocs AI
+            ClarifyAI
           </span>
         </div>
 

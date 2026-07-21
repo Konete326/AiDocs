@@ -3,26 +3,24 @@ const Project = require('../models/Project');
 const AppError = require('../utils/AppError');
 
 exports.getUserSubscription = async (userId) => {
-  const subscription = await Subscription.findOne({ userId });
+  let subscription = await Subscription.findOne({ userId });
   if (!subscription) {
-    throw new AppError('Subscription not found', 404, 'NOT_FOUND');
+    subscription = await Subscription.create({
+      userId,
+      plan: 'free',
+      status: 'active',
+      projectLimit: 999999
+    });
   }
   return subscription;
 };
 
 exports.checkProjectLimit = async (userId) => {
-  const sub = await Subscription.findOne({ userId });
-  if (!sub) return;
-  const projectCount = await Project.countDocuments({ userId, isArchived: false });
-  if (projectCount >= sub.projectLimit) {
-    throw new AppError(`You've reached the project limit for your ${sub.plan} plan. Please upgrade to create more projects.`, 403, 'LIMIT_REACHED');
-  }
+  return;
 };
 
 exports.canExport = async (userId) => {
-  const sub = await Subscription.findOne({ userId });
-  if (!sub) return false;
-  return sub.plan === 'pro' || sub.plan === 'team';
+  return true;
 };
 
 const PLAN_LIMITS = {

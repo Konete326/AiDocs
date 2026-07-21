@@ -35,32 +35,130 @@ const TYPE_SKILLS = {
 
 // ─── Scaffold helpers ─────────────────────────────────────────────────────────
 const addMernScaffold = (folder, slug, projectTitle) => {
-  // backend
   const be = folder.folder('backend');
-  const src = be.folder('src');
+  const beSrc = be.folder('src');
   ['controllers', 'models', 'routes', 'middleware', 'services', 'utils'].forEach(
-    (d) => src.folder(d).file('.gitkeep', '')
+    (d) => beSrc.folder(d).file('.gitkeep', '')
   );
 
-  const bePkg = readTemplate('mern-backend-package.json')
-    .replace(/{project-name}/g, slug);
+  const bePkg = readTemplate('mern-backend-package.json').replace(/{project-name}/g, slug);
   be.file('package.json', bePkg);
-  be.file('.env.example', '# Backend environment variables\nPORT=5000\nMONGO_URI=\nJWT_SECRET=\n');
-  be.file('server.js', `import express from 'express';\nimport cors from 'cors';\nimport helmet from 'helmet';\nimport dotenv from 'dotenv';\ndotenv.config();\n\nconst app = express();\napp.use(helmet());\napp.use(cors());\napp.use(express.json());\n\napp.get('/api/health', (_req, res) => res.json({ status: 'ok' }));\n\nconst PORT = process.env.PORT || 5000;\napp.listen(PORT, () => console.log(\`Server running on port \${PORT}\`));\n`);
+  be.file('.env.example', 'PORT=5000\nMONGO_URI=mongodb://localhost:27017/{project-name}\nJWT_SECRET=your_jwt_secret_here\n'.replace(/{project-name}/g, slug));
+  be.file('server.js',
+`import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import dotenv from 'dotenv';
+import mongoose from 'mongoose';
+dotenv.config();
 
-  // frontend
+const app = express();
+app.use(helmet());
+app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:5173', credentials: true }));
+app.use(express.json());
+
+mongoose.connect(process.env.MONGO_URI).then(() => console.log('MongoDB connected')).catch(console.error);
+
+app.get('/api/health', (_req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log('Server running on port ' + PORT));
+`);
+
   const fe = folder.folder('frontend');
   const feSrc = fe.folder('src');
-  ['components', 'pages', 'hooks', 'services', 'context', 'styles'].forEach(
+  ['components', 'pages', 'hooks', 'services', 'context'].forEach(
     (d) => feSrc.folder(d).file('.gitkeep', '')
   );
 
-  const fePkg = readTemplate('vite-frontend-package.json')
-    .replace(/{project-name}/g, slug);
+  const fePkg = readTemplate('vite-frontend-package.json').replace(/{project-name}/g, slug);
   fe.file('package.json', fePkg);
-  fe.file('.env.example', '# Frontend environment variables\nVITE_API_URL=http://localhost:5000/api\n');
-  fe.file('vite.config.js', `import { defineConfig } from 'vite';\nimport react from '@vitejs/plugin-react';\n\nexport default defineConfig({\n  plugins: [react()],\n  server: { proxy: { '/api': 'http://localhost:5000' } },\n});\n`);
-  fe.file('index.html', `<!DOCTYPE html>\n<html lang="en">\n  <head>\n    <meta charset="UTF-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n    <title>${projectTitle}</title>\n  </head>\n  <body>\n    <div id="root"></div>\n    <script type="module" src="/src/main.jsx"></script>\n  </body>\n</html>\n`);
+  fe.file('.env.example', 'VITE_API_URL=http://localhost:5000/api\n');
+  fe.file('vite.config.js',
+`import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+  server: { proxy: { '/api': 'http://localhost:5000' } },
+});
+`);
+  fe.file('index.html',
+`<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>${projectTitle}</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+`);
+  feSrc.file('main.jsx',
+`import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
+import './index.css';
+import App from './App.jsx';
+
+createRoot(document.getElementById('root')).render(
+  <StrictMode>
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  </StrictMode>
+);
+`);
+  feSrc.file('App.jsx',
+`import { Routes, Route } from 'react-router-dom';
+
+function Home() {
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <h1 className="text-3xl font-bold">${projectTitle}</h1>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<Home />} />
+    </Routes>
+  );
+}
+`);
+  feSrc.file('index.css',
+`@import "tailwindcss";
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+`);
+  feSrc.file('api.js',
+`import axios from 'axios';
+
+const api = axios.create({ baseURL: import.meta.env.VITE_API_URL || '/api' });
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) config.headers.Authorization = 'Bearer ' + token;
+  return config;
+});
+
+export default api;
+`);
 };
 
 const addMobileScaffold = (folder, slug) => {
@@ -82,19 +180,54 @@ const addAiScaffold = (folder, slug) => {
   ['agents', 'prompts', 'tools', 'utils'].forEach(
     (d) => src.folder(d).file('.gitkeep', '')
   );
-  src.file('main.py', `import os\nfrom dotenv import load_dotenv\n\nload_dotenv()\n\ndef main():\n    print("${slug} AI agent starting...")\n\nif __name__ == "__main__":\n    main()\n`);
+  src.file('main.py',
+`import os
+from dotenv import load_dotenv
+
+load_dotenv()
+
+def main():
+    print(f"${slug} AI agent starting...")
+
+if __name__ == "__main__":
+    main()
+`);
 
   folder.file('requirements.txt', readTemplate('python-requirements.txt'));
-  folder.file('.env.example', '# AI project environment variables\nANTHROPIC_API_KEY=\nOPENAI_API_KEY=\n');
+  folder.file('.env.example', 'ANTHROPIC_API_KEY=\nOPENAI_API_KEY=\nGEMINI_API_KEY=\n');
 
-  // optional web frontend
   const fe = folder.folder('frontend');
-  fe.folder('src').file('.gitkeep', '');
-  
-  const fePkg = readTemplate('vite-frontend-package.json')
-    .replace(/{project-name}/g, slug);
+  const feSrc = fe.folder('src');
+  ['components', 'pages', 'hooks'].forEach((d) => feSrc.folder(d).file('.gitkeep', ''));
+
+  const fePkg = readTemplate('vite-frontend-package.json').replace(/{project-name}/g, slug);
   fe.file('package.json', fePkg);
-  fe.file('vite.config.js', `import { defineConfig } from 'vite';\nimport react from '@vitejs/plugin-react';\n\nexport default defineConfig({\n  plugins: [react()],\n});\n`);
+  fe.file('vite.config.js',
+`import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+
+export default defineConfig({
+  plugins: [react(), tailwindcss()],
+});
+`);
+  feSrc.file('index.css', '@import "tailwindcss";\n');
+  feSrc.file('main.jsx',
+`import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import './index.css';
+import App from './App.jsx';
+
+createRoot(document.getElementById('root')).render(<StrictMode><App /></StrictMode>);
+`);
+  feSrc.file('App.jsx', `export default function App() { return <h1 className="text-2xl font-bold p-8">${slug}</h1>; }\n`);
+  fe.file('index.html',
+`<!DOCTYPE html>
+<html lang="en">
+  <head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>${slug}</title></head>
+  <body><div id="root"></div><script type="module" src="/src/main.jsx"></script></body>
+</html>
+`);
 };
 
 // ─── Main export ──────────────────────────────────────────────────────────────
@@ -175,7 +308,7 @@ exports.generateZip = async (projectId, userId) => {
     rulesContent = fs.readFileSync(rulesPath, 'utf-8');
     rulesContent = rulesContent.replace(/\[date of project generation\]/g, new Date().toLocaleDateString());
   } catch (err) {
-    rulesContent = '# Agent Rules\nSee swiftdocsai.vercel.app for agent rules.';
+    rulesContent = '# Agent Rules\nSee clarifyai.vercel.app for agent rules.';
   }
   zip.file('AGENT_RULES.md', rulesContent);
 

@@ -48,7 +48,7 @@ const ProfileCard = ({
                 delay={0.5}
                 className="text-[10px] uppercase tracking-[0.35em] text-white/45"
               >
-                SwiftDocs AI Member
+                ClarifyAI Member
               </SpecialText>
             </div>
           </>

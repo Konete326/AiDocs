@@ -1,7 +1,7 @@
 {
-  "name": "swiftdocs-ai-backend",
+  "name": "clarifyai-backend",
   "version": "1.0.0",
-  "description": "SwiftDocs AI Backend API",
+  "description": "ClarifyAI Backend API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

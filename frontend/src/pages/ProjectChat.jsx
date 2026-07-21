@@ -39,7 +39,7 @@ export default function ProjectChat() {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages, isSending]);
 
-  const isPro = ['pro', 'team'].includes(subscription?.plan) || user?.role === 'admin';
+  const isPro = true;
 
   const handleSend = async (text) => {
     if (!text.trim() || isSending) return;
@@ -64,7 +64,6 @@ export default function ProjectChat() {
 
   return (
     <div className="relative min-h-screen w-full overflow-hidden">
-      {/* Dark overlay — video from PersistentBackground in App.jsx */}
       <div className="absolute inset-0 bg-black/55 z-[1]" />
       <div className="relative z-10 h-screen flex flex-col pt-28 max-w-4xl mx-auto px-6 py-6 overflow-hidden">
         <header className="flex items-center justify-between mb-6">
@@ -77,40 +76,27 @@ export default function ProjectChat() {
           </div>
         </header>
 
-        {!isPro ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-center liquid-glass-strong rounded-[2rem] p-12 gap-6 mb-8">
-            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
-              <Lock className="w-8 h-8 text-white/30" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-semibold text-white mb-2">AI Co-founder is a Pro feature</h2>
-              <p className="text-white/60 text-sm max-w-sm mx-auto">Upgrade to Pro to chat with an AI that understands your entire project and documentation.</p>
-            </div>
-            <button onClick={() => navigate('/pricing')} className="liquid-glass-strong rounded-full px-10 py-3.5 text-white font-medium hover:scale-105 transition-all cursor-pointer">Upgrade to Pro</button>
-          </div>
-        ) : (
-          <div className="flex-1 flex flex-col overflow-hidden liquid-glass-strong rounded-[2rem] mb-6 shadow-2xl">
-            <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
-              {messages.length === 0 && (
-                <div className="h-full flex flex-col items-center justify-center opacity-50">
-                  <Sparkles className="w-10 h-10 text-white/20 mb-4" />
-                  <p className="text-sm font-medium">Ask me anything about your project</p>
-                  <div className="flex gap-2 flex-wrap justify-center mt-6">
-                    {["What's the tech stack?", "Explain the DB schema", "What are core features?"].map(s => (
-                      <button key={s} onClick={() => handleSend(s)} className="liquid-glass rounded-full px-4 py-2 text-xs hover:scale-105 transition-all cursor-pointer">{s}</button>
-                    ))}
-                  </div>
+        <div className="flex-1 flex flex-col overflow-hidden liquid-glass-strong rounded-[2rem] mb-6 shadow-2xl">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-hide">
+            {messages.length === 0 && (
+              <div className="h-full flex flex-col items-center justify-center opacity-50">
+                <Sparkles className="w-10 h-10 text-white/20 mb-4" />
+                <p className="text-sm font-medium">Ask me anything about your project</p>
+                <div className="flex gap-2 flex-wrap justify-center mt-6">
+                  {["What's the tech stack?", "Explain the DB schema", "What are core features?"].map(s => (
+                    <button key={s} onClick={() => handleSend(s)} className="liquid-glass rounded-full px-4 py-2 text-xs hover:scale-105 transition-all cursor-pointer">{s}</button>
+                  ))}
                 </div>
-              )}
-              {messages.map((m, i) => <ChatMessage key={i} message={m} />)}
-              {isSending && <ChatMessage message={{ role: 'assistant', content: '...' }} />}
-              {error && <div className="text-center py-2"><span className="liquid-glass px-4 py-1.5 rounded-full text-[10px] text-white/50">{error}</span></div>}
-            </div>
-            <div className="p-4 bg-white/5 border-t border-white/10">
-              <ChatInput onSend={handleSend} isDisabled={isSending} />
-            </div>
+              </div>
+            )}
+            {messages.map((m, i) => <ChatMessage key={i} message={m} />)}
+            {isSending && <ChatMessage message={{ role: 'assistant', content: '...' }} />}
+            {error && <div className="text-center py-2"><span className="liquid-glass px-4 py-1.5 rounded-full text-[10px] text-white/50">{error}</span></div>}
           </div>
-        )}
+          <div className="p-4 bg-white/5 border-t border-white/10">
+            <ChatInput onSend={handleSend} isDisabled={isSending} />
+          </div>
+        </div>
       </div>
     </div>
   );

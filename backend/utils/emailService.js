@@ -25,7 +25,7 @@ exports.sendPasswordResetEmail = async (toEmail, resetToken, displayName) => {
   await transporter.sendMail({
     from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
     to: toEmail,
-    subject: 'Reset your SwiftDocs AI password',
+    subject: 'Reset your ClarifyAI password',
     html: `
       <!DOCTYPE html>
       <html>
@@ -44,10 +44,10 @@ exports.sendPasswordResetEmail = async (toEmail, resetToken, displayName) => {
         <div class="container">
           <h1>Reset your password</h1>
           <p>Hi ${displayName || 'there'},</p>
-          <p>We received a request to reset your SwiftDocs AI password. Click the button below to create a new password:</p>
+          <p>We received a request to reset your ClarifyAI password. Click the button below to create a new password:</p>
           <a href="${resetUrl}" class="button">Reset Password</a>
           <p>This link expires in 1 hour. If you did not request this, you can safely ignore this email.</p>
-          <div class="footer">SwiftDocs AI · This is an automated email, please do not reply.</div>
+          <div class="footer">ClarifyAI · This is an automated email, please do not reply.</div>
         </div>
       </body>
       </html>
@@ -60,8 +60,8 @@ exports.sendSecurityAlertEmail = async (toEmail, displayName, deviceInfo) => {
   const { isNewDevice, deviceName, time } = deviceInfo;
   
   const subject = isNewDevice 
-    ? '🚨 Security Alert: New Login to SwiftDocs AI' 
-    : 'Welcome back to SwiftDocs AI!';
+    ? '🚨 Security Alert: New Login to ClarifyAI' 
+    : 'Welcome back to ClarifyAI!';
 
   await transporter.sendMail({
     from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
@@ -88,12 +88,12 @@ exports.sendSecurityAlertEmail = async (toEmail, displayName, deviceInfo) => {
       </head>
       <body>
         <div class="container">
-          <div class="logo">SwiftDocs AI</div>
+          <div class="logo">ClarifyAI</div>
           <h1>${isNewDevice ? 'New Device Detected' : 'Successful Login'}</h1>
           <p>Hi ${displayName},</p>
           <p>${isNewDevice 
             ? "We noticed a login to your account from a device we don't recognize. If this was you, you're all set!" 
-            : "You've successfully logged into your SwiftDocs AI account. Great to have you back!"}</p>
+            : "You've successfully logged into your ClarifyAI account. Great to have you back!"}</p>
           
           <div class="device-card">
             <div style="margin-bottom: 12px;">
@@ -113,7 +113,7 @@ exports.sendSecurityAlertEmail = async (toEmail, displayName, deviceInfo) => {
           ` : ''}
 
           <div class="footer">
-            &copy; 2026 SwiftDocs AI · Modern Documentation Powered by AI
+            &copy; 2026 ClarifyAI · Modern Documentation Powered by AI
           </div>
         </div>
       </body>

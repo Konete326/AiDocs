@@ -3,7 +3,7 @@ export const PLANS = [
     plan: 'free',
     price: '$0',
     period: '',
-    description: 'Perfect for trying out SwiftDocs AI',
+    description: 'Perfect for trying out ClarifyAI',
     features: [
       '3 projects',
       '9 AI-generated documents',

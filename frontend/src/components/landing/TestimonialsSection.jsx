@@ -11,7 +11,7 @@ const testimonials = [
   {
     name: 'Sarah Chen',
     username: '@sarah_dev',
-    body: 'AiDocs turned our documentation nightmare into a dream. The PRD generation is absolute magic.',
+    body: 'ClarifyAI turned our documentation nightmare into a dream. The PRD generation is absolute magic.',
     img: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=60&w=80',
     country: '🇺🇸',
   },
@@ -39,7 +39,7 @@ const testimonials = [
   {
     name: 'Anya Varma',
     username: '@anya_ai',
-    body: 'SwiftDocs AI is a game changer for technical writers. The automated spec generation is top-tier.',
+    body: 'ClarifyAI is a game changer for technical writers. The automated spec generation is top-tier.',
     img: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=60&w=80',
     country: '🇮🇳',
   },

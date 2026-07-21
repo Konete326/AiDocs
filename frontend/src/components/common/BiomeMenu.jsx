@@ -5,7 +5,7 @@ import BiomeMenuItems from './BiomeMenuItems';
 
 const BiomeMenu = ({
   isOpen, onClose,
-  sidebarTitle = 'SwiftDocs AI',
+  sidebarTitle = 'ClarifyAI',
   sidebarDescription = 'The next generation of AI-powered technical documentation.',
   items = [],
 }) => {

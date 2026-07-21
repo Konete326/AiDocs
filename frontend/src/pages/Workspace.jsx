@@ -36,9 +36,9 @@ const Workspace = () => {
     fetchSub();
   }, []);
 
-  const isPro = ['pro', 'team'].includes(subscription?.plan) || user?.role === 'admin';
+  const isPro = true;
 
-  if (isLoading || isSubLoading) return (
+  if (isLoading) return (
     <div className="h-screen flex items-center justify-center">
       <LoadingSpinner />
     </div>
@@ -46,7 +46,6 @@ const Workspace = () => {
 
   return (
     <section className="relative min-h-screen overflow-hidden">
-      {/* Dark overlay — video from PersistentBackground in App.jsx */}
       <div className="absolute inset-0 bg-black/65 z-[1]" />
 
       <motion.div 
@@ -62,33 +61,20 @@ const Workspace = () => {
           onBack={() => navigate(`/projects/${id}`)} 
         />
 
-        {!isPro ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-center liquid-glass-strong rounded-[2rem] p-12 gap-6 mb-8">
-            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
-              <Lock className="w-8 h-8 text-white/30" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-semibold text-white mb-2">Workspace is a Pro feature</h2>
-              <p className="text-white/60 text-sm max-w-sm mx-auto">Upgrade to Pro to manage your project tasks with our integrated Kanban board.</p>
-            </div>
-            <button onClick={() => navigate('/pricing')} className="liquid-glass-strong rounded-full px-10 py-3.5 text-white font-medium hover:scale-105 transition-all cursor-pointer">Upgrade to Pro</button>
-          </div>
-        ) : (
-          <div className="flex-1 overflow-x-auto">
-            <KanbanBoard onDragEnd={handleDragEnd}>
-              {columns.map(col => (
-                <KanbanColumn
-                  key={col.id}
-                  column={col}
-                  onAddTask={addTask}
-                  onDeleteTask={deleteTask}
-                  onEditTitle={editColumn}
-                />
-              ))}
-              <AddColumnButton onClick={addColumn} />
-            </KanbanBoard>
-          </div>
-        )}
+        <div className="flex-1 overflow-x-auto">
+          <KanbanBoard onDragEnd={handleDragEnd}>
+            {columns.map(col => (
+              <KanbanColumn
+                key={col.id}
+                column={col}
+                onAddTask={addTask}
+                onDeleteTask={deleteTask}
+                onEditTitle={editColumn}
+              />
+            ))}
+            <AddColumnButton onClick={addColumn} />
+          </KanbanBoard>
+        </div>
       </motion.div>
     </section>
   );

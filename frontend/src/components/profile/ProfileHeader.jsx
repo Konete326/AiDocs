@@ -11,7 +11,7 @@ const ProfileHeader = ({ user }) => {
         Your Profile
       </div>
       <h2 className="text-2xl lg:text-3xl font-medium tracking-tight text-white">
-        {user?.displayName || 'Welcome'}, <em className="font-serif italic text-white/80">SwiftDocs AI</em>
+        {user?.displayName || 'Welcome'}, <em className="font-serif italic text-white/80">ClarifyAI</em>
       </h2>
       <p className="text-white/70 text-base leading-relaxed max-w-xl">
         Manage your account, view your subscription, and upload a photo.

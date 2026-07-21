@@ -6,7 +6,7 @@ AiDocs uses Nodemailer to send transactional emails (like password resets).
 1. Log into your Gmail account.
 2. Go to **Security** → **2-Step Verification** (must be ON).
 3. Scroll to the bottom and click **App Passwords**.
-4. Select App: "Other", Name: "SwiftDocs AI".
+4. Select App: "Other", Name: "ClarifyAI".
 5. Copy the 16-character code (the App Password).
 
 **Environment Variables:**
@@ -14,13 +14,13 @@ AiDocs uses Nodemailer to send transactional emails (like password resets).
 EMAIL_SERVICE=gmail
 EMAIL_USER=your-email@gmail.com
 EMAIL_PASS=xxxx xxxx xxxx xxxx (the 16-char code)
-EMAIL_FROM=noreply@swiftdocsai.com
+EMAIL_FROM=noreply@clarifyai.com
 ```
 
 ## Option 2: Resend (Professional / Production)
 1. Sign up at [resend.com](https://resend.com).
 2. Get your API Key.
-3. Verify your domain (e.g., mail.swiftdocsai.com).
+3. Verify your domain (e.g., mail.clarifyai.com).
 
 **Environment Variables:**
 ```

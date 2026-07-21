@@ -6,17 +6,12 @@ import UpgradeModal from '../common/UpgradeModal';
 import { useState } from 'react';
 import { SpecialText } from '../ui/SpecialText';
 
-export default function DashboardHeader({ projectCount, plan, projectLimit }) {
+export default function DashboardHeader({ projectCount }) {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [showUpgrade, setShowUpgrade] = useState(false);
 
   const handleNewProject = () => {
-    if (projectCount >= projectLimit) {
-      setShowUpgrade(true);
-    } else {
-      navigate('/projects/new');
-    }
+    navigate('/projects/new');
   };
 
   return (
@@ -27,7 +22,7 @@ export default function DashboardHeader({ projectCount, plan, projectLimit }) {
           <h1 className="text-3xl font-medium text-white">Your Projects</h1>
           <p className="text-sm text-white/50 mt-1 uppercase tracking-wider flex items-center gap-1">
             <SpecialText speed={15} inView={true} className="text-white/50">
-              {`${plan} plan · ${projectCount} / ${projectLimit} projects`}
+              {`free plan · ${projectCount} / 3 projects (limited time offer - unlimited)`}
             </SpecialText>
           </p>
         </div>
@@ -39,12 +34,6 @@ export default function DashboardHeader({ projectCount, plan, projectLimit }) {
         <Sparkles className="w-4 h-4 text-white" />
         <span className="text-sm text-white font-medium">New Project</span>
       </button>
-
-      <UpgradeModal 
-        isOpen={showUpgrade} 
-        onClose={() => setShowUpgrade(false)} 
-        onUpgrade={() => { setShowUpgrade(false); navigate('/pricing'); }}
-      />
     </div>
   );
 }

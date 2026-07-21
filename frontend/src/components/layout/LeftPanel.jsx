@@ -11,7 +11,7 @@ const HeroText = () => {
   const { isAuthenticated } = useAuth();
   return (
   <div className="flex flex-col items-center justify-center text-center gap-4 lg:gap-8 flex-1 py-12 lg:py-0">
-    <img src={logo} alt="SwiftDocs AI" className="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl object-cover shadow-2xl" />
+    <img src={logo} alt="ClarifyAI" className="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl object-cover shadow-2xl" />
     <h1 className="text-4xl md:text-6xl lg:text-[5.5rem] font-medium tracking-[-0.05em] text-white leading-[1.1]">
       Generating the<br />
       spirit of your{' '}
@@ -45,7 +45,7 @@ const BottomQuote = () => (
     </p>
     <div className="flex items-center gap-4 justify-center mt-4">
       <div className="h-px w-8 lg:w-12 bg-white/10" />
-      <span className="text-xs tracking-[0.15em] text-white/30 font-bold">SWIFT DOCS TEAM</span>
+      <span className="text-xs tracking-[0.15em] text-white/30 font-bold">CLARIFY AI TEAM</span>
       <div className="h-px w-8 lg:w-12 bg-white/10" />
     </div>
   </div>

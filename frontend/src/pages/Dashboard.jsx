@@ -85,17 +85,10 @@ const Dashboard = () => {
       <div className="relative z-10 pt-28 p-6 md:p-12 lg:p-16 max-w-7xl mx-auto min-h-screen">
         <DashboardHeader 
           projectCount={projects?.length || 0} 
-          plan={subscription?.plan || 'free'} 
-          projectLimit={subscription?.projectLimit || 3}
         />
 
         <div className="mt-12 space-y-8">
-          {projects.length >= (subscription?.projectLimit || 3) && (
-            <SubscriptionBanner 
-              projectsUsed={projects.length}
-              projectLimit={subscription?.projectLimit || 3}
-            />
-          )}
+          <SubscriptionBanner />
 
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

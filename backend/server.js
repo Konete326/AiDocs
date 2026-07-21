@@ -77,7 +77,7 @@ app.use('/api', apiLimiter);
 app.set('trust proxy', 1);
 
 app.get('/', (req, res) => {
-  res.status(200).json({ status: 'active', message: 'SwiftDocs AI API is running' });
+  res.status(200).json({ status: 'active', message: 'ClarifyAI API is running' });
 });
 
 // CRITICAL: Mount skillsRoutes BEFORE projectRoutes to avoid /library being caught by /:id

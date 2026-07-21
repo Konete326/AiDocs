@@ -56,7 +56,7 @@ npx skills add https://github.com/anthropics/skills --skill skill-creator
 npx skills add https://github.com/vercel-labs/skills --skill find-skills
 ${skillCommands}\`\`\`
 
-Note: The SwiftDocs AI platform shows all available skills in the project sidebar under the Skills section. You can copy the install commands directly from there.
+Note: The ClarifyAI platform shows all available skills in the project sidebar under the Skills section. You can copy the install commands directly from there.
 
 ### Step 2 — Scaffold Project with Commands
 Never create files manually. Use CLI commands:
