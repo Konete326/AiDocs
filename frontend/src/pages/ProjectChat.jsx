@@ -134,10 +134,10 @@ export default function ProjectChat() {
 
               <div className="space-y-2 pt-1 overflow-y-auto hover-scrollbar custom-scrollbar">
                 {[
+                  { label: "Update PRD to add Stripe payment gateway", icon: FileText },
                   { label: "What is our primary tech stack & DB choice?", icon: Layers },
                   { label: "Summarize core system & API requirements", icon: FileText },
-                  { label: "What are the main MVP milestones & phases?", icon: Sparkles },
-                  { label: "How should we structure folder architecture?", icon: ExternalLink }
+                  { label: "What are the main MVP milestones & phases?", icon: Sparkles }
                 ].map(({ label, icon: Icon }) => (
                   <button
                     key={label}
@@ -153,7 +153,7 @@ export default function ProjectChat() {
           </div>
 
           {/* Right Panel: Chat Interface (8 cols) */}
-          <div className="lg:col-span-8 flex flex-col h-full overflow-hidden liquid-glass-strong rounded-3xl shadow-2xl border border-white/10">
+          <div className="lg:col-span-8 flex flex-col h-full overflow-hidden liquid-glass-strong rounded-3xl shadow-2xl border border-white/15 ring-1 ring-white/10">
             <div ref={scrollRef} className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 hover-scrollbar custom-scrollbar">
               {messages.length === 0 && (
                 <div className="h-full flex flex-col items-center justify-center text-center p-4 space-y-3">
