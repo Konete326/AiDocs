@@ -17,8 +17,13 @@ const projectSchema = new mongoose.Schema(
     },
     docsGenerated: [{ type: String }],
     customSkills: [{ type: String }],
-    disabledSkills: [{ type: String }],
-    kanbanColumns: [{ type: Object }], // Columns with task arrays
+    designSystem: {
+      id: { type: String, default: 'monochrome' },
+      name: { type: String, default: 'Monochrome' },
+      prompt: { type: String },
+      tokens: { type: Object }
+    },
+    kanbanColumns: [{ type: Object }],
     milestones: [{
       title: { type: String },
       dueDate: { type: Date },

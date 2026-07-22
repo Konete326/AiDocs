@@ -1,4 +1,4 @@
-import { Download, MessageCircle, Loader2, Cpu } from 'lucide-react';
+import { Download, MessageCircle, Loader2, Cpu, Palette } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { downloadZip } from '../../services/exportService';
@@ -21,6 +21,14 @@ const ProjectHeaderActions = ({ project }) => {
 
   return (
     <div className="flex items-center gap-2.5 flex-wrap">
+      <button
+        onClick={() => navigate(`/projects/${project._id}/design-system`)}
+        className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 hover:scale-105 transition-all cursor-pointer flex-shrink-0"
+      >
+        <Palette className="w-4 h-4 text-indigo-400" />
+        <span className="text-xs sm:text-sm text-white/80 font-medium">Design System</span>
+      </button>
+
       <button
         onClick={() => navigate(`/projects/${project._id}/chat`)}
         className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 hover:scale-105 transition-all cursor-pointer flex-shrink-0"

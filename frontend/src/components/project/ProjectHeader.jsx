@@ -10,7 +10,7 @@ const STATUS_STYLES = {
   error: 'text-white/40',
 };
 
-const ProjectHeader = ({ project, subscription, onOpenSkills }) => {
+const ProjectHeader = ({ project, subscription, onOpenSkills, onProjectUpdated }) => {
   const { user } = useAuth();
   const { modal, alert: triggerAlert, close } = useAlertModal();
   const isPro = ['pro', 'team'].includes(subscription?.plan) || user?.role === 'admin';
@@ -36,7 +36,7 @@ const ProjectHeader = ({ project, subscription, onOpenSkills }) => {
           </div>
         </div>
       </div>
-      <ProjectHeaderActions project={project} isPro={isPro} handleZipDownload={handleZipDownload} onOpenSkills={onOpenSkills} />
+      <ProjectHeaderActions project={project} isPro={isPro} handleZipDownload={handleZipDownload} onOpenSkills={onOpenSkills} onProjectUpdated={onProjectUpdated} />
     </div>
   );
 };

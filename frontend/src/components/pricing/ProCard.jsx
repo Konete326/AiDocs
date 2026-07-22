@@ -15,11 +15,11 @@ const ProCard = ({ subscription, isLoading, onCheckout }) => {
         <div className="flex items-center gap-2">
           <div className="liquid-glass rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[#6B7280]">Pro</div>
           <div className="liquid-glass rounded-full px-3 py-1 text-[10px] text-[#3D4852] flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-[#6C63FF]" /> Most Popular
+            <Sparkles className="w-3 h-3 text-[#38B2AC]" /> Most Popular
           </div>
         </div>
         {!isCurrent ? (
-          <button onClick={() => onCheckout('pro')} disabled={isLoading} className="bg-[#6C63FF] rounded-2xl px-6 py-2.5 text-sm text-white font-medium hover:scale-105 active:scale-95 transition-transform cursor-pointer border-none outline-none shadow-[5px_5px_10px_rgba(108,99,255,0.2),-5px_-5px_10px_rgba(255,255,255,0.5)]">
+          <button onClick={() => onCheckout('pro')} disabled={isLoading} className="liquid-glass-strong rounded-2xl px-6 py-2.5 text-sm text-[#38B2AC] font-semibold hover:scale-105 active:scale-95 transition-transform cursor-pointer border-none outline-none">
             Get Pro
           </button>
         ) : (

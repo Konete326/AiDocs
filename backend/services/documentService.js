@@ -130,8 +130,10 @@ const PIPELINE = [
 
 // Helper: generate a single doc, save it, update project.docsGenerated
 const generateOne = async (docType, project, userId, generatedSoFar) => {
-  const contextString = buildContext(generatedSoFar);
-  const promptText = prompts[docType](project.wizardAnswers, contextString);
+  let promptText = prompts[docType](project.wizardAnswers, contextString);
+  if (project.designSystem && project.designSystem.prompt) {
+    promptText += `\n\n### MANDATORY DESIGN SYSTEM GUIDELINES\n${project.designSystem.prompt}`;
+  }
   
   // Use max_tokens=2048 for faster generation as per performance optimization plan
   const { content, modelUsed, generationTimeMs } = await AIService.generateText(promptText, docType, 2048);

@@ -127,12 +127,13 @@ const ProjectDetail = () => {
             project={project}
             onBack={() => navigate('/dashboard')}
             subscription={subscription}
+            onProjectUpdated={(updated) => setProject(updated)}
           />
 
           {/* Bento Grid — mirrors pricing page columns */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4 lg:h-[calc(100vh-230px)] min-h-[500px] lg:min-h-0">
 
-            <div className="md:col-span-1 lg:col-span-3 h-full overflow-hidden rounded-3xl">
+            <div className="md:col-span-1 lg:col-span-3 h-full overflow-hidden rounded-3xl border border-white/20 shadow-[6px_6px_16px_rgba(0,0,0,0.15)]">
               <DocsList
                 documents={synthesizedDocs}
                 selectedDoc={activeDoc}

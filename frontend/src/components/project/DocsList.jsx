@@ -41,8 +41,8 @@ const DocsList = ({ documents, selectedDoc, onSelect, isGenerating }) => (
             className={[
               'rounded-2xl px-4 py-3 flex items-center gap-3 w-full transition-all border',
               isSelected 
-                ? 'bg-[#6C63FF] shadow-[3px_3px_8px_rgba(108,99,255,0.3)] border-transparent' 
-                : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.04] hover:border-white/10',
+                ? 'bg-[#38B2AC] shadow-[3px_3px_8px_rgba(56,178,172,0.3)] border-[#38B2AC]' 
+                : 'bg-white/[0.02] border-white/10 hover:bg-white/[0.05] hover:border-white/20',
               isGenerated ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed',
             ].join(' ')}
             style={{ willChange: isGenerated ? 'transform' : 'auto' }}
