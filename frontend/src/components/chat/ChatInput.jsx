@@ -68,10 +68,25 @@ export default function ChatInput({ onSend, isDisabled }) {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const timerRef = useRef(null);
+
+  const resetInactivityTimer = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      if (recognitionRef.current) {
+        try { recognitionRef.current.stop(); } catch (e) {}
+      }
+      setIsRecording(false);
+    }, 20000);
+  };
+
+  const savedTextRef = useRef('');
+
   const toggleMicRecording = () => {
     if (isRecording) {
+      if (timerRef.current) clearTimeout(timerRef.current);
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try { recognitionRef.current.stop(); } catch (e) {}
       }
       setIsRecording(false);
       return;
@@ -84,32 +99,44 @@ export default function ChatInput({ onSend, isDisabled }) {
     }
 
     try {
+      savedTextRef.current = text;
       const recognition = new SpeechRecognition();
-      recognition.continuous = false;
+      recognition.continuous = true;
       recognition.interimResults = true;
       recognition.lang = 'en-US';
 
       recognition.onstart = () => {
         setIsRecording(true);
         setErrorMsg('');
+        resetInactivityTimer();
       };
 
       recognition.onresult = (event) => {
-        let transcript = '';
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          transcript += event.results[i][0].transcript;
+        resetInactivityTimer();
+        let finalTranscript = '';
+        let interimTranscript = '';
+
+        for (let i = 0; i < event.results.length; i++) {
+          if (event.results[i].isFinal) {
+            finalTranscript += event.results[i][0].transcript + ' ';
+          } else {
+            interimTranscript += event.results[i][0].transcript;
+          }
         }
-        if (transcript) {
-          setText(transcript);
-        }
+
+        const prefix = savedTextRef.current ? savedTextRef.current.trim() + ' ' : '';
+        const combined = (prefix + finalTranscript + interimTranscript).replace(/\s+/g, ' ');
+        setText(combined);
       };
 
       recognition.onerror = (err) => {
         console.error('Speech recognition error:', err);
+        if (timerRef.current) clearTimeout(timerRef.current);
         setIsRecording(false);
       };
 
       recognition.onend = () => {
+        if (timerRef.current) clearTimeout(timerRef.current);
         setIsRecording(false);
       };
 
@@ -117,6 +144,7 @@ export default function ChatInput({ onSend, isDisabled }) {
       recognition.start();
     } catch (err) {
       console.error('Failed to start speech recognition:', err);
+      if (timerRef.current) clearTimeout(timerRef.current);
       setIsRecording(false);
     }
   };
@@ -137,7 +165,7 @@ export default function ChatInput({ onSend, isDisabled }) {
   };
 
   return (
-    <div className="liquid-glass-strong rounded-2xl px-4 py-3 flex flex-col gap-2 shadow-xl">
+    <div className="liquid-glass-strong bg-[#1A0608]/95 border border-rose-500/25 rounded-2xl px-4 py-3 flex flex-col gap-2 shadow-2xl">
       {errorMsg && (
         <div className="flex items-center justify-between bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-1.5 text-xs text-amber-300">
           <div className="flex items-center gap-1.5">

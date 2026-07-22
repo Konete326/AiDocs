@@ -353,7 +353,7 @@ export default function ProjectChat() {
                 </div>
               )}
             </div>
-            <div className="p-2.5 sm:p-3 bg-white/5 border-t border-white/10 flex-shrink-0 rounded-b-3xl overflow-hidden">
+            <div className="p-2.5 sm:p-3 bg-[#120305]/90 border-t border-rose-500/20 flex-shrink-0 rounded-b-3xl overflow-hidden">
               <ChatInput onSend={handleSend} isDisabled={isSending} />
             </div>
           </div>
