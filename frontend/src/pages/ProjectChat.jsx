@@ -213,8 +213,9 @@ export default function ProjectChat() {
               <span className="hidden sm:inline">Delete Chat</span>
             </button>
 
-            <div className="liquid-glass rounded-full px-3 py-1 flex items-center gap-1.5 text-[9px] text-white/60 uppercase tracking-widest border border-white/5">
-              <Bot className="w-3 h-3 text-[#38B2AC]" /> Co-founder Active
+            <div className="liquid-glass rounded-full px-3 py-1 flex items-center gap-1.5 text-[9.5px] text-emerald-400 font-mono font-medium border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+              <span>NVIDIA GPU Voice Active</span>
             </div>
           </div>
         </header>
