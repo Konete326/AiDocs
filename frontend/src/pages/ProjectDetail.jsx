@@ -50,6 +50,41 @@ const ProjectDetail = () => {
       list.push({ docType: 'skills', content: '# Project Skills\n\nNo skills added yet.', version: '1.0' });
     }
     
+    // Virtual Design System Doc
+    if (!list.some(d => d.docType === 'designSystem')) {
+      const ds = project?.designSystem || {
+        id: 'monochrome',
+        name: 'Monochrome',
+        tagline: 'Reduction to Essence. Strips design down to black, white, and typography.',
+        prompt: `Design Style: Minimalist Monochrome\n- Colors: #FFFFFF background, #000000 foreground.\n- Typography: Playfair Display + Source Serif 4 + JetBrains Mono.\n- Border Radius: 0px.`
+      };
+      const content = `# Design System Specification: ${ds.name}
+
+## 1. Executive Summary & Design Vision
+- **Theme Identity:** ${ds.name} (${ds.id})
+- **Design Philosophy:** ${ds.tagline || 'Modern high-fidelity visual design architecture.'}
+- **Target Application:** ${project?.title || 'Project'}
+
+---
+
+## 2. Core Prompt for AI Builders & Developers
+> **Mandate for AI Builders:** Every UI component, page layout, typography hierarchy, color choice, and micro-interaction built for this codebase MUST strictly adhere to the following design system prompt:
+
+\`\`\`markdown
+${ds.prompt || ds.tagline || ''}
+\`\`\`
+
+---
+
+## 3. Visual Styling & Implementation Guidelines
+- **Typography & Font Family:** Implement exact typography rules as specified in the theme preset.
+- **Color Palette & Accents:** All background, surface, text, and accent colors strictly follow this preset palette.
+- **Buttons & Interactivity:** High contrast action buttons, smooth hover transitions, and explicit pointer cursors (\`cursor-pointer\`).
+- **Containers & Glass Cards:** Structural containers reflect theme radius and shadow specs.
+`;
+      list.push({ docType: 'designSystem', content, version: '1.0' });
+    }
+
     // Virtual Rules Doc
     list.push({ docType: 'rules', content: getDynamicAgentRules(project), version: '1.0' });
 

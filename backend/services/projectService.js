@@ -31,6 +31,12 @@ exports.updateProject = async (projectId, userId, data) => {
     { new: true, runValidators: true }
   ).lean();
   if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');
+
+  if (data.designSystem) {
+    const documentService = require('./documentService');
+    await documentService.updateOrCreateDesignSystemDoc(projectId, userId, project);
+  }
+
   return project;
 };
 

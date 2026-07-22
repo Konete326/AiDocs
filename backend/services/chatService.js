@@ -4,10 +4,11 @@ const Project = require('../models/Project');
 const Document = require('../models/Document');
 const AppError = require('../utils/AppError');
 const { getAllAvailableSkills } = require('../controllers/skillsController');
+const { PRESETS, getPresetById } = require('../constants/designSystemPresetsList');
 
 const VALID_DOC_TYPES = [
   'prd', 'srd', 'techStack', 'dbSchema', 'userFlows',
-  'mvpPlan', 'folderStructure', 'claudeContext', 'agentSystemPrompt', 'skills', 'rules'
+  'mvpPlan', 'folderStructure', 'claudeContext', 'agentSystemPrompt', 'designSystem', 'skills', 'rules'
 ];
 
 const fetchWebsiteSummary = async (url) => {
@@ -147,6 +148,20 @@ If the user attaches an image (e.g. wireframe, UI mockup, screenshot, flow diagr
 2. Accurately describe what is shown in the image (e.g. if it is a food platter, UI screen, architecture diagram, etc.).
 3. Explain how this image relates to or can be adapted for the project "${project.title}". If it is unrelated to software, describe what it is accurately and suggest how visual design/color themes/layouts from it could inspire the project if relevant.
 
+CURRENT DESIGN SYSTEM:
+Name: ${project.designSystem?.name || 'Monochrome'} (id: "${project.designSystem?.id || 'monochrome'}")
+Tagline: ${project.designSystem?.tagline || 'Minimalist Monochrome'}
+
+AVAILABLE DESIGN PRESETS LIBRARY (28 Themes):
+${PRESETS.map(p => `- ${p.name} (id: "${p.id}"): ${p.tagline}`).join('\n')}
+
+DESIGN SYSTEM MANAGEMENT INSTRUCTIONS:
+If the user asks to change, update, apply, switch, or select a design system preset or visual theme for this project (e.g. "Use Neobrutalism theme", "Switch to Cyberpunk", "Apply Linear Modern theme", "Change design system to Bauhaus"):
+1. Confirm the new design system theme in your text response.
+2. Output a design system action tag at the end of your response:
+[DESIGN_SYSTEM_ACTION:presetId]
+(e.g. [DESIGN_SYSTEM_ACTION:neobrutalism] or [DESIGN_SYSTEM_ACTION:linear])
+
 CURRENT PROJECT SKILLS:
 ${activeSkillIds.join(', ') || 'None'}
 
@@ -173,7 +188,7 @@ Output a download action tag at the end of your response:
 [DOWNLOAD_ACTION:format:docType]
 
 Supported formats: zip, word, excel, pdf
-Supported docTypes: all, prd, srd, techStack, dbSchema, userFlows, mvpPlan, folderStructure, claudeContext, agentSystemPrompt, skills, rules.
+Supported docTypes: all, prd, srd, techStack, dbSchema, userFlows, mvpPlan, folderStructure, claudeContext, agentSystemPrompt, designSystem, skills, rules.
 
 PROJECT DOCUMENTATION:
 ${docsContext.slice(0, 10000)}`;
@@ -263,10 +278,33 @@ ${docsContext.slice(0, 10000)}`;
         if (!project.customSkills.includes(foundSkill.id)) {
           project.customSkills.push(foundSkill.id);
           await project.save();
-          rawReply += `\n\n**Skill Added:** Successfully added **"${foundSkill.name}"** to your project!`;
+          rawReply += `\n\n**Skill Added:** Enabling skill **"${foundSkill.name}"** for your project!`;
         }
       }
-    } else if (lastUserMsgLower.includes('remove skill') || lastUserMsgLower.includes('delete skill') || (lastUserMsgLower.includes('remove ') && lastUserMsgLower.includes('skill'))) {
+    }
+  }
+
+  // 3. Process Design System Action Tags
+  const designMatch = rawReply.match(/\[DESIGN_SYSTEM_ACTION:([a-zA-Z0-9_-]+)\]/);
+  if (designMatch) {
+    const presetId = designMatch[1];
+    const targetPreset = getPresetById(presetId);
+    if (targetPreset) {
+      project.designSystem = {
+        id: targetPreset.id,
+        name: targetPreset.name,
+        prompt: targetPreset.prompt || targetPreset.tagline,
+        tagline: targetPreset.tagline
+      };
+      await project.save();
+
+      const documentService = require('./documentService');
+      await documentService.updateOrCreateDesignSystemDoc(projectId, userId, project);
+
+      rawReply = rawReply.replace(/\[DESIGN_SYSTEM_ACTION:[a-zA-Z0-9_-]+\]/g, '').trim();
+      rawReply += `\n\n**Design System Applied:** Switched theme to **${targetPreset.name}** and saved the design system document to your project!`;
+    }
+  } else if (lastUserMsgLower.includes('remove skill') || lastUserMsgLower.includes('delete skill') || (lastUserMsgLower.includes('remove ') && lastUserMsgLower.includes('skill'))) {
       const foundSkill = allSkills.find(s => lastUserMsgLower.includes(s.id.toLowerCase()) || lastUserMsgLower.includes(s.name.toLowerCase()));
       if (foundSkill) {
         if (!project.customSkills) project.customSkills = [];

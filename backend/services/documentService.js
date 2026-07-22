@@ -287,6 +287,43 @@ exports.updateDocument = async (projectId, docType, userId, updatedContent) => {
   return doc;
 };
 
+exports.updateOrCreateDesignSystemDoc = async (projectId, userId, project) => {
+  const ds = project.designSystem || {};
+  const content = `# Design System Specification: ${ds.name || 'Monochrome'}
+
+## 1. Executive Summary & Design Vision
+- **Theme Identity:** ${ds.name || 'Monochrome'} (${ds.id || 'monochrome'})
+- **Design Philosophy:** ${ds.tagline || 'Modern high-fidelity visual design architecture.'}
+- **Target Application:** ${project.title || 'Project'}
+
+---
+
+## 2. Core Prompt for AI Builders & Developers
+> **Mandate for AI Builders:** Every UI component, page layout, typography hierarchy, color choice, and micro-interaction built for this codebase MUST strictly adhere to the following design system prompt:
+
+\`\`\`markdown
+${ds.prompt || ''}
+\`\`\`
+
+---
+
+## 3. Visual Styling & Implementation Guidelines
+- **Typography & Font Family:** Implement exact typography rules as specified in the theme preset.
+- **Color Palette & Accents:** All background, surface, text, and accent colors strictly follow this preset palette.
+- **Buttons & Interactivity:** High contrast action buttons, smooth hover transitions, and explicit pointer cursors (\`cursor-pointer\`).
+- **Containers & Glass Cards:** Structural containers reflect theme radius and shadow specs.
+`;
+
+  const updatedDoc = await Document.findOneAndUpdate(
+    { projectId, docType: 'designSystem' },
+    { userId, content, modelUsed: 'LOCAL_TEMPLATE', generationTimeMs: 0, contentTokenCount: Math.floor(content.length / 4), $inc: { version: 1 } },
+    { upsert: true, new: true }
+  );
+
+  await Project.findByIdAndUpdate(projectId, { $addToSet: { docsGenerated: 'designSystem' } });
+  return updatedDoc;
+};
+
 exports.generateNext = async (projectId, userId) => {
   const project = await Project.findOne({ _id: projectId, userId, isArchived: false });
   if (!project || project.status !== 'generating') return;
