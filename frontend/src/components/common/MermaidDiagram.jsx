@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Copy, Check, Sparkles } from 'lucide-react';
+import { Copy, Check, Layout } from 'lucide-react';
 
 export default function MermaidDiagram({ chartCode }) {
   const containerRef = useRef(null);
@@ -55,7 +55,7 @@ export default function MermaidDiagram({ chartCode }) {
     <div className="my-3 liquid-glass-strong rounded-2xl p-4 border border-white/15 ring-1 ring-white/10 shadow-xl overflow-hidden relative group">
       <div className="flex items-center justify-between pb-2 mb-2 border-b border-white/10 text-xs">
         <div className="flex items-center gap-1.5 text-white/80">
-          <Sparkles className="w-3.5 h-3.5 text-[#6C63FF]" />
+          <Layout className="w-3.5 h-3.5 text-[#38B2AC]" />
           <span className="font-semibold uppercase tracking-wider text-[10px]">Visual Flowchart Diagram</span>
         </div>
         <button

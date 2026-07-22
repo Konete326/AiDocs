@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, X } from 'lucide-react';
+import { Zap, X } from 'lucide-react';
 import { createPortal } from 'react-dom';
 
 const ComingSoonModal = ({ isOpen, onClose }) => {
@@ -31,7 +31,7 @@ const ComingSoonModal = ({ isOpen, onClose }) => {
             </button>
 
             <div className="w-10 h-10 rounded-2xl liquid-glass flex items-center justify-center mx-auto mb-3 border border-white/10">
-              <Sparkles className="w-5 h-5 text-[#38B2AC]" />
+              <Zap className="w-5 h-5 text-[#38B2AC]" />
             </div>
 
             <h2 className="text-xl font-bold text-white tracking-tight mb-1">Payments Coming Soon</h2>

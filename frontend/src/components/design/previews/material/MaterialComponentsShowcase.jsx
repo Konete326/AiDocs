@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown, Sparkles } from "lucide-react";
+import { ChevronDown, Palette } from "lucide-react";
 
 export const MaterialComponentsShowcase = () => {
   const [accordionOpen, setAccordionOpen] = useState(false);
@@ -12,10 +12,10 @@ export const MaterialComponentsShowcase = () => {
   };
 
   return (
-    <div id="showcase" className="relative bg-[#FFFBFE] py-16 px-6 font-['Roboto'] text-[#1C1B1F] space-y-12">
+    <div id="showcase" className="relative bg-[#FFFBFE] border-b border-[#E7E0EC] py-16 px-6 font-['Roboto'] space-y-12">
       {toastMessage && (
-        <div className="absolute top-4 right-4 z-50 bg-[#6750A4] text-white px-6 py-4 rounded-full text-xs font-medium shadow-md flex items-center space-x-3">
-          <Sparkles size={18} />
+        <div className="absolute top-4 right-4 z-50 bg-[#E8DEF8] text-[#1D192B] px-6 py-4 rounded-full text-xs font-medium flex items-center space-x-3 shadow-md border border-[#E7E0EC]">
+          <Palette size={18} className="text-[#6750A4]" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -61,7 +61,7 @@ export const MaterialComponentsShowcase = () => {
         <div className="absolute inset-0 z-50 bg-[#1C1B1F]/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-[#FFFBFE] p-8 rounded-[28px] max-w-md w-full font-['Roboto'] space-y-6 shadow-lg border border-[#E7E0EC]">
             <div className="flex items-center space-x-3 text-[#6750A4]">
-              <Sparkles size={24} />
+              <Palette size={24} />
               <h4 className="text-2xl font-medium text-[#1C1B1F]">MD3 Surface Dialog</h4>
             </div>
             <p className="text-xs text-[#49454F] leading-relaxed">Custom Material Design 3 dialog with 28px organic rounded corners and soft tonal elevation.</p>

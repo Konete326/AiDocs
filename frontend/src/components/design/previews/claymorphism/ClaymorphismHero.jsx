@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Layers } from "lucide-react";
 
 export const ClaymorphismHero = () => {
   return (
@@ -7,7 +7,7 @@ export const ClaymorphismHero = () => {
       <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-12 gap-12 items-center">
         <div className="md:col-span-7">
           <div className="inline-flex items-center space-x-2 bg-white/80 border border-white px-4 py-2 rounded-full text-xs font-bold text-[#7C3AED] shadow-[8px_8px_16px_rgba(160,150,180,0.2),-6px_-6px_12px_rgba(255,255,255,0.9)] mb-8">
-            <Sparkles size={16} />
+            <Layers size={16} />
             <span>HIGH-FIDELITY DIGITAL CLAY // 3D SOFT SILICONE</span>
           </div>
           <h1 className="text-5xl md:text-7xl font-black tracking-tight leading-[1.1] text-[#332F3A] mb-8">

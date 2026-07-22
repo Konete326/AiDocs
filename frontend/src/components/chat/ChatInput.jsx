@@ -1,11 +1,13 @@
 import { useState, useRef } from 'react';
-import { Send, Paperclip, FileText, X, AlertCircle } from 'lucide-react';
+import { Send, Paperclip, FileText, X, AlertCircle, Mic, MicOff } from 'lucide-react';
 
 export default function ChatInput({ onSend, isDisabled }) {
   const [text, setText] = useState('');
   const [attachments, setAttachments] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
+  const [isRecording, setIsRecording] = useState(false);
   const fileInputRef = useRef(null);
+  const recognitionRef = useRef(null);
 
   const processFiles = (filesList) => {
     setErrorMsg('');
@@ -66,6 +68,59 @@ export default function ChatInput({ onSend, isDisabled }) {
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
+  const toggleMicRecording = () => {
+    if (isRecording) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      setIsRecording(false);
+      return;
+    }
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      setErrorMsg('Voice Speech recognition is not supported in this browser. Please use Chrome or Edge.');
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = true;
+      recognition.lang = 'en-US';
+
+      recognition.onstart = () => {
+        setIsRecording(true);
+        setErrorMsg('');
+      };
+
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        if (transcript) {
+          setText(transcript);
+        }
+      };
+
+      recognition.onerror = (err) => {
+        console.error('Speech recognition error:', err);
+        setIsRecording(false);
+      };
+
+      recognition.onend = () => {
+        setIsRecording(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err) {
+      console.error('Failed to start speech recognition:', err);
+      setIsRecording(false);
+    }
+  };
+
   const handleSubmit = () => {
     if ((!text.trim() && attachments.length === 0) || isDisabled) return;
     onSend(text.trim(), attachments);
@@ -92,6 +147,13 @@ export default function ChatInput({ onSend, isDisabled }) {
           <button onClick={() => setErrorMsg('')} className="text-amber-300/60 hover:text-amber-300 cursor-pointer">
             <X className="w-3.5 h-3.5" />
           </button>
+        </div>
+      )}
+
+      {isRecording && (
+        <div className="flex items-center gap-2 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-1.5 text-xs text-rose-300 animate-pulse">
+          <div className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+          <span>Listening... Speak your instruction now.</span>
         </div>
       )}
 
@@ -138,10 +200,21 @@ export default function ChatInput({ onSend, isDisabled }) {
           <Paperclip className="w-4 h-4 text-white/70 hover:text-white" />
         </button>
 
+        <button
+          onClick={toggleMicRecording}
+          disabled={isDisabled}
+          className={`liquid-glass rounded-full p-2.5 hover:scale-105 transition-transform cursor-pointer flex-shrink-0 ${
+            isRecording ? 'bg-rose-500/20 text-rose-400 border border-rose-500/50 shadow-[0_0_12px_rgba(244,63,94,0.4)]' : 'text-white/70 hover:text-white'
+          }`}
+          title={isRecording ? 'Stop Recording' : 'Voice Input (Click to speak)'}
+        >
+          {isRecording ? <MicOff className="w-4 h-4 text-rose-400 animate-pulse" /> : <Mic className="w-4 h-4" />}
+        </button>
+
         <textarea
           className="bg-transparent text-white placeholder:text-white/30 outline-none w-full text-sm resize-none max-h-32 py-1 font-sans"
           rows={1}
-          placeholder="Ask anything or attach files... (Enter to send)"
+          placeholder={isRecording ? 'Listening...' : 'Ask anything or speak instructions... (Enter to send)'}
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}

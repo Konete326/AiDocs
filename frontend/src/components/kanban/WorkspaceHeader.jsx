@@ -1,4 +1,4 @@
-import { ChevronLeft, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, Bot, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../common/LoadingSpinner';
 
@@ -29,10 +29,10 @@ const WorkspaceHeader = ({ project, isSaving, onBack }) => {
         {project?._id && (
           <button
             onClick={() => navigate(`/projects/${project._id}/chat`)}
-            className="bg-[#6C63FF] hover:bg-[#5b52e5] text-white rounded-full px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-md hover:scale-105 border-none"
+            className="bg-[#38B2AC] hover:bg-[#319795] text-white rounded-full px-3 py-1.5 text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer shadow-md hover:scale-105 border-none"
             title="Chat with AI Co-founder"
           >
-            <Sparkles className="w-3.5 h-3.5 text-white" />
+            <Bot className="w-3.5 h-3.5 text-white" />
             <span className="hidden sm:inline">AI Co-founder</span>
           </button>
         )}

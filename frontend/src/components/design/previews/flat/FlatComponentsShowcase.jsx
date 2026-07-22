@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown, Sparkles } from "lucide-react";
+import { ChevronDown, Zap } from "lucide-react";
 
 export const FlatComponentsShowcase = () => {
   const [accordionOpen, setAccordionOpen] = useState(false);
@@ -15,7 +15,7 @@ export const FlatComponentsShowcase = () => {
     <div id="showcase" className="relative bg-[#F3F4F6] py-16 px-6 font-['Outfit'] text-gray-900 space-y-12">
       {toastMessage && (
         <div className="absolute top-4 right-4 z-50 bg-[#10B981] text-white px-6 py-4 rounded-md text-xs font-semibold shadow-none flex items-center space-x-3">
-          <Sparkles size={18} />
+          <Zap size={18} />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -61,7 +61,7 @@ export const FlatComponentsShowcase = () => {
         <div className="absolute inset-0 z-50 bg-gray-900/60 flex items-center justify-center p-4">
           <div className="bg-white p-8 rounded-lg max-w-md w-full font-['Outfit'] space-y-6 shadow-none border-4 border-[#3B82F6]">
             <div className="flex items-center space-x-3 text-[#3B82F6]">
-              <Sparkles size={24} />
+              <Zap size={24} />
               <h4 className="text-2xl font-extrabold text-gray-900">Flat Dialog</h4>
             </div>
             <p className="text-xs text-gray-600 leading-relaxed">Custom flat design modal using bold color outlines and zero box shadows.</p>

@@ -16,8 +16,8 @@ export const LinearHeader = () => {
           <a href="#showcase" className="hover:text-white transition-colors">Components</a>
         </nav>
         <div className="flex items-center space-x-3 text-xs">
-          <button className="px-4 py-2 text-[#8A8F98] hover:text-white transition-colors font-medium">Log in</button>
-          <button className="px-4 py-2 bg-[#5E6AD2] hover:bg-[#6872D9] text-white rounded-lg font-medium shadow-[0_0_20px_rgba(94,106,210,0.3)] transition-all">
+          <button className="px-4 py-2 text-white hover:text-white/80 transition-colors font-medium cursor-pointer">Log in</button>
+          <button className="px-4 py-2 bg-[#5E6AD2] hover:bg-[#6872D9] text-white rounded-lg font-medium shadow-[0_0_20px_rgba(94,106,210,0.3)] transition-all cursor-pointer">
             Get Started
           </button>
         </div>

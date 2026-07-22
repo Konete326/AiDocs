@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sparkles, ChevronDown } from "lucide-react";
+import { ChevronDown, Layers } from "lucide-react";
 
 export const NeumorphismComponentsShowcase = () => {
   const [accordionOpen, setAccordionOpen] = useState(false);
@@ -15,7 +15,7 @@ export const NeumorphismComponentsShowcase = () => {
     <div id="showcase" className="relative bg-[#E0E5EC] py-16 px-6 font-['Plus_Jakarta_Sans',sans-serif] text-[#3D4852] space-y-12">
       {toastMessage && (
         <div className="absolute top-4 right-4 z-50 bg-[#E0E5EC] text-[#6C63FF] px-6 py-4 rounded-2xl font-['DM_Sans'] font-bold text-xs uppercase shadow-[9px_9px_16px_rgb(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)] flex items-center space-x-3">
-          <Sparkles size={20} />
+          <Layers size={20} />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -61,7 +61,7 @@ export const NeumorphismComponentsShowcase = () => {
         <div className="absolute inset-0 z-50 bg-[#3D4852]/30 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-[#E0E5EC] p-8 rounded-[32px] max-w-md w-full font-['Plus_Jakarta_Sans'] space-y-6 shadow-[12px_12px_20px_rgb(163,177,198,0.7),-12px_-12px_20px_rgba(255,255,255,0.6)]">
             <div className="flex items-center space-x-3 text-[#6C63FF]">
-              <Sparkles size={24} />
+              <Layers size={24} />
               <h4 className="text-2xl font-extrabold text-[#3D4852]">SOFT UI DIALOG</h4>
             </div>
             <p className="font-['DM_Sans'] text-xs text-[#6B7280] leading-relaxed">Neumorphic popup dialog extruded from the same monochromatic cool clay canvas.</p>

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Copy, Pencil, Lock, FileText, FileDown, Check } from 'lucide-react';
+import { Copy, Pencil, Lock, FileText, FileDown, Check, Search, X } from 'lucide-react';
 import { downloadDocAsPdf, downloadDocAsWord } from '../../services/exportService';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { updateDocument } from '../../services/documentService';
@@ -17,6 +17,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const [copySuccess, setCopySuccess] = useState(false);
   const [pdfSuccess, setPdfSuccess] = useState(false);
@@ -25,6 +26,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   useEffect(() => {
     setEditContent(document.content);
     setIsEditing(false);
+    setSearchQuery('');
   }, [document.content, document.docType]);
 
   const isPro = true;
@@ -65,11 +67,67 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
     } finally { setIsSaving(false); }
   };
 
+  const matchCount = useMemo(() => {
+    if (!searchQuery.trim() || !document?.content) return 0;
+    const query = searchQuery.trim().toLowerCase();
+    const matches = document.content.toLowerCase().split(query).length - 1;
+    return matches;
+  }, [searchQuery, document?.content]);
+
+  const highlightedComponents = useMemo(() => {
+    if (!searchQuery.trim()) return mdComponents;
+
+    const query = searchQuery.trim();
+    const highlightText = (text) => {
+      if (typeof text !== 'string') return text;
+      const escaped = query.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
+      const parts = text.split(new RegExp(`(${escaped})`, 'gi'));
+      return parts.map((part, i) =>
+        part.toLowerCase() === query.toLowerCase() ? (
+          <mark key={i} className="bg-[#38B2AC] text-slate-950 font-bold px-1 rounded shadow-sm">
+            {part}
+          </mark>
+        ) : (
+          part
+        )
+      );
+    };
+
+    return {
+      ...mdComponents,
+      p: ({ children }) => (
+        <p className="text-sm text-[#3D4852] leading-relaxed mb-4 font-sans font-medium">
+          {Array.isArray(children) ? children.map((c, i) => (typeof c === 'string' ? <span key={i}>{highlightText(c)}</span> : c)) : highlightText(children)}
+        </p>
+      ),
+      li: ({ children }) => (
+        <li className="text-sm text-[#3D4852] leading-relaxed mb-1 font-sans font-medium">
+          {Array.isArray(children) ? children.map((c, i) => (typeof c === 'string' ? <span key={i}>{highlightText(c)}</span> : c)) : highlightText(children)}
+        </li>
+      ),
+      h1: ({ children }) => (
+        <h1 className="text-2xl font-bold text-[#3D4852] mt-6 mb-3 tracking-tight border-b border-[#3D4852]/10 pb-2">
+          {Array.isArray(children) ? children.map((c, i) => (typeof c === 'string' ? <span key={i}>{highlightText(c)}</span> : c)) : highlightText(children)}
+        </h1>
+      ),
+      h2: ({ children }) => (
+        <h2 className="text-xl font-bold text-[#3D4852] mt-5 mb-2 tracking-tight">
+          {Array.isArray(children) ? children.map((c, i) => (typeof c === 'string' ? <span key={i}>{highlightText(c)}</span> : c)) : highlightText(children)}
+        </h2>
+      ),
+      h3: ({ children }) => (
+        <h3 className="text-lg font-bold text-[#3D4852] mt-4 mb-2">
+          {Array.isArray(children) ? children.map((c, i) => (typeof c === 'string' ? <span key={i}>{highlightText(c)}</span> : c)) : highlightText(children)}
+        </h3>
+      )
+    };
+  }, [searchQuery]);
+
   const renderedMarkdown = useMemo(() => (
-    <ReactMarkdown remarkPlugins={[remarkGfm]} components={mdComponents}>
+    <ReactMarkdown remarkPlugins={[remarkGfm]} components={highlightedComponents}>
       {document.content}
     </ReactMarkdown>
-  ), [document.content]);
+  ), [document.content, highlightedComponents]);
 
   const renderButtons = () => {
     if (!isEditing) return (
@@ -90,11 +148,38 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   return (
     <div className="liquid-glass-strong no-hover rounded-3xl flex flex-col h-full min-h-[450px] lg:min-h-0 overflow-hidden ring-1 ring-white/[0.15] shadow-2xl relative" style={{ willChange: 'transform' }}>
       <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-white/[0.02] blur-3xl pointer-events-none" />
-      <div className="flex items-center justify-between px-6 py-4">
-        <div>
-          <p className="text-lg font-medium text-white">{DOC_LABELS[document.docType]}</p>
-          {saveError && <p className="text-xs text-white/50 mt-2">{saveError}</p>}
+      <div className="flex flex-wrap items-center justify-between px-6 py-4 gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <div>
+            <p className="text-lg font-medium text-white">{DOC_LABELS[document.docType]}</p>
+            {saveError && <p className="text-xs text-white/50 mt-2">{saveError}</p>}
+          </div>
+
+          {!isEditing && (
+            <div className="relative flex items-center">
+              <Search className="w-3.5 h-3.5 text-white/40 absolute left-3 pointer-events-none" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Filter document..."
+                className="liquid-glass text-xs text-white placeholder:text-white/40 pl-8 pr-7 py-1.5 rounded-full outline-none border border-white/10 focus:border-[#38B2AC] w-36 sm:w-48 transition-all"
+              />
+              {searchQuery ? (
+                <button onClick={() => setSearchQuery('')} className="absolute right-2 text-white/40 hover:text-white cursor-pointer border-none bg-transparent">
+                  <X className="w-3 h-3" />
+                </button>
+              ) : null}
+            </div>
+          )}
+
+          {searchQuery.trim() ? (
+            <span className="text-[10px] liquid-glass text-[#38B2AC] px-2.5 py-0.5 rounded-full font-mono font-semibold">
+              {matchCount} {matchCount === 1 ? 'match' : 'matches'}
+            </span>
+          ) : null}
         </div>
+
         <div className="flex gap-2 items-center">
           {document.docType === 'skills' ? (
             <button onClick={handleCopy} className="liquid-glass-strong rounded-full px-4 py-2 text-xs text-blue-400 flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer shadow-lg shadow-blue-500/10" aria-label="Copy all commands">

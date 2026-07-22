@@ -1,10 +1,10 @@
 import React from "react";
-import { Shield, Sparkles, Layers } from "lucide-react";
+import { Shield, Palette, Layers } from "lucide-react";
 
 export const CorporateTrustFeatures = () => {
   const cards = [
     { icon: Shield, title: "Colored Soft Shadows", desc: "Blue and purple tinted shadows (0 4px 20px rgba(79,70,229,0.1)) replacing flat monochrome grays." },
-    { icon: Sparkles, title: "Purposeful Gradients", desc: "Indigo-to-violet gradient signature utilized for key interactive triggers and headlines." },
+    { icon: Palette, title: "Purposeful Gradients", desc: "Indigo-to-violet gradient signature utilized for key interactive triggers and headlines." },
     { icon: Layers, title: "Elevated Card Dynamics", desc: "White surface cards lifting smoothly on hover with enhanced elevation shadows." }
   ];
 

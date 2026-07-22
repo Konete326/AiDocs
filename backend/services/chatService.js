@@ -281,6 +281,18 @@ ${docsContext.slice(0, 10000)}`;
           rawReply += `\n\n**Skill Added:** Enabling skill **"${foundSkill.name}"** for your project!`;
         }
       }
+    } else if (lastUserMsgLower.includes('remove skill') || lastUserMsgLower.includes('delete skill') || (lastUserMsgLower.includes('remove ') && lastUserMsgLower.includes('skill'))) {
+      const foundSkill = allSkills.find(s => lastUserMsgLower.includes(s.id.toLowerCase()) || lastUserMsgLower.includes(s.name.toLowerCase()));
+      if (foundSkill) {
+        if (!project.customSkills) project.customSkills = [];
+        if (!project.disabledSkills) project.disabledSkills = [];
+        project.customSkills = project.customSkills.filter(id => id !== foundSkill.id);
+        if (!project.disabledSkills.includes(foundSkill.id)) {
+          project.disabledSkills.push(foundSkill.id);
+        }
+        await project.save();
+        rawReply += `\n\n**Skill Removed:** Successfully removed **"${foundSkill.name}"** from your project!`;
+      }
     }
   }
 
@@ -303,19 +315,6 @@ ${docsContext.slice(0, 10000)}`;
 
       rawReply = rawReply.replace(/\[DESIGN_SYSTEM_ACTION:[a-zA-Z0-9_-]+\]/g, '').trim();
       rawReply += `\n\n**Design System Applied:** Switched theme to **${targetPreset.name}** and saved the design system document to your project!`;
-    }
-  } else if (lastUserMsgLower.includes('remove skill') || lastUserMsgLower.includes('delete skill') || (lastUserMsgLower.includes('remove ') && lastUserMsgLower.includes('skill'))) {
-      const foundSkill = allSkills.find(s => lastUserMsgLower.includes(s.id.toLowerCase()) || lastUserMsgLower.includes(s.name.toLowerCase()));
-      if (foundSkill) {
-        if (!project.customSkills) project.customSkills = [];
-        if (!project.disabledSkills) project.disabledSkills = [];
-        project.customSkills = project.customSkills.filter(id => id !== foundSkill.id);
-        if (!project.disabledSkills.includes(foundSkill.id)) {
-          project.disabledSkills.push(foundSkill.id);
-        }
-        await project.save();
-        rawReply += `\n\n**Skill Removed:** Successfully removed **"${foundSkill.name}"** from your project!`;
-      }
     }
   }
 

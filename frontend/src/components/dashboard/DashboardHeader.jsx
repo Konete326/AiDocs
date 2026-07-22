@@ -1,4 +1,4 @@
-import { Sparkles } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import UserAvatar from '../common/UserAvatar';
 import { useAuth } from '../../context/AuthContext';
@@ -29,7 +29,7 @@ export default function DashboardHeader({ projectCount }) {
         onClick={handleNewProject}
         className="liquid-glass-strong rounded-full px-6 py-3 flex items-center gap-2 hover:scale-105 transition-transform cursor-pointer"
       >
-        <Sparkles className="w-4 h-4 text-white" />
+        <Plus className="w-4 h-4 text-white" />
         <span className="text-sm text-white font-medium">New Project</span>
       </button>
     </div>

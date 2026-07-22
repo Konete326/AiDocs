@@ -17,8 +17,8 @@ export const LuxuryHero = () => {
             High-fashion editorial aesthetic combining Warm Alabaster canvas, Playfair Display serif typography, and subtle metallic gold accents.
           </p>
           <div className="flex flex-wrap gap-5">
-            <button className="relative group overflow-hidden px-9 py-4 bg-[#1A1A1A] text-white text-xs uppercase tracking-[0.2em] font-medium shadow-[0_4px_16px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.25)] transition-all duration-500">
-              <span className="relative z-10 flex items-center space-x-3">
+            <button className="relative group overflow-hidden px-9 py-4 bg-[#1A1A1A] text-white text-xs uppercase tracking-[0.2em] font-medium shadow-[0_4px_16px_rgba(0,0,0,0.15)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.25)] transition-all duration-500 cursor-pointer">
+              <span className="relative z-10 flex items-center space-x-3 text-white group-hover:text-[#1A1A1A] transition-colors duration-300">
                 <span>View Collection</span>
                 <ArrowRight size={16} />
               </span>

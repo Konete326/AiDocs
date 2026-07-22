@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sparkles, ChevronDown } from "lucide-react";
+import { Layers, ChevronDown } from "lucide-react";
 
 export const ClaymorphismComponentsShowcase = () => {
   const [accordionOpen, setAccordionOpen] = useState(false);
@@ -15,7 +15,7 @@ export const ClaymorphismComponentsShowcase = () => {
     <div id="showcase" className="relative bg-[#F4F1FA] border-b border-[#332F3A]/10 py-16 px-6 font-['Nunito',sans-serif] text-[#332F3A] space-y-12">
       {toastMessage && (
         <div className="absolute top-4 right-4 z-50 bg-white text-[#7C3AED] border border-white px-6 py-4 rounded-full font-black text-xs uppercase flex items-center space-x-3 shadow-[12px_12px_24px_rgba(160,150,180,0.3)]">
-          <Sparkles size={20} />
+          <Layers size={20} />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -61,7 +61,7 @@ export const ClaymorphismComponentsShowcase = () => {
         <div className="absolute inset-0 z-50 bg-[#332F3A]/40 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white p-8 rounded-[40px] max-w-md w-full font-['Nunito'] space-y-6 shadow-[24px_24px_48px_rgba(160,150,180,0.35),-16px_-16px_32px_rgba(255,255,255,1)]">
             <div className="flex items-center space-x-3 text-[#7C3AED]">
-              <Sparkles size={28} />
+              <Layers size={28} />
               <h4 className="text-2xl font-black text-[#332F3A]">DIGITAL CLAY DIALOG</h4>
             </div>
             <p className="font-['DM_Sans'] text-xs font-medium text-[#635F69] leading-relaxed">Custom Claymorphism dialog framed with 40px super-rounded corners and multi-layer volumetric shadows.</p>

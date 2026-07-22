@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Zap, Sparkles } from "lucide-react";
+import { ChevronDown, Zap } from "lucide-react";
 
 export const MaximalismComponentsShowcase = () => {
   const [accordionOpen, setAccordionOpen] = useState(false);
@@ -12,7 +12,7 @@ export const MaximalismComponentsShowcase = () => {
   };
 
   return (
-    <div id="showcase" className="relative bg-[#0D0D1A] border-b-4 border-[#FF3AF2] py-16 px-6 font-['Outfit',sans-serif] text-white space-y-12">
+    <div id="showcase" className="relative bg-[#0D0D1A] border-b-8 border-[#00F5D4] py-16 px-6 font-['Outfit',sans-serif] text-white space-y-12">
       {toastMessage && (
         <div className="absolute top-4 right-4 z-50 bg-[#FF3AF2] text-[#0D0D1A] border-4 border-[#FFE600] px-6 py-4 rounded-full font-black text-xs uppercase shadow-[6px_6px_0_#00F5D4] flex items-center space-x-3">
           <Zap size={20} />
@@ -61,7 +61,7 @@ export const MaximalismComponentsShowcase = () => {
         <div className="absolute inset-0 z-50 bg-[#0D0D1A]/90 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#2D1B4E] border-4 border-[#FFE600] p-8 rounded-3xl max-w-md w-full font-['Outfit'] space-y-6 shadow-[12px_12px_0_#FF3AF2,24px_24px_0_#00F5D4] rotate-1">
             <div className="flex items-center space-x-3 text-[#FF3AF2]">
-              <Sparkles size={28} />
+              <Zap size={28} />
               <h4 className="text-2xl font-black uppercase text-white [text-shadow:2px_2px_0_#7B2FFF]">HYPERPOP DIALOG</h4>
             </div>
             <p className="font-['DM_Sans'] text-xs font-bold text-white/80 leading-relaxed">Maximalism popup dialog framed by clashing 4px borders, double hard offset shadows, and energetic Y2K vibes.</p>

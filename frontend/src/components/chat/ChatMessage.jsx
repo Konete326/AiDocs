@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { Copy, Check, Download, FileSpreadsheet, FileText, Archive, Loader2, FileCode, Globe, ExternalLink, X, Smartphone, Tablet, Monitor, Sparkles } from 'lucide-react';
+import { Copy, Check, Download, FileSpreadsheet, FileText, Archive, Loader2, FileCode, Globe, ExternalLink, X, Smartphone, Tablet, Monitor, Volume2, VolumeX } from 'lucide-react';
 import { mdComponents } from '../project/markdownComponents';
 import { downloadZip, downloadDocAsWord, downloadDocAsExcel, downloadDocAsPdf, downloadDocAsMd } from '../../services/exportService';
 
@@ -15,6 +15,22 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
   const [activeArtifact, setActiveArtifact] = useState(null);
   const [isIframeLoading, setIsIframeLoading] = useState(true);
   const [viewportMode, setViewportMode] = useState('desktop');
+  const [isPlayingVoice, setIsPlayingVoice] = useState(false);
+
+  const handleSpeakVoice = () => {
+    if (isPlayingVoice) {
+      window.speechSynthesis.cancel();
+      setIsPlayingVoice(false);
+      return;
+    }
+    if (!cleanedContent) return;
+    const cleanText = cleanedContent.replace(/\[.*?\]/g, '').replace(/[#*`_]/g, '').trim();
+    const utterance = new SpeechSynthesisUtterance(cleanText);
+    utterance.onend = () => setIsPlayingVoice(false);
+    utterance.onerror = () => setIsPlayingVoice(false);
+    setIsPlayingVoice(true);
+    window.speechSynthesis.speak(utterance);
+  };
 
   const downloadMatch = message.content ? message.content.match(/\[DOWNLOAD_ACTION:([a-zA-Z]+):([a-zA-Z]+)\]/) : null;
   const initialFormat = downloadMatch ? downloadMatch[1].toLowerCase() : null;
@@ -161,7 +177,7 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
               <div className="flex items-center gap-2 truncate pr-2 max-w-[200px] sm:max-w-xs">
                 {activeArtifact ? (
                   <>
-                    <Sparkles className="w-4 h-4 text-[#6C63FF] flex-shrink-0" />
+                    <Layout className="w-4 h-4 text-[#38B2AC] flex-shrink-0" />
                     <span className="text-xs font-semibold text-slate-900 truncate">Interactive Web Artifact</span>
                   </>
                 ) : (
@@ -267,14 +283,26 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
             <>
               <div className="flex items-center justify-between gap-4 pb-1.5 mb-1.5 border-b border-white/5">
                 <span className="text-[9.5px] text-white/40 font-medium uppercase tracking-wider">AI Co-founder</span>
-                <button
-                  onClick={handleCopy}
-                  className="liquid-glass rounded-full px-2 py-0.5 text-[9.5px] text-white/50 hover:text-white flex items-center gap-1 transition-all cursor-pointer border border-white/5"
-                  title="Copy AI response"
-                  aria-label="Copy AI response"
-                >
-                  {copied ? <><Check className="w-3 h-3 text-emerald-400" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
-                </button>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    onClick={handleSpeakVoice}
+                    className={`liquid-glass rounded-full px-2 py-0.5 text-[9.5px] flex items-center gap-1 transition-all cursor-pointer border border-white/5 ${
+                      isPlayingVoice ? 'text-[#38B2AC] border-[#38B2AC]/40 bg-[#38B2AC]/10' : 'text-white/50 hover:text-white'
+                    }`}
+                    title={isPlayingVoice ? 'Stop voice playback' : 'Listen to AI voice'}
+                  >
+                    {isPlayingVoice ? <VolumeX className="w-3 h-3 text-[#38B2AC] animate-pulse" /> : <Volume2 className="w-3 h-3" />}
+                    <span>{isPlayingVoice ? 'Speaking...' : 'Listen'}</span>
+                  </button>
+                  <button
+                    onClick={handleCopy}
+                    className="liquid-glass rounded-full px-2 py-0.5 text-[9.5px] text-white/50 hover:text-white flex items-center gap-1 transition-all cursor-pointer border border-white/5"
+                    title="Copy AI response"
+                    aria-label="Copy AI response"
+                  >
+                    {copied ? <><Check className="w-3 h-3 text-emerald-400" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
+                  </button>
+                </div>
               </div>
               <div className="text-xs sm:text-sm text-white/80 leading-relaxed font-sans prose-invert">
                 <ReactMarkdown components={mdComponents}>{cleanedContent}</ReactMarkdown>
@@ -287,7 +315,7 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
                     className="bg-[#6C63FF] hover:bg-[#5b52e5] text-white rounded-2xl px-3 py-2 text-[11px] font-semibold flex items-center justify-between border-none w-full transition-all hover:scale-[1.01] cursor-pointer shadow-md"
                   >
                     <div className="flex items-center gap-2 truncate">
-                      <Sparkles className="w-3.5 h-3.5 text-white flex-shrink-0" />
+                      <Globe className="w-3.5 h-3.5 text-white flex-shrink-0" />
                       <span className="truncate">Preview Interactive Web Artifact (Live UI)</span>
                     </div>
                     <ExternalLink className="w-3 h-3 text-white/80 flex-shrink-0" />

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sparkles, Scroll } from "lucide-react";
+import { BookOpen, Scroll } from "lucide-react";
 
 export const AcademiaComponentsShowcase = () => {
   const [accordionOpen, setAccordionOpen] = useState(false);
@@ -15,7 +15,7 @@ export const AcademiaComponentsShowcase = () => {
     <div id="showcase" className="relative bg-[#1C1714] border-b border-[#4A3F35] py-16 px-6 font-['Cormorant_Garamond',serif] text-[#E8DFD4] space-y-12">
       {toastMessage && (
         <div className="absolute top-4 right-4 z-50 bg-[#251E19] text-[#C9A962] border border-[#C9A962] px-6 py-4 font-['Cinzel'] text-xs uppercase tracking-[0.2em] shadow-xl flex items-center space-x-3">
-          <Scroll size={18} />
+          <BookOpen size={18} />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -61,7 +61,7 @@ export const AcademiaComponentsShowcase = () => {
         <div className="absolute inset-0 z-50 bg-[#1C1714]/85 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#251E19] border-2 border-[#C9A962] p-8 max-w-md w-full font-['Cormorant_Garamond'] space-y-6 rounded-[4px] shadow-2xl">
             <div className="flex items-center space-x-3 text-[#C9A962]">
-              <Sparkles size={24} />
+              <BookOpen size={24} />
               <h4 className="font-['Cinzel'] text-2xl text-[#E8DFD4]">PROCLAMATION</h4>
             </div>
             <p className="font-['Crimson_Pro'] text-sm text-[#9C8B7A] leading-relaxed">Formal proclamation modal framed by wood grain borders and polished brass highlights.</p>

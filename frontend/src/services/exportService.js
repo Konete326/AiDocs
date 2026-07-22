@@ -12,8 +12,15 @@ export async function downloadZip(projectId, projectTitle) {
 
 export async function downloadDocAsPdf(projectId, docType) {
   const response = await api.get(`/projects/${projectId}/export/${docType}/pdf`, { responseType: 'blob' });
-  const url = URL.createObjectURL(new Blob([response.data], { type: 'text/html' }));
-  window.open(url, '_blank');
+  const blob = new Blob([response.data], { type: 'application/pdf' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${docType}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
 }
 
 export async function downloadDocAsWord(projectId, docType) {

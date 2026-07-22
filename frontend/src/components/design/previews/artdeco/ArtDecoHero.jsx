@@ -1,14 +1,14 @@
 import React from "react";
-import { Sparkles } from "lucide-react";
+import { Crown } from "lucide-react";
 
 export const ArtDecoHero = () => {
   return (
     <section className="bg-[#0A0A0A] border-b-2 border-[#D4AF37]/30 py-24 md:py-32 font-['Marcellus'] text-[#F2F0E4] relative overflow-hidden">
       <div className="max-w-6xl mx-auto px-6 text-center">
         <div className="inline-flex items-center space-x-3 border-b border-[#D4AF37] pb-2 mb-8">
-          <Sparkles size={14} className="text-[#D4AF37]" />
+          <Crown size={14} className="text-[#D4AF37]" />
           <span className="font-['Josefin_Sans'] text-xs uppercase tracking-[0.3em] text-[#D4AF37]">MCMXXV // GRAND OPULENCE</span>
-          <Sparkles size={14} className="text-[#D4AF37]" />
+          <Crown size={14} className="text-[#D4AF37]" />
         </div>
         <h1 className="text-5xl md:text-7xl lg:text-8xl uppercase tracking-[0.2em] text-[#F2F0E4] leading-tight mb-8">
           ARCHITECTURAL <span className="text-[#D4AF37] italic">GRANDEUR</span>

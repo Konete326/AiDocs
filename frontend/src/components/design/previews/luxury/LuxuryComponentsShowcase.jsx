@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown, Sparkles } from "lucide-react";
+import { ChevronDown, Crown } from "lucide-react";
 
 export const LuxuryComponentsShowcase = () => {
   const [accordionOpen, setAccordionOpen] = useState(false);
@@ -8,14 +8,22 @@ export const LuxuryComponentsShowcase = () => {
 
   const triggerToast = (msg) => {
     setToastMessage(msg);
+    const el = document.getElementById("showcase");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     setTimeout(() => setToastMessage(""), 3000);
+  };
+
+  const handleOpenModal = () => {
+    setModalOpen(true);
+    const el = document.getElementById("showcase");
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   return (
     <div id="showcase" className="relative bg-[#F9F8F6] border-b border-[#1A1A1A]/20 py-20 px-8 font-['Inter'] space-y-12">
       {toastMessage && (
         <div className="absolute top-4 right-4 z-50 bg-[#1A1A1A] text-[#F9F8F6] border-l-4 border-[#D4AF37] px-6 py-4 text-xs uppercase tracking-[0.2em] shadow-xl flex items-center space-x-3">
-          <Sparkles size={16} className="text-[#D4AF37]" />
+          <Crown size={16} className="text-[#D4AF37]" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -29,11 +37,11 @@ export const LuxuryComponentsShowcase = () => {
         <h3 className="text-xs uppercase tracking-[0.2em] text-[#6C6863]">1. Gold Overlay & Outline Buttons</h3>
         <div className="flex flex-wrap gap-4 text-xs uppercase tracking-[0.2em]">
           <button onClick={() => triggerToast("Gold Overlay Button Clicked!")} className="relative group overflow-hidden px-8 py-3.5 bg-[#1A1A1A] text-white font-medium cursor-pointer">
-            <span className="relative z-10">PRIMARY GOLD SLIDE</span>
+            <span className="relative z-10 text-white group-hover:text-[#1A1A1A] transition-colors duration-300">PRIMARY GOLD SLIDE</span>
             <span className="absolute inset-0 bg-[#D4AF37] -translate-x-full group-hover:translate-x-0 transition-transform duration-500"></span>
           </button>
           <button onClick={() => triggerToast("Secondary Outline Clicked!")} className="px-8 py-3.5 bg-transparent border border-[#1A1A1A] text-[#1A1A1A] hover:bg-[#1A1A1A] hover:text-white transition-colors duration-500 font-medium cursor-pointer">SECONDARY OUTLINE</button>
-          <button onClick={() => setModalOpen(true)} className="px-8 py-3.5 text-[#1A1A1A] underline hover:text-[#D4AF37] transition-colors duration-500 font-medium cursor-pointer">TRIGGER EDITORIAL MODAL</button>
+          <button onClick={handleOpenModal} className="px-8 py-3.5 text-[#1A1A1A] underline hover:text-[#D4AF37] transition-colors duration-500 font-medium cursor-pointer">TRIGGER EDITORIAL MODAL</button>
         </div>
       </div>
 
@@ -64,7 +72,7 @@ export const LuxuryComponentsShowcase = () => {
         <div className="absolute inset-0 z-50 bg-[#1A1A1A]/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#F9F8F6] border-t-4 border-[#D4AF37] p-10 max-w-md w-full font-['Inter'] space-y-6 shadow-2xl">
             <div className="flex items-center space-x-3 text-[#D4AF37]">
-              <Sparkles size={24} />
+              <Crown size={24} />
               <h4 className="font-['Playfair_Display'] text-2xl text-[#1A1A1A]">Editorial Dialog</h4>
             </div>
             <p className="text-sm text-[#6C6863] leading-relaxed">This custom dialog presents luxury typography with warm alabaster backgrounds.</p>

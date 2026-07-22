@@ -4,7 +4,7 @@ import { useProjectPolling } from "../hooks/useProjectPolling";
 import { updateProject } from "../services/projectService";
 import { DesignSystemSelector } from "../components/design/DesignSystemSelector";
 import LoadingSpinner from "../components/common/LoadingSpinner";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { ArrowLeft, Palette } from "lucide-react";
 
 const ProjectDesignSystemPage = () => {
   const { id } = useParams();
@@ -49,7 +49,7 @@ const ProjectDesignSystemPage = () => {
             </div>
           </div>
           <div className="flex items-center space-x-1.5 text-xs text-[#38B2AC] liquid-glass px-3 py-1.5 rounded-xl font-mono font-semibold">
-            <Sparkles size={13} className="text-[#38B2AC]" />
+            <Palette size={13} className="text-[#38B2AC]" />
             <span>Active: {project.designSystem?.name || "Monochrome"}</span>
           </div>
         </div>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sparkles, Smile } from "lucide-react";
+import { Smile } from "lucide-react";
 
 export const PlayfulGeoComponentsShowcase = () => {
   const [accordionOpen, setAccordionOpen] = useState(false);
@@ -61,7 +61,7 @@ export const PlayfulGeoComponentsShowcase = () => {
         <div className="absolute inset-0 z-50 bg-[#1E293B]/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-[#FFFDF5] border-2 border-[#1E293B] p-8 rounded-3xl max-w-md w-full font-['Outfit'] space-y-6 shadow-[8px_8px_0px_0px_#1E293B]">
             <div className="flex items-center space-x-3 text-[#8B5CF6]">
-              <Sparkles size={28} />
+              <Smile size={28} />
               <h4 className="text-2xl font-extrabold uppercase text-[#1E293B]">POP STICKER DIALOG</h4>
             </div>
             <p className="font-['Plus_Jakarta_Sans'] text-xs font-medium text-[#64748B] leading-relaxed">Friendly geometric dialog framed by solid 2px borders and an 8px hard offset shadow.</p>

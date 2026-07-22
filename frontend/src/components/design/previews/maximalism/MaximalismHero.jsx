@@ -1,12 +1,12 @@
 import React from "react";
-import { Zap, Sparkles } from "lucide-react";
+import { Zap } from "lucide-react";
 
 export const MaximalismHero = () => {
   return (
     <section className="bg-[#0D0D1A] border-b-8 border-[#00F5D4] py-24 font-['Outfit',sans-serif] text-white relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6">
         <div className="inline-flex items-center space-x-2 bg-[#FF3AF2] text-[#0D0D1A] border-4 border-[#FFE600] px-4 py-2 rounded-full text-xs font-black uppercase tracking-widest shadow-[4px_4px_0px_#00F5D4] mb-8 rotate-1">
-          <Sparkles size={16} />
+          <Zap size={16} />
           <span>MORE IS MORE // SENSORY OVERLOAD // Y2K HYPERPOP</span>
         </div>
         <h1 className="text-6xl md:text-8xl font-black uppercase tracking-tighter leading-none mb-8 text-white [text-shadow:4px_4px_0_#7B2FFF,8px_8px_0_#FF3AF2,12px_12px_0_#00F5D4]">

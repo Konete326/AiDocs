@@ -1,4 +1,4 @@
-import { CheckCircle, Sparkles } from 'lucide-react';
+import { CheckCircle, Zap } from 'lucide-react';
 
 const ProCard = ({ subscription, isLoading, onCheckout }) => {
   const isCurrent = subscription?.plan === 'pro';
@@ -15,7 +15,7 @@ const ProCard = ({ subscription, isLoading, onCheckout }) => {
         <div className="flex items-center gap-2">
           <div className="liquid-glass rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[#6B7280]">Pro</div>
           <div className="liquid-glass rounded-full px-3 py-1 text-[10px] text-[#3D4852] flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-[#38B2AC]" /> Most Popular
+            <Zap className="w-3 h-3 text-[#38B2AC]" /> Most Popular
           </div>
         </div>
         {!isCurrent ? (

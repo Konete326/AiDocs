@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown, Sparkles, Bell } from "lucide-react";
+import { ChevronDown, Zap, Bell } from "lucide-react";
 
 export const MinimalistModernComponentsShowcase = () => {
   const [accordionOpen, setAccordionOpen] = useState(false);
@@ -61,7 +61,7 @@ export const MinimalistModernComponentsShowcase = () => {
         <div className="absolute inset-0 z-50 bg-[#0F172A]/70 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-white border border-slate-200 p-8 rounded-2xl max-w-md w-full font-['Inter'] space-y-6 shadow-2xl">
             <div className="flex items-center space-x-3 text-[#0052FF]">
-              <Sparkles size={24} />
+              <Zap size={24} />
               <h4 className="font-['Calistoga'] text-2xl text-[#0F172A]">Modern Alert</h4>
             </div>
             <p className="text-xs text-slate-600 leading-relaxed">Custom theme dialog featuring Electric Blue gradient accents and 16px rounded borders.</p>

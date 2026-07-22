@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sparkles, BookOpen } from "lucide-react";
+import { ChevronDown, BookOpen } from "lucide-react";
 
 export const SerifComponentsShowcase = () => {
   const [accordionOpen, setAccordionOpen] = useState(false);
@@ -61,7 +61,7 @@ export const SerifComponentsShowcase = () => {
         <div className="absolute inset-0 z-50 bg-[#1A1A1A]/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-[#FAFAF8] border border-[#E8E4DF] border-t-4 border-t-[#B8860B] p-8 rounded-lg max-w-md w-full font-['Playfair_Display'] space-y-6 shadow-xl">
             <div className="flex items-center space-x-3 text-[#B8860B]">
-              <Sparkles size={24} />
+              <BookOpen size={24} />
               <h4 className="text-2xl font-normal text-[#1A1A1A]">EDITORIAL DIALOG</h4>
             </div>
             <p className="font-['Source_Sans_3'] text-sm text-[#6B6B6B] leading-relaxed">Refined popup dialog framed by warm ivory, thin rule borders, and burnished gold accents.</p>

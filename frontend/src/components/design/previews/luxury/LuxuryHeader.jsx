@@ -13,8 +13,8 @@ export const LuxuryHeader = () => {
           <a href="#pricing" className="hover:text-[#D4AF37] transition-colors duration-500">Membership</a>
           <a href="#showcase" className="hover:text-[#D4AF37] transition-colors duration-500">Atelier</a>
         </nav>
-        <button className="relative group overflow-hidden px-7 py-3 bg-[#1A1A1A] text-white text-xs uppercase tracking-[0.2em] font-medium transition-all duration-500">
-          <span className="relative z-10">Request Access</span>
+        <button className="relative group overflow-hidden px-7 py-3 bg-[#1A1A1A] text-white text-xs uppercase tracking-[0.2em] font-medium transition-all duration-500 cursor-pointer">
+          <span className="relative z-10 text-white group-hover:text-[#1A1A1A] transition-colors duration-300">Request Access</span>
           <span className="absolute inset-0 bg-[#D4AF37] -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out"></span>
         </button>
       </div>

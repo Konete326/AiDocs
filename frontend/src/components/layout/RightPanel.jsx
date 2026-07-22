@@ -161,7 +161,7 @@ const FeatureCards = () => {
         onClick={() => navigate(isAuthenticated ? '/projects/new' : '/register')}
         className="rounded-3xl p-6 flex-1 flex flex-col items-center text-center transition-transform hover:scale-105 active:scale-95 cursor-pointer"
       >
-        <Wand2 className="w-8 h-8 text-white/60" />
+        <FileText className="w-8 h-8 text-white/60" />
         <p className="text-sm font-semibold text-white/90 mt-4">Generation</p>
       </GlassCard>
       <GlassCard 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown, Sparkles, CheckCircle } from "lucide-react";
+import { ChevronDown, Zap, CheckCircle } from "lucide-react";
 
 export const LinearComponentsShowcase = () => {
   const [accordionOpen, setAccordionOpen] = useState(false);
@@ -61,7 +61,7 @@ export const LinearComponentsShowcase = () => {
         <div className="absolute inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4">
           <div className="bg-[#0a0a0c] border border-white/10 p-8 rounded-2xl max-w-md w-full font-['Inter'] space-y-6 shadow-[0_0_50px_rgba(94,106,210,0.2)]">
             <div className="flex items-center space-x-3 text-[#5E6AD2]">
-              <Sparkles size={24} />
+              <Zap size={24} />
               <h4 className="text-xl font-semibold text-white tracking-tight">Linear Modern Dialog</h4>
             </div>
             <p className="text-xs text-[#8A8F98] leading-relaxed">This custom dialog demonstrates soft ambient lighting blurs and 1px hairline border highlights.</p>

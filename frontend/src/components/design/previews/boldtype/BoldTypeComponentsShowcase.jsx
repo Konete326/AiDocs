@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sparkles, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
 export const BoldTypeComponentsShowcase = () => {
   const [accordionOpen, setAccordionOpen] = useState(false);
@@ -15,7 +15,7 @@ export const BoldTypeComponentsShowcase = () => {
     <div id="showcase" className="relative bg-[#0A0A0A] border-b border-[#262626] py-16 px-6 font-['Inter_Tight',sans-serif] text-[#FAFAFA] space-y-12">
       {toastMessage && (
         <div className="absolute top-4 right-4 z-50 bg-[#FF3D00] text-[#0A0A0A] px-6 py-4 text-xs font-bold uppercase tracking-wider flex items-center space-x-3 shadow-2xl">
-          <Sparkles size={18} />
+          <AlertCircle size={18} />
           <span>{toastMessage}</span>
         </div>
       )}

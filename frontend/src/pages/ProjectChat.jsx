@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Sparkles, FileText, Layers, Lightbulb, Trash2, UploadCloud, AlertCircle, ExternalLink, RotateCcw } from 'lucide-react';
+import { ChevronLeft, Bot, FileText, Layers, Lightbulb, Trash2, UploadCloud, AlertCircle, ExternalLink, RotateCcw } from 'lucide-react';
 import { getProject } from '../services/projectService';
 import { getMySubscription } from '../services/subscriptionService';
 import { sendChatMessage, getChatHistory, deleteChatHistory } from '../services/chatService';
@@ -214,7 +214,7 @@ export default function ProjectChat() {
             </button>
 
             <div className="liquid-glass rounded-full px-3 py-1 flex items-center gap-1.5 text-[9px] text-white/60 uppercase tracking-widest border border-white/5">
-              <Sparkles className="w-3 h-3 text-[#6C63FF]" /> AI Co-founder Active
+              <Bot className="w-3 h-3 text-[#38B2AC]" /> Co-founder Active
             </div>
           </div>
         </header>
@@ -280,7 +280,7 @@ export default function ProjectChat() {
               <div className="space-y-1.5 p-0.5 overflow-y-auto hover-scrollbar custom-scrollbar flex-1 min-h-0">
                 {[
                   { label: "Analyze website URL (e.g. https://stripe.com)", icon: ExternalLink },
-                  { label: "Add Stripe Integration skill to project", icon: Sparkles },
+                  { label: "Add Stripe Integration skill to project", icon: Bot },
                   { label: "Download PRD in PDF format", icon: FileText },
                   { label: "Download all project files (.zip)", icon: FileText },
                   { label: "Download DB Schema as Excel (.csv)", icon: Layers }
@@ -314,8 +314,8 @@ export default function ProjectChat() {
 
               {messages.length === 0 && (
                 <div className="h-full flex flex-col items-center justify-center text-center p-4 space-y-2.5">
-                  <div className="w-9 h-9 rounded-full liquid-glass flex items-center justify-center mx-auto text-[#6C63FF]">
-                    <Sparkles className="w-4 h-4 animate-pulse" />
+                  <div className="w-9 h-9 rounded-full liquid-glass flex items-center justify-center mx-auto text-[#38B2AC]">
+                    <Bot className="w-4 h-4 animate-pulse" />
                   </div>
                   <div className="space-y-1 max-w-xs">
                     <h3 className="text-xs sm:text-sm font-semibold text-white tracking-tight">Welcome! I'm your AI Co-founder</h3>

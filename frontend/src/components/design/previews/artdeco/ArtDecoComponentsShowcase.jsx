@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Sparkles, Crown } from "lucide-react";
+import { ChevronDown, Crown } from "lucide-react";
 
 export const ArtDecoComponentsShowcase = () => {
   const [accordionOpen, setAccordionOpen] = useState(false);
@@ -14,7 +14,7 @@ export const ArtDecoComponentsShowcase = () => {
   return (
     <div id="showcase" className="relative bg-[#0A0A0A] border-b-2 border-[#D4AF37]/30 py-16 px-6 font-['Marcellus'] text-[#F2F0E4] space-y-12">
       {toastMessage && (
-        <div className="absolute top-4 right-4 z-50 bg-[#141414] text-[#D4AF37] border-2 border-[#D4AF37] px-6 py-4 font-['Josefin_Sans'] text-xs uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(212,175,55,0.3)] flex items-center space-x-3">
+        <div className="absolute top-4 right-4 z-50 bg-[#141414] text-[#D4AF37] border-2 border-[#D4AF37] px-6 py-4 text-xs font-['Josefin_Sans'] font-bold uppercase tracking-[0.2em] shadow-[0_0_20px_rgba(212,175,55,0.3)] flex items-center space-x-3">
           <Crown size={18} />
           <span>{toastMessage}</span>
         </div>
@@ -61,7 +61,7 @@ export const ArtDecoComponentsShowcase = () => {
         <div className="absolute inset-0 z-50 bg-[#0A0A0A]/90 backdrop-blur-sm flex items-center justify-center p-4">
           <div className="bg-[#141414] border-2 border-[#D4AF37] p-8 max-w-md w-full font-['Marcellus'] space-y-6 shadow-[0_0_30px_rgba(212,175,55,0.3)]">
             <div className="flex items-center space-x-3 text-[#D4AF37]">
-              <Sparkles size={24} />
+              <Crown size={24} />
               <h4 className="text-2xl uppercase tracking-wider text-[#F2F0E4]">GATSBY DIALOG</h4>
             </div>
             <p className="font-['Josefin_Sans'] text-xs text-[#888888] leading-relaxed">Opulent custom modal dialog surrounded by a 30px metallic gold glow frame.</p>

@@ -1,4 +1,4 @@
-import { Sparkles, Loader2 } from 'lucide-react';
+import { Zap, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function SuggestionPills({ suggestions, isLoading, onSelect, fieldName }) {
@@ -8,7 +8,7 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
         <div className="flex items-center justify-between text-[10px] uppercase tracking-widest px-1">
           <div className="flex items-center gap-1.5 text-[#38B2AC] font-semibold">
             <Loader2 className="w-3 h-3 animate-spin" />
-            <span>AI generating smart suggestions...</span>
+            <span>Generating smart suggestions...</span>
           </div>
           <span className="text-white/30 font-semibold">Loading</span>
         </div>
@@ -30,8 +30,8 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
   return (
     <div className="mt-2 space-y-1">
       <div className="text-[10px] uppercase tracking-[0.2em] text-[#38B2AC] mb-1 flex items-center gap-1.5 font-semibold">
-        <Sparkles className="w-3 h-3 text-[#38B2AC]" />
-        <span>AI Suggestions</span>
+        <Zap className="w-3 h-3 text-[#38B2AC]" />
+        <span>Smart Suggestions</span>
       </div>
       <div className="flex gap-2 overflow-x-auto whitespace-nowrap custom-scrollbar pb-1 w-full flex-row">
         {suggestions.map((s, i) => (

@@ -1,4 +1,4 @@
-import { Twitter, Linkedin, Instagram, ArrowRight, Sparkles, Wand2, BookOpen, Plus } from 'lucide-react';
+import { Twitter, Linkedin, Instagram, ArrowRight, Zap, Cpu, BookOpen, Plus } from 'lucide-react';
 
 export default function LandingRightPanel() {
   return (
@@ -16,7 +16,7 @@ export default function LandingRightPanel() {
           </button>
         </div>
         <button className="liquid-glass rounded-full flex items-center gap-2 px-4 py-2 hover:scale-105 transition-transform">
-          <Sparkles className="w-4 h-4 text-white/70" />
+          <Zap className="w-4 h-4 text-white/70" />
           <span className="text-xs text-white/70 font-light">Account</span>
         </button>
       </div>
@@ -34,7 +34,7 @@ export default function LandingRightPanel() {
         <div className="liquid-glass rounded-[2.5rem] p-4 flex flex-col gap-3">
           <div className="flex gap-3">
             {[
-              { Icon: Wand2, title: 'AI Processing', desc: '4-level fallback cascade' },
+              { Icon: Cpu, title: 'Architecture Engine', desc: '4-level fallback cascade' },
               { Icon: BookOpen, title: 'Doc Archive', desc: '9-document tech suite' },
             ].map(({ Icon, title, desc }) => (
               <div key={title} className="liquid-glass rounded-3xl flex-1 p-5 flex flex-col gap-3 hover:scale-105 transition-transform cursor-default">

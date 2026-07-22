@@ -1,9 +1,9 @@
 import React from "react";
-import { Sparkles, Layers, Heart } from "lucide-react";
+import { Palette, Layers, Heart } from "lucide-react";
 
 export const MaterialFeatures = () => {
   const cards = [
-    { icon: Sparkles, title: "Tonal Surface System", desc: "Background tones (#F3EDF7, #E8DEF8) create depth and hierarchy without stark white contrast.", bg: "bg-[#F3EDF7]" },
+    { icon: Palette, title: "Tonal Surface System", desc: "Background tones (#F3EDF7, #E8DEF8) create depth and hierarchy without stark white contrast.", bg: "bg-[#F3EDF7]" },
     { icon: Layers, title: "Pill-Shaped Action Buttons", desc: "Fully rounded pill buttons (rounded-full) provide approachable, friendly touch targets.", bg: "bg-[#E8DEF8]" },
     { icon: Heart, title: "Organic Container Curves", desc: "Generous 24px, 32px, and 48px rounded corners bring warmth and personality to cards.", bg: "bg-[#F3EDF7]" }
   ];

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ChevronDown, AlertCircle, Sparkles } from "lucide-react";
+import { ChevronDown, AlertCircle } from "lucide-react";
 
 export const SwissComponentsShowcase = () => {
   const [accordionOpen, setAccordionOpen] = useState(false);
@@ -15,7 +15,7 @@ export const SwissComponentsShowcase = () => {
     <div id="showcase" className="relative bg-white border-b-4 border-black py-16 px-6 font-['Inter'] text-black space-y-12">
       {toastMessage && (
         <div className="absolute top-4 right-4 z-50 bg-[#FF3000] text-white border-4 border-black px-6 py-4 text-xs font-black uppercase tracking-widest flex items-center space-x-3 shadow-2xl">
-          <Sparkles size={18} />
+          <AlertCircle size={18} />
           <span>{toastMessage}</span>
         </div>
       )}

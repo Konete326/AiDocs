@@ -1,5 +1,5 @@
 import React from "react";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Layers } from "lucide-react";
 
 export const NeumorphismHero = () => {
   return (
@@ -7,7 +7,7 @@ export const NeumorphismHero = () => {
       <div className="max-w-7xl mx-auto px-6 grid md:grid-cols-12 gap-12 items-center">
         <div className="md:col-span-7">
           <div className="inline-flex items-center space-x-2 bg-[#E0E5EC] px-4 py-2 rounded-full text-xs font-['DM_Sans'] font-bold text-[#6C63FF] shadow-[inset_4px_4px_8px_rgb(163,177,198,0.6),inset_-4px_-4px_8px_rgba(255,255,255,0.5)] mb-8">
-            <Sparkles size={16} />
+            <Layers size={16} />
             <span>MOLDED FROM THE SAME MATERIAL // NO BORDERS</span>
           </div>
           <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-[1.1] text-[#3D4852] mb-8">

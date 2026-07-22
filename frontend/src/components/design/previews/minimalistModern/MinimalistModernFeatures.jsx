@@ -1,9 +1,9 @@
 import React from "react";
-import { Sparkles, Layers, Zap } from "lucide-react";
+import { Palette, Layers, Zap } from "lucide-react";
 
 export const MinimalistModernFeatures = () => {
   const cards = [
-    { icon: Sparkles, title: "Electric Gradient Signature", desc: "Concentrated blue gradient (#0052FF → #4D7CFF) used for maximum interactive impact." },
+    { icon: Palette, title: "Electric Gradient Signature", desc: "Concentrated blue gradient (#0052FF → #4D7CFF) used for maximum interactive impact." },
     { icon: Layers, title: "Dual-Font Typography System", desc: "Calistoga display serif paired with Inter body text and JetBrains Mono badges." },
     { icon: Zap, title: "Asymmetric Visual Tension", desc: "Intentional grid offsets and layered textures bringing rhythm to scrolling." }
   ];

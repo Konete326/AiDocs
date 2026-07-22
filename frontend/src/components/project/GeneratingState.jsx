@@ -1,4 +1,4 @@
-import { Sparkles, ChevronLeft, CheckCircle, Loader, MessageCircle, Lock, X, RefreshCw } from 'lucide-react';
+import { Zap, ChevronLeft, CheckCircle, Loader, MessageCircle, Lock, X, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
@@ -118,7 +118,7 @@ const GeneratingState = ({ project, onViewReady }) => {
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-blue-500/10 rounded-full blur-[100px] animate-pulse" />
         
         <div className="absolute top-4 right-4 w-12 h-12 rounded-full liquid-glass flex items-center justify-center z-10">
-          <Sparkles className="w-5 h-5 text-white animate-pulse" />
+          <Zap className="w-5 h-5 text-white animate-pulse" />
           <div className="absolute inset-0 rounded-full border border-white/20 animate-ping opacity-20" />
         </div>
         

@@ -29,7 +29,7 @@ import { NeumorphismPreview } from "./previews/neumorphism/NeumorphismPreview";
 import { OrganicNaturalPreview } from "./previews/organicnatural/OrganicNaturalPreview";
 import { MaximalismPreview } from "./previews/maximalism/MaximalismPreview";
 import { DesignPromptModal } from "./DesignPromptModal";
-import { FileText, Check, Sparkles, Layout, Layers, Copy } from "lucide-react";
+import { FileText, Check, Palette, Layout, Layers, Copy } from "lucide-react";
 
 export const DesignSystemSelector = ({ selectedPresetId, onSelectPreset }) => {
   const [activePresetId, setActivePresetId] = useState(selectedPresetId || "monochrome");
@@ -103,7 +103,7 @@ export const DesignSystemSelector = ({ selectedPresetId, onSelectPreset }) => {
       <div className="lg:col-span-9 flex flex-col overflow-hidden">
         <div className="p-2.5 flex flex-wrap items-center justify-between gap-2 shadow-[0_2px_6px_rgba(163,177,198,0.3)]">
           <div className="flex items-center space-x-2">
-            <Sparkles size={13} className="text-[#38B2AC]" />
+            <Palette size={13} className="text-[#38B2AC]" />
             <span className="text-xs font-bold text-[#3D4852] tracking-wide">{activePreset.name} Studio Preview</span>
           </div>
 

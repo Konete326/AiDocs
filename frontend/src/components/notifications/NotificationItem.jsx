@@ -1,9 +1,9 @@
-import { CheckCircle, AlertCircle, Sparkles, Clock, Bell, Shield, Trash2 } from 'lucide-react';
+import { CheckCircle, AlertCircle, Zap, Clock, Bell, Shield, Trash2 } from 'lucide-react';
 
 const icons = {
   doc_ready: CheckCircle,
   generation_failed: AlertCircle,
-  plan_upgraded: Sparkles,
+  plan_upgraded: Zap,
   milestone_due: Clock,
   system: Bell,
   security: Shield
