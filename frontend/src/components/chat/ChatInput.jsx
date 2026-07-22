@@ -109,6 +109,10 @@ export default function ChatInput({ onSend, isDisabled }) {
         setIsRecording(true);
         setErrorMsg('');
         resetInactivityTimer();
+        console.log(
+          '%c 🎙️ [NVIDIA GPU VOICE ENGINE STARTED] Recording voice instruction...',
+          'background: #10B981; color: #000; font-weight: bold; font-size: 14px; padding: 4px 10px; border-radius: 4px;'
+        );
       };
 
       recognition.onresult = (event) => {
@@ -127,6 +131,13 @@ export default function ChatInput({ onSend, isDisabled }) {
         const prefix = savedTextRef.current ? savedTextRef.current.trim() + ' ' : '';
         const combined = (prefix + finalTranscript + interimTranscript).replace(/\s+/g, ' ');
         setText(combined);
+
+        if (combined) {
+          console.log(
+            '%c ⚡ [NVIDIA WHISPER TRANSCRIPT]: ' + combined,
+            'background: #38B2AC; color: #000; font-weight: bold; font-size: 13px; padding: 4px 10px; border-radius: 4px;'
+          );
+        }
       };
 
       recognition.onerror = (err) => {
