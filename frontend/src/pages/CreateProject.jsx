@@ -52,7 +52,10 @@ const CreateProject = () => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
     try {
-      const featArr = formData.wizardAnswers.coreFeatures.split(',').map(f => f.trim()).filter(Boolean);
+      const rawFeat = formData.wizardAnswers?.coreFeatures;
+      const featArr = Array.isArray(rawFeat)
+        ? rawFeat
+        : (typeof rawFeat === 'string' ? rawFeat.split(',').map(f => f.trim()).filter(Boolean) : []);
       const proj = await createProject({ ...formData, wizardAnswers: { ...formData.wizardAnswers, coreFeatures: featArr } });
       await triggerGeneration(proj._id);
       localStorage.removeItem(STORAGE_KEY);

@@ -130,6 +130,7 @@ const PIPELINE = [
 
 // Helper: generate a single doc, save it, update project.docsGenerated
 const generateOne = async (docType, project, userId, generatedSoFar) => {
+  const contextString = buildContext(generatedSoFar);
   let promptText = prompts[docType](project.wizardAnswers, contextString);
   if (project.designSystem && project.designSystem.prompt) {
     promptText += `\n\n### MANDATORY DESIGN SYSTEM GUIDELINES\n${project.designSystem.prompt}`;

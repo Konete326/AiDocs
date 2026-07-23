@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { toast } from 'react-hot-toast';
 
-// Token is memory-only — never stored in localStorage (XSS mitigation)
 let _accessToken = null;
 let refreshPromise = null;
 
@@ -9,7 +8,7 @@ export const getAccessToken = () => _accessToken;
 export const setAccessToken = (token) => { _accessToken = token; };
 
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   withCredentials: true,
 });
 
@@ -60,14 +59,13 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         setAccessToken(null);
-        // Let AuthContext and PrivateRoute handle redirection
         return Promise.reject(refreshError);
       }
     }
 
-    // Let AuthContext handle the rejection natively to prevent redirect loops
     return Promise.reject(error);
   }
 );
 
 export default api;
+

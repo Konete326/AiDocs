@@ -3,9 +3,9 @@ require('dotenv').config();
 const requiredEnvVars = ['MONGODB_URI', 'JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET'];
 const missing = requiredEnvVars.filter(v => !process.env[v]);
 if (missing.length > 0) {
-  console.error(`❌ Missing required env vars: ${missing.join(', ')}`);
-  process.exit(1);
+  console.error(`Missing required env vars: ${missing.join(', ')}`);
 }
+
 
 const express = require('express');
 const cors = require('cors');
