@@ -107,11 +107,20 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
   };
 
   if (isUser) {
+    const isMcp = message.isMcpAgent || message.content?.includes('[Antigravity IDE Agent]');
     return (
       <div className="flex justify-end">
-        <div className="liquid-glass rounded-3xl rounded-tr-sm px-4 py-2.5 max-w-[70%] sm:max-w-[65%] border border-white/5 w-fit space-y-2">
+        <div className={`rounded-3xl rounded-tr-sm px-4 py-2.5 max-w-[70%] sm:max-w-[65%] border w-fit space-y-1.5 ${
+          isMcp ? 'bg-cyan-950/30 border-cyan-500/40 shadow-[0_0_15px_rgba(6,182,212,0.15)] text-cyan-100' : 'liquid-glass border-white/5 text-white/90'
+        }`}>
+          {isMcp && (
+            <div className="flex items-center gap-1.5 text-[9.5px] font-semibold text-cyan-400 uppercase tracking-wider border-b border-cyan-500/20 pb-1 mb-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+              <span>🤖 Antigravity IDE Agent</span>
+            </div>
+          )}
           {message.content && (
-            <p className="text-xs sm:text-sm text-white/90 leading-relaxed font-sans">{message.content}</p>
+            <p className="text-xs sm:text-sm leading-relaxed font-sans">{message.content.replace('[Antigravity IDE Agent]:', '').trim()}</p>
           )}
 
           {message.attachments && message.attachments.length > 0 && (

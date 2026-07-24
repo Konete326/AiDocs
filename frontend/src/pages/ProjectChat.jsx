@@ -24,6 +24,7 @@ export default function ProjectChat() {
   const scrollRef = useRef(null);
 
   useEffect(() => {
+    let timer;
     const init = async () => {
       try {
         const [proj, sub, history] = await Promise.all([
@@ -33,9 +34,7 @@ export default function ProjectChat() {
         ]);
         setProject(proj);
         setSubscription(sub);
-        if (history && history.length > 0) {
-          setMessages(history);
-        }
+        if (history && history.length > 0) setMessages(history);
       } catch (err) {
         setError('Connection temporarily delayed. Please refresh or try again in a moment.');
       } finally {
@@ -43,6 +42,13 @@ export default function ProjectChat() {
       }
     };
     init();
+    timer = setInterval(async () => {
+      try {
+        const history = await getChatHistory(id);
+        if (history && history.length > 0) setMessages(history);
+      } catch {}
+    }, 4000);
+    return () => clearInterval(timer);
   }, [id]);
 
   useEffect(() => {
@@ -213,6 +219,12 @@ export default function ProjectChat() {
               <span className="hidden sm:inline">Delete Chat</span>
             </button>
 
+            {messages.some(m => m.isMcpAgent || m.content?.includes('[Antigravity IDE Agent]')) && (
+              <div className="liquid-glass rounded-full px-3 py-1 flex items-center gap-1.5 text-[9.5px] text-cyan-300 font-mono font-medium border border-cyan-500/30 shadow-[0_0_10px_rgba(6,182,212,0.25)]">
+                <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-ping" />
+                <span>🤖 IDE Agent Synced</span>
+              </div>
+            )}
             <div className="liquid-glass rounded-full px-3 py-1 flex items-center gap-1.5 text-[9.5px] text-emerald-400 font-mono font-medium border border-emerald-500/20 shadow-[0_0_10px_rgba(16,185,129,0.2)]">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
               <span>NVIDIA GPU Voice Active</span>
