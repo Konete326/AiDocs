@@ -73,7 +73,7 @@ const McpSettings = () => {
               </div>
             </div>
             <div className="flex gap-2">
-              <input type="text" readOnly value={config.mcpEndpoint} className="flex-1 bg-black/40 border border-white/10 rounded-xl px-3.5 py-2 text-xs font-mono text-white/80 focus:outline-none" />
+              <input type="text" readOnly value={config.mcpEndpoint} className="flex-1 bg-white/10 border border-white/15 rounded-xl px-3.5 py-2 text-xs font-mono text-white/90 focus:outline-none" />
               <button onClick={copyUrl} className="bg-white/10 hover:bg-white/20 text-white text-xs px-4 py-2 rounded-xl font-medium flex items-center gap-1.5 transition-all cursor-pointer border border-white/10">
                 {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />} Copy
               </button>
