@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Palette, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, Palette, CheckCircle2, Cpu } from 'lucide-react';
 import GlassCard from '../components/common/GlassCard';
 import { useTheme } from '../context/ThemeContext';
+import McpSettings from '../components/settings/McpSettings';
 
 const ThemePreview = ({ theme, isActive, onSelect }) => {
   const videoRef = React.useRef(null);
@@ -95,14 +96,15 @@ const Settings = () => {
   const [activeTab, setActiveTab] = useState('theme');
 
   const tabs = [
-    { id: 'theme', label: 'Display & Theme', icon: Palette }
+    { id: 'theme', label: 'Display & Theme', icon: Palette },
+    { id: 'mcp', label: 'MCP Integration', icon: Cpu }
   ];
 
   return (
     <section className="relative min-h-screen overflow-hidden px-4 sm:px-6 pt-28 pb-8">
       <div className="absolute inset-0 bg-black/55 z-[1]" />
       
-      <div className="relative z-10 mx-auto max-w-6xl">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <button 
           onClick={() => navigate(-1)}
           className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 mb-8 hover:scale-105 transition-transform cursor-pointer shadow-xl border border-white/5"
@@ -111,9 +113,8 @@ const Settings = () => {
           <span className="text-sm text-white/70 font-medium">Back</span>
         </button>
         
-        <div className="flex flex-col md:flex-row gap-6">
-          {/* Sidebar */}
-          <GlassCard className="w-full md:w-64 flex-shrink-0 p-4 h-fit rounded-[2rem] pb-8">
+        <div className="flex flex-col md:flex-row gap-8 items-start w-full">
+          <GlassCard className="w-full md:w-64 flex-shrink-0 p-4 h-fit rounded-[2rem] pb-8 no-hover">
             <h2 className="text-xl font-semibold text-white mb-6 px-4 pt-2 text-center md:text-left tracking-tight">Settings</h2>
             <div className="flex flex-col gap-2">
               {tabs.map((tab) => (
@@ -133,8 +134,7 @@ const Settings = () => {
             </div>
           </GlassCard>
 
-          {/* Main Content */}
-          <GlassCard strong className="flex-1 p-6 md:p-8 lg:p-10 rounded-[2.5rem] min-h-[300px]">
+          <GlassCard strong className="flex-1 w-full p-6 md:p-8 lg:p-10 rounded-[2.5rem] min-h-[350px] no-hover">
              {activeTab === 'theme' && (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
                   <h3 className="text-2xl font-serif italic text-white tracking-tight mb-2">Display & Theme</h3>
@@ -155,6 +155,7 @@ const Settings = () => {
                   </div>
                 </div>
              )}
+             {activeTab === 'mcp' && <McpSettings />}
           </GlassCard>
         </div>
       </div>

@@ -1,0 +1,22 @@
+{
+  "name": "clarifyai-mcp",
+  "version": "1.0.0",
+  "description": "Local CLI bridge for ClarifyAI Model Context Protocol (MCP) server",
+  "main": "bin/clarifyai-mcp.js",
+  "bin": {
+    "clarifyai-mcp": "bin/clarifyai-mcp.js"
+  },
+  "keywords": [
+    "clarifyai",
+    "mcp",
+    "model-context-protocol",
+    "claude-code",
+    "antigravity",
+    "cursor"
+  ],
+  "author": "ClarifyAI",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.14.0"
+  }
+}

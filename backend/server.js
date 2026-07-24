@@ -89,6 +89,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/projects/:projectId/documents', documentRoutes);
 app.use('/api/subscriptions', subscriptionRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api', require('./routes/mcpRoutes'));
 app.use('/api', chatRoutes);
 app.use('/api', exportRoutes);
 app.use('/api/feedback', feedbackRoutes);
