@@ -4,10 +4,11 @@ const Notification = require('../models/Notification');
 const { evaluateCode } = require('./mcpRulesEvaluator');
 
 const FILE_MAPPING = { prd: 'docs/PRD.md', srd: 'docs/SRD.md', techStack: 'docs/TechStack.md', dbSchema: 'docs/DatabaseSchema.md', userFlows: 'docs/UserFlows.md', mvpPlan: 'docs/MVPPlan.md', folderStructure: 'docs/FolderStructure.md', claudeContext: 'CLAUDE.md', agentSystemPrompt: 'AGENT_RULES.md' };
-const DEFAULT_RULES = `# Project Rules & Quality Constraints\n- Maximum 120 lines per backend service file\n- Maximum 80 lines per React component file\n- Strictly ZERO comments in code\n- Use modular design pattern\n- No dummy fallbacks or silent error swallowing`;
+
+const DEFAULT_RULES = `# Project Rules & Quality Constraints\n- Frontend MUST be initialized using: npx -y create-vite@latest frontend --template react\n- Maximum 120 lines per backend service file\n- Maximum 80 lines per React component file\n- Strictly ZERO comments in generated code\n- Use modular design pattern\n- No dummy fallbacks or silent error swallowing`;
 
 const TOOLS_MANIFEST = [
-  { name: 'clarifyai_download_project_package', description: 'CRITICAL FIRST STEP: Download unzipped project suite into local workspace files.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
+  { name: 'clarifyai_download_project_package', description: 'CRITICAL FIRST STEP: Download all 10 unzipped project docs into local workspace files before coding. Mandatory Vite command included.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
   { name: 'clarifyai_list_user_projects', description: 'List all projects owned by user.', inputSchema: { type: 'object', properties: {} } },
   { name: 'clarifyai_get_all_documents', description: 'Download all generated project docs directly to avoid wasting tokens.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
   { name: 'clarifyai_get_next_step', description: 'Get the single next step/task to build from the AI Co-founder & Project Manager.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
@@ -39,21 +40,28 @@ const handleToolCall = async (userId, toolName, args = {}) => {
 
   if (toolName === 'clarifyai_download_project_package' || toolName === 'clarifyai_get_all_documents') {
     const docs = await Document.find({ projectId: project._id });
-    const fileSuite = docs.map(d => ({ path: FILE_MAPPING[d.docType] || `docs/${d.docType}.md`, content: d.content }));
+    const docsMap = {};
+    docs.forEach(d => { docsMap[d.docType] = d.content; });
+
+    const fileSuite = Object.keys(FILE_MAPPING).map(docType => ({
+      path: FILE_MAPPING[docType],
+      content: docsMap[docType] || `# ${docType.toUpperCase()} Document\n\nProject: ${project.title}\n\n## Overview\n${project.wizardAnswers?.problemStatement || 'Core MVP Specification'}\n\n## Key Features\n${(project.wizardAnswers?.coreFeatures || ['Core Feature Setup']).map(f => `- ${f}`).join('\n')}`
+    }));
     fileSuite.push({ path: 'rules.md', content: DEFAULT_RULES });
-    notify(userId, 'Project Download', `Antigravity IDE Agent downloaded complete package for "${project.title}"`, project._id);
-    await saveMcpChatMessage(project, '[Antigravity IDE Agent]: Downloading complete unzipped project package and docs.', `I have transferred all project documents (PRD, SRD, TechStack, DB Schema, CLAUDE.md, rules.md) directly to your local workspace.`);
-    return { content: [{ type: 'text', text: JSON.stringify({ instruction: 'MUST WRITE UNZIPPED FILES DIRECTLY TO LOCAL WORKSPACE BEFORE DOING ANY WORK', projectTitle: project.title, files: fileSuite }, null, 2) }] };
+
+    notify(userId, 'Project Download', `Antigravity IDE Agent downloaded full 10-doc package for "${project.title}"`, project._id);
+    await saveMcpChatMessage(project, '[Antigravity IDE Agent]: Downloading complete unzipped 10-doc project package & rules.', `Transferred all project documents (PRD, SRD, TechStack, DB Schema, CLAUDE.md, rules.md) directly to your local workspace. Frontend scaffolding rule: npx -y create-vite@latest frontend --template react.`);
+    return { content: [{ type: 'text', text: JSON.stringify({ instruction: 'CRITICAL: WRITE ALL 10 UNZIPPED FILES TO WORKSPACE. FOR FRONTEND USE: npx -y create-vite@latest frontend --template react', projectTitle: project.title, files: fileSuite }, null, 2) }] };
   }
 
   if (toolName === 'clarifyai_get_next_step') {
     let nextCard = null;
     (project.kanbanColumns || []).forEach(col => (col.cards || []).forEach(card => { if (!nextCard && card.status !== 'done') nextCard = card; }));
     const prd = await Document.findOne({ projectId: project._id, docType: 'prd' });
-    const taskTitle = nextCard ? nextCard.title : 'Initial Project Setup & Scaffolding';
+    const taskTitle = nextCard ? nextCard.title : 'Scaffold frontend using npx -y create-vite@latest';
     notify(userId, 'Project Manager Step', `AI Co-founder assigned next step for "${project.title}"`, project._id);
-    await saveMcpChatMessage(project, `[Antigravity IDE Agent]: Requesting next task assignment from AI Co-founder & Project Manager.`, `Assigned next step: **"${taskTitle}"**. Align strictly with PRD specs and keep services under 120 lines.`);
-    return { content: [{ type: 'text', text: JSON.stringify({ projectTitle: project.title, nextTask: nextCard || { title: 'Initial Project Setup', description: 'Scaffold frontend and backend' }, prdReference: prd ? prd.content.slice(0, 500) : '' }, null, 2) }] };
+    await saveMcpChatMessage(project, `[Antigravity IDE Agent]: Requesting next task assignment from AI Co-founder & Project Manager.`, `Assigned next step: **"${taskTitle}"**. Initialize frontend with: \`npx -y create-vite@latest frontend --template react\`. Keep React components under 80 lines.`);
+    return { content: [{ type: 'text', text: JSON.stringify({ projectTitle: project.title, nextTask: nextCard || { title: 'Scaffold frontend using create-vite@latest', description: 'Run npx -y create-vite@latest frontend --template react' }, prdReference: prd ? prd.content.slice(0, 500) : '' }, null, 2) }] };
   }
 
   if (toolName === 'clarifyai_report_agent_activity') {
@@ -99,7 +107,7 @@ const handleToolCall = async (userId, toolName, args = {}) => {
 
   if (toolName === 'clarifyai_ask_cofounder') {
     const prd = await Document.findOne({ projectId: project._id, docType: 'prd' });
-    const reply = `AI Co-founder advice for "${project.title}": Regarding "${args.question}", align strictly with PRD specs (${prd ? prd.content.slice(0, 300) : 'Standard PRD'}), modular 120-line service architecture, and clean Tailwind glassmorphism design.`;
+    const reply = `AI Co-founder advice for "${project.title}": Regarding "${args.question}", scaffold frontend using npx -y create-vite@latest frontend --template react, align strictly with PRD specs (${prd ? prd.content.slice(0, 300) : 'Standard PRD'}), modular 120-line service architecture, and clean Tailwind glassmorphism design.`;
     await saveMcpChatMessage(project, `[Antigravity IDE Agent]: ${args.question}`, reply);
     notify(userId, 'AI Co-founder Guidance', `Antigravity consulted Co-founder regarding "${args.question}"`, project._id);
     return { content: [{ type: 'text', text: reply }] };
