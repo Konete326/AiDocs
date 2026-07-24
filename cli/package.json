@@ -1,7 +1,7 @@
 {
   "name": "clarifyai-mcp",
   "version": "1.0.0",
-  "description": "Local CLI bridge for ClarifyAI Model Context Protocol (MCP) server",
+  "description": "Zero-dependency local CLI bridge for ClarifyAI Model Context Protocol (MCP) server",
   "main": "bin/clarifyai-mcp.js",
   "bin": {
     "clarifyai-mcp": "bin/clarifyai-mcp.js"
@@ -16,7 +16,5 @@
   ],
   "author": "ClarifyAI",
   "license": "MIT",
-  "dependencies": {
-    "axios": "^1.14.0"
-  }
+  "dependencies": {}
 }

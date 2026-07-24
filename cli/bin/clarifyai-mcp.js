@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 const readline = require('readline');
-const axios = require('axios');
 
 const args = process.argv.slice(2);
 let apiKey = process.env.CLARIFYAI_API_KEY || '';
@@ -32,18 +31,21 @@ rl.on('line', async (line) => {
   if (!line || !line.trim()) return;
   try {
     const payload = JSON.parse(line.trim());
-    const response = await axios.post(endpoint, payload, {
+    const res = await fetch(endpoint, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         ...(apiKey ? { 'x-api-key': apiKey } : {})
-      }
+      },
+      body: JSON.stringify(payload)
     });
-    process.stdout.write(JSON.stringify(response.data) + '\n');
+    const data = await res.json();
+    process.stdout.write(JSON.stringify(data) + '\n');
   } catch (err) {
     const errRes = {
       jsonrpc: '2.0',
       id: null,
-      error: { code: -32603, message: err.response?.data?.error?.message || err.message }
+      error: { code: -32603, message: err.message || 'Bridge request failed' }
     };
     process.stdout.write(JSON.stringify(errRes) + '\n');
   }
