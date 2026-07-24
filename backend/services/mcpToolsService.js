@@ -5,10 +5,13 @@ const { evaluateCode } = require('./mcpRulesEvaluator');
 
 const FILE_MAPPING = { prd: 'docs/PRD.md', srd: 'docs/SRD.md', techStack: 'docs/TechStack.md', dbSchema: 'docs/DatabaseSchema.md', userFlows: 'docs/UserFlows.md', mvpPlan: 'docs/MVPPlan.md', folderStructure: 'docs/FolderStructure.md', claudeContext: 'CLAUDE.md', agentSystemPrompt: 'AGENT_RULES.md' };
 
+const DEFAULT_RULES = `# Project Rules & Quality Constraints\n- Maximum 120 lines per backend service file\n- Maximum 80 lines per React component file\n- Strictly ZERO comments in code\n- Use modular design pattern\n- No dummy fallbacks or silent error swallowing`;
+
 const TOOLS_MANIFEST = [
+  { name: 'clarifyai_download_project_package', description: 'CRITICAL FIRST STEP: Download the complete unzipped project suite (PRD, SRD, TechStack, DB Schema, CLAUDE.md, rules.md) directly into local workspace files before doing any work.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
   { name: 'clarifyai_list_user_projects', description: 'List all projects owned by the user.', inputSchema: { type: 'object', properties: {} } },
-  { name: 'clarifyai_get_all_documents', description: 'CRITICAL: Download all generated project docs directly to avoid wasting tokens.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
-  { name: 'clarifyai_get_next_step', description: 'CRITICAL: Get the single next step/task to build from the AI Co-founder & Project Manager instead of asking the user or guessing.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
+  { name: 'clarifyai_get_all_documents', description: 'Download all generated project docs directly to avoid wasting tokens.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
+  { name: 'clarifyai_get_next_step', description: 'Get the single next step/task to build from the AI Co-founder & Project Manager instead of asking the user or guessing.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
   { name: 'clarifyai_report_agent_activity', description: 'Report live coding activity progress to ClarifyAI Kanban board in real time.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, currentTask: { type: 'string' }, activityDetails: { type: 'string' }, percentComplete: { type: 'number' } }, required: ['currentTask', 'activityDetails'] } },
   { name: 'clarifyai_get_project_context', description: 'Fetch complete PRD, SRD, TRD context for project.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
   { name: 'clarifyai_get_kanban_tasks', description: 'Retrieve Kanban tasks for project.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
@@ -28,11 +31,12 @@ const handleToolCall = async (userId, toolName, args = {}) => {
   const project = await resolveProject(userId, args.projectId);
   if (!project) return { isError: true, content: [{ type: 'text', text: 'Project not found.' }] };
 
-  if (toolName === 'clarifyai_get_all_documents') {
+  if (toolName === 'clarifyai_download_project_package' || toolName === 'clarifyai_get_all_documents') {
     const docs = await Document.find({ projectId: project._id });
-    const fileSuite = docs.map(d => ({ docType: d.docType, targetFile: FILE_MAPPING[d.docType] || `docs/${d.docType}.md`, content: d.content }));
-    notify(userId, 'Doc Download', `AI Agent downloaded document suite for "${project.title}"`, project._id);
-    return { content: [{ type: 'text', text: JSON.stringify({ projectId: project._id, title: project.title, files: fileSuite }, null, 2) }] };
+    const fileSuite = docs.map(d => ({ path: FILE_MAPPING[d.docType] || `docs/${d.docType}.md`, content: d.content }));
+    fileSuite.push({ path: 'rules.md', content: DEFAULT_RULES });
+    notify(userId, 'Project Download', `AI Agent downloaded complete project package for "${project.title}"`, project._id);
+    return { content: [{ type: 'text', text: JSON.stringify({ instruction: 'MUST WRITE UNZIPPED FILES DIRECTLY TO LOCAL WORKSPACE BEFORE DOING ANY WORK', projectTitle: project.title, files: fileSuite }, null, 2) }] };
   }
 
   if (toolName === 'clarifyai_get_next_step') {
