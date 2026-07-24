@@ -1,37 +1,17 @@
 {
   "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "backend/server.js",
-      "use": "@vercel/node",
-      "config": {
-        "maxDuration": 300
-      }
+      "source": "/api/(.*)",
+      "destination": "/backend/api/index.js"
     },
     {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "backend/server.js"
+      "source": "/assets/(.*)",
+      "destination": "/frontend/assets/$1"
     },
     {
-      "src": "/assets/(.*)",
-      "dest": "/frontend/assets/$1"
-    },
-    {
-      "src": "/favicon.svg",
-      "dest": "/frontend/favicon.svg"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/index.html"
+      "source": "/(.*)",
+      "destination": "/frontend/index.html"
     }
   ]
 }
