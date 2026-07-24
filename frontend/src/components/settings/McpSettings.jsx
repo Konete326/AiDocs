@@ -6,18 +6,28 @@ import McpConfigCard from './McpConfigCard';
 import McpDeleteModal from './McpDeleteModal';
 
 const McpSettings = () => {
-  const [config, setConfig] = useState({ apiKey: '', mcpEndpoint: '' });
+  const [config, setConfig] = useState({ apiKey: '', mcpEndpoint: '', isAgentActive: false });
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-  useEffect(() => { fetchConfig(); }, []);
+  useEffect(() => {
+    fetchConfig();
+    const interval = setInterval(() => fetchConfig(true), 10000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const fetchConfig = async () => {
-    try { setLoading(true); const res = await getMcpConfig(); if (res.success) setConfig(res); }
-    catch { toast.error('Failed to load MCP settings'); }
-    finally { setLoading(false); }
+  const fetchConfig = async (silent = false) => {
+    try {
+      if (!silent) setLoading(true);
+      const res = await getMcpConfig();
+      if (res.success) setConfig(res);
+    } catch {
+      if (!silent) toast.error('Failed to load MCP settings');
+    } finally {
+      if (!silent) setLoading(false);
+    }
   };
 
   const handleGenerate = async () => {
@@ -27,7 +37,7 @@ const McpSettings = () => {
   };
 
   const handleDelete = async () => {
-    try { setBusy(true); const res = await deleteMcpKey(); if (res.success) { setConfig({ apiKey: '', mcpEndpoint: '' }); toast.success('MCP Key deleted'); setIsDeleteOpen(false); } }
+    try { setBusy(true); const res = await deleteMcpKey(); if (res.success) { setConfig({ apiKey: '', mcpEndpoint: '', isAgentActive: false }); toast.success('MCP Key deleted'); setIsDeleteOpen(false); } }
     catch { toast.error('Failed to delete key'); }
     finally { setBusy(false); }
   };
@@ -38,11 +48,19 @@ const McpSettings = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h3 className="text-xl font-semibold text-white tracking-tight flex items-center gap-2">
-          <Cpu className="w-5 h-5 text-white/80" /> MCP Settings
-        </h3>
-        <p className="text-white/40 text-xs mt-1">Connect external AI tools directly to your workspace.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="text-xl font-semibold text-white tracking-tight flex items-center gap-2">
+            <Cpu className="w-5 h-5 text-white/80" /> MCP Settings
+          </h3>
+          <p className="text-white/40 text-xs mt-1">Connect external AI tools directly to your workspace.</p>
+        </div>
+        {config.apiKey && (
+          <div className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-full border ${config.isAgentActive ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 font-medium' : 'bg-white/5 border-white/10 text-white/50'}`}>
+            <span className={`w-2 h-2 rounded-full ${config.isAgentActive ? 'bg-emerald-400 animate-pulse' : 'bg-white/40'}`} />
+            <span>{config.isAgentActive ? 'Agent Connected' : 'Idle'}</span>
+          </div>
+        )}
       </div>
 
       {!config.apiKey ? (

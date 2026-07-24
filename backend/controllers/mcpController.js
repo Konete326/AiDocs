@@ -12,6 +12,9 @@ const handleMcpRequest = async (req, res) => {
     const user = await User.findOne({ mcpApiKey: apiKey });
     if (!user || !user.mcpApiKey) return res.status(401).json({ jsonrpc: '2.0', id: req.body?.id || null, error: { code: -32001, message: 'Invalid or revoked API key' } });
 
+    user.lastMcpActivityAt = new Date();
+    user.save().catch(() => {});
+
     if (req.method === 'GET') {
       return res.status(200).json({ name: 'clarifyai-mcp', status: 'active', transport: 'streamable-http' });
     }
@@ -29,7 +32,8 @@ const getMcpConfig = async (req, res) => {
     if (!user) return res.status(404).json({ success: false, error: 'User not found' });
     const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
     const mcpEndpoint = user.mcpApiKey ? `${baseUrl}/api/mcp?apiKey=${user.mcpApiKey}` : '';
-    return res.status(200).json({ success: true, apiKey: user.mcpApiKey || '', mcpEndpoint, baseUrl });
+    const isAgentActive = user.lastMcpActivityAt && (Date.now() - new Date(user.lastMcpActivityAt).getTime()) < 5 * 60 * 1000;
+    return res.status(200).json({ success: true, apiKey: user.mcpApiKey || '', mcpEndpoint, isAgentActive: Boolean(isAgentActive), lastMcpActivityAt: user.lastMcpActivityAt || null });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }
@@ -42,7 +46,7 @@ const regenerateMcpKey = async (req, res) => {
     user.mcpApiKey = generateKey();
     await user.save();
     const baseUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
-    return res.status(200).json({ success: true, apiKey: user.mcpApiKey, mcpEndpoint: `${baseUrl}/api/mcp?apiKey=${user.mcpApiKey}` });
+    return res.status(200).json({ success: true, apiKey: user.mcpApiKey, mcpEndpoint: `${baseUrl}/api/mcp?apiKey=${user.mcpApiKey}`, isAgentActive: false });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }
@@ -53,8 +57,9 @@ const deleteMcpKey = async (req, res) => {
     const user = await User.findById(req.user.id);
     if (!user) return res.status(404).json({ success: false, error: 'User not found' });
     user.mcpApiKey = null;
+    user.lastMcpActivityAt = null;
     await user.save();
-    return res.status(200).json({ success: true, message: 'MCP API key revoked successfully' });
+    return res.status(200).json({ success: true, message: 'MCP API key revoked' });
   } catch (err) {
     return res.status(500).json({ success: false, error: err.message });
   }

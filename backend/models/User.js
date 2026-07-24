@@ -16,7 +16,8 @@ const userSchema = new mongoose.Schema(
     refreshTokenExpiry: { type: Date },
     passwordResetToken: { type: String },
     passwordResetExpiry: { type: Date },
-    mcpApiKey: { type: String, unique: true, sparse: true, index: true }
+    mcpApiKey: { type: String, unique: true, sparse: true, index: true },
+    lastMcpActivityAt: { type: Date }
   },
   { timestamps: true }
 );
