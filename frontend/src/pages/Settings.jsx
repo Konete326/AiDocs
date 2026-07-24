@@ -113,9 +113,26 @@ const Settings = () => {
           <span className="text-sm text-white/70 font-medium">Back</span>
         </button>
         
+        <div className="md:hidden flex overflow-x-auto gap-2 pb-4 scrollbar-none mb-4">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap text-xs font-medium ${
+                activeTab === tab.id 
+                  ? 'bg-white text-black shadow-lg font-semibold' 
+                  : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/10'
+              }`}
+            >
+              <tab.icon className="w-3.5 h-3.5" />
+              <span>{tab.label}</span>
+            </button>
+          ))}
+        </div>
+
         <div className="flex flex-col md:flex-row gap-8 items-start w-full">
-          <GlassCard className="w-full md:w-64 flex-shrink-0 p-4 h-fit rounded-[2rem] pb-8 no-hover">
-            <h2 className="text-xl font-semibold text-white mb-6 px-4 pt-2 text-center md:text-left tracking-tight">Settings</h2>
+          <GlassCard className="hidden md:block w-64 flex-shrink-0 p-4 h-fit rounded-[2rem] pb-8 no-hover">
+            <h2 className="text-xl font-semibold text-white mb-6 px-4 pt-2 text-left tracking-tight">Settings</h2>
             <div className="flex flex-col gap-2">
               {tabs.map((tab) => (
                 <button

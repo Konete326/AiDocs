@@ -35,13 +35,13 @@ const McpConfigCard = ({ endpointUrl, apiKey }) => {
     <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-xs font-medium text-white/60">Setup Snippets</span>
-        <div className="flex flex-wrap gap-1 bg-black/40 p-1 rounded-xl border border-white/5">
+        <div className="flex flex-wrap gap-1 bg-white/10 p-1 rounded-xl border border-white/15">
           {Object.keys(configs).map((key) => (
             <button
               key={key}
               onClick={() => setSelectedClient(key)}
               className={`px-3 py-1 text-xs rounded-lg transition-all cursor-pointer ${
-                selectedClient === key ? 'bg-white/15 text-white font-medium shadow-sm' : 'text-white/40 hover:text-white/70'
+                selectedClient === key ? 'bg-white text-black font-semibold shadow-sm' : 'text-white/70 hover:text-white'
               }`}
             >
               {configs[key].label}
@@ -51,14 +51,14 @@ const McpConfigCard = ({ endpointUrl, apiKey }) => {
       </div>
 
       <div className="relative">
-        <pre className="bg-black/50 text-white/80 text-xs font-mono p-4 rounded-xl overflow-x-auto border border-white/10">
+        <pre className="bg-white/95 text-slate-900 text-xs font-mono p-4 rounded-xl overflow-x-auto border border-white/20 shadow-md">
           {current.json}
         </pre>
         <button
           onClick={handleCopy}
-          className="absolute top-2 right-2 p-1.5 rounded-lg text-white/40 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 transition-all cursor-pointer"
+          className="absolute top-2 right-2 p-1.5 rounded-lg text-slate-700 hover:text-slate-900 bg-black/5 hover:bg-black/10 border border-black/10 transition-all cursor-pointer"
         >
-          {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}
+          {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
         </button>
       </div>
     </div>
