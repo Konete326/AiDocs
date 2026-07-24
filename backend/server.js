@@ -81,19 +81,19 @@ app.get('/', (req, res) => {
 });
 
 // CRITICAL: Mount skillsRoutes BEFORE projectRoutes to avoid /library being caught by /:id
-app.use('/api/projects', require('./routes/skillsRoutes'));
-app.use('/api/projects', projectRoutes);
+app.use(['/api/projects', '/projects'], require('./routes/skillsRoutes'));
+app.use(['/api/projects', '/projects'], projectRoutes);
 
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/projects/:projectId/documents', documentRoutes);
-app.use('/api/subscriptions', subscriptionRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api', require('./routes/mcpRoutes'));
-app.use('/api', chatRoutes);
-app.use('/api', exportRoutes);
-app.use('/api/feedback', feedbackRoutes);
-app.use('/api', suggestionRoutes);
+app.use(['/api/auth', '/auth'], authRoutes);
+app.use(['/api/users', '/users'], userRoutes);
+app.use(['/api/projects/:projectId/documents', '/projects/:projectId/documents'], documentRoutes);
+app.use(['/api/subscriptions', '/subscriptions'], subscriptionRoutes);
+app.use(['/api/notifications', '/notifications'], notificationRoutes);
+app.use(['/api', '/'], require('./routes/mcpRoutes'));
+app.use(['/api', '/'], chatRoutes);
+app.use(['/api', '/'], exportRoutes);
+app.use(['/api/feedback', '/feedback'], feedbackRoutes);
+app.use(['/api', '/'], suggestionRoutes);
 
 app.use((req, res, next) => {
   res.status(404).json({ success: false, error: 'Route not found' });
