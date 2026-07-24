@@ -56,7 +56,7 @@ const McpSettings = () => {
           <p className="text-white/40 text-xs mt-1">Connect external AI tools directly to your workspace.</p>
         </div>
         {config.apiKey && (
-          <div className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-full border ${config.isAgentActive ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300 font-medium' : 'bg-white/5 border-white/10 text-white/50'}`}>
+          <div className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-full border ${config.isAgentActive ? 'bg-emerald-500/10 border-emerald-500/30 text-white font-medium' : 'bg-white/5 border-white/10 text-white/70'}`}>
             <span className={`w-2 h-2 rounded-full ${config.isAgentActive ? 'bg-emerald-400 animate-pulse' : 'bg-white/40'}`} />
             <span>{config.isAgentActive ? 'Agent Connected' : 'Idle'}</span>
           </div>
