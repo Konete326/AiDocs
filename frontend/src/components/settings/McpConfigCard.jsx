@@ -3,21 +3,33 @@ import { Copy, Check } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
 const McpConfigCard = ({ endpointUrl, apiKey }) => {
-  const [selectedClient, setSelectedClient] = useState('cli');
+  const [selectedClient, setSelectedClient] = useState('antigravity');
   const [copied, setCopied] = useState(false);
 
   const configs = {
-    cli: { label: 'NPX CLI', json: `npx clarifyai-mcp --key ${apiKey}` },
     antigravity: {
-      label: 'Antigravity',
-      json: JSON.stringify({ mcpServers: { clarifyai: { command: 'npx', args: ['clarifyai-mcp', '--key', apiKey] } } }, null, 2)
+      label: 'Antigravity / Node CLI',
+      json: JSON.stringify({
+        mcpServers: {
+          clarifyai: {
+            command: 'node',
+            args: ['d:/mern projects/Clarifyai/cli/bin/clarifyai-mcp.js', '--key', apiKey]
+          }
+        }
+      }, null, 2)
     },
-    claude: {
-      label: 'Claude Code',
-      json: JSON.stringify({ mcpServers: { clarifyai: { command: 'npx', args: ['clarifyai-mcp', '--key', apiKey] } } }, null, 2)
+    remote: {
+      label: 'Vercel HTTP SSE',
+      json: JSON.stringify({
+        mcpServers: {
+          clarifyai: {
+            url: endpointUrl
+          }
+        }
+      }, null, 2)
     },
     cursor: {
-      label: 'Cursor',
+      label: 'Cursor / Windsurf',
       json: JSON.stringify({ name: 'clarifyai', type: 'sse', url: endpointUrl }, null, 2)
     }
   };
