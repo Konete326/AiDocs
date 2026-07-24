@@ -9,7 +9,7 @@ const NotificationBell = () => {
   const [notifications, setNotifications] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const { modal: confirmModal, confirm, close: closeConfirm, handleConfirm } = useConfirmModal();
 
   useEffect(() => {
@@ -18,20 +18,15 @@ const NotificationBell = () => {
       try {
         const data = await getNotifications();
         if (active) setNotifications(data || []);
-      } catch (err) {
-        console.error('Failed to fetch notifications', err);
-      }
+      } catch {}
     };
-    
+
     setIsLoading(true);
     fetchNotifications().finally(() => { if (active) setIsLoading(false); });
 
-    const handleRefresh = () => {
-      fetchNotifications();
-    };
+    const handleRefresh = () => { fetchNotifications(); };
     window.addEventListener('notificationRefresh', handleRefresh);
-    
-    const interval = setInterval(fetchNotifications, 10000);
+    const interval = setInterval(fetchNotifications, 15000);
 
     return () => {
       active = false;
@@ -41,21 +36,13 @@ const NotificationBell = () => {
   }, []);
 
   const handleMarkRead = async (id) => {
-    try {
-      await markNotificationRead(id);
-      setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
-    } catch (err) {
-      console.error('Failed to mark as read', err);
-    }
+    await markNotificationRead(id);
+    setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
   };
 
   const handleMarkAllRead = async () => {
-    try {
-      await markAllNotificationsRead();
-      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
-    } catch (err) {
-      console.error('Failed to mark all as read', err);
-    }
+    await markAllNotificationsRead();
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
   };
 
   const handleDelete = (id) => {
@@ -65,12 +52,8 @@ const NotificationBell = () => {
       confirmLabel: 'Delete',
       isDangerous: true,
       onConfirm: async () => {
-        try {
-          await deleteNotification(id);
-          setNotifications(prev => prev.filter(n => n._id !== id));
-        } catch (err) {
-          console.error('Failed to delete notification', err);
-        }
+        await deleteNotification(id);
+        setNotifications(prev => prev.filter(n => n._id !== id));
       }
     });
   };
@@ -79,36 +62,13 @@ const NotificationBell = () => {
 
   return (
     <div className="relative">
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="liquid-glass rounded-full size-10 flex items-center justify-center relative hover:scale-105 transition-transform cursor-pointer border-none outline-none"
-      >
+      <button onClick={() => setIsOpen(!isOpen)} className="liquid-glass rounded-full size-10 flex items-center justify-center relative hover:scale-105 transition-transform cursor-pointer border-none outline-none">
         <Bell className="size-3.5 text-white/70" />
-        {unreadCount > 0 && (
-          <div className="absolute top-2.5 right-2.5 size-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />
-        )}
+        {unreadCount > 0 && <div className="absolute top-2.5 right-2.5 size-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]" />}
       </button>
 
-      <NotificationDropdown
-        isOpen={isOpen}
-        notifications={notifications} 
-        onMarkRead={handleMarkRead} 
-        onMarkAllRead={handleMarkAllRead}
-        onDelete={handleDelete}
-        isLoading={isLoading} 
-        onClose={() => setIsOpen(false)}
-      />
-
-      <ConfirmModal
-        isOpen={confirmModal.isOpen}
-        title={confirmModal.title}
-        message={confirmModal.message}
-        confirmLabel={confirmModal.confirmLabel}
-        cancelLabel={confirmModal.cancelLabel}
-        onConfirm={handleConfirm}
-        onCancel={closeConfirm}
-        isDangerous={confirmModal.isDangerous}
-      />
+      <NotificationDropdown isOpen={isOpen} notifications={notifications} onMarkRead={handleMarkRead} onMarkAllRead={handleMarkAllRead} onDelete={handleDelete} isLoading={isLoading} onClose={() => setIsOpen(false)} />
+      <ConfirmModal isOpen={confirmModal.isOpen} title={confirmModal.title} message={confirmModal.message} confirmLabel={confirmModal.confirmLabel} cancelLabel={confirmModal.cancelLabel} onConfirm={handleConfirm} onCancel={closeConfirm} isDangerous={confirmModal.isDangerous} />
     </div>
   );
 };
