@@ -4,11 +4,11 @@ const Notification = require('../models/Notification');
 const { evaluateCode } = require('./mcpRulesEvaluator');
 
 const FILE_MAPPING = { prd: 'docs/PRD.md', srd: 'docs/SRD.md', techStack: 'docs/TechStack.md', dbSchema: 'docs/DatabaseSchema.md', userFlows: 'docs/UserFlows.md', mvpPlan: 'docs/MVPPlan.md', folderStructure: 'docs/FolderStructure.md', claudeContext: 'CLAUDE.md', agentSystemPrompt: 'AGENT_RULES.md' };
-
 const DEFAULT_RULES = `# Project Rules & Quality Constraints\n- Frontend MUST be initialized using: npx -y create-vite@latest frontend --template react\n- Maximum 120 lines per backend service file\n- Maximum 80 lines per React component file\n- Strictly ZERO comments in generated code\n- Use modular design pattern\n- No dummy fallbacks or silent error swallowing`;
 
 const TOOLS_MANIFEST = [
-  { name: 'clarifyai_download_project_package', description: 'CRITICAL FIRST STEP: Download all 10 unzipped project docs into local workspace files before coding. Mandatory Vite command included.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
+  { name: 'clarifyai_start_autonomous_engine', description: 'PRIMARY AUTOMATION TRIGGER: Call immediately on ANY simple 1-line user prompt (e.g. "start", "build project"). Downloads all 10 unzipped docs, enforces create-vite@latest scaffolding, and initializes non-stop AI Project Manager workflow.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
+  { name: 'clarifyai_download_project_package', description: 'Download all 10 unzipped project docs into local workspace files before coding. Mandatory Vite command included.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
   { name: 'clarifyai_list_user_projects', description: 'List all projects owned by user.', inputSchema: { type: 'object', properties: {} } },
   { name: 'clarifyai_get_all_documents', description: 'Download all generated project docs directly to avoid wasting tokens.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
   { name: 'clarifyai_get_next_step', description: 'Get the single next step/task to build from the AI Co-founder & Project Manager.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
@@ -38,7 +38,7 @@ const handleToolCall = async (userId, toolName, args = {}) => {
   const project = await resolveProject(userId, args.projectId);
   if (!project) return { isError: true, content: [{ type: 'text', text: 'Project not found.' }] };
 
-  if (toolName === 'clarifyai_download_project_package' || toolName === 'clarifyai_get_all_documents') {
+  if (toolName === 'clarifyai_start_autonomous_engine' || toolName === 'clarifyai_download_project_package' || toolName === 'clarifyai_get_all_documents') {
     const docs = await Document.find({ projectId: project._id });
     const docsMap = {};
     docs.forEach(d => { docsMap[d.docType] = d.content; });
@@ -49,9 +49,9 @@ const handleToolCall = async (userId, toolName, args = {}) => {
     }));
     fileSuite.push({ path: 'rules.md', content: DEFAULT_RULES });
 
-    notify(userId, 'Project Download', `Antigravity IDE Agent downloaded full 10-doc package for "${project.title}"`, project._id);
-    await saveMcpChatMessage(project, '[Antigravity IDE Agent]: Downloading complete unzipped 10-doc project package & rules.', `Transferred all project documents (PRD, SRD, TechStack, DB Schema, CLAUDE.md, rules.md) directly to your local workspace. Frontend scaffolding rule: npx -y create-vite@latest frontend --template react.`);
-    return { content: [{ type: 'text', text: JSON.stringify({ instruction: 'CRITICAL: WRITE ALL 10 UNZIPPED FILES TO WORKSPACE. FOR FRONTEND USE: npx -y create-vite@latest frontend --template react', projectTitle: project.title, files: fileSuite }, null, 2) }] };
+    notify(userId, 'Autonomous Engine Boot', `Autonomous Engine started for "${project.title}"`, project._id);
+    await saveMcpChatMessage(project, '[Antigravity IDE Agent]: Triggered 1-Prompt Autonomous Engine.', `Bootstrapped 10-doc package. Scaffolding frontend with npx -y create-vite@latest frontend --template react. Executing tasks continuously with AI Co-founder.`);
+    return { content: [{ type: 'text', text: JSON.stringify({ instruction: 'AUTONOMOUS PROTOCOL: 1. Write all 10 unzipped files to workspace. 2. Run npx -y create-vite@latest frontend --template react. 3. Request tasks via clarifyai_get_next_step and build continuously non-stop until 100% complete.', projectTitle: project.title, files: fileSuite }, null, 2) }] };
   }
 
   if (toolName === 'clarifyai_get_next_step') {
