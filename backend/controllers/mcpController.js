@@ -20,6 +20,7 @@ const handleMcpRequest = async (req, res) => {
     }
 
     const response = await mcpService.processMcpMessage(user._id, req.body);
+    if (response === null) return res.status(204).end();
     return res.status(200).json(response);
   } catch (err) {
     return res.status(500).json({ jsonrpc: '2.0', id: req.body?.id || null, error: { code: -32603, message: err.message } });

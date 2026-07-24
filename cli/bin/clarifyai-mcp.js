@@ -39,8 +39,11 @@ rl.on('line', async (line) => {
       },
       body: JSON.stringify(payload)
     });
-    const data = await res.json();
-    process.stdout.write(JSON.stringify(data) + '\n');
+    if (res.status === 204) return;
+    const text = await res.text();
+    if (text && text.trim()) {
+      process.stdout.write(text.trim() + '\n');
+    }
   } catch (err) {
     const errRes = {
       jsonrpc: '2.0',

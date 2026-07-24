@@ -20,6 +20,22 @@ const processMcpMessage = async (userId, body) => {
     };
   }
 
+  if (method === 'notifications/initialized' || (method && method.startsWith('notifications/'))) {
+    return null;
+  }
+
+  if (method === 'ping') {
+    return { jsonrpc: '2.0', id, result: {} };
+  }
+
+  if (method === 'resources/list') {
+    return { jsonrpc: '2.0', id, result: { resources: [] } };
+  }
+
+  if (method === 'prompts/list') {
+    return { jsonrpc: '2.0', id, result: { prompts: [] } };
+  }
+
   if (method === 'tools/list') {
     return { jsonrpc: '2.0', id, result: { tools: TOOLS_MANIFEST } };
   }
@@ -31,7 +47,7 @@ const processMcpMessage = async (userId, body) => {
     return { jsonrpc: '2.0', id, result };
   }
 
-  return { jsonrpc: '2.0', id, error: { code: -32601, message: `Method not found: ${method}` } };
+  return { jsonrpc: '2.0', id: id || null, error: { code: -32601, message: `Method not found: ${method}` } };
 };
 
 module.exports = { processMcpMessage, TOOLS_MANIFEST, SERVER_INFO };
