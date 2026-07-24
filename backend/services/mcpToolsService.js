@@ -4,11 +4,11 @@ const Notification = require('../models/Notification');
 const { evaluateCode } = require('./mcpRulesEvaluator');
 
 const FILE_MAPPING = { prd: 'docs/PRD.md', srd: 'docs/SRD.md', techStack: 'docs/TechStack.md', dbSchema: 'docs/DatabaseSchema.md', userFlows: 'docs/UserFlows.md', mvpPlan: 'docs/MVPPlan.md', folderStructure: 'docs/FolderStructure.md', claudeContext: 'CLAUDE.md', agentSystemPrompt: 'AGENT_RULES.md' };
-const DEFAULT_RULES = `# Project Rules & Quality Constraints\n- Frontend MUST be initialized using: npx -y create-vite@latest frontend --template react\n- Maximum 120 lines per backend service file\n- Maximum 80 lines per React component file\n- Strictly ZERO comments in generated code\n- Use modular design pattern\n- No dummy fallbacks or silent error swallowing`;
+const DEFAULT_RULES = `# MANDATORY FRONTEND SCAFFOLDING RULE\n- Frontend MUST be initialized using terminal command: npx -y create-vite@latest frontend --template react\n- DO NOT manually write package.json or vite.config.js from scratch!\n\n# Code Quality Constraints\n- Maximum 120 lines per backend service file\n- Maximum 80 lines per React component file\n- Strictly ZERO comments in generated code\n- Use modular design pattern\n- No dummy fallbacks or silent error swallowing`;
 
 const TOOLS_MANIFEST = [
-  { name: 'clarifyai_start_autonomous_engine', description: 'PRIMARY AUTOMATION TRIGGER: Call immediately on ANY simple 1-line user prompt (e.g. "start", "build project"). Downloads all 10 unzipped docs, enforces create-vite@latest scaffolding, and initializes non-stop AI Project Manager workflow.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
-  { name: 'clarifyai_download_project_package', description: 'Download all 10 unzipped project docs into local workspace files before coding. Mandatory Vite command included.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
+  { name: 'clarifyai_start_autonomous_engine', description: 'PRIMARY AUTOMATION TRIGGER: Call immediately on ANY 1-line user prompt (e.g. "start"). Downloads 10 unzipped docs, enforces npx -y create-vite@latest frontend --template react scaffolding, and runs non-stop AI Project Manager workflow.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
+  { name: 'clarifyai_download_project_package', description: 'Download all 10 unzipped project docs into local workspace files before coding. Mandatory Vite create command included.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
   { name: 'clarifyai_list_user_projects', description: 'List all projects owned by user.', inputSchema: { type: 'object', properties: {} } },
   { name: 'clarifyai_get_all_documents', description: 'Download all generated project docs directly to avoid wasting tokens.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
   { name: 'clarifyai_get_next_step', description: 'Get the single next step/task to build from the AI Co-founder & Project Manager.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
@@ -45,13 +45,13 @@ const handleToolCall = async (userId, toolName, args = {}) => {
 
     const fileSuite = Object.keys(FILE_MAPPING).map(docType => ({
       path: FILE_MAPPING[docType],
-      content: docsMap[docType] || `# ${docType.toUpperCase()} Document\n\nProject: ${project.title}\n\n## Overview\n${project.wizardAnswers?.problemStatement || 'Core MVP Specification'}\n\n## Key Features\n${(project.wizardAnswers?.coreFeatures || ['Core Feature Setup']).map(f => `- ${f}`).join('\n')}`
+      content: docsMap[docType] || `# ${docType.toUpperCase()} Document\n\nProject: ${project.title}\n\n## Scaffolding Rule\n- Initialize frontend: \`npx -y create-vite@latest frontend --template react\`\n\n## Overview\n${project.wizardAnswers?.problemStatement || 'Core MVP Specification'}\n\n## Key Features\n${(project.wizardAnswers?.coreFeatures || ['Core Feature Setup']).map(f => `- ${f}`).join('\n')}`
     }));
     fileSuite.push({ path: 'rules.md', content: DEFAULT_RULES });
 
     notify(userId, 'Autonomous Engine Boot', `Autonomous Engine started for "${project.title}"`, project._id);
     await saveMcpChatMessage(project, '[Antigravity IDE Agent]: Triggered 1-Prompt Autonomous Engine.', `Bootstrapped 10-doc package. Scaffolding frontend with npx -y create-vite@latest frontend --template react. Executing tasks continuously with AI Co-founder.`);
-    return { content: [{ type: 'text', text: JSON.stringify({ instruction: 'AUTONOMOUS PROTOCOL: 1. Write all 10 unzipped files to workspace. 2. Run npx -y create-vite@latest frontend --template react. 3. Request tasks via clarifyai_get_next_step and build continuously non-stop until 100% complete.', projectTitle: project.title, files: fileSuite }, null, 2) }] };
+    return { content: [{ type: 'text', text: JSON.stringify({ instruction: 'AUTONOMOUS PROTOCOL: 1. Write all 10 unzipped files to workspace. 2. Run terminal command: npx -y create-vite@latest frontend --template react. 3. Request tasks via clarifyai_get_next_step and build continuously non-stop until 100% complete.', projectTitle: project.title, files: fileSuite }, null, 2) }] };
   }
 
   if (toolName === 'clarifyai_get_next_step') {
