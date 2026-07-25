@@ -34,3 +34,14 @@ This document contains strict coding and formatting rules that any AI Agent MUST
   - Inset Deep (Inputs/Wells): `box-shadow: inset 10px 10px 20px rgba(163,177,198,0.7), inset -10px -10px 20px rgba(255,255,255,0.6)`
 * **Corner Rounding:** Containers use `32px` (`rounded-[32px]`), buttons and inputs use `16px` (`rounded-2xl`).
 * **Zero Hex Shadows:** Opaque hex shadows are strictly forbidden. Always use transparent RGBA shadow definitions.
+
+## 9. Autonomous Creation & Clarify AI Co-Founder Query Protocol (MCP Connection)
+* **Continuous Co-founder Query Loop:** When connected via MCP (Antigravity / Claude Code), the agent MUST continuously query Clarify AI co-founder (`clarifyai_ask_cofounder`, `clarifyai_get_next_step`, `clarifyai_get_project_context`, `clarifyai_get_all_documents`) until the project is 100% complete.
+* **Complete Standalone Build:** If not connected to MCP, the agent must build the entire end-to-end working project completely along with live preview links before completing its turn.
+* **Persistent AI Chat History:** All Q&A exchanges with Clarify AI co-founder MUST be recorded and saved in the project's AI Chat History (`ProjectChat` / backend `ChatMessage`) until explicitly deleted by the user.
+* **Document Grounding:** Clarify AI must read and inspect all generated project documents (PRD, Architecture Specs, API Contracts, Design System, Kanban Tasks) to formulate answers.
+
+## 10. Zero Dummy Data & 100% Functional Workable Features Mandate
+* **Zero Dummy/Mock Data:** NEVER use dummy data, mock JSON arrays, fake text, or dummy place-holder functions in any project.
+* **100% Functional Code:** Every single button, link, AI feature, route, API handler, and form must be 100% real, fully functional, and workable.
+
