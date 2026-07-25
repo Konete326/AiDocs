@@ -4,7 +4,6 @@ import { ThemeProvider } from './context/ThemeContext';
 import AppRoutes from './routes/AppRoutes';
 import AppNavbar from './components/layout/AppNavbar';
 import PersistentBackground from './components/common/PersistentBackground';
-import Clarifyation from './components/common/Clarifyation';
 import { Toaster, toast } from 'react-hot-toast';
 import { AlertToast } from './components/ui/alert-toast';
 
@@ -15,7 +14,6 @@ const App = () => (
         <PersistentBackground />
         <AppNavbar />
         <AppRoutes />
-        <Clarifyation />
         <Toaster position="top-right" containerStyle={{ top: 75, right: 20 }}>
           {(t) => {
             let variant = 'info';

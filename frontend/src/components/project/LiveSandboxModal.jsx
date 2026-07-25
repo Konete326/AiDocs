@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Play, RefreshCw, Smartphone, Monitor, Terminal, CheckCircle2, Globe, Activity, Trash2, Sparkles, Send, Loader2, Copy, Check } from 'lucide-react';
+import { X, Play, RefreshCw, Smartphone, Monitor, Terminal, CheckCircle2, Globe, Activity, Trash2, Sparkles, Send, Loader2, Copy, Check, MousePointer, MessageSquare } from 'lucide-react';
 import api from '../../services/api';
 import { toast } from 'react-hot-toast';
 
@@ -30,6 +30,13 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
 
   const [copyConsoleSuccess, setCopyConsoleSuccess] = useState(false);
   const [copyNetworkSuccess, setCopyNetworkSuccess] = useState(false);
+
+  // Clarifyation Sandbox Visual Annotations
+  const [isAnnotatingMode, setIsAnnotatingMode] = useState(false);
+  const [sandboxAnnotations, setSandboxAnnotations] = useState([]);
+  const [activeSandboxPin, setActiveSandboxPin] = useState(null);
+  const [pinCommentText, setPinCommentText] = useState('');
+  const [isSubmittingAnnotations, setIsSubmittingAnnotations] = useState(false);
 
   const getFormattedUrl = (url) => {
     if (!url || !url.trim()) return 'about:blank';
@@ -85,6 +92,60 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
     setCopyNetworkSuccess(true);
     toast.success('Network logs copied!');
     setTimeout(() => setCopyNetworkSuccess(false), 2000);
+  };
+
+  const handleSandboxClickToAnnotate = (e) => {
+    if (!isAnnotatingMode) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const xPercent = (((e.clientX - rect.left) / rect.width) * 100).toFixed(1);
+    const yPercent = (((e.clientY - rect.top) / rect.height) * 100).toFixed(1);
+
+    const newPin = {
+      id: Date.now(),
+      number: sandboxAnnotations.length + 1,
+      xPercent,
+      yPercent,
+      url: sandboxUrl,
+      comment: ''
+    };
+
+    setActiveSandboxPin(newPin);
+  };
+
+  const handleSaveSandboxPin = () => {
+    if (!activeSandboxPin) return;
+    const finalPin = { ...activeSandboxPin, comment: pinCommentText.trim() || 'UI Visual Fix Request' };
+    setSandboxAnnotations(prev => [...prev, finalPin]);
+    setActiveSandboxPin(null);
+    setPinCommentText('');
+    toast.success(`Sandbox Pin #${finalPin.number} dropped!`);
+  };
+
+  const handleSendAnnotationsToAiCofounder = async () => {
+    if (sandboxAnnotations.length === 0 || isSubmittingAnnotations) return;
+    setIsSubmittingAnnotations(true);
+    try {
+      await api.post(`/projects/${project._id}/annotations`, {
+        annotations: sandboxAnnotations.map(p => ({
+          elementSelector: `Sandbox Preview Element (${p.xPercent}% X, ${p.yPercent}% Y)`,
+          comment: p.comment,
+          url: p.url,
+          bounds: { xPercent: p.xPercent, yPercent: p.yPercent }
+        })),
+        pageUrl: sandboxUrl
+      });
+
+      toast.success('Sandbox Annotations sent to AI Co-founder! Redirecting to Chat...');
+      setSandboxAnnotations([]);
+      setIsAnnotatingMode(false);
+      onClose();
+      window.location.href = `/projects/${project._id}/chat`;
+    } catch (err) {
+      console.error('Failed submitting annotations to AI:', err);
+      toast.error('Failed sending visual annotations to AI Co-founder');
+    } finally {
+      setIsSubmittingAnnotations(false);
+    }
   };
 
   const handleSendAiInstruction = async () => {
@@ -144,6 +205,22 @@ ${networkSummary || 'No network activity logged.'}`;
 
           <div className="flex items-center gap-3">
             <button
+              onClick={() => setIsAnnotatingMode(!isAnnotatingMode)}
+              className={`rounded-xl px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shadow-sm ${
+                isAnnotatingMode ? 'bg-[#38B2AC] text-white' : 'neumorphic-btn text-[#3D4852]'
+              }`}
+              title="Annotate UI elements on sandbox preview"
+            >
+              <MousePointer className="w-3.5 h-3.5" />
+              <span>{isAnnotatingMode ? 'Click Preview to Pin...' : 'Annotate Sandbox'}</span>
+              {sandboxAnnotations.length > 0 && (
+                <span className="ml-1 bg-[#6C63FF] text-white px-1.5 py-0.5 rounded-full text-[10px] font-extrabold">
+                  {sandboxAnnotations.length}
+                </span>
+              )}
+            </button>
+
+            <button
               onClick={() => setIsAiModalOpen(true)}
               className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white rounded-xl px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shadow-sm"
             >
@@ -188,34 +265,68 @@ ${networkSummary || 'No network activity logged.'}`;
             </button>
           </div>
 
-          <div className="flex items-center gap-1.5 p-1 neumorphic-inset rounded-2xl">
-            <button
-              onClick={() => setActiveTab('preview')}
-              className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'preview' ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-[#6B7280]'}`}
-            >
-              <Globe className="w-3.5 h-3.5" />
-              <span>App Preview</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('console')}
-              className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'console' ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-[#6B7280]'}`}
-            >
-              <Terminal className="w-3.5 h-3.5" />
-              <span>Console Logs ({consoleLogs.length})</span>
-            </button>
-            <button
-              onClick={() => setActiveTab('network')}
-              className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'network' ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-[#6B7280]'}`}
-            >
-              <Activity className="w-3.5 h-3.5" />
-              <span>Network ({networkLogs.length})</span>
-            </button>
+          <div className="flex items-center gap-3">
+            {sandboxAnnotations.length > 0 && (
+              <button
+                onClick={handleSendAnnotationsToAiCofounder}
+                disabled={isSubmittingAnnotations}
+                className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>{isSubmittingAnnotations ? 'Sending to AI...' : `Send ${sandboxAnnotations.length} Pins to AI Co-founder`}</span>
+              </button>
+            )}
+
+            <div className="flex items-center gap-1.5 p-1 neumorphic-inset rounded-2xl">
+              <button
+                onClick={() => setActiveTab('preview')}
+                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'preview' ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-[#6B7280]'}`}
+              >
+                <Globe className="w-3.5 h-3.5" />
+                <span>App Preview</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('console')}
+                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'console' ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-[#6B7280]'}`}
+              >
+                <Terminal className="w-3.5 h-3.5" />
+                <span>Console Logs ({consoleLogs.length})</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('network')}
+                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'network' ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-[#6B7280]'}`}
+              >
+                <Activity className="w-3.5 h-3.5" />
+                <span>Network ({networkLogs.length})</span>
+              </button>
+            </div>
           </div>
         </div>
 
         <div className="flex-1 min-h-0 bg-[#E0E5EC] p-6 flex justify-center items-center overflow-hidden">
           {activeTab === 'preview' ? (
             <div className={`${previewWidth} h-full neumorphic-inset rounded-3xl overflow-hidden flex flex-col transition-all duration-300 relative bg-white`}>
+              {/* Click Overlay when in Annotating Mode */}
+              {isAnnotatingMode && (
+                <div
+                  onClick={handleSandboxClickToAnnotate}
+                  className="absolute inset-0 z-30 bg-[#6C63FF]/5 cursor-crosshair border-2 border-dashed border-[#6C63FF]"
+                  title="Click anywhere on the preview to drop a visual annotation pin"
+                />
+              )}
+
+              {/* Render Dropped Pins on Sandbox Preview */}
+              {sandboxAnnotations.map(pin => (
+                <div
+                  key={pin.id}
+                  className="absolute z-40 w-7 h-7 rounded-full bg-[#6C63FF] text-white font-extrabold text-xs flex items-center justify-center shadow-lg ring-2 ring-white transform -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:scale-110 transition-all"
+                  style={{ top: `${pin.yPercent}%`, left: `${pin.xPercent}%` }}
+                  title={pin.comment}
+                >
+                  {pin.number}
+                </div>
+              ))}
+
               {isRefreshing ? (
                 <div className="flex-1 flex flex-col items-center justify-center gap-2 text-xs font-bold text-[#6B7280] bg-[#E0E5EC]">
                   <RefreshCw className="w-6 h-6 animate-spin text-[#6C63FF]" />
@@ -345,6 +456,49 @@ ${networkSummary || 'No network activity logged.'}`;
                 >
                   {isSendingAi ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   <span>Send to AI Agents</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeSandboxPin && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
+            <div className="w-full max-w-sm neumorphic-card rounded-3xl p-5 bg-[#E0E5EC] text-[#3D4852] flex flex-col gap-3 shadow-2xl animate-in zoom-in-95">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono font-bold text-[#6C63FF] flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4" /> Add Sandbox Pin #{activeSandboxPin.number}
+                </span>
+                <button onClick={() => setActiveSandboxPin(null)} className="text-[#6B7280] hover:text-[#3D4852]">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="text-[11px] font-mono text-[#6B7280] neumorphic-inset p-2 rounded-xl">
+                Position: <span className="text-[#3D4852] font-bold">{activeSandboxPin.xPercent}% X, {activeSandboxPin.yPercent}% Y</span>
+              </div>
+
+              <textarea
+                value={pinCommentText}
+                onChange={(e) => setPinCommentText(e.target.value)}
+                placeholder="What change or UI fix is needed at this spot? (e.g., Change text color, add margin)..."
+                rows={3}
+                className="w-full neumorphic-inset rounded-2xl p-3 text-xs outline-none text-[#3D4852] font-medium resize-none"
+                autoFocus
+              />
+
+              <div className="flex justify-end gap-2 mt-1">
+                <button
+                  onClick={() => setActiveSandboxPin(null)}
+                  className="px-3 py-1.5 text-xs font-bold text-[#6B7280] hover:text-[#3D4852] cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveSandboxPin}
+                  className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white px-4 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
+                >
+                  Save Pin
                 </button>
               </div>
             </div>
