@@ -27,6 +27,7 @@ export const useKanban = (projectId) => {
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
+    if (!projectId) return;
     const fetchProject = async () => {
       try {
         const proj = await getProject(projectId);
@@ -39,6 +40,21 @@ export const useKanban = (projectId) => {
       }
     };
     fetchProject();
+
+    const token = localStorage.getItem('token');
+    const eventSource = new EventSource(`/api/projects/${projectId}/events?token=${token}`);
+
+    eventSource.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        if (data.type === 'kanban_update' && data.kanbanColumns) {
+          setColumns(normalizeColumns(data.kanbanColumns));
+          toast.success(`MCP Agent updated task status to "${data.status || 'done'}"`);
+        }
+      } catch (err) {}
+    };
+
+    return () => eventSource.close();
   }, [projectId]);
 
   const save = async (updated) => {

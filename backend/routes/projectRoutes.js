@@ -11,6 +11,7 @@ router.use(authenticate);
 router.get('/', projectController.getAllProjects);
 router.post('/', validateRequest(createProjectSchema), projectController.createProject);
 router.get('/:id', projectController.getProject);
+router.get('/:id/events', projectController.streamEvents);
 router.patch('/:id', validateRequest(updateProjectSchema), projectController.updateProject);
 router.delete('/:id', projectController.deleteProject);
 router.post('/:id/generate', projectController.triggerGeneration);

@@ -57,3 +57,16 @@ exports.resetStatus = asyncWrapper(async (req, res) => {
   res.status(200).json({ success: true, data: project });
 });
 
+exports.streamEvents = asyncWrapper(async (req, res) => {
+  const { id } = req.params;
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+  res.flushHeaders?.();
+
+  const { addClient } = require('../services/eventBroadcaster');
+  addClient(id, res);
+
+  res.write(`data: ${JSON.stringify({ type: 'connected', timestamp: new Date().toISOString() })}\n\n`);
+});
+

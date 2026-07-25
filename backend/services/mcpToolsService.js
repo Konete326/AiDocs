@@ -79,16 +79,48 @@ const handleToolCall = async (userId, toolName, args = {}) => {
 
   if (toolName === 'clarifyai_update_task_status' || toolName === 'clarifyai_complete_kanban_task') {
     const targetStatus = toolName === 'clarifyai_complete_kanban_task' ? 'done' : args.status;
-    let updated = false;
-    (project.kanbanColumns || []).forEach(col => (col.cards || []).forEach(card => {
-      if (card.id === args.taskId || card._id?.toString() === args.taskId) { card.status = targetStatus; updated = true; }
-    }));
-    if (updated) {
+    let targetCard = null;
+    let sourceCol = null;
+
+    (project.kanbanColumns || []).forEach(col => {
+      const list = col.tasks || col.cards || [];
+      list.forEach((card, idx) => {
+        if (card.id === args.taskId || card._id?.toString() === args.taskId || card.text === args.taskId || card.title === args.taskId) {
+          targetCard = card;
+          sourceCol = col;
+          list.splice(idx, 1);
+        }
+      });
+    });
+
+    if (targetCard) {
+      targetCard.status = targetStatus;
+      targetCard.completed = targetStatus === 'done' || targetStatus === 'complete';
+      
+      const destColTitle = targetStatus === 'done' || targetStatus === 'complete' ? 'Done' : targetStatus === 'in_progress' ? 'In Progress' : 'To Do';
+      let destCol = (project.kanbanColumns || []).find(c => c.title?.toLowerCase() === destColTitle.toLowerCase() || c.id === targetStatus);
+      if (!destCol && project.kanbanColumns?.length > 0) destCol = project.kanbanColumns[project.kanbanColumns.length - 1];
+      
+      if (destCol) {
+        if (!destCol.tasks) destCol.tasks = destCol.cards || [];
+        destCol.tasks.push(targetCard);
+      }
+
       project.markModified('kanbanColumns');
-      await saveMcpChatMessage(project, `[Antigravity IDE Agent]: Updated Kanban Task "${args.taskId}" status to "${targetStatus}".`, `Task status updated to **"${targetStatus}"**. Advancing to next milestone.`);
+      await project.save();
+
+      const { broadcastKanbanUpdate } = require('./eventBroadcaster');
+      broadcastKanbanUpdate(project._id, {
+        type: 'kanban_update',
+        taskId: args.taskId,
+        status: targetStatus,
+        kanbanColumns: project.kanbanColumns
+      });
+
+      await saveMcpChatMessage(project, `[Antigravity IDE Agent]: Updated Kanban Task "${args.taskId}" status to "${targetStatus}".`, `Task status updated to **"${targetStatus}"**. Moved to **${destColTitle}** column.`);
       notify(userId, 'MCP Task Sync', `Task ${args.taskId} set to ${targetStatus}`, project._id);
     }
-    return { content: [{ type: 'text', text: updated ? `Task status set to ${targetStatus}` : 'Task not found.' }] };
+    return { content: [{ type: 'text', text: targetCard ? `Task status updated to ${targetStatus} and card moved in real time.` : 'Task not found.' }] };
   }
 
   if (toolName === 'clarifyai_get_claude_md') {
