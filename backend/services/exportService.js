@@ -351,28 +351,38 @@ exports.generatePdf = async (projectId, docType, userId) => {
     content = doc.content;
   }
 
-  const { marked } = await import('marked');
-  const html = await marked.parse(content);
-  const styledHtml = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px; line-height: 1.6; }
-        h1,h2,h3 { color: #111; margin-top: 1.5em; }
-        code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-family: monospace; }
-        pre { background: #f4f4f4; padding: 16px; border-radius: 6px; overflow-x: auto; font-family: monospace; }
-        table { border-collapse: collapse; width: 100%; margin: 20px 0; }
-        th,td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background: #f8f8f8; }
-        @media print { body { padding: 0; } }
-      </style>
-    </head>
-    <body onload="window.print()">${html}</body>
-    </html>
-  `;
-  return Buffer.from(styledHtml, 'utf-8');
+  return new Promise((resolve, reject) => {
+    try {
+      const PDFDocument = require('pdfkit');
+      const doc = new PDFDocument({ margin: 40 });
+      const buffers = [];
+
+      doc.on('data', buffers.push.bind(buffers));
+      doc.on('end', () => resolve(Buffer.concat(buffers)));
+
+      doc.fontSize(18).fillColor('#3D4852').text(`ClarifyAI Specification: ${docType.toUpperCase()}`).moveDown(1);
+      doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor('#6C63FF').stroke().moveDown(1);
+
+      const lines = content.split('\n');
+      lines.forEach((line) => {
+        if (line.startsWith('# ')) {
+          doc.fontSize(16).fillColor('#1A202C').text(line.replace('# ', '')).moveDown(0.6);
+        } else if (line.startsWith('## ')) {
+          doc.fontSize(13).fillColor('#2D3748').text(line.replace('## ', '')).moveDown(0.4);
+        } else if (line.startsWith('### ')) {
+          doc.fontSize(11).fillColor('#4A5568').text(line.replace('### ', '')).moveDown(0.3);
+        } else if (line.trim()) {
+          doc.fontSize(9.5).fillColor('#4A5568').text(line).moveDown(0.2);
+        } else {
+          doc.moveDown(0.15);
+        }
+      });
+
+      doc.end();
+    } catch (err) {
+      reject(err);
+    }
+  });
 };
 
 // ─── Word export (unchanged) ──────────────────────────────────────────────────

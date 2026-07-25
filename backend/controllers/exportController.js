@@ -11,10 +11,10 @@ exports.downloadZip = asyncWrapper(async (req, res) => {
 
 exports.downloadPdf = asyncWrapper(async (req, res) => {
   const { projectId, docType } = req.params;
-  const htmlBuffer = await exportService.generatePdf(projectId, docType, req.user.id);
-  res.setHeader('Content-Type', 'text/html');
-  res.setHeader('Content-Disposition', `inline; filename="${docType}.html"`);
-  res.send(htmlBuffer);
+  const pdfBuffer = await exportService.generatePdf(projectId, docType, req.user.id);
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader('Content-Disposition', `attachment; filename="${docType}.pdf"`);
+  res.send(pdfBuffer);
 });
 
 exports.downloadWord = asyncWrapper(async (req, res) => {
