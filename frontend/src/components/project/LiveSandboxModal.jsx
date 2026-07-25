@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Play, RefreshCw, Smartphone, Monitor, Terminal, CheckCircle2, Globe, Activity, Trash2, Sparkles, Send, Loader2 } from 'lucide-react';
+import { X, Play, RefreshCw, Smartphone, Monitor, Terminal, CheckCircle2, Globe, Activity, Trash2, Sparkles, Send, Loader2, Copy, Check } from 'lucide-react';
 import api from '../../services/api';
 import { toast } from 'react-hot-toast';
 
@@ -28,6 +28,9 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
   const [aiPrompt, setAiPrompt] = useState('');
   const [isSendingAi, setIsSendingAi] = useState(false);
 
+  const [copyConsoleSuccess, setCopyConsoleSuccess] = useState(false);
+  const [copyNetworkSuccess, setCopyNetworkSuccess] = useState(false);
+
   const getFormattedUrl = (url) => {
     if (!url || !url.trim()) return 'about:blank';
     let cleaned = url.trim();
@@ -55,6 +58,22 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
     setActiveIframeUrl(target);
     setConsoleLogs(prev => [...prev, { id: Date.now(), type: 'info', time: new Date().toLocaleTimeString(), text: `[Browser] Navigated to ${target}` }]);
     setTimeout(() => setIsRefreshing(false), 500);
+  };
+
+  const handleCopyConsoleLogs = () => {
+    const text = consoleLogs.map(l => `[${l.time}] [${l.type.toUpperCase()}] ${l.text}`).join('\n');
+    navigator.clipboard.writeText(text);
+    setCopyConsoleSuccess(true);
+    toast.success('Console logs copied!');
+    setTimeout(() => setCopyConsoleSuccess(false), 2000);
+  };
+
+  const handleCopyNetworkLogs = () => {
+    const text = networkLogs.map(n => `${n.method} ${n.url} - Status ${n.status} (${n.time})`).join('\n');
+    navigator.clipboard.writeText(text);
+    setCopyNetworkSuccess(true);
+    toast.success('Network logs copied!');
+    setTimeout(() => setCopyNetworkSuccess(false), 2000);
   };
 
   const handleSendAiInstruction = async () => {
@@ -204,9 +223,14 @@ ${networkSummary || 'No network activity logged.'}`;
                 <span className="font-bold flex items-center gap-2 text-[#6C63FF]">
                   <Terminal className="w-4 h-4" /> DevTools Console Stream
                 </span>
-                <button onClick={() => setConsoleLogs([])} className="text-[#6B7280] hover:text-[#3D4852] cursor-pointer">
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button onClick={handleCopyConsoleLogs} title="Copy Console Logs" className="text-[#6B7280] hover:text-[#3D4852] cursor-pointer flex items-center gap-1 text-xs font-bold">
+                    {copyConsoleSuccess ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-[#6C63FF]" />}
+                  </button>
+                  <button onClick={() => setConsoleLogs([])} title="Clear Console" className="text-[#6B7280] hover:text-[#3D4852] cursor-pointer">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
               {consoleLogs.map(log => (
                 <div key={log.id} className="flex items-center gap-3 py-1 border-b border-black/5 text-xs">
@@ -224,9 +248,14 @@ ${networkSummary || 'No network activity logged.'}`;
                 <span className="font-bold flex items-center gap-2 text-[#38B2AC]">
                   <Activity className="w-4 h-4" /> Network API Inspector
                 </span>
-                <button onClick={() => setNetworkLogs([])} className="text-[#6B7280] hover:text-[#3D4852] cursor-pointer">
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button onClick={handleCopyNetworkLogs} title="Copy Network Logs" className="text-[#6B7280] hover:text-[#3D4852] cursor-pointer flex items-center gap-1 text-xs font-bold">
+                    {copyNetworkSuccess ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-[#38B2AC]" />}
+                  </button>
+                  <button onClick={() => setNetworkLogs([])} title="Clear Network Logs" className="text-[#6B7280] hover:text-[#3D4852] cursor-pointer">
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
               {networkLogs.map(net => (
                 <div key={net.id} className="flex items-center justify-between py-1.5 border-b border-black/5 text-xs">
