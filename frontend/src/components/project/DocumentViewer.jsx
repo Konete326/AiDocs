@@ -159,13 +159,13 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   };
 
   return (
-    <div className="liquid-glass-strong no-hover rounded-3xl flex flex-col h-full min-h-[450px] lg:min-h-0 overflow-hidden border border-slate-200 shadow-lg relative bg-white" style={{ willChange: 'transform' }}>
-      <div className="sticky top-0 z-20 shrink-0 backdrop-blur-xl bg-slate-50/80 border-b border-slate-200 grid grid-cols-12 items-center px-6 py-3.5 gap-1.5">
+    <div className="neumorphic-card rounded-3xl flex flex-col h-full min-h-[450px] lg:min-h-0 overflow-hidden relative bg-[#E0E5EC] text-[#3D4852]">
+      <div className="sticky top-0 z-20 shrink-0 bg-[#E0E5EC] border-b border-black/5 grid grid-cols-12 items-center px-6 py-3.5 gap-1.5">
         <div className="col-span-12 sm:col-span-3 flex items-center gap-2.5 min-w-0">
-          <p className="text-lg font-bold text-slate-900 truncate leading-tight">{DOC_LABELS[document.docType]}</p>
-          {saveError && <p className="text-xs text-red-600 truncate">{saveError}</p>}
+          <p className="text-base sm:text-lg font-bold text-[#3D4852] truncate leading-tight">{DOC_LABELS[document.docType]}</p>
+          {saveError && <p className="text-xs text-rose-600 font-bold truncate">{saveError}</p>}
           {searchQuery.trim() ? (
-            <span className="text-[10px] bg-teal-100 text-teal-800 px-2 py-0.5 rounded-full font-mono font-bold shrink-0 border border-teal-200">
+            <span className="text-[10px] bg-[#38B2AC]/20 text-[#38B2AC] px-2.5 py-0.5 rounded-full font-mono font-bold shrink-0 neumorphic-inset">
               {matchCount} {matchCount === 1 ? 'match' : 'matches'}
             </span>
           ) : null}
@@ -174,17 +174,17 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
         <div className="col-span-12 sm:col-span-5 flex items-center">
           {!isEditing && (
             <div className="relative flex items-center w-full">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
+              <Search className="w-3.5 h-3.5 text-[#6B7280] absolute left-3 pointer-events-none" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Filter document..."
-                className="w-full bg-white text-xs text-slate-900 placeholder:text-slate-400 pl-8 pr-7 py-1.5 rounded-full outline-none border border-slate-300 focus:border-blue-600 transition-all shadow-sm"
+                className="w-full bg-[#E0E5EC] text-xs font-bold text-[#3D4852] placeholder:text-[#6B7280] pl-8 pr-7 py-2 rounded-2xl outline-none neumorphic-inset"
               />
               {searchQuery ? (
-                <button onClick={() => setSearchQuery('')} className="absolute right-2 text-slate-400 hover:text-slate-700 cursor-pointer border-none bg-transparent">
-                  <X className="w-3 h-3" />
+                <button onClick={() => setSearchQuery('')} className="absolute right-2 text-[#6B7280] hover:text-[#3D4852] cursor-pointer">
+                  <X className="w-3.5 h-3.5" />
                 </button>
               ) : null}
             </div>
@@ -196,47 +196,47 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
             <div className="relative" ref={menuRef}>
               <button
                 onClick={() => setShowExportMenu(!showExportMenu)}
-                className="liquid-glass rounded-full px-3.5 py-1.5 text-xs text-slate-800 font-semibold flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer border border-slate-200"
+                className="neumorphic-btn rounded-2xl px-4 py-2 text-xs text-[#3D4852] font-bold flex items-center gap-1.5 cursor-pointer"
                 aria-label="Export options"
               >
-                <Download className="w-3.5 h-3.5 text-teal-600" />
+                <Download className="w-3.5 h-3.5 text-[#6C63FF]" />
                 <span>Export</span>
-                <ChevronDown className={`w-3 h-3 text-slate-500 transition-transform ${showExportMenu ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-3 h-3 text-[#6B7280] transition-transform ${showExportMenu ? 'rotate-180' : ''}`} />
               </button>
 
               {showExportMenu && (
-                <div className="absolute right-0 mt-2 w-48 rounded-2xl bg-white border border-slate-200 shadow-xl backdrop-blur-2xl z-30 py-1.5 flex flex-col gap-0.5 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute right-0 mt-2 w-52 rounded-2xl neumorphic-card bg-[#E0E5EC] z-30 py-1.5 flex flex-col gap-0.5 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
                   <button
                     onClick={() => { handleCopy(); setShowExportMenu(false); }}
-                    className="w-full px-4 py-2 text-left text-xs text-slate-800 hover:bg-slate-100 flex items-center justify-between transition-colors cursor-pointer font-medium"
+                    className="w-full px-4 py-2.5 text-left text-xs text-[#3D4852] hover:bg-[#6C63FF]/10 flex items-center justify-between transition-colors cursor-pointer font-bold"
                   >
                     <span className="flex items-center gap-2">
-                      <Copy className="w-3.5 h-3.5 text-blue-600" />
+                      <Copy className="w-3.5 h-3.5 text-[#6C63FF]" />
                       {document.docType === 'skills' ? 'Copy Commands' : 'Copy Content'}
                     </span>
-                    {copySuccess && <Check className="w-3 h-3 text-emerald-600" />}
+                    {copySuccess && <Check className="w-3.5 h-3.5 text-emerald-600" />}
                   </button>
 
                   <button
                     onClick={() => { handleDownloadPdf(); setShowExportMenu(false); }}
-                    className="w-full px-4 py-2 text-left text-xs text-slate-800 hover:bg-slate-100 flex items-center justify-between transition-colors cursor-pointer font-medium"
+                    className="w-full px-4 py-2.5 text-left text-xs text-[#3D4852] hover:bg-[#6C63FF]/10 flex items-center justify-between transition-colors cursor-pointer font-bold"
                   >
                     <span className="flex items-center gap-2">
                       <FileText className="w-3.5 h-3.5 text-emerald-600" />
-                      Export PDF
+                      Export Direct PDF (.pdf)
                     </span>
-                    {pdfSuccess && <Check className="w-3 h-3 text-emerald-600" />}
+                    {pdfSuccess && <Check className="w-3.5 h-3.5 text-emerald-600" />}
                   </button>
 
                   <button
                     onClick={() => { handleDownloadWord(); setShowExportMenu(false); }}
-                    className="w-full px-4 py-2 text-left text-xs text-slate-800 hover:bg-slate-100 flex items-center justify-between transition-colors cursor-pointer font-medium"
+                    className="w-full px-4 py-2.5 text-left text-xs text-[#3D4852] hover:bg-[#6C63FF]/10 flex items-center justify-between transition-colors cursor-pointer font-bold"
                   >
                     <span className="flex items-center gap-2">
                       <FileDown className="w-3.5 h-3.5 text-amber-600" />
                       Export Word (.docx)
                     </span>
-                    {wordSuccess && <Check className="w-3 h-3 text-emerald-600" />}
+                    {wordSuccess && <Check className="w-3.5 h-3.5 text-emerald-600" />}
                   </button>
                 </div>
               )}
@@ -245,7 +245,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
           {renderButtons()}
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto hover-scrollbar px-6 py-6">
+      <div className="flex-1 overflow-y-auto px-6 py-6 font-medium text-[#3D4852]">
         {isEditing ? (
           <DocumentEditor content={editContent} onChange={setEditContent} saveError={saveError} />
         ) : renderedMarkdown}
