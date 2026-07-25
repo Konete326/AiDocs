@@ -16,8 +16,8 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
   const previewWidth = device === 'mobile' ? 'max-w-[375px]' : device === 'tablet' ? 'max-w-[768px]' : 'w-full';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="w-full max-w-6xl h-[85vh] neumorphic-card rounded-[2.5rem] flex flex-col overflow-hidden bg-[#E0E5EC] text-[#3D4852]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pt-20 sm:pt-24 pb-6 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+      <div className="w-full max-w-6xl h-[80vh] neumorphic-card rounded-[2.5rem] flex flex-col overflow-hidden bg-[#E0E5EC] text-[#3D4852]">
         <div className="flex items-center justify-between p-4 px-6 border-b border-black/5 flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl neumorphic-inset flex items-center justify-center text-[#6C63FF]">
