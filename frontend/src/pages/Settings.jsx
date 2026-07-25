@@ -101,16 +101,14 @@ const Settings = () => {
   ];
 
   return (
-    <section className="relative min-h-screen overflow-hidden px-4 sm:px-6 pt-28 pb-8">
-      <div className="absolute inset-0 bg-black/55 z-[1]" />
-      
+    <section className="relative min-h-screen overflow-hidden px-4 sm:px-6 pt-28 pb-8 bg-[#E0E5EC] text-[#3D4852]">
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <button 
           onClick={() => navigate(-1)}
-          className="liquid-glass rounded-full px-4 py-2 flex items-center gap-2 mb-8 hover:scale-105 transition-transform cursor-pointer shadow-xl border border-white/5"
+          className="neumorphic-btn rounded-2xl px-4 py-2 flex items-center gap-2 mb-8 text-xs text-[#3D4852] font-bold cursor-pointer"
         >
-          <ChevronLeft className="w-4 h-4 text-white/70" />
-          <span className="text-sm text-white/70 font-medium">Back</span>
+          <ChevronLeft className="w-4 h-4 text-[#3D4852]" />
+          <span>Back</span>
         </button>
         
         <div className="md:hidden flex overflow-x-auto gap-2 pb-4 scrollbar-none mb-4">
@@ -118,10 +116,10 @@ const Settings = () => {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`px-4 py-2.5 rounded-xl flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap text-xs font-medium ${
+              className={`px-4 py-2.5 rounded-2xl flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap text-xs font-bold ${
                 activeTab === tab.id 
-                  ? 'bg-white text-black shadow-lg font-semibold' 
-                  : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white border border-white/10'
+                  ? 'bg-[#6C63FF] text-white shadow-md' 
+                  : 'neumorphic-btn text-[#3D4852]'
               }`}
             >
               <tab.icon className="w-3.5 h-3.5" />
@@ -131,21 +129,21 @@ const Settings = () => {
         </div>
 
         <div className="flex flex-col md:flex-row gap-8 items-start w-full">
-          <GlassCard className="hidden md:block w-64 flex-shrink-0 p-4 h-fit rounded-[2rem] pb-8 no-hover">
-            <h2 className="text-xl font-semibold text-white mb-6 px-4 pt-2 text-left tracking-tight">Settings</h2>
+          <GlassCard className="hidden md:block w-64 flex-shrink-0 p-4 h-fit rounded-[2.5rem] pb-8 no-hover">
+            <h2 className="text-xl font-extrabold text-[#3D4852] mb-6 px-4 pt-2 text-left tracking-tight">Settings</h2>
             <div className="flex flex-col gap-2">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`w-full text-left px-4 py-3.5 rounded-2xl flex items-center gap-3 transition-all cursor-pointer ${
+                  className={`w-full text-left px-4 py-3.5 rounded-2xl flex items-center gap-3 transition-all cursor-pointer text-xs font-bold ${
                     activeTab === tab.id 
-                      ? 'bg-white/10 text-white shadow-xl border border-white/10' 
-                      : 'text-white/40 hover:bg-white/5 hover:text-white/70 border border-transparent'
+                      ? 'bg-[#6C63FF] text-white shadow-md' 
+                      : 'neumorphic-btn text-[#3D4852]'
                   }`}
                 >
                   <tab.icon className="w-4 h-4" />
-                  <span className="text-sm font-medium">{tab.label}</span>
+                  <span>{tab.label}</span>
                 </button>
               ))}
             </div>
@@ -154,18 +152,18 @@ const Settings = () => {
           <GlassCard strong className="flex-1 w-full p-6 md:p-8 lg:p-10 rounded-[2.5rem] min-h-[350px] no-hover">
              {activeTab === 'theme' && (
                 <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  <h3 className="text-2xl font-serif italic text-white tracking-tight mb-2">Display & Theme</h3>
-                  <p className="text-white/40 text-sm mb-8">Your workspace is styled with a premium tactile design system.</p>
+                  <h3 className="text-2xl font-bold text-[#3D4852] tracking-tight mb-2">Display & Theme</h3>
+                  <p className="text-[#6B7280] text-sm mb-8 font-medium">Your workspace is styled with a premium tactile design system.</p>
                   
                   <div className="space-y-8 max-w-5xl">
-                    <div className="liquid-glass p-6 rounded-3xl border border-white/5 flex items-center justify-between">
+                    <div className="neumorphic-btn p-6 rounded-3xl flex items-center justify-between">
                        <div>
-                         <div className="text-sm font-medium text-white">Neumorphic Soft UI Engine</div>
-                         <div className="text-xs mt-1 text-white/40">
+                         <div className="text-sm font-bold text-[#3D4852]">Neumorphic Soft UI Engine</div>
+                         <div className="text-xs mt-1 text-[#6B7280] font-medium">
                             The visual system uses dual-opposing shadows on a cool-monochromatic surface (#E0E5EC) for maximum physical depth and accessibility.
                          </div>
                        </div>
-                       <div className="text-xs font-bold uppercase tracking-widest text-[#38B2AC] bg-[#38B2AC]/10 px-4 py-2 rounded-full h-fit flex items-center justify-center">
+                       <div className="text-xs font-mono font-bold uppercase tracking-widest text-[#38B2AC] neumorphic-inset px-4 py-2 rounded-full h-fit flex items-center justify-center">
                          Active
                        </div>
                     </div>
