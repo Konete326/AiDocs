@@ -205,22 +205,6 @@ ${networkSummary || 'No network activity logged.'}`;
 
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setIsAnnotatingMode(!isAnnotatingMode)}
-              className={`rounded-xl px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shadow-sm ${
-                isAnnotatingMode ? 'bg-[#38B2AC] text-white' : 'neumorphic-btn text-[#3D4852]'
-              }`}
-              title="Annotate UI elements on sandbox preview"
-            >
-              <MousePointer className="w-3.5 h-3.5" />
-              <span>{isAnnotatingMode ? 'Click Preview to Pin...' : 'Annotate Sandbox'}</span>
-              {sandboxAnnotations.length > 0 && (
-                <span className="ml-1 bg-[#6C63FF] text-white px-1.5 py-0.5 rounded-full text-[10px] font-extrabold">
-                  {sandboxAnnotations.length}
-                </span>
-              )}
-            </button>
-
-            <button
               onClick={() => setIsAiModalOpen(true)}
               className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white rounded-xl px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shadow-sm"
             >
