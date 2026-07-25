@@ -367,20 +367,16 @@ ${networkSummary || 'No network activity logged.'}`;
         <div className="flex-1 min-h-0 bg-[#E0E5EC] p-6 flex justify-center items-center overflow-hidden">
           {activeTab === 'preview' ? (
             <div className={`${previewWidth} h-full neumorphic-inset rounded-3xl overflow-hidden flex flex-col transition-all duration-300 relative bg-white`}>
-              {/* Render Element Highlight Box when Inspecting Iframe */}
-              {isAnnotatingMode && hoveredIframeElement && (
+              {/* Precision Click Overlay when Annotating Sandbox */}
+              {isAnnotatingMode && (
                 <div
-                  className="absolute pointer-events-none z-30 border-2 border-[#6C63FF] bg-[#6C63FF]/15 rounded shadow-lg transition-all duration-75"
-                  style={{
-                    top: hoveredIframeElement.rect.top,
-                    left: hoveredIframeElement.rect.left,
-                    width: hoveredIframeElement.rect.width,
-                    height: hoveredIframeElement.rect.height
-                  }}
+                  onClick={handleSandboxClickToAnnotate}
+                  className="absolute inset-0 z-30 bg-[#6C63FF]/10 cursor-crosshair border-2 border-dashed border-[#6C63FF] flex items-start justify-center p-3 pointer-events-auto"
                 >
-                  <span className="absolute -top-6 left-0 bg-[#6C63FF] text-white text-[10px] font-mono px-2 py-0.5 rounded shadow font-bold tracking-wide">
-                    {hoveredIframeElement.selector}
-                  </span>
+                  <div className="bg-[#6C63FF] text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-xl pointer-events-none animate-pulse flex items-center gap-1.5">
+                    <MousePointer className="w-3.5 h-3.5" />
+                    <span>Click anywhere on preview to drop Pin #{sandboxAnnotations.length + 1}</span>
+                  </div>
                 </div>
               )}
 
