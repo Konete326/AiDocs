@@ -28,9 +28,22 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
   const [aiPrompt, setAiPrompt] = useState('');
   const [isSendingAi, setIsSendingAi] = useState(false);
 
+  const getFormattedUrl = (url) => {
+    if (!url || !url.trim()) return 'about:blank';
+    let cleaned = url.trim();
+    if (!/^https?:\/\//i.test(cleaned)) {
+      cleaned = 'https://' + cleaned;
+    }
+    return cleaned;
+  };
+
+  const [activeIframeUrl, setActiveIframeUrl] = useState('https://example.com');
+
   useEffect(() => {
     if (project?._id) {
-      setSandboxUrl(`https://preview.clarifyai.app/projects/${project._id}`);
+      const defaultUrl = `https://example.com`;
+      setSandboxUrl(defaultUrl);
+      setActiveIframeUrl(defaultUrl);
     }
   }, [project?._id]);
 
@@ -38,8 +51,10 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
 
   const refreshApp = () => {
     setIsRefreshing(true);
-    setConsoleLogs(prev => [...prev, { id: Date.now(), type: 'info', time: new Date().toLocaleTimeString(), text: '[Vite] Triggered hard reload...' }]);
-    setTimeout(() => setIsRefreshing(false), 800);
+    const target = getFormattedUrl(sandboxUrl);
+    setActiveIframeUrl(target);
+    setConsoleLogs(prev => [...prev, { id: Date.now(), type: 'info', time: new Date().toLocaleTimeString(), text: `[Browser] Navigated to ${target}` }]);
+    setTimeout(() => setIsRefreshing(false), 500);
   };
 
   const handleSendAiInstruction = async () => {
@@ -160,26 +175,20 @@ ${networkSummary || 'No network activity logged.'}`;
 
         <div className="flex-1 min-h-0 bg-[#E0E5EC] p-6 flex justify-center items-center overflow-hidden">
           {activeTab === 'preview' ? (
-            <div className={`${previewWidth} h-full neumorphic-inset rounded-3xl overflow-hidden flex flex-col transition-all duration-300`}>
+            <div className={`${previewWidth} h-full neumorphic-inset rounded-3xl overflow-hidden flex flex-col transition-all duration-300 relative bg-white`}>
               {isRefreshing ? (
-                <div className="flex-1 flex flex-col items-center justify-center gap-2 text-xs font-bold text-[#6B7280]">
+                <div className="flex-1 flex flex-col items-center justify-center gap-2 text-xs font-bold text-[#6B7280] bg-[#E0E5EC]">
                   <RefreshCw className="w-6 h-6 animate-spin text-[#6C63FF]" />
-                  <span>Reloading sandbox bundle...</span>
+                  <span>Loading website preview...</span>
                 </div>
               ) : (
-                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center gap-4 bg-[#E0E5EC]">
-                  <div className="w-16 h-16 rounded-3xl neumorphic-card flex items-center justify-center text-[#6C63FF]">
-                    <Play className="w-8 h-8 text-[#6C63FF] ml-1" />
-                  </div>
-                  <div>
-                    <h4 className="text-lg font-extrabold text-[#3D4852]">{project?.title || 'Generated Product'}</h4>
-                    <p className="text-xs text-[#6B7280] font-medium max-w-md mt-1">Live WebContainer Sandbox compiled successfully. React app running on port 5173.</p>
-                  </div>
-                  <div className="flex gap-3 mt-2">
-                    <span className="text-xs font-mono font-bold text-[#38B2AC] neumorphic-inset px-3 py-1.5 rounded-full">⚡ HMR Enabled</span>
-                    <span className="text-xs font-mono font-bold text-[#6C63FF] neumorphic-inset px-3 py-1.5 rounded-full">📦 Vite 8.0 Engine</span>
-                  </div>
-                </div>
+                <iframe
+                  key={activeIframeUrl}
+                  src={activeIframeUrl}
+                  className="w-full h-full border-none bg-white rounded-3xl"
+                  title="Live Sandbox Website Preview"
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
+                />
               )}
             </div>
           ) : activeTab === 'console' ? (
