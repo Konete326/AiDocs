@@ -61,10 +61,15 @@ ${consoleSummary || 'No errors logged.'}
 === NETWORK DIAGNOSTICS ===
 ${networkSummary || 'No network activity logged.'}`;
 
-      await api.post(`/projects/${project._id}/chat`, { message: fullMessage });
-      toast.success('Instruction & diagnostics sent to Antigravity & Claude Code agents!');
+      await api.post(`/projects/${project._id}/chat`, {
+        messages: [{ role: 'user', content: fullMessage }]
+      });
+
+      toast.success('Instruction added to AI Chat! Redirecting to Chat...');
       setAiPrompt('');
       setIsAiModalOpen(false);
+      onClose();
+      window.location.href = `/projects/${project._id}/chat`;
     } catch (err) {
       console.error('Failed sending AI instruction:', err);
       toast.error('Failed sending instruction to AI agent');
