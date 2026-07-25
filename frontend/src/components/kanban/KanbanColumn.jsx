@@ -8,14 +8,13 @@ const KanbanColumn = ({ column, onAddTask, onDeleteTask, onEditTitle }) => {
   const [titleValue, setTitleValue] = useState(column.title);
 
   return (
-    <div className="w-full flex flex-col gap-2.5 h-[380px] max-h-[400px] overflow-hidden liquid-glass-strong rounded-3xl p-3.5 border border-white/10 shadow-xl transition-all">
-      {/* Header */}
-      <div className="flex items-center justify-between px-1 flex-shrink-0 pb-1.5 border-b border-white/5">
+    <div className="w-full flex flex-col gap-2.5 h-[380px] max-h-[400px] overflow-hidden neumorphic-card rounded-3xl p-3.5 transition-all">
+      <div className="flex items-center justify-between px-1 flex-shrink-0 pb-1.5 border-b border-black/5">
         {isEditingTitle ? (
-          <div className="liquid-glass rounded-xl px-3 py-1 flex-1 mr-2 border border-white/15">
+          <div className="neumorphic-inset rounded-xl px-3 py-1 flex-1 mr-2">
             <input
               type="text"
-              className="bg-transparent text-white outline-none text-xs font-semibold w-full"
+              className="bg-transparent text-[#3D4852] outline-none text-xs font-bold w-full"
               value={titleValue}
               onChange={(e) => setTitleValue(e.target.value)}
               onBlur={() => {
@@ -33,7 +32,7 @@ const KanbanColumn = ({ column, onAddTask, onDeleteTask, onEditTitle }) => {
           </div>
         ) : (
           <h3
-            className="text-xs sm:text-sm font-semibold text-white/90 cursor-pointer hover:text-white transition-colors truncate"
+            className="text-xs sm:text-sm font-bold text-[#3D4852] cursor-pointer hover:text-[#6C63FF] transition-colors truncate"
             onClick={() => setIsEditingTitle(true)}
             title="Click to rename column"
           >
@@ -41,19 +40,18 @@ const KanbanColumn = ({ column, onAddTask, onDeleteTask, onEditTitle }) => {
           </h3>
         )}
 
-        <div className="liquid-glass rounded-full px-2 py-0.5 text-[10px] font-mono text-white/60 border border-white/5 flex-shrink-0">
+        <div className="neumorphic-inset rounded-full px-2.5 py-0.5 text-[10px] font-mono font-bold text-[#6C63FF] flex-shrink-0">
           {column.tasks.length}
         </div>
       </div>
 
-      {/* Droppable Task Area with Auto Scroll */}
       <Droppable droppableId={column.id}>
         {(provided, snapshot) => (
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pr-1 pb-4 scroll-smooth hover-scrollbar custom-scrollbar transition-all p-1 rounded-2xl ${
-              snapshot.isDraggingOver ? 'bg-white/10 ring-1 ring-[#6C63FF]/50' : ''
+            className={`flex flex-col gap-2 flex-1 min-h-0 overflow-y-auto pr-1 pb-4 scroll-smooth custom-scrollbar transition-all p-1 rounded-2xl ${
+              snapshot.isDraggingOver ? 'neumorphic-inset ring-2 ring-[#6C63FF]' : ''
             }`}
           >
             {column.tasks.map((task, index) => (
@@ -70,7 +68,6 @@ const KanbanColumn = ({ column, onAddTask, onDeleteTask, onEditTitle }) => {
         )}
       </Droppable>
 
-      {/* Bottom Add Task Input */}
       <div className="flex-shrink-0 pt-1">
         <AddTaskInput columnId={column.id} onAdd={onAddTask} />
       </div>

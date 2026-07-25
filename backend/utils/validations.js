@@ -26,18 +26,14 @@ const updateProjectSchema = Joi.object({
   isArchived: Joi.boolean().optional(),
   kanbanColumns: Joi.array().items(
     Joi.object({
-      id: Joi.string().required(),
-      title: Joi.string().max(80).required(),
+      id: Joi.string().allow('', null).optional(),
+      _id: Joi.string().allow('', null).optional(),
+      title: Joi.string().max(120).allow('', null).optional(),
       featureIds: Joi.array().items(Joi.string().allow('')).optional(),
-      tasks: Joi.array().items(
-        Joi.object({
-          id: Joi.string().required(),
-          text: Joi.string().required(),
-          completed: Joi.boolean().optional()
-        }).unknown(true)
-      ).optional()
+      cards: Joi.array().items(Joi.object().unknown(true)).optional(),
+      tasks: Joi.array().items(Joi.object().unknown(true)).optional()
     }).unknown(true)
-  ).unique((a, b) => a.id === b.id).optional(),
+  ).optional(),
   milestones: Joi.array().items(
     Joi.object({
       id: Joi.string().optional(),

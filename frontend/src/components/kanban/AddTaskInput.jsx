@@ -16,18 +16,18 @@ const AddTaskInput = ({ columnId, onAdd }) => {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="liquid-glass rounded-full px-4 py-2 w-full flex items-center gap-2 text-xs text-white/40 hover:text-white/60 transition-colors"
+        className="neumorphic-btn rounded-2xl px-4 py-2.5 w-full flex items-center justify-center gap-2 text-xs text-[#3D4852] font-bold cursor-pointer transition-all"
       >
-        <Plus className="w-3 h-3" />
+        <Plus className="w-3.5 h-3.5 text-[#6C63FF]" />
         <span>Add task</span>
       </button>
     );
   }
 
   return (
-    <div className="liquid-glass rounded-2xl p-3 flex flex-col gap-2">
+    <div className="neumorphic-card rounded-2xl p-3 flex flex-col gap-2">
       <textarea
-        className="bg-transparent text-white placeholder:text-white/30 outline-none text-sm resize-none w-full"
+        className="bg-[#E0E5EC] text-[#3D4852] placeholder:text-[#6B7280] outline-none text-xs font-bold p-2.5 rounded-xl resize-none w-full neumorphic-inset"
         rows={2}
         placeholder="Task description..."
         value={text}
@@ -40,20 +40,20 @@ const AddTaskInput = ({ columnId, onAdd }) => {
         }}
         autoFocus
       />
-      <div className="flex gap-2 justify-end mt-2">
+      <div className="flex gap-2 justify-end mt-1">
         <button
           onClick={() => {
             setIsOpen(false);
             setText('');
           }}
-          className="liquid-glass rounded-full px-3 py-1.5 text-xs text-white/50 hover:text-white/70 transition-colors"
+          className="neumorphic-btn rounded-xl px-3 py-1.5 text-xs text-[#6B7280] font-bold cursor-pointer"
         >
           Cancel
         </button>
         <button
           onClick={handleSubmit}
           disabled={!text.trim()}
-          className="liquid-glass-strong rounded-full px-3 py-1.5 text-xs text-white disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 transition-transform"
+          className="bg-[#6C63FF] text-white rounded-xl px-3 py-1.5 text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-md"
         >
           Add
         </button>

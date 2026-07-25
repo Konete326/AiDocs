@@ -1,6 +1,24 @@
 import { useState, useEffect } from 'react';
 import { getProject, updateKanban } from '../services/projectService';
 import { DEFAULT_COLUMNS } from '../constants/kanban';
+import { toast } from 'react-hot-toast';
+
+const normalizeColumns = (cols) => {
+  if (!cols || !Array.isArray(cols) || cols.length === 0) return DEFAULT_COLUMNS;
+  return cols.map((col, cIdx) => {
+    const rawTasks = col.tasks || col.cards || [];
+    const tasks = rawTasks.map((t, tIdx) => ({
+      id: t.id || t._id || `task-${cIdx}-${tIdx}-${Date.now()}`,
+      text: t.text || t.title || t.description || 'Untitled Task',
+      completed: Boolean(t.completed || t.status === 'done')
+    }));
+    return {
+      id: col.id || col._id || `col-${cIdx}-${Date.now()}`,
+      title: col.title || `Column ${cIdx + 1}`,
+      tasks
+    };
+  });
+};
 
 export const useKanban = (projectId) => {
   const [project, setProject] = useState(null);
@@ -13,41 +31,53 @@ export const useKanban = (projectId) => {
       try {
         const proj = await getProject(projectId);
         setProject(proj);
-        setColumns(proj.kanbanColumns?.length > 0 ? proj.kanbanColumns : DEFAULT_COLUMNS);
-      } catch (err) { console.error(err); } finally { setIsLoading(false); }
+        setColumns(normalizeColumns(proj.kanbanColumns));
+      } catch (err) {
+        toast.error('Failed to load Kanban board');
+      } finally {
+        setIsLoading(false);
+      }
     };
     fetchProject();
   }, [projectId]);
 
   const save = async (updated) => {
     setIsSaving(true);
-    try { await updateKanban(projectId, updated); }
-    catch (err) { console.error(err); } finally { setIsSaving(false); }
+    try {
+      await updateKanban(projectId, updated);
+    } catch (err) {
+      toast.error('Failed to persist Kanban changes');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDragEnd = (result) => {
     if (!result.destination) return;
     const { source, destination } = result;
-    const updated = [...columns];
+    const updated = columns.map(c => ({ ...c, tasks: [...c.tasks] }));
     
     if (source.droppableId === destination.droppableId) {
       const col = updated.find(c => c.id === source.droppableId);
-      const tasks = Array.from(col.tasks);
-      const [moved] = tasks.splice(source.index, 1);
-      tasks.splice(destination.index, 0, moved);
-      col.tasks = tasks;
+      if (col) {
+        const [moved] = col.tasks.splice(source.index, 1);
+        col.tasks.splice(destination.index, 0, moved);
+      }
     } else {
       const sCol = updated.find(c => c.id === source.droppableId);
       const dCol = updated.find(c => c.id === destination.droppableId);
-      const [moved] = sCol.tasks.splice(source.index, 1);
-      dCol.tasks.splice(destination.index, 0, moved);
+      if (sCol && dCol) {
+        const [moved] = sCol.tasks.splice(source.index, 1);
+        dCol.tasks.splice(destination.index, 0, moved);
+      }
     }
     setColumns(updated);
     save(updated);
   };
 
   const addTask = (colId, text) => {
-    const updated = columns.map(c => c.id === colId ? { ...c, tasks: [...c.tasks, { id: 't-'+Date.now(), text }] } : c);
+    const newTask = { id: `task-${Date.now()}`, text: text.trim(), completed: false };
+    const updated = columns.map(c => c.id === colId ? { ...c, tasks: [...c.tasks, newTask] } : c);
     setColumns(updated);
     save(updated);
   };
@@ -59,13 +89,14 @@ export const useKanban = (projectId) => {
   };
 
   const addColumn = () => {
-    const updated = [...columns, { id: 'c-'+Date.now(), title: 'New Column', tasks: [] }];
+    const newCol = { id: `col-${Date.now()}`, title: 'New Column', tasks: [] };
+    const updated = [...columns, newCol];
     setColumns(updated);
     save(updated);
   };
 
   const editColumn = (id, title) => {
-    const updated = columns.map(c => c.id === id ? { ...c, title } : c);
+    const updated = columns.map(c => c.id === id ? { ...c, title: title.trim() || c.title } : c);
     setColumns(updated);
     save(updated);
   };

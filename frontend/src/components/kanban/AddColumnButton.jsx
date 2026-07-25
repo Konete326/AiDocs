@@ -4,12 +4,12 @@ const AddColumnButton = ({ onClick }) => {
   return (
     <button
       onClick={onClick}
-      className="liquid-glass rounded-3xl w-full h-[380px] max-h-[400px] flex flex-col items-center justify-center gap-3 hover:scale-[1.01] transition-all cursor-pointer border border-dashed border-white/15 hover:border-white/30 group"
+      className="neumorphic-card rounded-3xl w-full h-[380px] max-h-[400px] flex flex-col items-center justify-center gap-3 hover:scale-[1.01] transition-all cursor-pointer group"
     >
-      <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-        <Plus className="w-5 h-5 text-white/60 group-hover:text-white" />
+      <div className="w-12 h-12 rounded-2xl neumorphic-inset flex items-center justify-center text-[#6C63FF] group-hover:scale-110 transition-transform">
+        <Plus className="w-6 h-6 text-[#6C63FF]" />
       </div>
-      <span className="text-xs font-semibold text-white/50 group-hover:text-white/80">Add Column</span>
+      <span className="text-xs font-bold text-[#3D4852] group-hover:text-[#6C63FF] transition-colors">Add Column</span>
     </button>
   );
 };
