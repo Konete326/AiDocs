@@ -1,0 +1,55 @@
+import { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
+import { AnimatePresence } from 'framer-motion';
+import logo from '../../assets/logo.png';
+import NavLinks from './NavLinks';
+import NavUserSection from './NavUserSection';
+import NavMobileMenu from './NavMobileMenu';
+
+const AppNavbar = () => {
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => { setMobileOpen(false); }, [location]);
+
+  return (
+    <nav className="fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-3 pointer-events-none">
+      <div className="max-w-7xl mx-auto liquid-glass-strong no-hover rounded-2xl px-6 h-[60px] flex items-center justify-between pointer-events-auto shadow-2xl !overflow-visible mb-[5px]">
+        <div 
+          onClick={() => navigate('/')}
+          className="flex items-center gap-3 cursor-pointer"
+        >
+          <img src={logo} alt="Logo" className="w-8 h-8 rounded-lg object-cover" />
+          <span className="hidden sm:block text-base font-bold tracking-tight text-slate-900">
+            ClarifyAI
+          </span>
+        </div>
+
+        <div className="hidden md:flex flex-1 justify-center">
+          <NavLinks />
+        </div>
+
+        <div className="flex items-center gap-3">
+          <NavUserSection />
+          
+          <button 
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="md:hidden liquid-glass no-hover rounded-full w-9 h-9 flex items-center justify-center cursor-pointer"
+          >
+            {mobileOpen ? <X className="w-4 h-4 text-slate-900" /> : <Menu className="w-4 h-4 text-slate-900" />}
+          </button>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {mobileOpen && (
+          <NavMobileMenu isOpen={mobileOpen} onClose={() => setMobileOpen(false)} />
+        )}
+      </AnimatePresence>
+    </nav>
+  );
+};
+
+export default AppNavbar;

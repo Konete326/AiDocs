@@ -1,0 +1,263 @@
+*, *::before, *::after {
+  text-shadow: none !important;
+}
+
+.liquid-glass,
+.neumorphic-card {
+  background-color: #E0E5EC !important;
+  backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: 9px 9px 16px rgba(163, 177, 198, 0.6), -9px -9px 16px rgba(255, 255, 255, 0.5) !important;
+  transition: all 0.3s ease-out !important;
+  color: #3D4852 !important;
+  border-radius: 32px;
+  text-shadow: none !important;
+}
+
+.liquid-glass-strong,
+.neumorphic-card-strong {
+  background-color: #E0E5EC !important;
+  backdrop-filter: none !important;
+  border: none !important;
+  box-shadow: 12px 12px 20px rgba(163, 177, 198, 0.7), -12px -12px 20px rgba(255, 255, 255, 0.6) !important;
+  transition: all 0.3s ease-out !important;
+  color: #3D4852 !important;
+  border-radius: 32px;
+  text-shadow: none !important;
+}
+
+.liquid-glass::before,
+.liquid-glass-strong::before {
+  content: none !important;
+  display: none !important;
+}
+
+button.liquid-glass,
+button.liquid-glass-strong,
+a.liquid-glass,
+a.liquid-glass-strong,
+.cursor-pointer.liquid-glass,
+.cursor-pointer.liquid-glass-strong,
+.neumorphic-btn {
+  background-color: #E0E5EC !important;
+  color: #3D4852 !important;
+  border: none !important;
+  box-shadow: 5px 5px 10px rgba(163, 177, 198, 0.6), -5px -5px 10px rgba(255, 255, 255, 0.5) !important;
+  transition: all 0.3s ease-out !important;
+  text-shadow: none !important;
+  border-radius: 16px;
+}
+
+button.liquid-glass:hover,
+button.liquid-glass-strong:hover,
+a.liquid-glass:hover,
+a.liquid-glass-strong:hover,
+.cursor-pointer.liquid-glass:hover,
+.cursor-pointer.liquid-glass-strong:hover,
+.neumorphic-btn:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 9px 9px 16px rgba(163, 177, 198, 0.7), -9px -9px 16px rgba(255, 255, 255, 0.6) !important;
+}
+
+button.liquid-glass:active,
+button.liquid-glass-strong:active,
+.neumorphic-btn:active {
+  transform: translateY(0.5px) !important;
+  box-shadow: inset 4px 4px 8px rgba(163, 177, 198, 0.6), inset -4px -4px 8px rgba(255, 255, 255, 0.5) !important;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea,
+select,
+.liquid-glass:has(input),
+.liquid-glass:has(textarea),
+.liquid-glass:has(select),
+.neumorphic-input-wrapper,
+.neumorphic-inset {
+  background-color: #E0E5EC !important;
+  color: #3D4852 !important;
+  border: none !important;
+  box-shadow: inset 6px 6px 10px rgba(163, 177, 198, 0.6), inset -6px -6px 10px rgba(255, 255, 255, 0.5) !important;
+  transition: all 0.3s ease-out !important;
+  border-radius: 16px;
+}
+
+.neumorphic-inset-deep {
+  background-color: #E0E5EC !important;
+  color: #3D4852 !important;
+  border: none !important;
+  box-shadow: inset 10px 10px 20px rgba(163, 177, 198, 0.7), inset -10px -10px 20px rgba(255, 255, 255, 0.6) !important;
+  transition: all 0.3s ease-out !important;
+  border-radius: 20px;
+}
+
+.liquid-glass input,
+.liquid-glass textarea,
+.liquid-glass select,
+.neumorphic-input-wrapper input,
+.neumorphic-input-wrapper textarea,
+.neumorphic-input-wrapper select {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+  color: #3D4852 !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus,
+.liquid-glass:has(input:focus),
+.liquid-glass:has(textarea:focus),
+.liquid-glass:has(select:focus),
+.neumorphic-input-wrapper:focus-within {
+  box-shadow: inset 8px 8px 14px rgba(163, 177, 198, 0.7), inset -8px -8px 14px rgba(255, 255, 255, 0.6) !important;
+  ring: 2px #6C63FF !important;
+}
+
+.text-white,
+.text-slate-900,
+.text-slate-800 {
+  color: #3D4852 !important;
+}
+
+.text-white\/60,
+.text-white\/70,
+.text-white\/80,
+.text-slate-600,
+.text-slate-500 {
+  color: #6B7280 !important;
+}
+
+.fixed.inset-0,
+[class*="fixed"][class*="inset-0"] {
+  background-color: #E0E5EC !important;
+  backdrop-filter: none !important;
+}
+
+.bg-black\/95.backdrop-blur-3xl,
+.bg-black\/90,
+.bg-black\/95 {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+  color: #0F172A !important;
+}
+
+button.bg-accent,
+button.bg-blue-600,
+span.bg-blue-600,
+.bg-blue-600,
+.bg-blue-600 *,
+.bg-blue-700,
+.bg-blue-700 *,
+button.bg-slate-900,
+button.bg-slate-900 *,
+.bg-slate-900,
+.bg-slate-900 *,
+button.bg-slate-800,
+button.bg-slate-800 *,
+.bg-slate-800,
+.bg-slate-800 *,
+button.bg-slate-950,
+button.bg-slate-950 *,
+.bg-slate-950,
+.bg-slate-950 *,
+button.bg-black,
+button.bg-black *,
+.bg-black,
+.bg-black *,
+button.bg-red-600,
+button.bg-red-600 *,
+.bg-red-600,
+.bg-red-600 *,
+button.bg-emerald-600,
+button.bg-emerald-600 *,
+.bg-emerald-600,
+.bg-emerald-600 *,
+button.bg-\[\#6C63FF\],
+button.bg-\[\#6C63FF\] *,
+.bg-\[\#6C63FF\],
+.bg-\[\#6C63FF\] *,
+button.bg-\[\#38B2AC\],
+button.bg-\[\#38B2AC\] *,
+.bg-\[\#38B2AC\],
+.bg-\[\#38B2AC\] *,
+button.liquid-glass.bg-blue-600,
+button.liquid-glass.bg-blue-600 *,
+button.liquid-glass-strong.bg-blue-600,
+.bg-blue-600 button,
+.bg-accent button {
+  color: #ffffff !important;
+}
+
+button.bg-accent,
+button.bg-blue-600,
+span.bg-blue-600,
+.bg-blue-600 {
+  background-color: #2563eb !important;
+  border: 1px solid #2563eb !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
+  text-shadow: none !important;
+}
+
+button.bg-accent:hover,
+button.bg-blue-600:hover,
+button.bg-blue-600:hover *,
+button.liquid-glass.bg-blue-600:hover,
+button.liquid-glass-strong.bg-blue-600:hover,
+.bg-blue-600 button:hover,
+.bg-accent button:hover {
+  background-color: #1d4ed8 !important;
+  color: #ffffff !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.45) !important;
+  text-shadow: none !important;
+}
+
+button.bg-accent:active,
+button.bg-blue-600:active,
+button.liquid-glass.bg-blue-600:active,
+button.liquid-glass-strong.bg-blue-600:active,
+.bg-blue-600 button:active,
+.bg-accent button:active {
+  transform: translateY(0.5px) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25) !important;
+  text-shadow: none !important;
+}
+
+button.bg-accent svg,
+button.bg-blue-600 svg,
+button.liquid-glass.bg-blue-600 svg,
+button.liquid-glass-strong.bg-blue-600 svg,
+.bg-blue-600 button svg,
+.bg-accent button svg {
+  stroke: #ffffff !important;
+}
+
+nav .liquid-glass-strong:hover,
+nav .liquid-glass-strong,
+nav .max-w-7xl:hover,
+.max-w-7xl.liquid-glass-strong:hover {
+  transform: none !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05) !important;
+}
+
+.liquid-glass:has(form):hover,
+.liquid-glass-strong:has(form):hover {
+  transform: none !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+.liquid-glass.no-hover:hover {
+  transform: none !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05) !important;
+}
+
+.liquid-glass-strong.no-hover:hover {
+  transform: none !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07) !important;
+}

@@ -1,0 +1,369 @@
+const Document = require('../models/Document');
+const Project = require('../models/Project');
+const AIService = require('./AIService');
+const AppError = require('../utils/AppError');
+
+const prompts = {
+  prd: require('../prompts/prdPrompt'),
+  srd: require('../prompts/srdPrompt'),
+  techStack: require('../prompts/techStackPrompt'),
+  dbSchema: require('../prompts/dbSchemaPrompt'),
+  userFlows: require('../prompts/userFlowsPrompt'),
+  mvpPlan: require('../prompts/mvpPlanPrompt'),
+  folderStructure: require('../prompts/folderStructurePrompt'),
+  claudeContext: require('../prompts/claudeContextPrompt'),
+  agentSystemPrompt: require('../prompts/agentSystemPrompt')
+};
+
+/**
+ * Build a concise context string from previously generated documents.
+ * Truncates each to 1500 chars to avoid blowing the LLM context window.
+ */
+const buildContext = (previousDocs) => {
+  const entries = Object.entries(previousDocs);
+  if (entries.length === 0) return 'None yet.';
+  return entries
+    .map(([type, content]) => `### ${type.toUpperCase()}\n${content.substring(0, 1500)}${content.length > 1500 ? '\n...[truncated]' : ''}`)
+    .join('\n\n---\n\n');
+};
+
+const { parseTechStack } = require('./techStackParser');
+
+const generateFolderStructureLocal = (wizardAnswers) => {
+  const stack = parseTechStack(wizardAnswers);
+  const title = wizardAnswers?.projectName || 'Project';
+  
+  return `# Recommended Folder Structure — ${title} (${stack.displayName})
+
+Based on your project architecture (**${stack.displayName}**), we recommend the following directory layout:
+
+\`\`\`text
+${stack.blueprint}
+\`\`\`
+
+## Architecture Profile Details
+* **Profile Key:** \`${stack.profile}\`
+* **Frontend Framework:** ${stack.frontendFramework}
+* **Backend Framework:** ${stack.backendFramework}
+* **Language Ecosystem:** ${stack.language}
+
+## Guidelines
+* **Separation of Concerns:** Keep business logic separated from presentation layers.
+* **Config Files:** Store all secrets in environment configuration files. Never commit credentials to version control.
+* **Modular Code:** Build components and controllers in separate modules to ensure codebase remains scalable.`;
+};
+
+const generateClaudeContextLocal = (wizardAnswers, contextSummary) => {
+  const stack = parseTechStack(wizardAnswers);
+  const title = wizardAnswers?.projectName || 'Project';
+  const problemStatement = wizardAnswers?.problemStatement || 'Not specified';
+  
+  return `# CLAUDE.md (AI Context Guide) — ${title}
+
+## Project Architecture Profile
+* **Stack:** ${stack.displayName}
+* **Frontend:** ${stack.frontendFramework}
+* **Backend:** ${stack.backendFramework}
+* **Language:** ${stack.language}
+* **Problem Statement:** ${problemStatement}
+
+## Development Guidelines
+* **Code Style:** Keep code modular, self-contained, and clean. Do not add comments unless explicitly asked.
+* **Error Handling:** Always validate inputs and handle errors gracefully using appropriate exception classes.
+* **Dependencies:** Verify framework package files before installing dependencies.
+
+## Key Stack Commands
+* **Frontend Setup:** Use framework native CLI / package manager for ${stack.frontendFramework}
+* **Backend Setup:** Use native commands for ${stack.backendFramework} (${stack.language})
+
+## Project Structure Blueprint
+See \`FolderStructure.md\` for a complete blueprint of directories and configuration files.`;
+};
+
+const PIPELINE = [
+  { parallel: false, types: ['prd'] },
+  { parallel: true,  types: ['srd', 'techStack', 'dbSchema', 'userFlows', 'mvpPlan'] }
+];
+
+// Helper: generate a single doc, save it, update project.docsGenerated
+const generateOne = async (docType, project, userId, generatedSoFar) => {
+  const contextString = buildContext(generatedSoFar);
+  let promptText = prompts[docType](project.wizardAnswers, contextString);
+  if (project.designSystem && project.designSystem.prompt) {
+    promptText += `\n\n### MANDATORY DESIGN SYSTEM GUIDELINES\n${project.designSystem.prompt}`;
+  }
+  
+  // Use max_tokens=2048 for faster generation as per performance optimization plan
+  const { content, modelUsed, generationTimeMs } = await AIService.generateText(promptText, docType, 2048);
+  const contentTokenCount = Math.floor(content.length / 4);
+
+  await Document.findOneAndUpdate(
+    { projectId: project._id, docType },
+    { userId, content, modelUsed, generationTimeMs, contentTokenCount, $inc: { version: 1 } },
+    { upsert: true, new: true }
+  );
+
+  await Project.findByIdAndUpdate(project._id, {
+    generationLock: new Date(),
+    $addToSet: { docsGenerated: docType }
+  });
+
+  return content;
+};
+
+exports.generateAll = async (projectId, userId, force = false) => {
+  const project = await Project.findOne({ _id: projectId, userId, isArchived: false });
+  if (!project || project.status === 'error') return;
+
+  if (force) {
+    const stackDocTypes = ['techStack', 'folderStructure', 'claudeContext', 'agentSystemPrompt'];
+    await Document.deleteMany({ projectId, docType: { $in: stackDocTypes } });
+    await Project.findByIdAndUpdate(projectId, {
+      $pull: { docsGenerated: { $in: stackDocTypes } },
+      status: 'generating'
+    });
+  }
+
+  const existingDocs = await Document.find({ projectId });
+  const generatedSoFar = {};
+  const alreadyDone = new Set();
+
+  for (const doc of existingDocs) {
+    if (doc.content) {
+      generatedSoFar[doc.docType] = doc.content;
+      alreadyDone.add(doc.docType);
+    }
+  }
+
+  try {
+    for (const group of PIPELINE) {
+      const pending = group.types.filter(t => !alreadyDone.has(t));
+      if (pending.length === 0) continue; // Whole group already done
+
+      if (group.parallel) {
+        // Run all pending types in this group concurrently
+        // Use allSettled so one doc failure doesn't kill the entire group
+        const results = await Promise.allSettled(
+          pending.map(async (docType) => {
+            const content = await generateOne(docType, project, userId, generatedSoFar);
+            return { docType, content };
+          })
+        );
+
+        const failed = results.filter(r => r.status === 'rejected');
+        if (failed.length > 0) {
+          console.error(`[generateAll] ${failed.length}/${pending.length} docs failed in parallel group:`,
+            failed.map(f => f.reason?.message));
+        }
+
+        // Merge only successful results into context for next groups
+        for (const r of results) {
+          if (r.status === 'fulfilled') {
+            const { docType, content } = r.value;
+            generatedSoFar[docType] = content;
+            alreadyDone.add(docType);
+          }
+        }
+      } else {
+        // Sequential within the group
+        for (const docType of pending) {
+          const content = await generateOne(docType, project, userId, generatedSoFar);
+          generatedSoFar[docType] = content;
+          alreadyDone.add(docType);
+        }
+      }
+    }
+
+    const localDocs = ['folderStructure', 'claudeContext', 'agentSystemPrompt'];
+    for (const docType of localDocs) {
+      if (!alreadyDone.has(docType)) {
+        let content = '';
+        const contextString = buildContext(generatedSoFar);
+        
+        if (docType === 'folderStructure') {
+          content = generateFolderStructureLocal(project.wizardAnswers);
+        } else if (docType === 'claudeContext') {
+          content = generateClaudeContextLocal(project.wizardAnswers, contextString);
+        } else if (docType === 'agentSystemPrompt') {
+          const agentPromptTemplate = prompts.agentSystemPrompt;
+          content = agentPromptTemplate(project.wizardAnswers, contextString);
+        }
+        
+        await Document.findOneAndUpdate(
+          { projectId: project._id, docType },
+          { userId, content, modelUsed: 'LOCAL_TEMPLATE', generationTimeMs: 0, contentTokenCount: Math.floor(content.length / 4), $inc: { version: 1 } },
+          { upsert: true, new: true }
+        );
+        
+        await Project.findByIdAndUpdate(project._id, {
+          $addToSet: { docsGenerated: docType }
+        });
+        
+        generatedSoFar[docType] = content;
+        alreadyDone.add(docType);
+      }
+    }
+
+    await Project.findByIdAndUpdate(project._id, { status: 'complete' });
+
+    const notificationService = require('./notificationService');
+    await notificationService.createNotification(
+      userId,
+      'doc_ready',
+      'Documents Ready',
+      'Your AI document suite has been fully generated.',
+      { projectId }
+    );
+
+  } catch (error) {
+    await Project.findByIdAndUpdate(project._id, { status: 'error' });
+
+    const notificationService = require('./notificationService');
+    await notificationService.createNotification(
+      userId,
+      'generation_failed',
+      'Generation Failed',
+      error.message || 'The AI generator encountered a fatal error.',
+      { projectId }
+    );
+
+    throw new AppError('Generation failed: ' + error.message, 500, 'GENERATION_FAILED');
+  }
+};
+
+exports.getDocumentsByProject = async (projectId, userId) => {
+  const project = await Project.findOne({ _id: projectId, userId, isArchived: false }).lean();
+  if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');
+  return await Document.find({ projectId }).sort({ createdAt: 1 }).lean();
+};
+
+exports.getSingleDocument = async (projectId, docType, userId) => {
+  const doc = await Document.findOne({ projectId, docType, userId });
+  if (!doc) throw new AppError('Document not found', 404, 'NOT_FOUND');
+  return doc;
+};
+
+exports.updateDocument = async (projectId, docType, userId, updatedContent) => {
+  const doc = await Document.findOneAndUpdate(
+    { projectId, docType, userId },
+    { content: updatedContent, $inc: { version: 1 } },
+    { new: true }
+  );
+  if (!doc) throw new AppError('Document not found', 404, 'NOT_FOUND');
+  return doc;
+};
+
+exports.updateOrCreateDesignSystemDoc = async (projectId, userId, project) => {
+  const ds = project.designSystem || {};
+  const content = `# Design System Specification: ${ds.name || 'Monochrome'}
+
+## 1. Executive Summary & Design Vision
+- **Theme Identity:** ${ds.name || 'Monochrome'} (${ds.id || 'monochrome'})
+- **Design Philosophy:** ${ds.tagline || 'Modern high-fidelity visual design architecture.'}
+- **Target Application:** ${project.title || 'Project'}
+
+---
+
+## 2. Core Prompt for AI Builders & Developers
+> **Mandate for AI Builders:** Every UI component, page layout, typography hierarchy, color choice, and micro-interaction built for this codebase MUST strictly adhere to the following design system prompt:
+
+\`\`\`markdown
+${ds.prompt || ''}
+\`\`\`
+
+---
+
+## 3. Visual Styling & Implementation Guidelines
+- **Typography & Font Family:** Implement exact typography rules as specified in the theme preset.
+- **Color Palette & Accents:** All background, surface, text, and accent colors strictly follow this preset palette.
+- **Buttons & Interactivity:** High contrast action buttons, smooth hover transitions, and explicit pointer cursors (\`cursor-pointer\`).
+- **Containers & Glass Cards:** Structural containers reflect theme radius and shadow specs.
+`;
+
+  const updatedDoc = await Document.findOneAndUpdate(
+    { projectId, docType: 'designSystem' },
+    { userId, content, modelUsed: 'LOCAL_TEMPLATE', generationTimeMs: 0, contentTokenCount: Math.floor(content.length / 4), $inc: { version: 1 } },
+    { upsert: true, new: true }
+  );
+
+  await Project.findByIdAndUpdate(projectId, { $addToSet: { docsGenerated: 'designSystem' } });
+  return updatedDoc;
+};
+
+exports.generateNext = async (projectId, userId) => {
+  const project = await Project.findOne({ _id: projectId, userId, isArchived: false });
+  if (!project || project.status !== 'generating') return;
+
+  const existingDocs = await Document.find({ projectId });
+  const generatedSoFar = {};
+  const alreadyDone = new Set();
+
+  for (const doc of existingDocs) {
+    if (doc.content) {
+      generatedSoFar[doc.docType] = doc.content;
+      alreadyDone.add(doc.docType);
+    }
+  }
+
+  const allDocs = ['prd', 'srd', 'techStack', 'dbSchema', 'userFlows', 'mvpPlan', 'folderStructure', 'claudeContext', 'agentSystemPrompt'];
+  const nextDocType = allDocs.find(t => !alreadyDone.has(t));
+
+  if (!nextDocType) {
+    await Project.findByIdAndUpdate(projectId, { status: 'complete' });
+    const notificationService = require('./notificationService');
+    await notificationService.createNotification(
+      userId,
+      'doc_ready',
+      'Documents Ready',
+      'Your AI document suite has been fully generated.',
+      { projectId }
+    );
+    return;
+  }
+
+  try {
+    let content = '';
+    const contextString = buildContext(generatedSoFar);
+
+    if (['prd', 'srd', 'techStack', 'dbSchema', 'userFlows', 'mvpPlan'].includes(nextDocType)) {
+      content = await generateOne(nextDocType, project, userId, generatedSoFar);
+    } else {
+      if (nextDocType === 'folderStructure') {
+        content = generateFolderStructureLocal(project.wizardAnswers);
+      } else if (nextDocType === 'claudeContext') {
+        content = generateClaudeContextLocal(project.wizardAnswers, contextString);
+      } else if (nextDocType === 'agentSystemPrompt') {
+        const agentPromptTemplate = prompts.agentSystemPrompt;
+        content = agentPromptTemplate(project.wizardAnswers, contextString);
+      }
+
+      await Document.findOneAndUpdate(
+        { projectId, docType: nextDocType },
+        { userId, content, modelUsed: 'LOCAL_TEMPLATE', generationTimeMs: 0, contentTokenCount: Math.floor(content.length / 4), $inc: { version: 1 } },
+        { upsert: true, new: true }
+      );
+
+      await Project.findByIdAndUpdate(project._id, {
+        $addToSet: { docsGenerated: nextDocType }
+      });
+    }
+
+    const updatedAlreadyDone = new Set(alreadyDone);
+    updatedAlreadyDone.add(nextDocType);
+    const remaining = allDocs.find(t => !updatedAlreadyDone.has(t));
+
+    if (!remaining) {
+      await Project.findByIdAndUpdate(projectId, { status: 'complete' });
+      const notificationService = require('./notificationService');
+      await notificationService.createNotification(
+        userId,
+        'doc_ready',
+        'Documents Ready',
+        'Your AI document suite has been fully generated.',
+        { projectId }
+      );
+    }
+  } catch (error) {
+    console.error(`[generateNext] failed for ${nextDocType}:`, error);
+  }
+};
