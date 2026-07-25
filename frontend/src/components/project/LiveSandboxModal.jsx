@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Play, RefreshCw, Smartphone, Monitor, Terminal, CheckCircle2, Globe, Activity, Trash2, Sparkles, Send, Loader2, Copy, Check, MousePointer, MessageSquare } from 'lucide-react';
 import api from '../../services/api';
 import { toast } from 'react-hot-toast';
@@ -37,6 +37,8 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
   const [activeSandboxPin, setActiveSandboxPin] = useState(null);
   const [pinCommentText, setPinCommentText] = useState('');
   const [isSubmittingAnnotations, setIsSubmittingAnnotations] = useState(false);
+  const [hoveredIframeElement, setHoveredIframeElement] = useState(null);
+  const iframeRef = useRef(null);
 
   const getFormattedUrl = (url) => {
     if (!url || !url.trim()) return 'about:blank';
@@ -94,6 +96,84 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
     setTimeout(() => setCopyNetworkSuccess(false), 2000);
   };
 
+  useEffect(() => {
+    if (!isAnnotatingMode || !iframeRef.current) {
+      setHoveredIframeElement(null);
+      return;
+    }
+
+    let iframeDoc;
+    try {
+      iframeDoc = iframeRef.current.contentDocument || iframeRef.current.contentWindow?.document;
+    } catch (err) {
+      iframeDoc = null;
+    }
+
+    if (!iframeDoc) return;
+
+    const handleMouseOver = (e) => {
+      e.stopPropagation();
+      const target = e.target;
+      if (!target || target.tagName === 'HTML' || target.tagName === 'BODY') return;
+      const rect = target.getBoundingClientRect();
+      const selector = target.id 
+        ? `#${target.id}`
+        : target.className && typeof target.className === 'string'
+          ? `.${target.className.split(' ').filter(Boolean).slice(0, 2).join('.')}`
+          : target.tagName.toLowerCase();
+
+      setHoveredIframeElement({
+        rect,
+        selector,
+        text: target.innerText ? target.innerText.slice(0, 30) : '',
+        tagName: target.tagName.toLowerCase()
+      });
+    };
+
+    const handleClick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const target = e.target;
+      if (!target) return;
+      const rect = target.getBoundingClientRect();
+      const iframeWidth = iframeDoc.documentElement.clientWidth || 1;
+      const iframeHeight = iframeDoc.documentElement.clientHeight || 1;
+
+      const xPercent = (((rect.left + rect.width / 2) / iframeWidth) * 100).toFixed(1);
+      const yPercent = (((rect.top + rect.height / 2) / iframeHeight) * 100).toFixed(1);
+
+      const selector = target.id 
+        ? `#${target.id}`
+        : target.className && typeof target.className === 'string'
+          ? `.${target.className.split(' ').filter(Boolean).slice(0, 2).join('.')}`
+          : target.tagName.toLowerCase();
+
+      const elementLabel = `${selector}${target.innerText ? ` ("${target.innerText.slice(0, 25).trim()}")` : ''}`;
+
+      const newPin = {
+        id: Date.now(),
+        number: sandboxAnnotations.length + 1,
+        elementSelector: elementLabel,
+        elementText: target.innerText ? target.innerText.slice(0, 60) : '',
+        xPercent,
+        yPercent,
+        url: sandboxUrl,
+        comment: ''
+      };
+
+      setActiveSandboxPin(newPin);
+      setHoveredIframeElement(null);
+    };
+
+    iframeDoc.addEventListener('mouseover', handleMouseOver);
+    iframeDoc.addEventListener('click', handleClick, true);
+
+    return () => {
+      iframeDoc.removeEventListener('mouseover', handleMouseOver);
+      iframeDoc.removeEventListener('click', handleClick, true);
+    };
+  }, [isAnnotatingMode, activeIframeUrl, sandboxAnnotations.length]);
+
   const handleSandboxClickToAnnotate = (e) => {
     if (!isAnnotatingMode) return;
     const rect = e.currentTarget.getBoundingClientRect();
@@ -103,6 +183,8 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
     const newPin = {
       id: Date.now(),
       number: sandboxAnnotations.length + 1,
+      elementSelector: `Sandbox Element at (${xPercent}% X, ${yPercent}% Y)`,
+      elementText: '',
       xPercent,
       yPercent,
       url: sandboxUrl,
@@ -127,7 +209,8 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
     try {
       await api.post(`/projects/${project._id}/annotations`, {
         annotations: sandboxAnnotations.map(p => ({
-          elementSelector: `Sandbox Preview Element (${p.xPercent}% X, ${p.yPercent}% Y)`,
+          elementSelector: p.elementSelector,
+          elementText: p.elementText,
           comment: p.comment,
           url: p.url,
           bounds: { xPercent: p.xPercent, yPercent: p.yPercent }
@@ -336,6 +419,7 @@ ${networkSummary || 'No network activity logged.'}`;
                 </div>
               ) : (
                 <iframe
+                  ref={iframeRef}
                   key={activeIframeUrl}
                   src={activeIframeUrl}
                   className="w-full h-full border-none bg-white rounded-3xl"
