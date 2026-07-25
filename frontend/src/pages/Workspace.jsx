@@ -6,48 +6,23 @@ import KanbanColumn from '../components/kanban/KanbanColumn';
 import AddColumnButton from '../components/kanban/AddColumnButton';
 import WorkspaceHeader from '../components/kanban/WorkspaceHeader';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import { getMySubscription } from '../services/subscriptionService';
-import { useAuth } from '../context/AuthContext';
-import { Lock } from 'lucide-react';
-import { useState, useEffect } from 'react';
 
 const Workspace = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const [subscription, setSubscription] = useState(null);
-  const [isSubLoading, setIsSubLoading] = useState(true);
   const { 
     project, columns, isLoading, isSaving, 
     handleDragEnd, addTask, deleteTask, addColumn, editColumn 
   } = useKanban(id);
 
-  useEffect(() => {
-    const fetchSub = async () => {
-      try {
-        const sub = await getMySubscription();
-        setSubscription(sub);
-      } catch (err) {
-        console.error('Failed to fetch subscription', err);
-      } finally {
-        setIsSubLoading(false);
-      }
-    };
-    fetchSub();
-  }, []);
-
-  const isPro = true;
-
   if (isLoading) return (
-    <div className="h-screen flex items-center justify-center">
+    <div className="h-screen flex items-center justify-center bg-[#E0E5EC]">
       <LoadingSpinner />
     </div>
   );
 
   return (
-    <section className="relative h-screen max-h-screen overflow-hidden">
-      <div className="absolute inset-0 bg-black/65 z-[1]" />
-
+    <section className="relative h-screen max-h-screen overflow-hidden bg-[#E0E5EC] text-[#3D4852]">
       <motion.div 
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
