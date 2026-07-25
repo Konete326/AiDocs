@@ -3,9 +3,9 @@ import RightPanel from '../components/layout/RightPanel';
 import TestimonialsSection from '../components/landing/TestimonialsSection';
 
 const Home = () => (
-  <div className="relative min-h-screen w-full bg-[#E0E5EC] text-[#3D4852]">
+  <div className="relative min-h-screen w-full bg-[#E0E5EC] text-[#3D4852] pt-28 sm:pt-36 md:pt-40">
     <div className="relative z-10 w-full flex flex-col">
-      <main className="flex flex-col lg:flex-row w-full min-h-screen pt-32 md:pt-40 lg:pt-44 max-w-7xl mx-auto px-4 md:px-8 gap-8">
+      <main className="flex flex-col lg:flex-row w-full max-w-7xl mx-auto px-4 md:px-8 gap-8 mt-4 sm:mt-8">
         <LeftPanel />
         <RightPanel />
       </main>
