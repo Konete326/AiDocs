@@ -361,6 +361,56 @@ ${networkSummary || 'No network activity logged.'}`;
                   sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-presentation"
                 />
               )}
+
+              {/* Floating Custom Clarifyation Widget on Sandbox Preview */}
+              <div className="absolute bottom-4 right-4 z-40 flex items-center gap-2">
+                {isAnnotatingMode ? (
+                  <div className="neumorphic-card rounded-full p-1.5 bg-[#E0E5EC] flex items-center gap-2 shadow-xl border border-black/5 animate-in slide-in-from-bottom-2">
+                    <div className="w-7 h-7 rounded-full bg-[#6C63FF] text-white flex items-center justify-center font-extrabold text-xs shadow-md">
+                      
+                    </div>
+                    <span className="text-xs font-extrabold text-[#3D4852] px-1">Clarifyation</span>
+                    <button
+                      onClick={() => setIsAnnotatingMode(false)}
+                      className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#6C63FF] text-white cursor-pointer shadow-sm"
+                    >
+                      <span>Click to Pin...</span>
+                    </button>
+                    {sandboxAnnotations.length > 0 && (
+                      <button
+                        onClick={handleSendAnnotationsToAiCofounder}
+                        disabled={isSubmittingAnnotations}
+                        className="bg-[#38B2AC] hover:bg-[#4FD1C5] text-white px-3 py-1 rounded-full text-xs font-bold cursor-pointer shadow-sm flex items-center gap-1"
+                      >
+                        <Send className="w-3 h-3" />
+                        <span>Send to AI ({sandboxAnnotations.length})</span>
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setIsAnnotatingMode(false)}
+                      className="w-7 h-7 rounded-full neumorphic-btn flex items-center justify-center text-[#6B7280] hover:text-[#3D4852] cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setIsAnnotatingMode(true)}
+                    className="neumorphic-card rounded-full px-3.5 py-1.5 bg-[#E0E5EC] text-[#3D4852] font-extrabold text-xs flex items-center gap-2 shadow-xl hover:scale-105 transition-all cursor-pointer border border-black/5"
+                    title="Clarifyation Visual UI Annotator"
+                  >
+                    <div className="w-5 h-5 rounded-full bg-[#6C63FF] text-white flex items-center justify-center text-[10px]">
+                      ⚡
+                    </div>
+                    <span>Clarifyation AI</span>
+                    {sandboxAnnotations.length > 0 && (
+                      <span className="w-4 h-4 rounded-full bg-[#6C63FF] text-white text-[9px] font-bold flex items-center justify-center">
+                        {sandboxAnnotations.length}
+                      </span>
+                    )}
+                  </button>
+                )}
+              </div>
             </div>
           ) : activeTab === 'console' ? (
             <div className="w-full h-full neumorphic-inset rounded-3xl p-4 font-mono text-xs text-[#3D4852] overflow-y-auto flex flex-col gap-2">
