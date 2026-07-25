@@ -37,6 +37,17 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
     if (!/^https?:\/\//i.test(cleaned)) {
       cleaned = 'https://' + cleaned;
     }
+
+    if (cleaned.includes('youtube.com') || cleaned.includes('youtu.be')) {
+      const videoIdMatch = cleaned.match(/(?:v=|\/live\/|\/shorts\/|youtu\.be\/|\/embed\/)([a-zA-Z0-9_-]{11})/);
+      if (videoIdMatch && videoIdMatch[1]) {
+        return `https://www.youtube.com/embed/${videoIdMatch[1]}?autoplay=1`;
+      }
+      if (!cleaned.includes('/embed')) {
+        return 'https://www.youtube.com/embed';
+      }
+    }
+
     return cleaned;
   };
 
@@ -113,6 +124,9 @@ ${networkSummary || 'No network activity logged.'}`;
   };
 
   const previewWidth = device === 'mobile' ? 'max-w-[375px]' : device === 'tablet' ? 'max-w-[768px]' : 'w-full';
+
+  const RESTRICTED_DOMAINS = ['google.com', 'google.pk', 'google.co', 'facebook.com', 'github.com', 'twitter.com', 'x.com'];
+  const isRestrictedDomain = RESTRICTED_DOMAINS.some(d => activeIframeUrl.toLowerCase().includes(d));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 pt-16 sm:pt-20 pb-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
@@ -207,13 +221,33 @@ ${networkSummary || 'No network activity logged.'}`;
                   <RefreshCw className="w-6 h-6 animate-spin text-[#6C63FF]" />
                   <span>Loading website preview...</span>
                 </div>
+              ) : isRestrictedDomain ? (
+                <div className="flex-1 flex flex-col items-center justify-center p-8 text-center gap-4 bg-[#E0E5EC] text-[#3D4852]">
+                  <div className="w-16 h-16 rounded-3xl neumorphic-card flex items-center justify-center text-[#6C63FF]">
+                    <Globe className="w-8 h-8 text-[#6C63FF]" />
+                  </div>
+                  <div>
+                    <h4 className="text-base font-extrabold text-[#3D4852]">Security Restricted Domain</h4>
+                    <p className="text-xs text-[#6B7280] font-medium max-w-md mt-1">
+                      <strong>{sandboxUrl}</strong> uses security policies (X-Frame-Options: SAMEORIGIN) that prevent direct iframe embedding. Click below to open it in a new window!
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => window.open(getFormattedUrl(sandboxUrl), '_blank')}
+                    className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white px-5 py-2.5 rounded-2xl text-xs font-bold transition-all cursor-pointer shadow-md flex items-center gap-2 mt-1"
+                  >
+                    <span>Open {sandboxUrl} in New Tab ↗</span>
+                  </button>
+                </div>
               ) : (
                 <iframe
                   key={activeIframeUrl}
                   src={activeIframeUrl}
                   className="w-full h-full border-none bg-white rounded-3xl"
                   title="Live Sandbox Website Preview"
-                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-presentation"
                 />
               )}
             </div>
