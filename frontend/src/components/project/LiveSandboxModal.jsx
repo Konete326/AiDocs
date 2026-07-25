@@ -1,5 +1,7 @@
-import { useState } from 'react';
-import { X, Play, RefreshCw, Smartphone, Monitor, Terminal, CheckCircle2, Globe, Activity, Trash2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Play, RefreshCw, Smartphone, Monitor, Terminal, CheckCircle2, Globe, Activity, Trash2, Sparkles, Send, Loader2 } from 'lucide-react';
+import api from '../../services/api';
+import { toast } from 'react-hot-toast';
 
 const INITIAL_CONSOLE = [
   { id: 1, type: 'info', time: '11:44:01', text: '[Vite 8.0] dev server running at http://localhost:5173' },
@@ -20,6 +22,17 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [consoleLogs, setConsoleLogs] = useState(INITIAL_CONSOLE);
   const [networkLogs, setNetworkLogs] = useState(INITIAL_NETWORK);
+  
+  const [sandboxUrl, setSandboxUrl] = useState('');
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState('');
+  const [isSendingAi, setIsSendingAi] = useState(false);
+
+  useEffect(() => {
+    if (project?._id) {
+      setSandboxUrl(`https://preview.clarifyai.app/projects/${project._id}`);
+    }
+  }, [project?._id]);
 
   if (!isOpen) return null;
 
@@ -29,11 +42,42 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
     setTimeout(() => setIsRefreshing(false), 800);
   };
 
+  const handleSendAiInstruction = async () => {
+    if (!aiPrompt.trim() || isSendingAi) return;
+    setIsSendingAi(true);
+    try {
+      const consoleSummary = consoleLogs.map(l => `[${l.type.toUpperCase()}] ${l.text}`).join('\n');
+      const networkSummary = networkLogs.map(n => `${n.method} ${n.url} (${n.status} - ${n.time})`).join('\n');
+      
+      const fullMessage = `[LIVE SANDBOX AI QUICK FIX REQUEST]
+Page URL: ${sandboxUrl}
+
+User Request / Instruction:
+${aiPrompt.trim()}
+
+=== CONSOLE LOG DIAGNOSTICS ===
+${consoleSummary || 'No errors logged.'}
+
+=== NETWORK DIAGNOSTICS ===
+${networkSummary || 'No network activity logged.'}`;
+
+      await api.post(`/projects/${project._id}/chat`, { message: fullMessage });
+      toast.success('Instruction & diagnostics sent to Antigravity & Claude Code agents!');
+      setAiPrompt('');
+      setIsAiModalOpen(false);
+    } catch (err) {
+      console.error('Failed sending AI instruction:', err);
+      toast.error('Failed sending instruction to AI agent');
+    } finally {
+      setIsSendingAi(false);
+    }
+  };
+
   const previewWidth = device === 'mobile' ? 'max-w-[375px]' : device === 'tablet' ? 'max-w-[768px]' : 'w-full';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 pt-16 sm:pt-20 pb-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="w-full max-w-[95vw] h-[84vh] neumorphic-card rounded-[2.5rem] flex flex-col overflow-hidden bg-[#E0E5EC] text-[#3D4852]">
+      <div className="w-full max-w-[95vw] h-[84vh] neumorphic-card rounded-[2.5rem] flex flex-col overflow-hidden bg-[#E0E5EC] text-[#3D4852] relative">
         <div className="flex items-center justify-between p-4 px-6 border-b border-black/5 flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl neumorphic-inset flex items-center justify-center text-[#6C63FF]">
@@ -46,6 +90,14 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
           </div>
 
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setIsAiModalOpen(true)}
+              className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white rounded-xl px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shadow-sm"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>AI Agent Fix</span>
+            </button>
+
             <div className="flex gap-1 p-1 neumorphic-inset rounded-2xl">
               <button onClick={() => setDevice('desktop')} className={`p-1.5 rounded-xl cursor-pointer ${device === 'desktop' ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-[#6B7280]'}`}>
                 <Monitor className="w-4 h-4" />
@@ -66,7 +118,14 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
             <button onClick={refreshApp} className="cursor-pointer text-[#6B7280] hover:text-[#3D4852]">
               <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
             </button>
-            <span className="text-xs font-mono font-bold text-[#3D4852] truncate">https://preview.clarifyai.app/projects/{project?._id || 'demo'}</span>
+            <input
+              type="text"
+              value={sandboxUrl}
+              onChange={(e) => setSandboxUrl(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && refreshApp()}
+              className="w-full bg-transparent text-xs font-mono font-bold text-[#3D4852] outline-none"
+              placeholder="https://preview.clarifyai.app/projects/..."
+            />
           </div>
 
           <div className="flex items-center gap-1.5 p-1 neumorphic-inset rounded-2xl">
@@ -163,6 +222,50 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
             </div>
           )}
         </div>
+
+        {isAiModalOpen && (
+          <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-150">
+            <div className="w-full max-w-lg neumorphic-card rounded-3xl p-6 bg-[#E0E5EC] flex flex-col gap-4 text-[#3D4852]">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-5 h-5 text-[#6C63FF]" />
+                  <h4 className="text-sm font-extrabold">Ask AI Agent (Antigravity & Claude)</h4>
+                </div>
+                <button onClick={() => setIsAiModalOpen(false)} className="text-[#6B7280] hover:text-[#3D4852]">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <p className="text-xs text-[#6B7280] font-medium">
+                Describe what you want to change or fix. Current page URL, console error trace, and network logs will be automatically summarized and sent to AI Chat history.
+              </p>
+
+              <textarea
+                value={aiPrompt}
+                onChange={(e) => setAiPrompt(e.target.value)}
+                placeholder="Example: Fix the layout alignment of the header button and update primary color to indigo..."
+                className="w-full h-32 p-3 font-mono text-xs bg-[#E0E5EC] text-[#3D4852] rounded-2xl outline-none neumorphic-inset resize-none"
+              />
+
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setIsAiModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-[#6B7280] hover:text-[#3D4852] cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSendAiInstruction}
+                  disabled={isSendingAi || !aiPrompt.trim()}
+                  className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white px-5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {isSendingAi ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  <span>Send to AI Agents</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

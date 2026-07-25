@@ -1,13 +1,32 @@
 import { Download, MessageCircle, Loader2, Cpu, Palette, Layers, Play } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { downloadZip } from '../../services/exportService';
 import LiveSandboxModal from './LiveSandboxModal';
+import { toast } from 'react-hot-toast';
 
 const ProjectHeaderActions = ({ project }) => {
   const navigate = useNavigate();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSandboxOpen, setIsSandboxOpen] = useState(false);
+
+  useEffect(() => {
+    if (!project?._id) return;
+    const token = localStorage.getItem('token');
+    const eventSource = new EventSource(`/api/projects/${project._id}/events?token=${token}`);
+
+    eventSource.onmessage = (e) => {
+      try {
+        const data = JSON.parse(e.data);
+        if (data.type === 'kanban_update') {
+          setIsSandboxOpen(true);
+          toast.success(`Antigravity Agent updated task "${data.taskId || 'status'}" to ${data.status || 'done'}! Live Sandbox auto-opened.`);
+        }
+      } catch (err) {}
+    };
+
+    return () => eventSource.close();
+  }, [project?._id]);
 
   const handleZipDownload = async () => {
     if (isDownloading) return;
