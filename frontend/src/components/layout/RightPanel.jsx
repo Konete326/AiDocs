@@ -1,21 +1,19 @@
 import { useState, useEffect } from 'react';
 import { 
-  Sparkles, ArrowRight, Wand2, BookOpen, FolderOpen, 
-  ChevronRight, Clock, Box, Rocket, Smartphone, 
-  Globe, Layout, Zap, FileText 
+  Sparkles, FolderOpen, ChevronRight, Clock, Box, Rocket, 
+  Smartphone, Globe, Layout, Zap, FileText, BookOpen 
 } from 'lucide-react';
 import GlassCard from '../common/GlassCard';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getProjects } from '../../services/projectService';
-
 import heroImage from '../../assets/hero.png';
 
 const STATUS_CONFIG = {
-  complete:   { color: 'bg-emerald-500', label: 'Ready' },
-  generating: { color: 'bg-amber-400 animate-pulse', label: 'Crafting...' },
-  draft:      { color: 'bg-white/20', label: 'Draft' },
-  error:      { color: 'bg-rose-500', label: 'Failed' },
+  complete:   { color: 'bg-[#38B2AC]', label: 'Ready' },
+  generating: { color: 'bg-amber-500 animate-pulse', label: 'Crafting...' },
+  draft:      { color: 'bg-[#6B7280]', label: 'Draft' },
+  error:      { color: 'bg-rose-600', label: 'Failed' },
 };
 
 const TYPE_ICONS = {
@@ -45,10 +43,10 @@ const RecentProjects = () => {
     return (
       <GlassCard
         onClick={() => navigate('/register')}
-        className="rounded-2xl p-5 w-full lg:w-72 border-l border-t border-white/5 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+        className="rounded-2xl p-5 w-full lg:w-72 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
       >
-        <p className="text-sm font-semibold text-white tracking-tight">Enter our ecosystem</p>
-        <p className="text-xs text-white/50 font-medium mt-1 leading-relaxed">Built for founders who ship.</p>
+        <p className="text-sm font-bold text-[#3D4852] tracking-tight">Enter our ecosystem</p>
+        <p className="text-xs text-[#6B7280] font-medium mt-1 leading-relaxed">Built for founders who ship.</p>
       </GlassCard>
     );
   }
@@ -57,7 +55,7 @@ const RecentProjects = () => {
     return (
       <div className="w-full lg:w-80 space-y-4">
         {[1,2,3].map(i => (
-          <div key={i} className={`h-24 w-64 rounded-2xl liquid-glass animate-pulse ${i % 2 === 0 ? 'ml-auto' : ''}`} />
+          <div key={i} className={`h-24 w-64 rounded-2xl neumorphic-inset animate-pulse ${i % 2 === 0 ? 'ml-auto' : ''}`} />
         ))}
       </div>
     );
@@ -67,39 +65,37 @@ const RecentProjects = () => {
     return (
       <GlassCard
         onClick={() => navigate('/projects/new')}
-        className="rounded-2xl p-6 w-full lg:w-80 border-l border-t border-white/5 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+        className="rounded-2xl p-6 w-full lg:w-80 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
       >
         <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
-            <FolderOpen className="w-5 h-5 text-white/40" />
+          <div className="w-10 h-10 rounded-xl neumorphic-inset flex items-center justify-center">
+            <FolderOpen className="w-5 h-5 text-[#6C63FF]" />
           </div>
           <div>
-            <p className="text-sm font-semibold text-white">Your Workspace</p>
-            <p className="text-[10px] text-white/30 uppercase tracking-widest">0 Projects</p>
+            <p className="text-sm font-bold text-[#3D4852]">Your Workspace</p>
+            <p className="text-[10px] text-[#6B7280] font-mono font-bold uppercase tracking-widest">0 Projects</p>
           </div>
         </div>
-        <p className="text-xs text-white/50 leading-relaxed">Your creative history will appear here. Start your first AI-powered project today.</p>
+        <p className="text-xs text-[#6B7280] leading-relaxed font-medium">Your creative history will appear here. Start your first AI-powered project today.</p>
       </GlassCard>
     );
   }
 
   return (
     <div className="w-full lg:w-80 flex flex-col gap-4">
-      {/* Header */}
       <div className="flex items-center justify-between px-2 mb-1">
         <div className="flex items-center gap-2">
-          <Clock className="w-4 h-4 text-white/40" />
-          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/40">Latest History</span>
+          <Clock className="w-4 h-4 text-[#6C63FF]" />
+          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#6B7280] font-mono">Latest History</span>
         </div>
         <button
           onClick={() => navigate('/dashboard')}
-          className="text-xs text-white/30 hover:text-white transition-colors flex items-center gap-1 group cursor-pointer"
+          className="text-xs text-[#6B7280] font-bold hover:text-[#3D4852] transition-colors flex items-center gap-1 group cursor-pointer"
         >
           Explore <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
         </button>
       </div>
 
-      {/* Zig-zag Project Bubbles */}
       <div className="flex flex-col gap-4">
         {projects.map((project, i) => {
           const Icon = TYPE_ICONS[project.projectType] || FileText;
@@ -112,37 +108,31 @@ const RecentProjects = () => {
               onClick={() => navigate(`/projects/${project._id}`)}
               className={`
                 group relative flex flex-col max-w-[85%] p-4 rounded-2xl transition-all cursor-pointer
-                border border-blue-500/30 hover:border-blue-400/50 hover:shadow-2xl hover:shadow-blue-500/20
-                glass-card hover:-translate-y-1 active:scale-95
+                neumorphic-card hover:-translate-y-1 active:scale-95
                 ${isLeft ? 'self-start rounded-tl-none' : 'self-end rounded-tr-none'}
               `}
-              style={{
-                background: isLeft 
-                  ? 'linear-gradient(135deg, rgba(30, 58, 138, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%)' 
-                  : 'linear-gradient(225deg, rgba(29, 78, 216, 0.4) 0%, rgba(30, 58, 138, 0.35) 100%)'
-              }}
             >
               <div className="flex items-start gap-3">
-                <div className={`p-2 rounded-lg bg-blue-500/20 text-blue-300 group-hover:bg-blue-500/30 transition-colors`}>
-                  <Icon className="w-4 h-4 text-blue-200" />
+                <div className="p-2 rounded-xl neumorphic-inset text-[#6C63FF]">
+                  <Icon className="w-4 h-4 text-[#6C63FF]" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <h4 className="text-xs font-bold text-white truncate group-hover:text-blue-100">
+                    <h4 className="text-xs font-bold text-[#3D4852] truncate">
                       {project.title}
                     </h4>
-                    <div className={`flex items-center gap-1.5 px-1.5 py-0.5 rounded-full bg-blue-900/40 border border-blue-500/30`}>
-                      <div className={`w-1 h-1 rounded-full ${status.color}`} />
-                      <span className="text-[8px] font-bold uppercase text-blue-200">{status.label}</span>
+                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full neumorphic-inset">
+                      <div className={`w-1.5 h-1.5 rounded-full ${status.color}`} />
+                      <span className="text-[8px] font-bold uppercase text-[#3D4852] font-mono">{status.label}</span>
                     </div>
                   </div>
-                  <p className="text-[10px] text-white/50 line-clamp-2 leading-relaxed italic">
+                  <p className="text-[10px] text-[#6B7280] line-clamp-2 leading-relaxed font-medium">
                     {project.wizardAnswers?.problemStatement || `An innovative ${project.projectType} solution.`}
                   </p>
                 </div>
               </div>
 
-              <div className={`absolute top-0 w-1 h-8 rounded-full bg-blue-400/50 group-hover:bg-blue-300 transition-colors ${isLeft ? '-left-1' : '-right-1'}`} />
+              <div className={`absolute top-0 w-1 h-8 rounded-full bg-[#6C63FF] ${isLeft ? '-left-1' : '-right-1'}`} />
             </div>
           );
         })}
@@ -161,24 +151,24 @@ const FeatureCards = () => {
         onClick={() => navigate(isAuthenticated ? '/projects/new' : '/register')}
         className="rounded-3xl p-6 flex-1 flex flex-col items-center text-center transition-transform hover:scale-105 active:scale-95 cursor-pointer"
       >
-        <FileText className="w-8 h-8 text-white/60" />
-        <p className="text-sm font-semibold text-white/90 mt-4">Generation</p>
+        <FileText className="w-8 h-8 text-[#6C63FF]" />
+        <p className="text-sm font-bold text-[#3D4852] mt-4">Generation</p>
       </GlassCard>
       <GlassCard 
         onClick={() => navigate(isAuthenticated ? '/dashboard' : '/register')}
         className="rounded-3xl p-6 flex-1 flex flex-col items-center text-center transition-transform hover:scale-105 active:scale-95 cursor-pointer"
       >
-        <BookOpen className="w-8 h-8 text-white/60" />
-        <p className="text-sm font-semibold text-white/90 mt-4 tracking-tight">Archive</p>
+        <BookOpen className="w-8 h-8 text-[#6C63FF]" />
+        <p className="text-sm font-bold text-[#3D4852] mt-4 tracking-tight">Archive</p>
       </GlassCard>
     </div>
-    <GlassCard onClick={() => navigate(isAuthenticated ? '/dashboard' : '/register')} className="rounded-[2.5rem] p-5 flex gap-5 items-center border border-white/5 transition-transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+    <GlassCard onClick={() => navigate(isAuthenticated ? '/dashboard' : '/register')} className="rounded-[2.5rem] p-5 flex gap-5 items-center transition-transform hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
       <img src={heroImage} alt="Preview" className="w-20 h-20 sm:w-28 sm:h-20 object-cover rounded-2xl shadow-xl flex-shrink-0" />
       <div className="flex-1">
-        <p className="text-sm font-semibold text-white leading-tight">Advanced AI Document Sculpting</p>
-        <p className="text-xs text-white/40 mt-2 font-medium">For modern founders who ship fast.</p>
+        <p className="text-sm font-bold text-[#3D4852] leading-tight">Advanced AI Document Sculpting</p>
+        <p className="text-xs text-[#6B7280] mt-2 font-medium">For modern founders who ship fast.</p>
       </div>
-      <button className="liquid-glass rounded-full w-12 h-12 flex items-center justify-center text-white/80 ml-auto cursor-pointer hover:text-white transition-transform hover:scale-110 active:scale-90 text-2xl font-light">
+      <button className="neumorphic-btn rounded-full w-10 h-10 flex items-center justify-center text-[#3D4852] ml-auto cursor-pointer text-xl font-bold">
         +
       </button>
     </GlassCard>

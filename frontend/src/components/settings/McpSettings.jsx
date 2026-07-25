@@ -44,56 +44,56 @@ const McpSettings = () => {
 
   const copyUrl = () => { navigator.clipboard.writeText(config.mcpEndpoint); setCopied(true); toast.success('URL copied'); setTimeout(() => setCopied(false), 2000); };
 
-  if (loading) return <div className="flex items-center justify-center p-12"><div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" /></div>;
+  if (loading) return <div className="flex items-center justify-center p-12"><div className="w-6 h-6 border-2 border-[#6C63FF] border-t-transparent rounded-full animate-spin" /></div>;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-xl font-semibold text-white tracking-tight flex items-center gap-2">
-            <Cpu className="w-5 h-5 text-white/80" /> MCP Settings
+          <h3 className="text-xl font-bold text-[#3D4852] tracking-tight flex items-center gap-2">
+            <Cpu className="w-5 h-5 text-[#6C63FF]" /> MCP Settings
           </h3>
-          <p className="text-white/40 text-xs mt-1">Connect external AI tools directly to your workspace.</p>
+          <p className="text-[#6B7280] text-xs font-medium mt-1">Connect external AI tools directly to your workspace.</p>
         </div>
         {config.apiKey && (
-          <div className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-full border ${config.isAgentActive ? 'bg-emerald-500/10 border-emerald-500/30 text-white font-medium' : 'bg-white/5 border-white/10 text-white/70'}`}>
-            <span className={`w-2 h-2 rounded-full ${config.isAgentActive ? 'bg-emerald-400 animate-pulse' : 'bg-white/40'}`} />
+          <div className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-full neumorphic-inset ${config.isAgentActive ? 'text-[#38B2AC] font-bold' : 'text-[#6B7280] font-bold'}`}>
+            <span className={`w-2 h-2 rounded-full ${config.isAgentActive ? 'bg-[#38B2AC] animate-pulse' : 'bg-[#6B7280]'}`} />
             <span>{config.isAgentActive ? 'Agent Connected' : 'Idle'}</span>
           </div>
         )}
       </div>
 
       {!config.apiKey ? (
-        <div className="bg-white/5 border border-white/10 rounded-2xl p-8 text-center space-y-4">
-          <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white/70 mx-auto">
-            <KeyRound className="w-5 h-5" />
+        <div className="liquid-glass rounded-3xl p-8 text-center space-y-4">
+          <div className="w-12 h-12 rounded-2xl neumorphic-inset-deep flex items-center justify-center text-[#6C63FF] mx-auto">
+            <KeyRound className="w-6 h-6" />
           </div>
           <div>
-            <h4 className="text-sm font-medium text-white">No active MCP API Key</h4>
-            <p className="text-xs text-white/40 mt-1 max-w-sm mx-auto">Generate a key to connect Claude Code, Antigravity, or Cursor.</p>
+            <h4 className="text-sm font-bold text-[#3D4852]">No active MCP API Key</h4>
+            <p className="text-xs text-[#6B7280] mt-1 max-w-sm mx-auto font-medium">Generate a key to connect Claude Code, Antigravity, or Cursor.</p>
           </div>
-          <button onClick={handleGenerate} disabled={busy} className="bg-white text-black text-xs font-semibold px-5 py-2.5 rounded-xl hover:bg-white/90 transition-all cursor-pointer">
+          <button onClick={handleGenerate} disabled={busy} className="bg-[#6C63FF] text-white text-xs font-bold px-5 py-2.5 rounded-2xl hover:bg-[#8B84FF] transition-all cursor-pointer shadow-md">
             {busy ? 'Generating...' : 'Generate Key'}
           </button>
         </div>
       ) : (
         <>
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3">
+          <div className="liquid-glass rounded-3xl p-5 space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-white/60">Server Endpoint URL</span>
+              <span className="text-xs font-bold text-[#3D4852]">Server Endpoint URL</span>
               <div className="flex gap-4">
-                <button onClick={handleGenerate} disabled={busy} className="text-xs text-white/40 hover:text-white flex items-center gap-1 transition-colors cursor-pointer">
-                  <RefreshCw className={`w-3 h-3 ${busy ? 'animate-spin' : ''}`} /> Regenerate
+                <button onClick={handleGenerate} disabled={busy} className="text-xs text-[#3D4852] font-bold hover:text-[#6C63FF] flex items-center gap-1 transition-colors cursor-pointer">
+                  <RefreshCw className={`w-3.5 h-3.5 ${busy ? 'animate-spin' : ''}`} /> Regenerate
                 </button>
-                <button onClick={() => setIsDeleteOpen(true)} className="text-xs text-red-400/80 hover:text-red-400 flex items-center gap-1 transition-colors cursor-pointer">
-                  <Trash2 className="w-3 h-3" /> Delete Key
+                <button onClick={() => setIsDeleteOpen(true)} className="text-xs text-rose-600 font-bold hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer">
+                  <Trash2 className="w-3.5 h-3.5" /> Delete Key
                 </button>
               </div>
             </div>
             <div className="flex gap-2">
-              <input type="text" readOnly value={config.mcpEndpoint} className="flex-1 bg-white/10 border border-white/15 rounded-xl px-3.5 py-2 text-xs font-mono text-white/90 focus:outline-none" />
-              <button onClick={copyUrl} className="bg-white/10 hover:bg-white/20 text-white text-xs px-4 py-2 rounded-xl font-medium flex items-center gap-1.5 transition-all cursor-pointer border border-white/10">
-                {copied ? <Check className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />} Copy
+              <input type="text" readOnly value={config.mcpEndpoint} className="flex-1 bg-[#E0E5EC] rounded-2xl px-3.5 py-2 text-xs font-mono font-bold text-[#3D4852] outline-none neumorphic-inset" />
+              <button onClick={copyUrl} className="neumorphic-btn text-[#3D4852] text-xs px-4 py-2 rounded-2xl font-bold flex items-center gap-1.5 transition-all cursor-pointer">
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-[#3D4852]" />} Copy
               </button>
             </div>
           </div>

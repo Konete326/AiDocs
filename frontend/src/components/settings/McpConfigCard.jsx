@@ -44,16 +44,16 @@ const McpConfigCard = ({ endpointUrl, apiKey }) => {
   };
 
   return (
-    <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-4">
+    <div className="liquid-glass rounded-3xl p-5 space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="text-xs font-medium text-white/60">Setup Snippets</span>
-        <div className="flex flex-wrap gap-1 bg-white/10 p-1 rounded-xl border border-white/15">
+        <span className="text-xs font-bold text-[#3D4852]">Setup Snippets</span>
+        <div className="flex flex-wrap gap-1 p-1">
           {Object.keys(configs).map((key) => (
             <button
               key={key}
               onClick={() => setSelectedClient(key)}
-              className={`px-3 py-1 text-xs rounded-lg transition-all cursor-pointer ${
-                selectedClient === key ? 'bg-white text-black font-semibold shadow-sm' : 'text-white/70 hover:text-white'
+              className={`px-3 py-1.5 text-xs rounded-2xl transition-all cursor-pointer font-bold ${
+                selectedClient === key ? 'bg-[#6C63FF] text-white shadow-md' : 'neumorphic-btn text-[#3D4852]'
               }`}
             >
               {configs[key].label}
@@ -63,14 +63,14 @@ const McpConfigCard = ({ endpointUrl, apiKey }) => {
       </div>
 
       <div className="relative">
-        <pre className="bg-white/95 text-slate-900 text-xs font-mono p-4 rounded-xl overflow-x-auto border border-white/20 shadow-md">
+        <pre className="bg-[#E0E5EC] text-[#3D4852] text-xs font-mono p-4 rounded-2xl overflow-x-auto font-bold neumorphic-inset">
           {current.json}
         </pre>
         <button
           onClick={handleCopy}
-          className="absolute top-2 right-2 p-1.5 rounded-lg text-slate-700 hover:text-slate-900 bg-black/5 hover:bg-black/10 border border-black/10 transition-all cursor-pointer"
+          className="absolute top-2 right-2 p-1.5 rounded-xl neumorphic-btn text-[#3D4852] cursor-pointer"
         >
-          {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
+          {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-[#3D4852]" />}
         </button>
       </div>
     </div>
