@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Palette, CheckCircle2, Cpu } from 'lucide-react';
+import { ChevronLeft, Palette, CheckCircle2, Cpu, Sparkles } from 'lucide-react';
 import GlassCard from '../components/common/GlassCard';
 import { useTheme } from '../context/ThemeContext';
 import McpSettings from '../components/settings/McpSettings';
+import ClarifyationSettings from '../components/settings/ClarifyationSettings';
 
 const ThemePreview = ({ theme, isActive, onSelect }) => {
   const videoRef = React.useRef(null);
@@ -97,6 +98,7 @@ const Settings = () => {
 
   const tabs = [
     { id: 'theme', label: 'Display & Theme', icon: Palette },
+    { id: 'clarifyation', label: 'Clarifyation SDK', icon: Sparkles },
     { id: 'mcp', label: 'MCP Integration', icon: Cpu }
   ];
 
@@ -170,6 +172,7 @@ const Settings = () => {
                   </div>
                 </div>
              )}
+             {activeTab === 'clarifyation' && <ClarifyationSettings />}
              {activeTab === 'mcp' && <McpSettings />}
           </GlassCard>
         </div>

@@ -34,8 +34,23 @@ const broadcastKanbanUpdate = (projectId, data) => {
   }
 };
 
+const broadcastAnnotation = (projectId, data) => {
+  const projectClients = clients.get(projectId.toString());
+  if (projectClients && projectClients.size > 0) {
+    const payload = `data: ${JSON.stringify({ type: 'annotation_created', ...data })}\n\n`;
+    projectClients.forEach(res => {
+      try {
+        res.write(payload);
+      } catch (err) {
+        console.error('SSE annotation send error:', err);
+      }
+    });
+  }
+};
+
 module.exports = {
   eventEmitter,
   addClient,
-  broadcastKanbanUpdate
+  broadcastKanbanUpdate,
+  broadcastAnnotation
 };

@@ -1,5 +1,6 @@
 const express = require('express');
 const projectController = require('../controllers/projectController');
+const annotationController = require('../controllers/annotationController');
 const authenticate = require('../middleware/authenticate');
 const validateRequest = require('../middleware/validateRequest');
 const { createProjectSchema, updateProjectSchema } = require('../utils/validations');
@@ -16,5 +17,6 @@ router.patch('/:id', validateRequest(updateProjectSchema), projectController.upd
 router.delete('/:id', projectController.deleteProject);
 router.post('/:id/generate', projectController.triggerGeneration);
 router.post('/:id/reset-status', projectController.resetStatus);
+router.post('/:id/annotations', annotationController.submitAnnotations);
 
 module.exports = router;
