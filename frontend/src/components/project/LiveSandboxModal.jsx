@@ -135,7 +135,7 @@ ${networkSummary || 'No network activity logged.'}`;
 
         <div className="flex items-center justify-between px-6 py-2 border-b border-black/5 flex-shrink-0 bg-[#E0E5EC]">
           <div className="flex items-center gap-2 flex-1 max-w-xl neumorphic-inset rounded-2xl px-4 py-1.5">
-            <button onClick={refreshApp} className="cursor-pointer text-[#6B7280] hover:text-[#3D4852]">
+            <button onClick={refreshApp} title="Refresh / Load URL" className="cursor-pointer text-[#6B7280] hover:text-[#3D4852]">
               <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
             </button>
             <input
@@ -146,6 +146,13 @@ ${networkSummary || 'No network activity logged.'}`;
               className="w-full bg-transparent text-xs font-mono font-bold text-[#3D4852] outline-none"
               placeholder="https://preview.clarifyai.app/projects/..."
             />
+            <button
+              onClick={() => window.open(getFormattedUrl(sandboxUrl), '_blank')}
+              title="Open URL in New Tab"
+              className="text-[#6C63FF] hover:text-[#8B84FF] text-xs font-bold font-mono shrink-0 cursor-pointer px-1 flex items-center gap-1"
+            >
+              <span>Open ↗</span>
+            </button>
           </div>
 
           <div className="flex items-center gap-1.5 p-1 neumorphic-inset rounded-2xl">
