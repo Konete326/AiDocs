@@ -6,6 +6,7 @@ import AppNavbar from './components/layout/AppNavbar';
 import PersistentBackground from './components/common/PersistentBackground';
 import { Toaster, toast } from 'react-hot-toast';
 import { AlertToast } from './components/ui/alert-toast';
+import { Agentation } from 'agentation';
 
 const App = () => (
   <BrowserRouter>
@@ -33,6 +34,7 @@ const App = () => (
             );
           }}
         </Toaster>
+        <Agentation />
       </AuthProvider>
     </ThemeProvider>
   </BrowserRouter>
