@@ -5,7 +5,7 @@ import TestimonialsSection from '../components/landing/TestimonialsSection';
 const Home = () => (
   <div className="relative min-h-screen w-full bg-[#E0E5EC] text-[#3D4852]">
     <div className="relative z-10 w-full flex flex-col">
-      <main className="flex flex-col lg:flex-row w-full min-h-screen pt-28 md:pt-32 max-w-7xl mx-auto px-4 md:px-8 gap-8">
+      <main className="flex flex-col lg:flex-row w-full min-h-screen pt-32 md:pt-40 lg:pt-44 max-w-7xl mx-auto px-4 md:px-8 gap-8">
         <LeftPanel />
         <RightPanel />
       </main>
