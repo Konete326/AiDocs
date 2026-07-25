@@ -275,98 +275,92 @@ ${networkSummary || 'No network activity logged.'}`;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 pt-16 sm:pt-20 pb-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
       <div className="w-full max-w-[95vw] h-[84vh] neumorphic-card rounded-[2.5rem] flex flex-col overflow-hidden bg-[#E0E5EC] text-[#3D4852] relative">
-        <div className="flex items-center justify-between p-4 px-6 border-b border-black/5 flex-shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl neumorphic-inset flex items-center justify-center text-[#6C63FF]">
+        <div className="flex items-center justify-between p-3 px-6 border-b border-black/5 flex-shrink-0 bg-[#E0E5EC] gap-4">
+          <div className="flex items-center gap-3 flex-1 max-w-2xl">
+            <div className="w-8 h-8 rounded-xl neumorphic-inset flex items-center justify-center text-[#6C63FF] shrink-0">
               <Play className="w-4 h-4 text-[#6C63FF]" />
             </div>
-            <div>
-              <h3 className="text-sm font-bold text-[#3D4852]">{project?.title || 'Project'} — Live Sandbox</h3>
-              <p className="text-[10px] text-[#6B7280] font-mono font-bold">Vite / React WebContainer Environment</p>
+            
+            {/* Address Bar */}
+            <div className="flex items-center gap-2 flex-1 neumorphic-inset rounded-2xl px-3 py-1.5">
+              <button onClick={refreshApp} title="Refresh / Load URL" className="cursor-pointer text-[#6B7280] hover:text-[#3D4852]">
+                <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+              </button>
+              <input
+                type="text"
+                value={sandboxUrl}
+                onChange={(e) => setSandboxUrl(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && refreshApp()}
+                className="w-full bg-transparent text-xs font-mono font-bold text-[#3D4852] outline-none"
+                placeholder="https://preview.clarifyai.app/projects/..."
+              />
+              <button
+                onClick={() => window.open(getFormattedUrl(sandboxUrl), '_blank')}
+                title="Open URL in New Tab"
+                className="text-[#6C63FF] hover:text-[#8B84FF] text-xs font-bold font-mono shrink-0 cursor-pointer px-1 flex items-center gap-1"
+              >
+                <span>Open ↗</span>
+              </button>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
+            {sandboxAnnotations.length > 0 && (
+              <button
+                onClick={handleSendAnnotationsToAiCofounder}
+                disabled={isSubmittingAnnotations}
+                className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
+              >
+                <Send className="w-3.5 h-3.5" />
+                <span>{isSubmittingAnnotations ? 'Sending to AI...' : `Send ${sandboxAnnotations.length} Pins to AI`}</span>
+              </button>
+            )}
+
+            {/* View Tab Selector */}
+            <div className="flex items-center gap-1 p-1 neumorphic-inset rounded-2xl">
+              <button
+                onClick={() => setActiveTab('preview')}
+                className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'preview' ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-[#6B7280]'}`}
+              >
+                <Globe className="w-3.5 h-3.5" />
+                <span>Preview</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('console')}
+                className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'console' ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-[#6B7280]'}`}
+              >
+                <Terminal className="w-3.5 h-3.5" />
+                <span>Console ({consoleLogs.length})</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('network')}
+                className={`px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'network' ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-[#6B7280]'}`}
+              >
+                <Activity className="w-3.5 h-3.5" />
+                <span>Network ({networkLogs.length})</span>
+              </button>
+            </div>
+
             <button
               onClick={() => setIsAiModalOpen(true)}
               className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white rounded-xl px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shadow-sm"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>AI Agent Fix</span>
+              <span>AI Fix</span>
             </button>
 
             <div className="flex gap-1 p-1 neumorphic-inset rounded-2xl">
               <button onClick={() => setDevice('desktop')} className={`p-1.5 rounded-xl cursor-pointer ${device === 'desktop' ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-[#6B7280]'}`}>
-                <Monitor className="w-4 h-4" />
+                <Monitor className="w-3.5 h-3.5" />
               </button>
               <button onClick={() => setDevice('mobile')} className={`p-1.5 rounded-xl cursor-pointer ${device === 'mobile' ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-[#6B7280]'}`}>
-                <Smartphone className="w-4 h-4" />
+                <Smartphone className="w-3.5 h-3.5" />
               </button>
             </div>
 
             <button onClick={onClose} className="w-8 h-8 rounded-full neumorphic-btn flex items-center justify-center text-[#6B7280] hover:text-[#3D4852] cursor-pointer">
               <X className="w-4 h-4" />
             </button>
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between px-6 py-2 border-b border-black/5 flex-shrink-0 bg-[#E0E5EC]">
-          <div className="flex items-center gap-2 flex-1 max-w-xl neumorphic-inset rounded-2xl px-4 py-1.5">
-            <button onClick={refreshApp} title="Refresh / Load URL" className="cursor-pointer text-[#6B7280] hover:text-[#3D4852]">
-              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
-            </button>
-            <input
-              type="text"
-              value={sandboxUrl}
-              onChange={(e) => setSandboxUrl(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && refreshApp()}
-              className="w-full bg-transparent text-xs font-mono font-bold text-[#3D4852] outline-none"
-              placeholder="https://preview.clarifyai.app/projects/..."
-            />
-            <button
-              onClick={() => window.open(getFormattedUrl(sandboxUrl), '_blank')}
-              title="Open URL in New Tab"
-              className="text-[#6C63FF] hover:text-[#8B84FF] text-xs font-bold font-mono shrink-0 cursor-pointer px-1 flex items-center gap-1"
-            >
-              <span>Open ↗</span>
-            </button>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {sandboxAnnotations.length > 0 && (
-              <button
-                onClick={handleSendAnnotationsToAiCofounder}
-                disabled={isSubmittingAnnotations}
-                className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
-              >
-                <Send className="w-3.5 h-3.5" />
-                <span>{isSubmittingAnnotations ? 'Sending to AI...' : `Send ${sandboxAnnotations.length} Pins to AI Co-founder`}</span>
-              </button>
-            )}
-
-            <div className="flex items-center gap-1.5 p-1 neumorphic-inset rounded-2xl">
-              <button
-                onClick={() => setActiveTab('preview')}
-                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'preview' ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-[#6B7280]'}`}
-              >
-                <Globe className="w-3.5 h-3.5" />
-                <span>App Preview</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('console')}
-                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'console' ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-[#6B7280]'}`}
-              >
-                <Terminal className="w-3.5 h-3.5" />
-                <span>Console Logs ({consoleLogs.length})</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('network')}
-                className={`px-3 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === 'network' ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-[#6B7280]'}`}
-              >
-                <Activity className="w-3.5 h-3.5" />
-                <span>Network ({networkLogs.length})</span>
-              </button>
-            </div>
           </div>
         </div>
 
