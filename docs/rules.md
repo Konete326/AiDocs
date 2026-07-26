@@ -49,3 +49,11 @@ This document contains strict coding and formatting rules that any AI Agent MUST
 * **Non-Blocking Work During Background Installation:** Whenever long-running commands or dependency installations (such as `npm install`, `npx create-next-app`, `npm run build`, etc.) are launched in the background, DO NOT wait idle. Immediately start writing source code, components, API routes, data models, and configurations while `node_modules` are downloading.
 * **Mandatory Empirical Verification:** Before declaring any task completed, the Agent MUST verify that background installations have completed successfully and run full empirical tests/build checks to ensure zero runtime or build errors.
 
+## 12. Continuous Autonomous Engine Loop (30-Minute Timeout)
+* **Never Stop After Build:** The Agent MUST NOT exit or stop execution after building the initial scaffold or passing `npm run build`.
+* **Autonomous Continuation:** Continuously query ClarifyAI AI Co-founder (`clarifyai_get_next_step`, `clarifyai_ask_cofounder`) to autonomously implement remaining Kanban tasks, refine features, and polish the codebase.
+* **30-Minute Idle Timeout:** Only stop execution if 30 minutes pass without any user response or new tasks.
+
+## 13. Mandatory Live Sandbox Preview Registration
+* **Auto-Register Live Preview:** As soon as background dev server (`npm run dev` or `npm start` at `http://localhost:5173` or `http://localhost:3000`) is launched, IMMEDIATELY call `clarifyai_report_agent_activity` with the live URL so ClarifyAI's Live Sandbox Modal opens automatically to display the live running web application to the user.
+

@@ -4,7 +4,15 @@ const Notification = require('../models/Notification');
 const { evaluateCode } = require('./mcpRulesEvaluator');
 
 const FILE_MAPPING = { prd: 'docs/PRD.md', srd: 'docs/SRD.md', techStack: 'docs/TechStack.md', dbSchema: 'docs/DatabaseSchema.md', userFlows: 'docs/UserFlows.md', mvpPlan: 'docs/MVPPlan.md', folderStructure: 'docs/FolderStructure.md', claudeContext: 'CLAUDE.md', agentSystemPrompt: 'AGENT_RULES.md' };
-const DEFAULT_RULES = `# MANDATORY FRONTEND SCAFFOLDING RULE
+const DEFAULT_RULES = `# CONTINUOUS AUTONOMOUS ENGINE LOOP RULE (30-MINUTE TIMEOUT)
+- DO NOT stop or exit execution after initial project build!
+- Continuously query ClarifyAI AI Co-founder (clarifyai_get_next_step, clarifyai_ask_cofounder) to autonomously implement remaining Kanban tasks, refine features, and polish the application.
+- Only pause or stop execution if 30 minutes of continuous idle inactivity pass without any user input or new tasks.
+
+# LIVE SANDBOX PREVIEW REGISTRATION RULE
+- Upon launching background dev server (npm run dev or npm start at http://localhost:5173 or http://localhost:3000), IMMEDIATELY call clarifyai_report_agent_activity with live preview URL so ClarifyAI's Live Sandbox Modal opens and displays the live app to the user.
+
+# MANDATORY FRONTEND SCAFFOLDING RULE
 - Frontend MUST be initialized using terminal command: npx -y create-vite@latest frontend --template react
 - DO NOT manually write package.json or vite.config.js from scratch!
 
@@ -14,10 +22,6 @@ const DEFAULT_RULES = `# MANDATORY FRONTEND SCAFFOLDING RULE
 
 # MANDATORY EMPIRICAL VERIFICATION RULE
 - Before declaring a task complete, verify background tasks finished cleanly and run empirical build/test checks (npm run build / dev server check) to confirm zero errors.
-
-# LIVE PREVIEW RULE
-- Upon completing application build, launch background dev server using command: npm run dev
-- Output working live preview link: http://localhost:5173
 
 # Code Quality Constraints
 - Maximum 120 lines per backend service file
