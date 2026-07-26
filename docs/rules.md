@@ -45,3 +45,7 @@ This document contains strict coding and formatting rules that any AI Agent MUST
 * **Zero Dummy/Mock Data:** NEVER use dummy data, mock JSON arrays, fake text, or dummy place-holder functions in any project.
 * **100% Functional Code:** Every single button, link, AI feature, route, API handler, and form must be 100% real, fully functional, and workable.
 
+## 11. Non-Blocking Async Installations & Mandatory Verification Rule
+* **Non-Blocking Work During Background Installation:** Whenever long-running commands or dependency installations (such as `npm install`, `npx create-next-app`, `npm run build`, etc.) are launched in the background, DO NOT wait idle. Immediately start writing source code, components, API routes, data models, and configurations while `node_modules` are downloading.
+* **Mandatory Empirical Verification:** Before declaring any task completed, the Agent MUST verify that background installations have completed successfully and run full empirical tests/build checks to ensure zero runtime or build errors.
+
