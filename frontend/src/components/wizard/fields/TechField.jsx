@@ -20,6 +20,7 @@ export function TechFieldSelector({ formData, onChange }) {
 
   const selectedVal = formData.wizardAnswers.techPreferences || '';
   const currentStack = STACK_OPTIONS.find(s => selectedVal.includes(s.label.split(' ')[0])) || STACK_OPTIONS[2];
+  const shortStackName = currentStack.label.split(' (')[0];
 
   const handleSelectStack = (stack) => {
     onChange('wizardAnswers.techPreferences', stack.value);
@@ -32,23 +33,23 @@ export function TechFieldSelector({ formData, onChange }) {
       
       <div className="neumorphic-card rounded-2xl p-2.5 px-3 bg-[#E0E5EC] border border-black/5 flex items-center justify-between gap-2.5 min-w-0">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-7 h-7 rounded-xl bg-[#6C63FF] text-white flex items-center justify-center font-extrabold text-xs shadow-sm shrink-0">
+          <div className="w-7 h-7 rounded-xl bg-[#2563EB] text-white flex items-center justify-center font-extrabold text-xs shadow-sm shrink-0">
             {currentStack.icon}
           </div>
           <div className="min-w-0">
             <h4 className="text-xs font-extrabold text-[#3D4852] truncate">
-              {currentStack.label}
+              {shortStackName}
             </h4>
-            <p className="text-[10px] text-[#6B7280] font-medium truncate mt-0.5">{currentStack.desc}</p>
+            <p className="text-[10px] text-[#2563EB] font-extrabold truncate mt-0.5">Active Framework</p>
           </div>
         </div>
 
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer shrink-0"
+          className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold px-3 py-1.5 rounded-xl text-xs transition-all shadow-sm cursor-pointer shrink-0"
         >
-          <span>Select Stack ↗</span>
+          <span className="text-white font-extrabold">Select Stack ↗</span>
         </button>
       </div>
 
@@ -112,14 +113,14 @@ export function TechFieldSelector({ formData, onChange }) {
 
             <div className="p-4 px-7 border-t border-black/5 bg-[#E0E5EC] flex justify-between items-center">
               <span className="text-xs text-[#6B7280] font-semibold">
-                Current Stack: <strong className="text-[#2563EB]">{currentStack.label}</strong>
+                Current Stack: <strong className="text-[#2563EB] font-extrabold">{currentStack.label}</strong>
               </span>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-5 py-2 rounded-2xl text-xs font-bold transition-all shadow-md cursor-pointer"
+                className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold px-5 py-2 rounded-2xl text-xs transition-all shadow-md cursor-pointer"
               >
-                Close
+                <span className="text-white font-extrabold">Close</span>
               </button>
             </div>
           </div>
