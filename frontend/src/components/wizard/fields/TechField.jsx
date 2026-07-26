@@ -27,12 +27,12 @@ export function TechFieldSelector({ formData, onChange }) {
   };
 
   return (
-    <div className="space-y-1.5">
-      <label className="text-xs uppercase tracking-[0.2em] text-[#6B7280] font-extrabold block">Target Framework & Architecture</label>
+    <div className="space-y-1">
+      <label className="text-[11px] uppercase tracking-[0.15em] text-[#6B7280] font-extrabold block">Target Framework</label>
       
-      <div className="neumorphic-card rounded-2xl p-3 bg-[#E0E5EC] border border-black/5 flex items-center justify-between gap-3">
+      <div className="neumorphic-card rounded-2xl p-2.5 px-3 bg-[#E0E5EC] border border-black/5 flex items-center justify-between gap-2.5 min-w-0">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-[#6C63FF] text-white flex items-center justify-center font-extrabold text-xs shadow-sm shrink-0">
+          <div className="w-7 h-7 rounded-xl bg-[#6C63FF] text-white flex items-center justify-center font-extrabold text-xs shadow-sm shrink-0">
             {currentStack.icon}
           </div>
           <div className="min-w-0">
@@ -139,14 +139,14 @@ export function TechNotesField({ formData, onChange }) {
   );
 
   return (
-    <div className="space-y-1.5">
-      <label className="text-xs uppercase tracking-[0.2em] text-[#6B7280] font-extrabold block">Custom Tech Notes & Libraries</label>
-      <div className="neumorphic-inset rounded-2xl px-4 py-2.5 w-full bg-[#E0E5EC] border border-black/5">
+    <div className="space-y-1">
+      <label className="text-[11px] uppercase tracking-[0.15em] text-[#6B7280] font-extrabold block">Custom Tech Notes</label>
+      <div className="neumorphic-inset rounded-2xl px-3.5 py-2 w-full bg-[#E0E5EC] border border-black/5">
         <textarea 
           value={formData.wizardAnswers.techPreferences || ''}
           onChange={(e) => onChange('wizardAnswers.techPreferences', e.target.value)}
           placeholder="e.g. Next.js 15, Tailwind, PostgreSQL, Stripe, Redis..."
-          rows={2}
+          rows={1}
           className="bg-transparent text-[#3D4852] font-semibold placeholder:text-[#9CA3AF] outline-none w-full text-xs resize-none"
         />
       </div>
