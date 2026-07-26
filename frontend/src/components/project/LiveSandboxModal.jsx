@@ -3,25 +3,12 @@ import { X, Play, RefreshCw, Smartphone, Monitor, Terminal, CheckCircle2, Globe,
 import api from '../../services/api';
 import { toast } from 'react-hot-toast';
 
-const INITIAL_CONSOLE = [
-  { id: 1, type: 'info', time: '11:44:01', text: '[Vite 8.0] dev server running at http://localhost:5173' },
-  { id: 2, type: 'log', time: '11:44:02', text: '[React 18] Root component hydrated successfully with HMR' },
-  { id: 3, type: 'warn', time: '11:44:05', text: '[HMR] Connected to WebContainer event stream' },
-];
-
-const INITIAL_NETWORK = [
-  { id: 1, method: 'GET', url: '/api/projects/context', status: 200, time: '34ms' },
-  { id: 2, method: 'GET', url: '/api/documents/prd', status: 200, time: '52ms' },
-  { id: 3, method: 'POST', url: '/api/mcp/activity', status: 201, time: '98ms' },
-  { id: 4, method: 'GET', url: '/api/kanban/tasks', status: 200, time: '41ms' },
-];
-
 const LiveSandboxModal = ({ isOpen, onClose, project }) => {
   const [device, setDevice] = useState('desktop');
   const [activeTab, setActiveTab] = useState('preview');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [consoleLogs, setConsoleLogs] = useState(INITIAL_CONSOLE);
-  const [networkLogs, setNetworkLogs] = useState(INITIAL_NETWORK);
+  const [consoleLogs, setConsoleLogs] = useState([]);
+  const [networkLogs, setNetworkLogs] = useState([]);
   
   const [sandboxUrl, setSandboxUrl] = useState('');
   const [isAiModalOpen, setIsAiModalOpen] = useState(false);
@@ -31,7 +18,6 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
   const [copyConsoleSuccess, setCopyConsoleSuccess] = useState(false);
   const [copyNetworkSuccess, setCopyNetworkSuccess] = useState(false);
 
-  // Clarifyation Sandbox Visual Annotations
   const [isAnnotatingMode, setIsAnnotatingMode] = useState(false);
   const [sandboxAnnotations, setSandboxAnnotations] = useState([]);
   const [activeSandboxPin, setActiveSandboxPin] = useState(null);
@@ -74,8 +60,64 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
     setIsRefreshing(true);
     const target = getFormattedUrl(sandboxUrl);
     setActiveIframeUrl(target);
-    setConsoleLogs(prev => [...prev, { id: Date.now(), type: 'info', time: new Date().toLocaleTimeString(), text: `[Browser] Navigated to ${target}` }]);
+    setConsoleLogs([{ id: Date.now(), type: 'info', time: new Date().toLocaleTimeString(), text: `[Sandbox] Navigating to ${target}...` }]);
+    setNetworkLogs([]);
     setTimeout(() => setIsRefreshing(false), 500);
+  };
+
+  const handleIframeLoad = () => {
+    if (!iframeRef.current) return;
+    try {
+      const iframeWin = iframeRef.current.contentWindow;
+      if (!iframeWin) return;
+
+      const targetUrl = activeIframeUrl;
+      setConsoleLogs(prev => [
+        ...prev,
+        { id: Date.now() + Math.random(), type: 'info', time: new Date().toLocaleTimeString(), text: `[Sandbox] Preview loaded: ${targetUrl}` }
+      ]);
+
+      const wrapLog = (type, origFn) => (...args) => {
+        try {
+          const text = args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a)).join(' ');
+          setConsoleLogs(prev => [...prev, { id: Date.now() + Math.random(), type, time: new Date().toLocaleTimeString(), text }]);
+        } catch (e) {}
+        if (origFn) origFn.apply(iframeWin.console, args);
+      };
+
+      if (iframeWin.console && !iframeWin.__consoleIntercepted) {
+        iframeWin.__consoleIntercepted = true;
+        iframeWin.console.log = wrapLog('log', iframeWin.console.log);
+        iframeWin.console.error = wrapLog('error', iframeWin.console.error);
+        iframeWin.console.warn = wrapLog('warn', iframeWin.console.warn);
+        iframeWin.console.info = wrapLog('info', iframeWin.console.info);
+      }
+
+      if (iframeWin.fetch && !iframeWin.__fetchIntercepted) {
+        iframeWin.__fetchIntercepted = true;
+        const origFetch = iframeWin.fetch;
+        iframeWin.fetch = async (...args) => {
+          const startTime = performance.now();
+          const reqUrl = typeof args[0] === 'string' ? args[0] : args[0]?.url || 'fetch';
+          const method = args[1]?.method || 'GET';
+          try {
+            const res = await origFetch.apply(iframeWin, args);
+            const duration = Math.round(performance.now() - startTime);
+            setNetworkLogs(prev => [...prev, { id: Date.now() + Math.random(), method: method.toUpperCase(), url: reqUrl, status: res.status, time: `${duration}ms` }]);
+            return res;
+          } catch (err) {
+            const duration = Math.round(performance.now() - startTime);
+            setNetworkLogs(prev => [...prev, { id: Date.now() + Math.random(), method: method.toUpperCase(), url: reqUrl, status: 'FAILED', time: `${duration}ms` }]);
+            throw err;
+          }
+        };
+      }
+    } catch (err) {
+      setConsoleLogs(prev => [
+        ...prev,
+        { id: Date.now() + Math.random(), type: 'warn', time: new Date().toLocaleTimeString(), text: `[Sandbox] Loaded ${activeIframeUrl}. External domain cross-origin restrictions apply.` }
+      ]);
+    }
   };
 
   const handleCopyConsoleLogs = () => {
@@ -420,6 +462,7 @@ ${networkSummary || 'No network activity logged.'}`;
                   ref={iframeRef}
                   key={activeIframeUrl}
                   src={activeIframeUrl}
+                  onLoad={handleIframeLoad}
                   className="w-full h-full border-none bg-white rounded-3xl"
                   title="Live Sandbox Website Preview"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
