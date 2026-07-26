@@ -80,7 +80,7 @@ export const DesignSystemSelector = ({ selectedPresetId, onSelectPreset }) => {
   };
 
   return (
-    <div className="w-full liquid-glass rounded-2xl overflow-hidden grid lg:grid-cols-12 h-[360px]">
+    <div className="w-full liquid-glass rounded-2xl overflow-hidden grid lg:grid-cols-12 min-h-[460px] h-[520px]">
       <div className="lg:col-span-3 p-2.5 flex flex-col space-y-1.5 shadow-[inset_-2px_0_6px_rgba(163,177,198,0.3)] overflow-hidden">
         <div className="flex items-center justify-between px-1 py-0.5">
           <span className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Design Presets</span>
@@ -143,7 +143,7 @@ export const DesignSystemSelector = ({ selectedPresetId, onSelectPreset }) => {
           </div>
         </div>
 
-        <div className="p-3 flex-1 overflow-y-auto max-h-[300px] custom-scrollbar">
+        <div className="p-3 flex-1 overflow-y-auto max-h-[440px] custom-scrollbar">
           {renderActivePreview()}
         </div>
       </div>
