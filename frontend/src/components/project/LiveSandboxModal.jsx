@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Play, RefreshCw, Smartphone, Monitor, Terminal, CheckCircle2, Globe, Activity, Trash2, Sparkles, Send, Loader2, Copy, Check, MousePointer, MessageSquare } from 'lucide-react';
+import { X, Play, RefreshCw, Smartphone, Monitor, Terminal, CheckCircle2, Globe, Activity, Trash2, Sparkles, Send, Loader2, Copy, Check, MousePointer, MessageSquare, ArrowLeft, Settings, Layers, Layout, ChevronLeft, ChevronRight, RotateCw, Home } from 'lucide-react';
 import api from '../../services/api';
 import { toast } from 'react-hot-toast';
+import logo from '../../assets/logo.png';
+import CustomAgentationSetupModal from './CustomAgentationSetupModal';
 
 const LiveSandboxModal = ({ isOpen, onClose, project }) => {
   const [device, setDevice] = useState('desktop');
@@ -18,7 +20,31 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
   const [copyConsoleSuccess, setCopyConsoleSuccess] = useState(false);
   const [copyNetworkSuccess, setCopyNetworkSuccess] = useState(false);
 
-  const [isAnnotatingMode, setIsAnnotatingMode] = useState(false);
+  const [isAnnotatingMode, setIsAnnotatingMode] = useState(true);
+  const [annotationMode, setAnnotationMode] = useState('elements');
+  const [isPausedAnimations, setIsPausedAnimations] = useState(false);
+  const [areMarkersVisible, setAreMarkersVisible] = useState(true);
+  const [outputDetailMode, setOutputDetailMode] = useState('standard');
+  const [pinPriority, setPinPriority] = useState('medium');
+  const [isSetupWizardOpen, setIsSetupWizardOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const handleHistoryBack = () => {
+    try {
+      if (iframeRef.current?.contentWindow?.history) {
+        iframeRef.current.contentWindow.history.back();
+      }
+    } catch (err) {}
+  };
+
+  const handleHistoryForward = () => {
+    try {
+      if (iframeRef.current?.contentWindow?.history) {
+        iframeRef.current.contentWindow.history.forward();
+      }
+    } catch (err) {}
+  };
+
   const [sandboxAnnotations, setSandboxAnnotations] = useState([]);
   const [activeSandboxPin, setActiveSandboxPin] = useState(null);
   const [pinCommentText, setPinCommentText] = useState('');
@@ -55,6 +81,65 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
       setActiveIframeUrl(defaultUrl);
     }
   }, [project?._id]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsAnnotatingMode(true);
+      console.log("[Agentation v2.0] Live Sandbox Modal Opened — Inspector Active");
+      document.body.classList.add('sandbox-open');
+    } else {
+      document.body.classList.remove('sandbox-open');
+    }
+    return () => document.body.classList.remove('sandbox-open');
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !project?._id) return;
+
+    let eventSource;
+    try {
+      const token = api.getAccessToken ? api.getAccessToken() : '';
+      eventSource = new EventSource(`/api/projects/${project._id}/events?token=${token}`);
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'annotation.updated' || data.type === 'code_updated' || data.type === 'generation_completed') {
+            toast.success('Live Sandbox updated by AI Co-founder!');
+            refreshApp();
+          }
+        } catch (e) {}
+      };
+    } catch (err) {}
+
+    return () => {
+      if (eventSource) eventSource.close();
+    };
+  }, [isOpen, project?._id]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.target && ['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target.tagName)) return;
+      if (e.key === 'p' || e.key === 'P') {
+        setIsPausedAnimations(prev => !prev);
+        toast.success(isPausedAnimations ? 'Animations resumed (P)' : 'Animations paused (P)');
+      } else if (e.key === 'h' || e.key === 'H') {
+        setAreMarkersVisible(prev => !prev);
+        toast.success(areMarkersVisible ? 'Markers hidden (H)' : 'Markers visible (H)');
+      } else if (e.key === 'c' || e.key === 'C') {
+        handleCopyAgentationMarkdown();
+      } else if (e.key === 'x' || e.key === 'X') {
+        setSandboxAnnotations([]);
+        toast.success('All annotations cleared (X)');
+      } else if (e.key === 'l' || e.key === 'L') {
+        setAnnotationMode(prev => prev === 'layout' ? 'elements' : 'layout');
+      } else if (e.key === 'Escape') {
+        setActiveSandboxPin(null);
+        setIsAnnotatingMode(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isPausedAnimations, areMarkersVisible, sandboxAnnotations]);
 
   const refreshApp = () => {
     setIsRefreshing(true);
@@ -136,6 +221,167 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
     setTimeout(() => setCopyNetworkSuccess(false), 2000);
   };
 
+  const handleOverlayMouseMove = (e) => {
+    if (!isAnnotatingMode) return;
+    const overlayRect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - overlayRect.left;
+    const y = e.clientY - overlayRect.top;
+
+    let iframeDoc;
+    try {
+      iframeDoc = iframeRef.current?.contentDocument || iframeRef.current?.contentWindow?.document;
+    } catch (err) {
+      iframeDoc = null;
+    }
+
+    let selector = `element@(${Math.round(x)}px, ${Math.round(y)}px)`;
+    let tag = 'COMPONENT';
+    let text = '';
+    let elementRect = { top: Math.max(10, y - 18), left: Math.max(10, x - 60), width: 120, height: 36 };
+
+    if (iframeDoc) {
+      try {
+        const rawTarget = iframeDoc.elementFromPoint(x, y);
+        if (rawTarget && rawTarget.tagName !== 'HTML' && rawTarget.tagName !== 'BODY') {
+          const target = rawTarget.closest('button, a, input, select, textarea, [role="button"], form, header, nav, section, article') || rawTarget;
+          const targetBox = target.getBoundingClientRect();
+          elementRect = {
+            top: targetBox.top,
+            left: targetBox.left,
+            width: targetBox.width,
+            height: targetBox.height
+          };
+
+          const tName = target.tagName.toLowerCase();
+          const idStr = target.id ? `#${target.id}` : '';
+          const classStr = target.className && typeof target.className === 'string'
+            ? `.${target.className.split(' ').filter(c => Boolean(c) && !c.includes('agentation')).slice(0, 2).join('.')}`
+            : '';
+          selector = `${tName}${idStr}${classStr}`;
+          tag = tName.toUpperCase();
+          text = target.innerText ? target.innerText.trim().slice(0, 40) : '';
+        }
+      } catch (err) {}
+    }
+
+    console.log("[Agentation v2.0 DOM Target] Hover:", selector, elementRect);
+
+    setHoveredIframeElement({
+      rect: elementRect,
+      selector,
+      text,
+      tagName: tag
+    });
+  };
+
+  const handleOverlayClick = (e) => {
+    if (!isAnnotatingMode) return;
+    const overlayRect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - overlayRect.left;
+    const y = e.clientY - overlayRect.top;
+    const xPercent = (((x) / overlayRect.width) * 100).toFixed(1);
+    const yPercent = (((y) / overlayRect.height) * 100).toFixed(1);
+
+    let iframeDoc;
+    try {
+      iframeDoc = iframeRef.current?.contentDocument || iframeRef.current?.contentWindow?.document;
+    } catch (err) {
+      iframeDoc = null;
+    }
+
+    let selector = `element@(${xPercent}%, ${yPercent}%)`;
+    let tag = 'ELEMENT';
+    let cleanText = '';
+    let computedStyles = {};
+    let fullHierarchyPath = '';
+    let elementRect = { top: y, left: x, width: 60, height: 24 };
+
+    if (iframeDoc) {
+      try {
+        const rawTarget = iframeDoc.elementFromPoint(x, y);
+        if (rawTarget && rawTarget.tagName !== 'HTML' && rawTarget.tagName !== 'BODY') {
+          const target = rawTarget.closest('button, a, input, select, textarea, [role="button"], form, header, nav, section, article') || rawTarget;
+          const targetBox = target.getBoundingClientRect();
+          elementRect = {
+            top: targetBox.top,
+            left: targetBox.left,
+            width: targetBox.width,
+            height: targetBox.height
+          };
+
+          const tName = target.tagName.toLowerCase();
+          const idStr = target.id ? `#${target.id}` : '';
+          const classStr = target.className && typeof target.className === 'string'
+            ? `.${target.className.split(' ').filter(c => Boolean(c) && !c.includes('agentation')).slice(0, 2).join('.')}`
+            : '';
+          selector = `${tName}${idStr}${classStr}`;
+          tag = tName.toUpperCase();
+          cleanText = target.innerText ? target.innerText.trim().slice(0, 80) : '';
+
+          const win = iframeDoc.defaultView || window;
+          const c = win.getComputedStyle(target);
+          computedStyles = {
+            color: c.color,
+            fontSize: c.fontSize,
+            fontFamily: c.fontFamily ? c.fontFamily.split(',')[0] : '',
+            padding: c.padding,
+            margin: c.margin,
+            display: c.display,
+            backgroundColor: c.backgroundColor
+          };
+
+          const tree = [];
+          let curr = target;
+          while (curr && curr.tagName && curr.tagName !== 'HTML' && tree.length < 4) {
+            const tStr = curr.tagName.toLowerCase();
+            const iStr = curr.id ? `#${curr.id}` : '';
+            const cStr = curr.className && typeof curr.className === 'string'
+              ? `.${curr.className.split(' ').filter(c => Boolean(c) && !c.includes('agentation')).slice(0, 1).join('.')}`
+              : '';
+            tree.unshift(`${tStr}${iStr}${cStr}`);
+            curr = curr.parentElement;
+          }
+          fullHierarchyPath = tree.join(' > ');
+        }
+      } catch (err) {}
+    }
+
+    const newPin = {
+      id: `ann_${Date.now().toString(36)}_${Math.random().toString(36).substr(2, 4)}`,
+      number: sandboxAnnotations.length + 1,
+      comment: '',
+      elementPath: fullHierarchyPath || selector,
+      timestamp: Date.now(),
+      x: parseFloat(xPercent),
+      y: Math.round(y),
+      element: tag.toLowerCase(),
+      url: sandboxUrl || activeIframeUrl,
+      boundingBox: {
+        x: Math.round(elementRect.left),
+        y: Math.round(elementRect.top),
+        width: Math.round(elementRect.width),
+        height: Math.round(elementRect.height)
+      },
+      reactComponents: fullHierarchyPath,
+      selectedText: cleanText,
+      intent: 'fix',
+      severity: pinPriority === 'critical' || pinPriority === 'high' ? 'blocking' : pinPriority === 'medium' ? 'important' : 'suggestion',
+      kind: annotationMode === 'layout' ? 'placement' : 'feedback',
+      status: 'pending',
+      elementSelector: selector,
+      componentTag: tag,
+      computedStyles,
+      elementRect,
+      xPercent,
+      yPercent
+    };
+
+    console.log("[Agentation v2.0 DOM Target] Clicked Pin:", newPin);
+
+    setActiveSandboxPin(newPin);
+    setHoveredIframeElement(null);
+  };
+
   useEffect(() => {
     if (!isAnnotatingMode || !iframeRef.current) {
       setHoveredIframeElement(null);
@@ -151,113 +397,32 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
 
     if (!iframeDoc) return;
 
-    let styleEl = iframeDoc.getElementById('clarify-annotator-style');
+    let styleEl = iframeDoc.getElementById('agentation-annotator-style');
     if (!styleEl) {
       styleEl = iframeDoc.createElement('style');
-      styleEl.id = 'clarify-annotator-style';
+      styleEl.id = 'agentation-annotator-style';
       styleEl.innerHTML = `
-        .clarify-hover-outline {
+        .agentation-hover-outline {
           outline: 2px solid #6C63FF !important;
           outline-offset: 2px !important;
           background-color: rgba(108, 99, 255, 0.12) !important;
           cursor: crosshair !important;
           transition: outline 0.1s ease-in-out !important;
         }
+        .agentation-paused *, .agentation-paused *::before, .agentation-paused *::after {
+          animation-play-state: paused !important;
+          transition: none !important;
+        }
       `;
       if (iframeDoc.head) iframeDoc.head.appendChild(styleEl);
     }
 
-    let activeHoveredNode = null;
-
-    const handleMouseOver = (e) => {
-      e.stopPropagation();
-      const target = e.target;
-      if (!target || target.tagName === 'HTML' || target.tagName === 'BODY') return;
-
-      if (activeHoveredNode && activeHoveredNode !== target) {
-        activeHoveredNode.classList.remove('clarify-hover-outline');
-      }
-
-      activeHoveredNode = target;
-      target.classList.add('clarify-hover-outline');
-
-      const rect = target.getBoundingClientRect();
-      const tag = target.tagName.toLowerCase();
-      const idStr = target.id ? `#${target.id}` : '';
-      const classStr = target.className && typeof target.className === 'string'
-        ? `.${target.className.split(' ').filter(c => Boolean(c) && !c.includes('clarify')).slice(0, 2).join('.')}`
-        : '';
-      const selector = `${tag}${idStr}${classStr}`;
-      const text = target.innerText ? target.innerText.trim().slice(0, 40) : '';
-
-      setHoveredIframeElement({
-        rect,
-        selector,
-        text,
-        tagName: tag.toUpperCase()
-      });
-    };
-
-    const handleMouseOut = (e) => {
-      if (e.target) {
-        e.target.classList.remove('clarify-hover-outline');
-      }
-    };
-
-    const handleClick = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      const target = e.target;
-      if (!target) return;
-
-      if (target.classList) {
-        target.classList.remove('clarify-hover-outline');
-      }
-
-      const rect = target.getBoundingClientRect();
-      const iframeWidth = iframeDoc.documentElement.clientWidth || 1;
-      const iframeHeight = iframeDoc.documentElement.clientHeight || 1;
-
-      const xPercent = (((rect.left + rect.width / 2) / iframeWidth) * 100).toFixed(1);
-      const yPercent = (((rect.top + rect.height / 2) / iframeHeight) * 100).toFixed(1);
-
-      const tag = target.tagName.toLowerCase();
-      const idStr = target.id ? `#${target.id}` : '';
-      const classStr = target.className && typeof target.className === 'string'
-        ? `.${target.className.split(' ').filter(c => Boolean(c) && !c.includes('clarify')).slice(0, 2).join('.')}`
-        : '';
-      const selector = `${tag}${idStr}${classStr}`;
-      const cleanText = target.innerText ? target.innerText.trim().slice(0, 80) : '';
-
-      const newPin = {
-        id: Date.now(),
-        number: sandboxAnnotations.length + 1,
-        elementSelector: selector,
-        elementText: cleanText ? `"${cleanText}"` : `${tag.toUpperCase()} Component`,
-        componentTag: tag.toUpperCase(),
-        xPercent,
-        yPercent,
-        url: sandboxUrl,
-        comment: ''
-      };
-
-      setActiveSandboxPin(newPin);
-      setHoveredIframeElement(null);
-    };
-
-    iframeDoc.addEventListener('mouseover', handleMouseOver, true);
-    iframeDoc.addEventListener('mouseout', handleMouseOut, true);
-    iframeDoc.addEventListener('click', handleClick, true);
-
-    return () => {
-      if (activeHoveredNode) {
-        activeHoveredNode.classList.remove('clarify-hover-outline');
-      }
-      iframeDoc.removeEventListener('mouseover', handleMouseOver, true);
-      iframeDoc.removeEventListener('mouseout', handleMouseOut, true);
-      iframeDoc.removeEventListener('click', handleClick, true);
-    };
-  }, [isAnnotatingMode, activeIframeUrl, sandboxAnnotations.length]);
+    if (isPausedAnimations && iframeDoc.body) {
+      iframeDoc.body.classList.add('agentation-paused');
+    } else if (iframeDoc.body) {
+      iframeDoc.body.classList.remove('agentation-paused');
+    }
+  }, [isAnnotatingMode, activeIframeUrl, isPausedAnimations]);
 
   const handleSaveSandboxPin = () => {
     if (!activeSandboxPin) return;
@@ -274,50 +439,58 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
       return;
     }
 
-    let markdown = `# Agentation Visual Feedback Context\n\n`;
-    markdown += `**Target Page**: \`${sandboxUrl || activeIframeUrl}\`\n\n`;
-    markdown += `## Annotations (${sandboxAnnotations.length})\n\n`;
+    let markdown = `## Page Feedback: ${sandboxUrl || activeIframeUrl}\n`;
+    markdown += `**Format:** ${outputDetailMode.toUpperCase()} | **Annotations:** ${sandboxAnnotations.length}\n\n`;
 
-    sandboxAnnotations.forEach((ann) => {
-      markdown += `### Annotation #${ann.number}: \`${ann.elementSelector}\`\n`;
-      markdown += `- **Component / Tag**: \`${ann.componentTag || 'ELEMENT'}\`\n`;
-      markdown += `- **CSS Selector**: \`${ann.elementSelector}\`\n`;
-      if (ann.elementText) {
-        markdown += `- **Selected Text**: ${ann.elementText}\n`;
+    sandboxAnnotations.forEach((ann, idx) => {
+      markdown += `### ${idx + 1}. ${ann.elementSelector || ann.element}\n`;
+      if (outputDetailMode !== 'compact') {
+        markdown += `**Location:** \`${ann.elementPath || ann.elementSelector}\`\n`;
       }
-      markdown += `- **Feedback / Instruction**: ${ann.comment}\n\n`;
+      if (outputDetailMode === 'detailed' || outputDetailMode === 'forensic') {
+        if (ann.reactComponents) {
+          markdown += `**React:** \`<${ann.reactComponents.replace(/ > /g, '> <')}>\`\n`;
+        }
+        if (ann.boundingBox) {
+          markdown += `**Position:** ${ann.boundingBox.x}, ${ann.boundingBox.y} (${ann.boundingBox.width}x${ann.boundingBox.height})\n`;
+        }
+      }
+      if (ann.selectedText) {
+        markdown += `**Selected:** "${ann.selectedText}"\n`;
+      }
+      if (outputDetailMode === 'forensic' && ann.computedStyles) {
+        markdown += `**Computed Styles:** ${JSON.stringify(ann.computedStyles)}\n`;
+      }
+      markdown += `**Feedback:** ${ann.comment}\n\n`;
     });
 
-    markdown += `---\n*Agent Instruction*: Jump directly to the CSS selectors and source components above to address the feedback.`;
-
     navigator.clipboard.writeText(markdown);
-    toast.success('Agentation Markdown copied! Ready to paste into Claude Code, Cursor, or Codex.');
+    toast.success(`Agentation ${outputDetailMode.toUpperCase()} Markdown copied! Ready to paste into Claude Code, Cursor, or Codex.`);
   };
 
   const handleSendAnnotationsToAiCofounder = async () => {
     if (sandboxAnnotations.length === 0 || isSubmittingAnnotations) return;
     setIsSubmittingAnnotations(true);
     try {
-      let agentationMarkdown = `# Agentation Visual Feedback Context\n\n`;
-      agentationMarkdown += `**Target Page**: \`${sandboxUrl || activeIframeUrl}\`\n\n`;
+      let agentationMarkdown = `# Agentation Visual Feedback Context (AFS v1.1)\n\n`;
+      agentationMarkdown += `**Page URL**: \`${sandboxUrl || activeIframeUrl}\`\n\n`;
 
-      sandboxAnnotations.forEach((ann) => {
-        agentationMarkdown += `### Annotation #${ann.number}: \`${ann.elementSelector}\`\n`;
-        agentationMarkdown += `- **Selector**: \`${ann.elementSelector}\`\n`;
-        if (ann.elementText) {
-          agentationMarkdown += `- **Selected Text**: ${ann.elementText}\n`;
+      sandboxAnnotations.forEach((ann, idx) => {
+        agentationMarkdown += `## Annotation #${idx + 1} (\`${ann.id}\`)\n`;
+        agentationMarkdown += `- **Element Path:** \`${ann.elementPath || ann.elementSelector}\`\n`;
+        if (ann.reactComponents) {
+          agentationMarkdown += `- **React Components:** \`${ann.reactComponents}\`\n`;
         }
-        agentationMarkdown += `- **Feedback**: ${ann.comment}\n\n`;
+        if (ann.selectedText) {
+          agentationMarkdown += `- **Selected Text:** "${ann.selectedText}"\n`;
+        }
+        agentationMarkdown += `- **Feedback:** ${ann.comment}\n`;
+        agentationMarkdown += `- **Severity:** \`${ann.severity || 'important'}\` | **Status:** \`${ann.status || 'pending'}\`\n\n`;
       });
 
       await api.post(`/projects/${project._id}/annotations`, {
-        annotations: sandboxAnnotations.map(p => ({
-          elementSelector: p.elementSelector,
-          elementText: p.elementText,
-          comment: p.comment,
-          url: p.url,
-          bounds: { xPercent: p.xPercent, yPercent: p.yPercent }
-        })),
+        schemaVersion: '1.1',
+        annotations: sandboxAnnotations,
         pageUrl: sandboxUrl
       });
 
@@ -325,7 +498,7 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
         messages: [{ role: 'user', content: agentationMarkdown }]
       });
 
-      toast.success('Agentation Feedback sent to AI Co-founder & Chat!');
+      toast.success('AFS v1.1 Feedback sent to AI Co-founder & Chat!');
       setSandboxAnnotations([]);
       setIsAnnotatingMode(false);
       onClose();
@@ -382,18 +555,36 @@ ${networkSummary || 'No network activity logged.'}`;
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 pt-16 sm:pt-20 pb-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="w-full max-w-[95vw] h-[84vh] neumorphic-card rounded-[2.5rem] flex flex-col overflow-hidden bg-[#E0E5EC] text-[#3D4852] relative">
+    <div className="fixed inset-0 z-[100] flex flex-col p-2 sm:p-4 bg-black/75 backdrop-blur-xl animate-in fade-in duration-200">
+      <div className="w-full h-full neumorphic-card rounded-[2.5rem] flex flex-col overflow-hidden bg-[#E0E5EC] text-[#3D4852] relative">
         <div className="flex items-center justify-between p-3 px-6 border-b border-black/5 flex-shrink-0 bg-[#E0E5EC] gap-4">
-          <div className="flex items-center gap-3 flex-1 max-w-2xl">
+          <div className="flex items-center gap-3 flex-1 max-w-3xl">
+            <button
+              onClick={onClose}
+              className="neumorphic-btn rounded-2xl px-3.5 py-1.5 flex items-center gap-2 text-xs font-bold text-[#3D4852] hover:text-[#6C63FF] transition-all cursor-pointer shrink-0"
+              title="Back to Project Dashboard"
+            >
+              <ArrowLeft className="w-4 h-4 text-[#6C63FF]" />
+              <span>Back to Project</span>
+            </button>
+
             <div className="w-8 h-8 rounded-xl neumorphic-inset flex items-center justify-center text-[#6C63FF] shrink-0">
               <Play className="w-4 h-4 text-[#6C63FF]" />
             </div>
             
-            {/* Address Bar */}
+            <div className="flex items-center gap-1 neumorphic-inset rounded-2xl p-1 shrink-0">
+              <button onClick={handleHistoryBack} title="Back in History" className="p-1 rounded-xl text-[#6B7280] hover:text-[#3D4852] cursor-pointer">
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button onClick={handleHistoryForward} title="Forward in History" className="p-1 rounded-xl text-[#6B7280] hover:text-[#3D4852] cursor-pointer">
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+            
+            {/* Browser Address Bar */}
             <div className="flex items-center gap-2 flex-1 neumorphic-inset rounded-2xl px-3 py-1.5">
               <button onClick={refreshApp} title="Refresh / Load URL" className="cursor-pointer text-[#6B7280] hover:text-[#3D4852]">
-                <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+                <RotateCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
               </button>
               <input
                 type="text"
@@ -477,32 +668,45 @@ ${networkSummary || 'No network activity logged.'}`;
           {activeTab === 'preview' ? (
             <div className={`${previewWidth} h-full neumorphic-inset rounded-3xl overflow-hidden flex flex-col transition-all duration-300 relative bg-white`}>
               {isAnnotatingMode && (
-                <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
+                <div
+                  onMouseMove={handleOverlayMouseMove}
+                  onClick={handleOverlayClick}
+                  className="absolute inset-0 z-30 cursor-crosshair bg-[#6C63FF]/5 pointer-events-auto"
+                />
+              )}
+
+              {isAnnotatingMode && (
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 z-35 pointer-events-none">
                   <div className="bg-[#6C63FF] text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-xl pointer-events-auto flex items-center gap-2 border border-white/30 animate-in fade-in">
                     <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-extrabold">⚡</div>
-                    <span>AiDocs Component Inspector Active — Hover & click any text or component to drop Pin #{sandboxAnnotations.length + 1}</span>
+                    <span>Agentation Inspector Active — Click any button or element to inspect & drop Pin #{sandboxAnnotations.length + 1}</span>
                   </div>
                 </div>
               )}
 
-              {isAnnotatingMode && hoveredIframeElement && (
+              {isAnnotatingMode && hoveredIframeElement && hoveredIframeElement.rect && (
                 <div
-                  className="absolute z-40 bg-[#3D4852] text-white px-2.5 py-1 rounded-xl text-[11px] font-mono shadow-xl pointer-events-none flex items-center gap-1.5 transform -translate-y-full -mt-2 transition-all duration-75"
+                  className="absolute z-40 border-2 border-[#6C63FF] bg-[#6C63FF]/20 pointer-events-none rounded-xl shadow-[0_0_15px_rgba(108,99,255,0.7)] transition-all duration-75"
                   style={{
-                    top: `${Math.max(20, hoveredIframeElement.rect.top)}px`,
-                    left: `${Math.max(10, hoveredIframeElement.rect.left)}px`
+                    top: `${hoveredIframeElement.rect.top}px`,
+                    left: `${hoveredIframeElement.rect.left}px`,
+                    width: `${Math.max(30, hoveredIframeElement.rect.width)}px`,
+                    height: `${Math.max(20, hoveredIframeElement.rect.height)}px`
                   }}
                 >
-                  <span className="bg-[#6C63FF] text-white px-1.5 py-0.5 rounded text-[10px] font-extrabold">{hoveredIframeElement.tagName}</span>
-                  <span className="font-bold text-emerald-300">{hoveredIframeElement.selector}</span>
-                  {hoveredIframeElement.text && <span className="text-slate-300 max-w-[150px] truncate">"{hoveredIframeElement.text}"</span>}
+                  <div className="absolute -top-7 left-0 bg-[#6C63FF] text-white px-2 py-0.5 rounded-lg text-[10px] font-mono font-extrabold shadow-lg flex items-center gap-1.5 whitespace-nowrap z-50 pointer-events-none">
+                    <span className="bg-white/20 px-1 py-0.5 rounded text-[9px]">⚡ {hoveredIframeElement.tagName}</span>
+                    <span className="font-bold text-emerald-200">{hoveredIframeElement.selector}</span>
+                    {hoveredIframeElement.text && <span className="text-white/80 max-w-[120px] truncate">"{hoveredIframeElement.text}"</span>}
+                  </div>
                 </div>
               )}
 
               {sandboxAnnotations.map(pin => (
                 <div
                   key={pin.id}
-                  className="absolute z-40 bg-[#6C63FF] text-white font-extrabold text-xs px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xl ring-2 ring-white transform -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:scale-110 transition-all"
+                  onClick={() => setActiveSandboxPin(pin)}
+                  className="absolute z-40 bg-[#6C63FF] text-white font-extrabold text-xs px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xl ring-2 ring-white transform -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:scale-110 transition-all pointer-events-auto"
                   style={{ top: `${pin.yPercent}%`, left: `${pin.xPercent}%` }}
                   title={`${pin.elementSelector}: ${pin.comment}`}
                 >
@@ -510,6 +714,98 @@ ${networkSummary || 'No network activity logged.'}`;
                   <span>#{pin.number}</span>
                 </div>
               ))}
+
+              {activeSandboxPin && (
+                <div
+                  className="absolute z-50 w-80 neumorphic-card rounded-2xl p-4 bg-[#E0E5EC] text-[#3D4852] flex flex-col gap-2.5 shadow-2xl border border-black/10 animate-in zoom-in-95 pointer-events-auto"
+                  style={{
+                    top: `${Math.min(65, Math.max(8, parseFloat(activeSandboxPin.yPercent || 20)))}%`,
+                    left: `${Math.min(60, Math.max(5, parseFloat(activeSandboxPin.xPercent || 20)))}%`
+                  }}
+                >
+                  <div className="flex items-center justify-between pb-1 border-b border-black/5">
+                    <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-[#6C63FF]">
+                      <img src={logo} alt="ClarifyAI Logo" className="w-5 h-5 rounded-full object-cover border border-[#6C63FF]/30 shadow-sm" />
+                      <span>ClarifyAI Agentation #{activeSandboxPin.number}</span>
+                    </div>
+                    <button onClick={() => setActiveSandboxPin(null)} className="text-[#6B7280] hover:text-[#3D4852] p-1 rounded-full hover:bg-black/5">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <div className="p-2 rounded-xl bg-gradient-to-r from-[#6C63FF]/15 to-[#38B2AC]/15 border border-[#6C63FF]/20 text-[10px] text-[#3D4852] font-semibold flex items-center justify-between">
+                    <span className="flex items-center gap-1.5 text-[#6C63FF] font-bold">
+                      <Sparkles className="w-3 h-3 text-[#6C63FF]" />
+                      <span>AI Pipeline: Auto-route to Antigravity & Claude</span>
+                    </span>
+                    <span className="text-[9px] bg-[#6C63FF] text-white px-1.5 py-0.5 rounded font-extrabold">Active</span>
+                  </div>
+
+                  <div className="text-[11px] font-mono text-[#3D4852] bg-white/80 p-2.5 rounded-xl border border-slate-200/80 flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="bg-[#6C63FF] text-white px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase">{activeSandboxPin.componentTag || 'ELEMENT'}</span>
+                      <span className="text-[9px] font-bold text-[#6B7280] uppercase">{activeSandboxPin.mode || 'elements'}</span>
+                    </div>
+                    <div className="font-bold text-[#6C63FF] truncate">{activeSandboxPin.fullHierarchyPath || activeSandboxPin.elementSelector}</div>
+                    {activeSandboxPin.elementText && (
+                      <div className="text-[10px] text-[#6B7280] truncate italic bg-slate-100/80 p-1 rounded">
+                        "{activeSandboxPin.elementText}"
+                      </div>
+                    )}
+
+                    {activeSandboxPin.computedStyles && Object.keys(activeSandboxPin.computedStyles).length > 0 && (
+                      <div className="mt-1 flex flex-col gap-1 border-t border-slate-200/80 pt-1.5">
+                        <span className="text-[9px] font-extrabold text-[#6C63FF] uppercase tracking-wider">Extracted Element Styles</span>
+                        <div className="grid grid-cols-2 gap-1 p-2 bg-[#E0E5EC]/80 rounded-lg font-mono text-[9px] text-[#3D4852] border border-black/5">
+                          <div>Color: <span className="font-bold text-[#6C63FF]">{activeSandboxPin.computedStyles.color || 'inherit'}</span></div>
+                          <div>Font Size: <span className="font-bold">{activeSandboxPin.computedStyles.fontSize || '14px'}</span></div>
+                          <div>Display: <span className="font-bold">{activeSandboxPin.computedStyles.display || 'block'}</span></div>
+                          <div>Padding: <span className="font-bold">{activeSandboxPin.computedStyles.padding || '0px'}</span></div>
+                          <div>Bg Color: <span className="font-bold text-[#38B2AC]">{activeSandboxPin.computedStyles.backgroundColor || 'transparent'}</span></div>
+                          <div>Font: <span className="font-bold truncate max-w-[80px] inline-block align-bottom">{activeSandboxPin.computedStyles.fontFamily || 'Inter'}</span></div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] font-bold text-[#6B7280]">Priority:</span>
+                    {['low', 'medium', 'high', 'critical'].map(p => (
+                      <button
+                        key={p}
+                        onClick={() => setPinPriority(p)}
+                        className={`px-2 py-0.5 rounded-lg text-[9px] font-bold uppercase transition-all cursor-pointer ${pinPriority === p ? 'bg-[#6C63FF] text-white shadow-sm' : 'bg-white/60 text-[#6B7280]'}`}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
+
+                  <textarea
+                    value={pinCommentText}
+                    onChange={(e) => setPinCommentText(e.target.value)}
+                    placeholder="Write your feedback / prompt instruction for AI Agent..."
+                    rows={3}
+                    className="w-full neumorphic-inset rounded-xl p-2.5 text-xs outline-none text-[#3D4852] font-medium resize-none"
+                    autoFocus
+                  />
+
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      onClick={() => setActiveSandboxPin(null)}
+                      className="px-3 py-1 text-xs font-bold text-[#6B7280] hover:text-[#3D4852] cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleSaveSandboxPin}
+                      className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white px-3.5 py-1 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
+                    >
+                      Add Feedback
+                    </button>
+                  </div>
+                </div>
+              )}
 
               {isRefreshing ? (
                 <div className="flex-1 flex flex-col items-center justify-center gap-2 text-xs font-bold text-[#6B7280] bg-[#E0E5EC]">
@@ -555,21 +851,101 @@ ${networkSummary || 'No network activity logged.'}`;
                       ⚡
                     </div>
                     <span className="text-xs font-extrabold text-[#3D4852] px-1">Agentation</span>
+
+                    <div className="flex items-center gap-1 bg-white/70 p-0.5 rounded-full border border-slate-200">
+                      {['elements', 'text', 'multi', 'area', 'layout'].map((m) => (
+                        <button
+                          key={m}
+                          onClick={() => setAnnotationMode(m)}
+                          className={`px-2 py-0.5 rounded-full text-[10px] font-bold capitalize transition-all cursor-pointer ${annotationMode === m ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-[#6B7280] hover:text-[#3D4852]'}`}
+                        >
+                          {m}
+                        </button>
+                      ))}
+                    </div>
+
                     <button
-                      onClick={() => setIsAnnotatingMode(false)}
-                      className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#6C63FF] text-white cursor-pointer shadow-sm"
+                      onClick={() => setIsPausedAnimations(prev => !prev)}
+                      className={`p-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${isPausedAnimations ? 'bg-amber-500 text-white shadow-sm' : 'bg-white/80 text-[#6B7280]'}`}
+                      title="Pause / Resume Animations (P)"
                     >
-                      <span>Inspecting Elements...</span>
+                      {isPausedAnimations ? '▶' : '⏸'}
                     </button>
+
+                    <button
+                      onClick={() => setAreMarkersVisible(prev => !prev)}
+                      className={`p-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${!areMarkersVisible ? 'bg-slate-400 text-white shadow-sm' : 'bg-white/80 text-[#6B7280]'}`}
+                      title="Toggle Marker Visibility (H)"
+                    >
+                      👁
+                    </button>
+
+                    <button
+                      onClick={() => setIsSettingsOpen(prev => !prev)}
+                      className={`p-1.5 rounded-full text-xs font-bold transition-all cursor-pointer ${isSettingsOpen ? 'bg-[#6C63FF] text-white shadow-sm' : 'bg-white/80 text-[#6B7280]'}`}
+                      title="Agentation Settings & Output Detail"
+                    >
+                      <Settings className="w-3.5 h-3.5" />
+                    </button>
+
+                    {isSettingsOpen && (
+                      <div className="absolute bottom-12 right-0 z-50 w-64 neumorphic-card rounded-2xl p-3 bg-[#E0E5EC] text-[#3D4852] flex flex-col gap-2 shadow-2xl border border-black/10 animate-in zoom-in-95 font-sans">
+                        <div className="flex items-center justify-between pb-1 border-b border-black/5">
+                          <span className="text-xs font-bold text-[#6C63FF] flex items-center gap-1">
+                            <Settings className="w-3.5 h-3.5" /> Settings (v0.3.2)
+                          </span>
+                          <button onClick={() => setIsSettingsOpen(false)} className="text-[#6B7280] hover:text-[#3D4852]">
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+
+                        <div className="flex flex-col gap-1">
+                          <label className="text-[10px] font-bold text-[#6B7280]">Output Detail Format:</label>
+                          <div className="grid grid-cols-2 gap-1 p-0.5 bg-white/70 rounded-xl border border-slate-200">
+                            {['compact', 'standard', 'detailed', 'forensic'].map(mode => (
+                              <button
+                                key={mode}
+                                onClick={() => setOutputDetailMode(mode)}
+                                className={`px-2 py-1 rounded-lg text-[10px] font-bold capitalize transition-all cursor-pointer ${outputDetailMode === mode ? 'bg-[#6C63FF] text-white shadow-sm' : 'text-[#6B7280]'}`}
+                              >
+                                {mode}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            setIsSettingsOpen(false);
+                            setIsSetupWizardOpen(true);
+                          }}
+                          className="w-full bg-[#6C63FF] hover:bg-[#8B84FF] text-white p-2 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer flex items-center justify-center gap-1.5 mt-1"
+                        >
+                          <Terminal className="w-3.5 h-3.5" />
+                          <span>Custom Project MCP Setup Guide</span>
+                        </button>
+                      </div>
+                    )}
+
                     {sandboxAnnotations.length > 0 && (
                       <>
                         <button
                           onClick={handleCopyAgentationMarkdown}
                           className="bg-white hover:bg-slate-50 text-[#3D4852] px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer shadow-sm flex items-center gap-1 border border-slate-200"
-                          title="Copy Agentation Markdown Context for Claude Code / Cursor"
+                          title="Copy Agentation Markdown Context for Claude Code / Cursor (C)"
                         >
                           <Copy className="w-3 h-3 text-[#6C63FF]" />
-                          <span>Copy Markdown ({sandboxAnnotations.length})</span>
+                          <span>Copy ({sandboxAnnotations.length})</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSandboxAnnotations([]);
+                            toast.success('All annotations cleared');
+                          }}
+                          className="p-1 rounded-full text-[#6B7280] hover:text-red-600 cursor-pointer"
+                          title="Clear All Annotations (X)"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={handleSendAnnotationsToAiCofounder}
@@ -577,7 +953,7 @@ ${networkSummary || 'No network activity logged.'}`;
                           className="bg-[#38B2AC] hover:bg-[#4FD1C5] text-white px-3 py-1 rounded-full text-xs font-bold cursor-pointer shadow-sm flex items-center gap-1"
                         >
                           <Send className="w-3 h-3" />
-                          <span>Send to AI Agent</span>
+                          <span>Send to AI</span>
                         </button>
                       </>
                     )}
@@ -719,57 +1095,10 @@ ${networkSummary || 'No network activity logged.'}`;
           </div>
         )}
 
-        {activeSandboxPin && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs">
-            <div className="w-full max-w-sm neumorphic-card rounded-3xl p-5 bg-[#E0E5EC] text-[#3D4852] flex flex-col gap-3 shadow-2xl animate-in zoom-in-95">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-mono font-bold text-[#6C63FF] flex items-center gap-1.5">
-                  <div className="w-5 h-5 rounded-full bg-[#6C63FF] text-white flex items-center justify-center text-[10px] font-extrabold">⚡</div>
-                  <span>Clarifyation Pin #{activeSandboxPin.number}</span>
-                </span>
-                <button onClick={() => setActiveSandboxPin(null)} className="text-[#6B7280] hover:text-[#3D4852]">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              <div className="text-[11px] font-mono text-[#3D4852] neumorphic-inset p-2.5 rounded-2xl flex flex-col gap-1">
-                <div className="flex items-center gap-1.5">
-                  <span className="bg-[#6C63FF] text-white px-1.5 py-0.5 rounded text-[10px] font-extrabold">{activeSandboxPin.componentTag || 'COMPONENT'}</span>
-                  <span className="font-bold text-[#6C63FF] truncate">{activeSandboxPin.elementSelector}</span>
-                </div>
-                {activeSandboxPin.elementText && (
-                  <div className="text-[#6B7280] text-[10px] font-medium truncate">
-                    Selected Text: <span className="text-[#3D4852] font-semibold">{activeSandboxPin.elementText}</span>
-                  </div>
-                )}
-              </div>
-
-              <textarea
-                value={pinCommentText}
-                onChange={(e) => setPinCommentText(e.target.value)}
-                placeholder="What change or UI fix is needed at this spot? (e.g., Change text color, add margin)..."
-                rows={3}
-                className="w-full neumorphic-inset rounded-2xl p-3 text-xs outline-none text-[#3D4852] font-medium resize-none"
-                autoFocus
-              />
-
-              <div className="flex justify-end gap-2 mt-1">
-                <button
-                  onClick={() => setActiveSandboxPin(null)}
-                  className="px-3 py-1.5 text-xs font-bold text-[#6B7280] hover:text-[#3D4852] cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveSandboxPin}
-                  className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white px-4 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer"
-                >
-                  Save Pin
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        <CustomAgentationSetupModal
+          isOpen={isSetupWizardOpen}
+          onClose={() => setIsSetupWizardOpen(false)}
+        />
       </div>
     </div>
   );

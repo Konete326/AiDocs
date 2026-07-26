@@ -18,5 +18,8 @@ router.delete('/:id', projectController.deleteProject);
 router.post('/:id/generate', projectController.triggerGeneration);
 router.post('/:id/reset-status', projectController.resetStatus);
 router.post('/:id/annotations', annotationController.submitAnnotations);
+router.get('/:id/annotations/pending', annotationController.getPendingAnnotations);
+router.patch('/:id/annotations/:annId', annotationController.updateAnnotationStatus);
+router.post('/:id/annotations/:annId/thread', annotationController.addThreadMessage);
 
 module.exports = router;

@@ -9,10 +9,23 @@ import NavMobileMenu from './NavMobileMenu';
 
 const AppNavbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [isSandboxOpen, setIsSandboxOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => { setMobileOpen(false); }, [location]);
+
+  useEffect(() => {
+    const checkSandbox = () => {
+      setIsSandboxOpen(document.body.classList.contains('sandbox-open'));
+    };
+    checkSandbox();
+    const observer = new MutationObserver(checkSandbox);
+    observer.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, []);
+
+  if (isSandboxOpen || location.pathname.includes('/preview')) return null;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-3 pointer-events-none">
