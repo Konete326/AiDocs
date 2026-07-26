@@ -87,15 +87,31 @@ export const DesignSystemSelector = ({ selectedPresetId, onSelectPreset }) => {
         </div>
 
         <div className="space-y-1.5 overflow-y-auto flex-1 pr-1 custom-scrollbar">
-          {DESIGN_PRESETS.map(preset => (
-            <button key={preset.id} onClick={() => setActivePresetId(preset.id)} className={`w-full text-left px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${activePresetId === preset.id ? "liquid-glass-strong text-[#38B2AC] font-semibold" : "liquid-glass text-[#3D4852] hover:scale-[1.01]"}`}>
-              <div className="flex items-center justify-between mb-0.5">
-                <span className="text-xs font-bold truncate">{preset.name}</span>
-                {selectedPresetId === preset.id && <span className="text-[9px] liquid-glass text-[#38B2AC] px-1.5 py-0.2 rounded-full font-mono font-bold shrink-0 ml-1">Active</span>}
-              </div>
-              <p className="text-[10px] text-[#6B7280] line-clamp-1">{preset.tagline}</p>
-            </button>
-          ))}
+          {DESIGN_PRESETS.map(preset => {
+            const isActive = activePresetId === preset.id;
+            const isSelected = selectedPresetId === preset.id;
+            return (
+              <button 
+                key={preset.id} 
+                onClick={() => setActivePresetId(preset.id)} 
+                className={`w-full text-left px-3 py-2 rounded-xl transition-all cursor-pointer border ${
+                  isActive 
+                    ? "bg-[#6C63FF]/15 border-2 border-[#6C63FF] shadow-[0_0_10px_rgba(108,99,255,0.35)]" 
+                    : "bg-white/40 border-black/5 hover:border-[#6C63FF]/40"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-0.5">
+                  <span className={`text-xs font-extrabold truncate ${isActive ? "text-[#6C63FF]" : "text-[#3D4852]"}`}>{preset.name}</span>
+                  {isSelected && (
+                    <span className="text-[9px] bg-[#6C63FF] text-white px-1.5 py-0.2 rounded-full font-bold uppercase shrink-0 ml-1">
+                      Selected
+                    </span>
+                  )}
+                </div>
+                <p className={`text-[10px] line-clamp-1 ${isActive ? "text-[#3D4852] font-semibold" : "text-[#6B7280]"}`}>{preset.tagline}</p>
+              </button>
+            );
+          })}
         </div>
       </div>
 
