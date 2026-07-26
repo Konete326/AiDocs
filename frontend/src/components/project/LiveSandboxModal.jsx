@@ -151,23 +151,57 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
 
     if (!iframeDoc) return;
 
+    let styleEl = iframeDoc.getElementById('clarify-annotator-style');
+    if (!styleEl) {
+      styleEl = iframeDoc.createElement('style');
+      styleEl.id = 'clarify-annotator-style';
+      styleEl.innerHTML = `
+        .clarify-hover-outline {
+          outline: 2px solid #6C63FF !important;
+          outline-offset: 2px !important;
+          background-color: rgba(108, 99, 255, 0.12) !important;
+          cursor: crosshair !important;
+          transition: outline 0.1s ease-in-out !important;
+        }
+      `;
+      if (iframeDoc.head) iframeDoc.head.appendChild(styleEl);
+    }
+
+    let activeHoveredNode = null;
+
     const handleMouseOver = (e) => {
       e.stopPropagation();
       const target = e.target;
       if (!target || target.tagName === 'HTML' || target.tagName === 'BODY') return;
+
+      if (activeHoveredNode && activeHoveredNode !== target) {
+        activeHoveredNode.classList.remove('clarify-hover-outline');
+      }
+
+      activeHoveredNode = target;
+      target.classList.add('clarify-hover-outline');
+
       const rect = target.getBoundingClientRect();
-      const selector = target.id 
-        ? `#${target.id}`
-        : target.className && typeof target.className === 'string'
-          ? `.${target.className.split(' ').filter(Boolean).slice(0, 2).join('.')}`
-          : target.tagName.toLowerCase();
+      const tag = target.tagName.toLowerCase();
+      const idStr = target.id ? `#${target.id}` : '';
+      const classStr = target.className && typeof target.className === 'string'
+        ? `.${target.className.split(' ').filter(c => Boolean(c) && !c.includes('clarify')).slice(0, 2).join('.')}`
+        : '';
+      const selector = `${tag}${idStr}${classStr}`;
+      const text = target.innerText ? target.innerText.trim().slice(0, 40) : '';
 
       setHoveredIframeElement({
         rect,
         selector,
-        text: target.innerText ? target.innerText.slice(0, 30) : '',
-        tagName: target.tagName.toLowerCase()
+        text,
+        tagName: tag.toUpperCase()
       });
+    };
+
+    const handleMouseOut = (e) => {
+      if (e.target) {
+        e.target.classList.remove('clarify-hover-outline');
+      }
     };
 
     const handleClick = (e) => {
@@ -175,6 +209,11 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
       e.stopPropagation();
       const target = e.target;
       if (!target) return;
+
+      if (target.classList) {
+        target.classList.remove('clarify-hover-outline');
+      }
+
       const rect = target.getBoundingClientRect();
       const iframeWidth = iframeDoc.documentElement.clientWidth || 1;
       const iframeHeight = iframeDoc.documentElement.clientHeight || 1;
@@ -182,19 +221,20 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
       const xPercent = (((rect.left + rect.width / 2) / iframeWidth) * 100).toFixed(1);
       const yPercent = (((rect.top + rect.height / 2) / iframeHeight) * 100).toFixed(1);
 
-      const selector = target.id 
-        ? `#${target.id}`
-        : target.className && typeof target.className === 'string'
-          ? `.${target.className.split(' ').filter(Boolean).slice(0, 2).join('.')}`
-          : target.tagName.toLowerCase();
-
-      const elementLabel = `${selector}${target.innerText ? ` ("${target.innerText.slice(0, 25).trim()}")` : ''}`;
+      const tag = target.tagName.toLowerCase();
+      const idStr = target.id ? `#${target.id}` : '';
+      const classStr = target.className && typeof target.className === 'string'
+        ? `.${target.className.split(' ').filter(c => Boolean(c) && !c.includes('clarify')).slice(0, 2).join('.')}`
+        : '';
+      const selector = `${tag}${idStr}${classStr}`;
+      const cleanText = target.innerText ? target.innerText.trim().slice(0, 80) : '';
 
       const newPin = {
         id: Date.now(),
         number: sandboxAnnotations.length + 1,
-        elementSelector: elementLabel,
-        elementText: target.innerText ? target.innerText.slice(0, 60) : '',
+        elementSelector: selector,
+        elementText: cleanText ? `"${cleanText}"` : `${tag.toUpperCase()} Component`,
+        componentTag: tag.toUpperCase(),
         xPercent,
         yPercent,
         url: sandboxUrl,
@@ -205,42 +245,27 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
       setHoveredIframeElement(null);
     };
 
-    iframeDoc.addEventListener('mouseover', handleMouseOver);
+    iframeDoc.addEventListener('mouseover', handleMouseOver, true);
+    iframeDoc.addEventListener('mouseout', handleMouseOut, true);
     iframeDoc.addEventListener('click', handleClick, true);
 
     return () => {
-      iframeDoc.removeEventListener('mouseover', handleMouseOver);
+      if (activeHoveredNode) {
+        activeHoveredNode.classList.remove('clarify-hover-outline');
+      }
+      iframeDoc.removeEventListener('mouseover', handleMouseOver, true);
+      iframeDoc.removeEventListener('mouseout', handleMouseOut, true);
       iframeDoc.removeEventListener('click', handleClick, true);
     };
   }, [isAnnotatingMode, activeIframeUrl, sandboxAnnotations.length]);
 
-  const handleSandboxClickToAnnotate = (e) => {
-    if (!isAnnotatingMode) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const xPercent = (((e.clientX - rect.left) / rect.width) * 100).toFixed(1);
-    const yPercent = (((e.clientY - rect.top) / rect.height) * 100).toFixed(1);
-
-    const newPin = {
-      id: Date.now(),
-      number: sandboxAnnotations.length + 1,
-      elementSelector: `Sandbox Element at (${xPercent}% X, ${yPercent}% Y)`,
-      elementText: '',
-      xPercent,
-      yPercent,
-      url: sandboxUrl,
-      comment: ''
-    };
-
-    setActiveSandboxPin(newPin);
-  };
-
   const handleSaveSandboxPin = () => {
     if (!activeSandboxPin) return;
-    const finalPin = { ...activeSandboxPin, comment: pinCommentText.trim() || 'UI Visual Fix Request' };
+    const finalPin = { ...activeSandboxPin, comment: pinCommentText.trim() || 'UI Visual Component Fix' };
     setSandboxAnnotations(prev => [...prev, finalPin]);
     setActiveSandboxPin(null);
     setPinCommentText('');
-    toast.success(`Sandbox Pin #${finalPin.number} dropped!`);
+    toast.success(`Clarifyation Pin #${finalPin.number} saved!`);
   };
 
   const handleSendAnnotationsToAiCofounder = async () => {
@@ -409,28 +434,38 @@ ${networkSummary || 'No network activity logged.'}`;
         <div className="flex-1 min-h-0 bg-[#E0E5EC] p-6 flex justify-center items-center overflow-hidden">
           {activeTab === 'preview' ? (
             <div className={`${previewWidth} h-full neumorphic-inset rounded-3xl overflow-hidden flex flex-col transition-all duration-300 relative bg-white`}>
-              {/* Precision Click Overlay when Annotating Sandbox */}
               {isAnnotatingMode && (
-                <div
-                  onClick={handleSandboxClickToAnnotate}
-                  className="absolute inset-0 z-30 bg-[#6C63FF]/10 cursor-crosshair border-2 border-dashed border-[#6C63FF] flex items-start justify-center p-3 pointer-events-auto"
-                >
-                  <div className="bg-[#6C63FF] text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-xl pointer-events-none animate-pulse flex items-center gap-1.5">
-                    <MousePointer className="w-3.5 h-3.5" />
-                    <span>Click anywhere on preview to drop Pin #{sandboxAnnotations.length + 1}</span>
+                <div className="absolute top-3 left-1/2 -translate-x-1/2 z-30 pointer-events-none">
+                  <div className="bg-[#6C63FF] text-white px-4 py-1.5 rounded-full text-xs font-bold shadow-xl pointer-events-auto flex items-center gap-2 border border-white/30 animate-in fade-in">
+                    <div className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center text-[10px] font-extrabold">⚡</div>
+                    <span>AiDocs Component Inspector Active — Hover & click any text or component to drop Pin #{sandboxAnnotations.length + 1}</span>
                   </div>
                 </div>
               )}
 
-              {/* Render Dropped Pins on Sandbox Preview */}
+              {isAnnotatingMode && hoveredIframeElement && (
+                <div
+                  className="absolute z-40 bg-[#3D4852] text-white px-2.5 py-1 rounded-xl text-[11px] font-mono shadow-xl pointer-events-none flex items-center gap-1.5 transform -translate-y-full -mt-2 transition-all duration-75"
+                  style={{
+                    top: `${Math.max(20, hoveredIframeElement.rect.top)}px`,
+                    left: `${Math.max(10, hoveredIframeElement.rect.left)}px`
+                  }}
+                >
+                  <span className="bg-[#6C63FF] text-white px-1.5 py-0.5 rounded text-[10px] font-extrabold">{hoveredIframeElement.tagName}</span>
+                  <span className="font-bold text-emerald-300">{hoveredIframeElement.selector}</span>
+                  {hoveredIframeElement.text && <span className="text-slate-300 max-w-[150px] truncate">"{hoveredIframeElement.text}"</span>}
+                </div>
+              )}
+
               {sandboxAnnotations.map(pin => (
                 <div
                   key={pin.id}
-                  className="absolute z-40 w-7 h-7 rounded-full bg-[#6C63FF] text-white font-extrabold text-xs flex items-center justify-center shadow-lg ring-2 ring-white transform -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:scale-110 transition-all"
+                  className="absolute z-40 bg-[#6C63FF] text-white font-extrabold text-xs px-2.5 py-1 rounded-full flex items-center gap-1 shadow-xl ring-2 ring-white transform -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:scale-110 transition-all"
                   style={{ top: `${pin.yPercent}%`, left: `${pin.xPercent}%` }}
-                  title={pin.comment}
+                  title={`${pin.elementSelector}: ${pin.comment}`}
                 >
-                  {pin.number}
+                  <span className="text-[10px]">⚡</span>
+                  <span>#{pin.number}</span>
                 </div>
               ))}
 
@@ -626,15 +661,24 @@ ${networkSummary || 'No network activity logged.'}`;
             <div className="w-full max-w-sm neumorphic-card rounded-3xl p-5 bg-[#E0E5EC] text-[#3D4852] flex flex-col gap-3 shadow-2xl animate-in zoom-in-95">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-mono font-bold text-[#6C63FF] flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4" /> Add Sandbox Pin #{activeSandboxPin.number}
+                  <div className="w-5 h-5 rounded-full bg-[#6C63FF] text-white flex items-center justify-center text-[10px] font-extrabold">⚡</div>
+                  <span>Clarifyation Pin #{activeSandboxPin.number}</span>
                 </span>
                 <button onClick={() => setActiveSandboxPin(null)} className="text-[#6B7280] hover:text-[#3D4852]">
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="text-[11px] font-mono text-[#6B7280] neumorphic-inset p-2 rounded-xl">
-                Position: <span className="text-[#3D4852] font-bold">{activeSandboxPin.xPercent}% X, {activeSandboxPin.yPercent}% Y</span>
+              <div className="text-[11px] font-mono text-[#3D4852] neumorphic-inset p-2.5 rounded-2xl flex flex-col gap-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="bg-[#6C63FF] text-white px-1.5 py-0.5 rounded text-[10px] font-extrabold">{activeSandboxPin.componentTag || 'COMPONENT'}</span>
+                  <span className="font-bold text-[#6C63FF] truncate">{activeSandboxPin.elementSelector}</span>
+                </div>
+                {activeSandboxPin.elementText && (
+                  <div className="text-[#6B7280] text-[10px] font-medium truncate">
+                    Selected Text: <span className="text-[#3D4852] font-semibold">{activeSandboxPin.elementText}</span>
+                  </div>
+                )}
               </div>
 
               <textarea
