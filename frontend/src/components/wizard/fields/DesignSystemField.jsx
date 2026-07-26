@@ -80,12 +80,12 @@ export default function DesignSystemField({ formData, onChange }) {
 
             <div className="p-3.5 px-6 border-t border-black/5 bg-[#E0E5EC] flex justify-between items-center">
               <span className="text-xs text-[#6B7280] font-semibold">
-                Current Active: <strong className="text-[#6C63FF]">{currentPreset.name}</strong>
+                Current Active: <strong className="text-[#2563EB]">{currentPreset.name}</strong>
               </span>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white px-5 py-2 rounded-2xl text-xs font-bold transition-all shadow-md cursor-pointer"
+                className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white px-5 py-2 rounded-2xl text-xs font-bold transition-all shadow-md cursor-pointer"
               >
                 Close Preview
               </button>

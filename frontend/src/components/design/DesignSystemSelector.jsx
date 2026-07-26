@@ -96,14 +96,14 @@ export const DesignSystemSelector = ({ selectedPresetId, onSelectPreset }) => {
                 onClick={() => setActivePresetId(preset.id)} 
                 className={`w-full text-left px-3 py-2 rounded-xl transition-all cursor-pointer border ${
                   isActive 
-                    ? "bg-[#6C63FF]/15 border-2 border-[#6C63FF] shadow-[0_0_10px_rgba(108,99,255,0.35)]" 
-                    : "bg-white/40 border-black/5 hover:border-[#6C63FF]/40"
+                    ? "bg-[#2563EB]/15 border-2 border-[#2563EB] shadow-[0_0_10px_rgba(37,99,235,0.35)]" 
+                    : "bg-white/40 border-black/5 hover:border-[#2563EB]/40"
                 }`}
               >
                 <div className="flex items-center justify-between mb-0.5">
-                  <span className={`text-xs font-extrabold truncate ${isActive ? "text-[#6C63FF]" : "text-[#3D4852]"}`}>{preset.name}</span>
+                  <span className={`text-xs font-extrabold truncate ${isActive ? "text-[#2563EB]" : "text-[#3D4852]"}`}>{preset.name}</span>
                   {isSelected && (
-                    <span className="text-[9px] bg-[#6C63FF] text-white px-1.5 py-0.2 rounded-full font-bold uppercase shrink-0 ml-1">
+                    <span className="text-[9px] bg-[#2563EB] text-white px-1.5 py-0.2 rounded-full font-bold uppercase shrink-0 ml-1">
                       Selected
                     </span>
                   )}
@@ -118,14 +118,14 @@ export const DesignSystemSelector = ({ selectedPresetId, onSelectPreset }) => {
       <div className="lg:col-span-9 flex flex-col overflow-hidden">
         <div className="p-2 flex flex-wrap items-center justify-between gap-2 shadow-[0_2px_6px_rgba(163,177,198,0.3)]">
           <div className="flex items-center space-x-2 px-1">
-            <Palette size={13} className="text-[#38B2AC]" />
+            <Palette size={13} className="text-[#2563EB]" />
             <span className="text-xs font-bold text-[#3D4852] tracking-wide">{activePreset.name} Studio Preview</span>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
             {onSelectPreset && (
-              <button onClick={() => onSelectPreset(activePreset)} className={`px-4 py-1.5 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition-transform hover:scale-105 cursor-pointer min-w-[105px] ${selectedPresetId === activePreset.id ? "liquid-glass text-[#38B2AC]" : "liquid-glass-strong text-[#3D4852]"}`}>
-                <Check size={13} className={selectedPresetId === activePreset.id ? "text-[#38B2AC]" : "text-[#3D4852]"} />
+              <button onClick={() => onSelectPreset(activePreset)} className={`px-4 py-1.5 rounded-xl text-xs font-extrabold flex items-center justify-center space-x-1.5 transition-transform hover:scale-105 cursor-pointer min-w-[105px] ${selectedPresetId === activePreset.id ? "bg-[#2563EB] text-white shadow-md" : "bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-md"}`}>
+                <Check size={13} className="text-white" />
                 <span>{selectedPresetId === activePreset.id ? "Applied" : "Apply Theme"}</span>
               </button>
             )}
