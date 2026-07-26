@@ -28,7 +28,7 @@ export default function DesignSystemField({ formData, onChange }) {
       <div className="neumorphic-card rounded-2xl p-2.5 px-3 bg-[#E0E5EC] border border-black/5 flex items-center justify-between gap-2 min-w-0">
         <div className="flex items-center gap-2.5 min-w-0">
           <div className="w-8 h-8 rounded-xl bg-[#2563EB] text-white flex items-center justify-center font-extrabold text-xs shadow-sm shrink-0">
-            🎨
+            <Palette className="w-4 h-4 text-white" />
           </div>
           <div className="min-w-0">
             <h4 className="text-xs font-extrabold text-[#3D4852] truncate">
