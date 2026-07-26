@@ -4,7 +4,27 @@ const Notification = require('../models/Notification');
 const { evaluateCode } = require('./mcpRulesEvaluator');
 
 const FILE_MAPPING = { prd: 'docs/PRD.md', srd: 'docs/SRD.md', techStack: 'docs/TechStack.md', dbSchema: 'docs/DatabaseSchema.md', userFlows: 'docs/UserFlows.md', mvpPlan: 'docs/MVPPlan.md', folderStructure: 'docs/FolderStructure.md', claudeContext: 'CLAUDE.md', agentSystemPrompt: 'AGENT_RULES.md' };
-const DEFAULT_RULES = `# MANDATORY FRONTEND SCAFFOLDING RULE\n- Frontend MUST be initialized using terminal command: npx -y create-vite@latest frontend --template react\n- DO NOT manually write package.json or vite.config.js from scratch!\n\n# LIVE PREVIEW RULE\n- Upon completing application build, launch background dev server using command: npm run dev\n- Output working live preview link: http://localhost:5173\n\n# Code Quality Constraints\n- Maximum 120 lines per backend service file\n- Maximum 80 lines per React component file\n- Strictly ZERO comments in generated code\n- Use modular design pattern\n- No dummy fallbacks or silent error swallowing`;
+const DEFAULT_RULES = `# MANDATORY FRONTEND SCAFFOLDING RULE
+- Frontend MUST be initialized using terminal command: npx -y create-vite@latest frontend --template react
+- DO NOT manually write package.json or vite.config.js from scratch!
+
+# NON-BLOCKING ASYNC DEPENDENCY INSTALLATION RULE
+- Whenever long-running commands or package installations (e.g. npm install, npx create-next-app, npm run build) are running in the background, DO NOT wait idle or poll.
+- Immediately start writing source code files, React components, backend API routes, and database schemas while node_modules install in background.
+
+# MANDATORY EMPIRICAL VERIFICATION RULE
+- Before declaring a task complete, verify background tasks finished cleanly and run empirical build/test checks (npm run build / dev server check) to confirm zero errors.
+
+# LIVE PREVIEW RULE
+- Upon completing application build, launch background dev server using command: npm run dev
+- Output working live preview link: http://localhost:5173
+
+# Code Quality Constraints
+- Maximum 120 lines per backend service file
+- Maximum 80 lines per React component file
+- Strictly ZERO comments in generated code (no // ..., {/* ... */}, /* ... */, # ...)
+- Use modular design pattern
+- No dummy fallbacks or silent error swallowing`;
 
 const TOOLS_MANIFEST = [
   { name: 'clarifyai_start_autonomous_engine', description: 'PRIMARY MANDATORY STEP 1 TOOL: Call immediately on ANY user prompt. Downloads all 10 unzipped docs into workspace files, enforces create-vite@latest frontend --template react, and runs background npm run dev for http://localhost:5173 live preview.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
@@ -43,15 +63,26 @@ const handleToolCall = async (userId, toolName, args = {}) => {
     const docsMap = {};
     docs.forEach(d => { docsMap[d.docType] = d.content; });
 
-    const fileSuite = Object.keys(FILE_MAPPING).map(docType => ({
-      path: FILE_MAPPING[docType],
-      content: docsMap[docType] || `# ${docType.toUpperCase()} Document\n\nProject: ${project.title}\n\n## Scaffolding Rule\n- Initialize frontend: \`npx -y create-vite@latest frontend --template react\`\n\n## Overview\n${project.wizardAnswers?.problemStatement || 'Core MVP Specification'}\n\n## Key Features\n${(project.wizardAnswers?.coreFeatures || ['Core Feature Setup']).map(f => `- ${f}`).join('\n')}`
-    }));
-    fileSuite.push({ path: 'rules.md', content: DEFAULT_RULES });
+    const fileSuite = [
+      { path: 'docs/PRD.md', content: docsMap['prd'] || `# PRD Document\n\nProject: ${project.title}` },
+      { path: 'docs/SRD.md', content: docsMap['srd'] || `# SRD Document\n\nProject: ${project.title}` },
+      { path: 'docs/TechStack.md', content: docsMap['techStack'] || `# Tech Stack\n\nProject: ${project.title}` },
+      { path: 'docs/DatabaseSchema.md', content: docsMap['dbSchema'] || `# Database Schema\n\nProject: ${project.title}` },
+      { path: 'docs/UserFlows.md', content: docsMap['userFlows'] || `# User Flows\n\nProject: ${project.title}` },
+      { path: 'docs/MVPPlan.md', content: docsMap['mvpPlan'] || `# MVP Plan\n\nProject: ${project.title}` },
+      { path: 'docs/FolderStructure.md', content: docsMap['folderStructure'] || `# Folder Structure\n\nProject: ${project.title}` },
+      { path: 'docs/ClaudeContext.md', content: docsMap['claudeContext'] || `# Claude Context\n\nProject: ${project.title}` },
+      { path: 'docs/AgentSystemPrompts.md', content: docsMap['agentSystemPrompt'] || `# Agent Prompts\n\nProject: ${project.title}` },
+      { path: 'docs/rules.md', content: DEFAULT_RULES },
+      { path: 'CLAUDE.md', content: docsMap['claudeContext'] || `# Claude Context\n\nProject: ${project.title}` },
+      { path: 'AGENT_RULES.md', content: docsMap['agentSystemPrompt'] || DEFAULT_RULES },
+      { path: 'rules.md', content: DEFAULT_RULES },
+      { path: '.agents/AGENTS.md', content: `# Agent Custom Rules — ${project.title}\n\n## Rule 1 — Non-Blocking Async Dependency Installations\n- Whenever long-running commands or package dependency installations (such as \`npm install\`, \`npx create-next-app\`, \`npm run build\`, etc.) are launched in background, DO NOT wait idle.\n- Immediately write source code files, React components, backend API routes, and database schemas while node_modules install in background.\n\n## Rule 2 — Mandatory Runtime Verification\n- Before completing any task, verify background installations finished cleanly and run empirical test or build commands (\`npm run build\` / dev server check) to confirm zero errors.\n\n## Rule 3 — Strictly Zero Code Comments\n- DO NOT write code comments (no // ..., {/* ... */}, /* ... */, # ...) in any generated source code files. Code must be 100% clean and comment-free.\n` }
+    ];
 
     notify(userId, 'Autonomous Engine Boot', `Autonomous Engine started for "${project.title}"`, project._id);
-    await saveMcpChatMessage(project, '[Antigravity IDE Agent]: Triggered 1-Prompt Autonomous Engine.', `Bootstrapped 10-doc package. Scaffolding frontend with npx -y create-vite@latest frontend --template react. Executing tasks continuously with AI Co-founder.`);
-    return { content: [{ type: 'text', text: JSON.stringify({ CRITICAL_DIRECTIVE: 'MANDATORY STEP 1: WRITE ALL 10 UNZIPPED FILES BELOW (PRD.md, SRD.md, TechStack.md, DatabaseSchema.md, rules.md, CLAUDE.md) DIRECTLY TO WORKSPACE FILES BEFORE ANY CODING.', STEP_2: 'RUN TERMINAL COMMAND: npx -y create-vite@latest frontend --template react', STEP_FINAL: 'UPON COMPLETION OF CODE: Launch background dev server via terminal command "npm run dev" and return working preview URL http://localhost:5173 to user.', projectTitle: project.title, files: fileSuite }, null, 2) }] };
+    await saveMcpChatMessage(project, '[Antigravity IDE Agent]: Triggered Autonomous Engine.', `Bootstrapped 13-doc package suite including docs/ folder, CLAUDE.md, AGENT_RULES.md, rules.md, and .agents/AGENTS.md.`);
+    return { content: [{ type: 'text', text: JSON.stringify({ CRITICAL_DIRECTIVE: 'MANDATORY STEP 1: WRITE ALL 13 UNZIPPED FILES BELOW DIRECTLY TO WORKSPACE FILES BEFORE ANY CODING.', STEP_2: 'RUN NON-BLOCKING BACKGROUND INSTALLATIONS AND IMMEDIATELY WRITE SOURCE CODE WHILE DEPENDENCIES INSTALL.', STEP_FINAL: 'VERIFY ALL BACKGROUND PROCESSES AND EXECUTE BUILD/TEST VERIFICATION.', projectTitle: project.title, files: fileSuite }, null, 2) }] };
   }
 
   if (toolName === 'clarifyai_get_next_step') {

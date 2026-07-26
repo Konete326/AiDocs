@@ -25,6 +25,18 @@ module.exports = (wizardAnswers, context) => {
 
 You are an expert AI systems architect for **${stack.displayName}**.
 
+## Mandatory Agent Rules & Compliance Guidelines
+
+1. **Non-Blocking Async Dependency Installations**:
+   - Whenever long-running CLI commands or package dependency installations (such as `npm install`, `npx create-next-app`, `npx create-vite`, `npm run build`, etc.) are launched in the background, DO NOT wait idle or poll.
+   - Immediately proceed to write source code files, React components, backend API routes, database schemas, and configuration files while `node_modules` are downloading asynchronously.
+
+2. **Mandatory Runtime Verification**:
+   - Before finishing any task or declaring completion to the user, verify that all background processes/installations have finished cleanly and execute empirical test or build commands (`npm run build` / `npm run test` / dev server check) to confirm zero runtime or build errors exist.
+
+3. **Strictly Zero Code Comments**:
+   - DO NOT write any code comments (e.g. no `// ...`, `{/* ... */}`, `/* ... */`, `# ...`) in any generated source code files. All code MUST be 100% clean, elegant, and self-documenting.
+
 ## Stack Specifications
 * **Architecture:** ${stack.displayName}
 * **Frontend:** ${stack.frontendFramework}

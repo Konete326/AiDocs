@@ -243,10 +243,25 @@ exports.generateZip = async (projectId, userId) => {
   const slug = toSlug(project.title);
   const projectType = project.projectType || 'other';
 
+  const DOC_FILENAME_MAP = {
+    prd: 'PRD.md',
+    srd: 'SRD.md',
+    techStack: 'TechStack.md',
+    dbSchema: 'DatabaseSchema.md',
+    userFlows: 'UserFlows.md',
+    mvpPlan: 'MVPPlan.md',
+    folderStructure: 'FolderStructure.md',
+    claudeContext: 'ClaudeContext.md',
+    agentSystemPrompt: 'AgentSystemPrompts.md'
+  };
+
   // ── 1. Docs folder ──────────────────────────────────────────────────────────
   const docsFolder = zip.folder(`${slug}-docs`);
+  const rootDocsFolder = zip.folder('docs');
   docs.forEach((doc) => {
-    docsFolder.file(`${doc.docType}.md`, doc.content);
+    const filename = DOC_FILENAME_MAP[doc.docType] || `${doc.docType}.md`;
+    docsFolder.file(filename, doc.content);
+    rootDocsFolder.file(filename, doc.content);
   });
 
   // ── 2. Skills folder ────────────────────────────────────────────────────────
@@ -297,6 +312,18 @@ exports.generateZip = async (projectId, userId) => {
 
   addStackScaffold(projectFolder, slug, project.title, project.wizardAnswers);
 
+  const scaffoldDocsFolder = projectFolder.folder('docs');
+  docs.forEach((doc) => {
+    const filename = DOC_FILENAME_MAP[doc.docType] || `${doc.docType}.md`;
+    scaffoldDocsFolder.file(filename, doc.content);
+    if (doc.docType === 'claudeContext') {
+      projectFolder.file('CLAUDE.md', doc.content);
+    }
+    if (doc.docType === 'agentSystemPrompt') {
+      projectFolder.file('AGENT_RULES.md', doc.content);
+    }
+  });
+
   let rulesContent = '';
   try {
     const rulesPath = path.join(__dirname, '../../AGENT_RULES.md');
@@ -305,7 +332,27 @@ exports.generateZip = async (projectId, userId) => {
   } catch (err) {
     rulesContent = '# Agent Rules\nSee clarifyai.vercel.app for agent rules.';
   }
+
+  scaffoldDocsFolder.file('rules.md', rulesContent);
+  projectFolder.file('AGENT_RULES.md', rulesContent);
   zip.file('AGENT_RULES.md', rulesContent);
+
+  const agentsFolder = projectFolder.folder('.agents');
+  const agentsRuleContent = `# Agent Custom Rules — ClarifyAI & Generated Projects
+
+## Rule 1 — Non-Blocking Async Dependency Installations & Mandatory Verification
+1. **Non-Blocking Development Work During Background Installations**:
+   - Whenever long-running commands or package dependency installations (such as \`npm install\`, \`npx create-next-app\`, \`npx create-vite\`, \`npm run build\`, etc.) are launched in the background, the Agent MUST NOT wait idle or poll.
+   - Immediately proceed to write source code files, React components, backend API routes, database schemas, utility functions, and system configurations while \`node_modules\` are downloading asynchronously in the background.
+
+2. **Mandatory Runtime Verification**:
+   - Before finishing any task or declaring success to the user, the Agent MUST verify that all background processes/installations have finished cleanly and execute empirical test or build commands (\`npm run build\` / \`npm run test\` / dev server check) to confirm zero runtime or build errors exist.
+
+## Rule 2 — Strictly Zero Code Comments
+1. **No Code Comments**:
+   - DO NOT write any code comments (e.g. no \`// ...\`, \`{/* ... */}\`, \`/* ... */\`, \`# ...\`) in any generated source code files. Code must be 100% clean, elegant, and self-documenting.
+`;
+  agentsFolder.file('AGENTS.md', agentsRuleContent);
 
   return { buffer: await zip.generateAsync({ type: 'nodebuffer' }), slug };
 };
