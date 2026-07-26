@@ -48,8 +48,8 @@ export default function DesignSystemField({ formData, onChange }) {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-150">
-          <div className="w-full max-w-5xl neumorphic-card rounded-[2.5rem] bg-[#E0E5EC] text-[#3D4852] flex flex-col overflow-hidden shadow-2xl max-h-[90vh]">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center pt-16 md:pt-20 pb-6 px-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-150">
+          <div className="w-full max-w-5xl neumorphic-card rounded-[2.5rem] bg-[#E0E5EC] text-[#3D4852] flex flex-col overflow-hidden shadow-2xl max-h-[85vh] mt-2 md:mt-4">
             <div className="flex items-center justify-between p-4 px-6 border-b border-black/5 bg-[#E0E5EC]">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-2xl bg-[#6C63FF] text-white flex items-center justify-center font-extrabold text-sm shadow-md">
