@@ -15,15 +15,8 @@ const STACK_OPTIONS = [
   { id: 'mern', label: 'MERN Stack (Node.js Express + React 19)', icon: '🍃', desc: 'Classic Node.js Express REST server with MongoDB & React 19', value: 'Node.js v20 Express REST API with MongoDB Mongoose and React 19' }
 ];
 
-export default function TechField({ formData, onChange }) {
+export function TechFieldSelector({ formData, onChange }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { suggestions, isLoading } = useSuggestions(
-    formData.title,
-    formData.projectType,
-    'techPreferences',
-    formData.wizardAnswers.techPreferences,
-    formData.wizardAnswers
-  );
 
   const selectedVal = formData.wizardAnswers.techPreferences || '';
   const currentStack = STACK_OPTIONS.find(s => selectedVal.includes(s.label.split(' ')[0])) || STACK_OPTIONS[2];
@@ -34,49 +27,30 @@ export default function TechField({ formData, onChange }) {
   };
 
   return (
-    <div className="space-y-3">
-      <label className="text-xs uppercase tracking-[0.2em] text-[#6B7280] font-extrabold block">Target Architecture & Framework</label>
+    <div className="space-y-1.5">
+      <label className="text-xs uppercase tracking-[0.2em] text-[#6B7280] font-extrabold block">Target Framework & Architecture</label>
       
-      <div className="neumorphic-card rounded-2xl p-4 bg-[#E0E5EC] border border-black/5 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#6C63FF] text-white flex items-center justify-center font-extrabold text-sm shadow-md">
+      <div className="neumorphic-card rounded-2xl p-3 bg-[#E0E5EC] border border-black/5 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-[#6C63FF] text-white flex items-center justify-center font-extrabold text-xs shadow-sm shrink-0">
             {currentStack.icon}
           </div>
-          <div>
-            <h4 className="text-sm font-extrabold text-[#3D4852] flex items-center gap-2">
-              <span>{currentStack.label}</span>
-              <span className="text-[10px] bg-[#6C63FF] text-white px-2 py-0.5 rounded-full font-bold uppercase">Active Stack</span>
+          <div className="min-w-0">
+            <h4 className="text-xs font-extrabold text-[#3D4852] truncate">
+              {currentStack.label}
             </h4>
-            <p className="text-xs text-[#6B7280] font-medium line-clamp-1 mt-0.5">{currentStack.desc}</p>
+            <p className="text-[10px] text-[#6B7280] font-medium truncate mt-0.5">{currentStack.desc}</p>
           </div>
         </div>
 
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white px-4 py-2 rounded-2xl text-xs font-bold transition-all shadow-md cursor-pointer shrink-0 flex items-center gap-1.5"
+          className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer shrink-0"
         >
           <span>Select Stack ↗</span>
         </button>
       </div>
-
-      <label className="text-[10px] uppercase tracking-[0.15em] text-[#6B7280] font-bold block mb-1">Custom Tech Notes & Libraries</label>
-      <div className="neumorphic-inset rounded-2xl px-4 py-2.5 w-full bg-[#E0E5EC] border border-black/5">
-        <textarea 
-          value={formData.wizardAnswers.techPreferences || ''}
-          onChange={(e) => onChange('wizardAnswers.techPreferences', e.target.value)}
-          placeholder="e.g. Next.js 15, Tailwind, PostgreSQL, Stripe, Redis..."
-          rows={2}
-          className="bg-transparent text-[#3D4852] font-semibold placeholder:text-[#9CA3AF] outline-none w-full text-sm resize-none"
-        />
-      </div>
-
-      <SuggestionPills
-        suggestions={suggestions}
-        isLoading={isLoading}
-        onSelect={(s) => onChange('wizardAnswers.techPreferences', s)}
-        fieldName="tech"
-      />
 
       {isModalOpen && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-150">
@@ -151,6 +125,47 @@ export default function TechField({ formData, onChange }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+export function TechNotesField({ formData, onChange }) {
+  const { suggestions, isLoading } = useSuggestions(
+    formData.title,
+    formData.projectType,
+    'techPreferences',
+    formData.wizardAnswers.techPreferences,
+    formData.wizardAnswers
+  );
+
+  return (
+    <div className="space-y-1.5">
+      <label className="text-xs uppercase tracking-[0.2em] text-[#6B7280] font-extrabold block">Custom Tech Notes & Libraries</label>
+      <div className="neumorphic-inset rounded-2xl px-4 py-2.5 w-full bg-[#E0E5EC] border border-black/5">
+        <textarea 
+          value={formData.wizardAnswers.techPreferences || ''}
+          onChange={(e) => onChange('wizardAnswers.techPreferences', e.target.value)}
+          placeholder="e.g. Next.js 15, Tailwind, PostgreSQL, Stripe, Redis..."
+          rows={2}
+          className="bg-transparent text-[#3D4852] font-semibold placeholder:text-[#9CA3AF] outline-none w-full text-xs resize-none"
+        />
+      </div>
+
+      <SuggestionPills
+        suggestions={suggestions}
+        isLoading={isLoading}
+        onSelect={(s) => onChange('wizardAnswers.techPreferences', s)}
+        fieldName="tech"
+      />
+    </div>
+  );
+}
+
+export default function TechField({ formData, onChange }) {
+  return (
+    <div className="space-y-3">
+      <TechFieldSelector formData={formData} onChange={onChange} />
+      <TechNotesField formData={formData} onChange={onChange} />
     </div>
   );
 }

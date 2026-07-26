@@ -1,17 +1,25 @@
-import TechField from './fields/TechField';
+import { TechFieldSelector, TechNotesField } from './fields/TechField';
 import MonetizationField from './fields/MonetizationField';
 import ContextField from './fields/ContextField';
 import DesignSystemField from './fields/DesignSystemField';
 
 export default function WizardStep3Tech({ formData, onChange }) {
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-        <TechField formData={formData} onChange={onChange} />
-        <MonetizationField formData={formData} onChange={onChange} />
+    <div className="space-y-3">
+      {/* Row 1: Theme Choose & Framework Choose */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
+        <DesignSystemField formData={formData} onChange={onChange} />
+        <TechFieldSelector formData={formData} onChange={onChange} />
       </div>
+
+      {/* Row 2: Monetization & Custom Tech Notes */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
+        <MonetizationField formData={formData} onChange={onChange} />
+        <TechNotesField formData={formData} onChange={onChange} />
+      </div>
+
+      {/* Row 3: Additional Context Full Row */}
       <ContextField formData={formData} onChange={onChange} />
-      <DesignSystemField formData={formData} onChange={onChange} />
     </div>
   );
 }
