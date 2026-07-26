@@ -47,9 +47,15 @@ export const useKanban = (projectId) => {
     eventSource.onmessage = (e) => {
       try {
         const data = JSON.parse(e.data);
-        if (data.type === 'kanban_update' && data.kanbanColumns) {
-          setColumns(normalizeColumns(data.kanbanColumns));
-          toast.success(`MCP Agent updated task status to "${data.status || 'done'}"`);
+        if (data.type === 'kanban_update') {
+          if (data.kanbanColumns) {
+            setColumns(normalizeColumns(data.kanbanColumns));
+          } else {
+            fetchProject();
+          }
+          toast.success(`Kanban updated: ${data.taskId || 'Task updated'}`);
+        } else if (data.type === 'annotation_created' || data.type === 'code_updated') {
+          fetchProject();
         }
       } catch (err) {}
     };

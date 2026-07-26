@@ -177,6 +177,14 @@ If the user asks to add, enable, remove, or disable a skill for this project:
 2. Output a skill tag at the end of your response:
 [SKILL_ACTION:add:skillId] or [SKILL_ACTION:remove:skillId]
 
+KANBAN TASK & WORKSPACE MANAGEMENT INSTRUCTIONS:
+You have FULL ACCESS to manage Kanban tasks and Workspace board for this project!
+If the user asks to add, create, complete, update, move, or delete a task on the Kanban board:
+1. Confirm the task action clearly in your text response.
+2. Output a Kanban action tag at the end of your response:
+[KANBAN_ACTION:status:Task Title]
+(e.g., [KANBAN_ACTION:todo:Build Auth System], [KANBAN_ACTION:in_progress:Scaffold Vite Frontend], [KANBAN_ACTION:done:Design Database Schema])
+
 DOCUMENT EDITING INSTRUCTIONS:
 If the user asks to edit, update, modify, or rewrite any project document:
 1. Explain the changes.
@@ -225,6 +233,65 @@ ${docsContext.slice(0, 10000)}`;
   }
 
   let rawReply = await AIService.generateChat(aiMessages);
+
+  const kanbanMatch = rawReply.match(/\[KANBAN_ACTION:(todo|in_progress|done|complete):(.*?)\]/i);
+  if (kanbanMatch) {
+    const status = kanbanMatch[1].toLowerCase();
+    const taskTitle = kanbanMatch[2].trim();
+
+    if (taskTitle) {
+      if (!project.kanbanColumns || project.kanbanColumns.length === 0) {
+        project.kanbanColumns = [
+          { id: 'col-todo', title: 'To Do', tasks: [] },
+          { id: 'col-in-progress', title: 'In Progress', tasks: [] },
+          { id: 'col-done', title: 'Done', tasks: [] }
+        ];
+      }
+
+      const destColTitle = status === 'done' || status === 'complete' ? 'Done' : status === 'in_progress' ? 'In Progress' : 'To Do';
+      let destCol = project.kanbanColumns.find(c => c.title?.toLowerCase() === destColTitle.toLowerCase() || c.id === status);
+      if (!destCol) destCol = project.kanbanColumns[0];
+
+      let existingTask = null;
+      project.kanbanColumns.forEach(col => {
+        const list = col.tasks || col.cards || [];
+        list.forEach((t, idx) => {
+          if (t.text?.toLowerCase() === taskTitle.toLowerCase() || t.id === taskTitle) {
+            existingTask = t;
+            list.splice(idx, 1);
+          }
+        });
+      });
+
+      if (!existingTask) {
+        existingTask = {
+          id: `task_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+          text: taskTitle,
+          status,
+          completed: status === 'done' || status === 'complete'
+        };
+      } else {
+        existingTask.status = status;
+        existingTask.completed = status === 'done' || status === 'complete';
+      }
+
+      if (!destCol.tasks) destCol.tasks = destCol.cards || [];
+      destCol.tasks.push(existingTask);
+      project.markModified('kanbanColumns');
+      await project.save();
+
+      const { broadcastKanbanUpdate } = require('./eventBroadcaster');
+      broadcastKanbanUpdate(project._id, {
+        type: 'kanban_update',
+        taskId: existingTask.id,
+        status,
+        kanbanColumns: project.kanbanColumns
+      });
+
+      rawReply = rawReply.replace(/\[KANBAN_ACTION:(todo|in_progress|done|complete):.*?\]/gi, '').trim();
+      rawReply += `\n\n**Kanban Board Updated:** Task **"${taskTitle}"** set to **${destColTitle}** and synced in real time to your Workspace!`;
+    }
+  }
 
   // 1. Process Document Update Tags
   const updateMatch = rawReply.match(/\[UPDATE_DOC:([a-zA-Z]+)\]\s*([\s\S]*?)\s*\[\/UPDATE_DOC\]/);

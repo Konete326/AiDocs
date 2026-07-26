@@ -80,47 +80,63 @@ const handleToolCall = async (userId, toolName, args = {}) => {
   if (toolName === 'clarifyai_update_task_status' || toolName === 'clarifyai_complete_kanban_task') {
     const targetStatus = toolName === 'clarifyai_complete_kanban_task' ? 'done' : args.status;
     let targetCard = null;
-    let sourceCol = null;
+    let taskText = args.taskId;
+
+    if (!project.kanbanColumns || project.kanbanColumns.length === 0) {
+      project.kanbanColumns = [
+        { id: 'col-todo', title: 'To Do', tasks: [] },
+        { id: 'col-in-progress', title: 'In Progress', tasks: [] },
+        { id: 'col-done', title: 'Done', tasks: [] }
+      ];
+    }
 
     (project.kanbanColumns || []).forEach(col => {
       const list = col.tasks || col.cards || [];
       list.forEach((card, idx) => {
-        if (card.id === args.taskId || card._id?.toString() === args.taskId || card.text === args.taskId || card.title === args.taskId) {
+        if (card.id === args.taskId || card._id?.toString() === args.taskId || card.text?.toLowerCase() === args.taskId?.toLowerCase() || card.title?.toLowerCase() === args.taskId?.toLowerCase()) {
           targetCard = card;
-          sourceCol = col;
+          taskText = card.text || card.title || args.taskId;
           list.splice(idx, 1);
         }
       });
     });
 
-    if (targetCard) {
+    if (!targetCard) {
+      targetCard = {
+        id: `task_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
+        text: taskText,
+        status: targetStatus,
+        completed: targetStatus === 'done' || targetStatus === 'complete'
+      };
+    } else {
       targetCard.status = targetStatus;
       targetCard.completed = targetStatus === 'done' || targetStatus === 'complete';
-      
-      const destColTitle = targetStatus === 'done' || targetStatus === 'complete' ? 'Done' : targetStatus === 'in_progress' ? 'In Progress' : 'To Do';
-      let destCol = (project.kanbanColumns || []).find(c => c.title?.toLowerCase() === destColTitle.toLowerCase() || c.id === targetStatus);
-      if (!destCol && project.kanbanColumns?.length > 0) destCol = project.kanbanColumns[project.kanbanColumns.length - 1];
-      
-      if (destCol) {
-        if (!destCol.tasks) destCol.tasks = destCol.cards || [];
-        destCol.tasks.push(targetCard);
-      }
-
-      project.markModified('kanbanColumns');
-      await project.save();
-
-      const { broadcastKanbanUpdate } = require('./eventBroadcaster');
-      broadcastKanbanUpdate(project._id, {
-        type: 'kanban_update',
-        taskId: args.taskId,
-        status: targetStatus,
-        kanbanColumns: project.kanbanColumns
-      });
-
-      await saveMcpChatMessage(project, `[Antigravity IDE Agent]: Updated Kanban Task "${args.taskId}" status to "${targetStatus}".`, `Task status updated to **"${targetStatus}"**. Moved to **${destColTitle}** column.`);
-      notify(userId, 'MCP Task Sync', `Task ${args.taskId} set to ${targetStatus}`, project._id);
     }
-    return { content: [{ type: 'text', text: targetCard ? `Task status updated to ${targetStatus} and card moved in real time.` : 'Task not found.' }] };
+
+    const destColTitle = targetStatus === 'done' || targetStatus === 'complete' ? 'Done' : targetStatus === 'in_progress' ? 'In Progress' : 'To Do';
+    let destCol = project.kanbanColumns.find(c => c.title?.toLowerCase() === destColTitle.toLowerCase() || c.id === targetStatus);
+    if (!destCol) destCol = project.kanbanColumns[project.kanbanColumns.length - 1];
+
+    if (destCol) {
+      if (!destCol.tasks) destCol.tasks = destCol.cards || [];
+      destCol.tasks.push(targetCard);
+    }
+
+    project.markModified('kanbanColumns');
+    await project.save();
+
+    const { broadcastKanbanUpdate } = require('./eventBroadcaster');
+    broadcastKanbanUpdate(project._id, {
+      type: 'kanban_update',
+      taskId: targetCard.id,
+      status: targetStatus,
+      kanbanColumns: project.kanbanColumns
+    });
+
+    await saveMcpChatMessage(project, `[Antigravity IDE Agent]: Updated Kanban Task "${taskText}" status to "${targetStatus}".`, `Task status updated to **"${targetStatus}"**. Moved to **${destColTitle}** column.`);
+    notify(userId, 'MCP Task Sync', `Task ${taskText} set to ${targetStatus}`, project._id);
+
+    return { content: [{ type: 'text', text: `Task "${taskText}" status updated to "${targetStatus}" and synced to Workspace Kanban board in real time.` }] };
   }
 
   if (toolName === 'clarifyai_get_claude_md') {
