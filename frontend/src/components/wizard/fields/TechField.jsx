@@ -22,13 +22,13 @@ export default function TechField({ formData, onChange }) {
 
   return (
     <div>
-      <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-2">Target Architecture & Framework</label>
+      <label className="text-xs uppercase tracking-[0.2em] text-[#6B7280] font-extrabold block mb-2">Target Architecture & Framework</label>
       
-      <div className="liquid-glass rounded-xl px-4 py-2.5 w-full mb-3 border border-white/10">
+      <div className="neumorphic-inset rounded-2xl px-4 py-3 w-full mb-3 bg-[#E0E5EC] border border-black/5">
         <select
           value={STACK_OPTIONS.find(s => formData.wizardAnswers.techPreferences?.includes(s.label.split(' ')[0]))?.value || ''}
           onChange={(e) => onChange('wizardAnswers.techPreferences', e.target.value)}
-          className="bg-transparent text-white outline-none w-full text-sm cursor-pointer [&>option]:bg-slate-900 [&>option]:text-white"
+          className="bg-transparent text-[#3D4852] font-bold outline-none w-full text-sm cursor-pointer [&>option]:bg-[#E0E5EC] [&>option]:text-[#3D4852]"
         >
           <option value="">-- Choose Framework Preset (Optional) --</option>
           {STACK_OPTIONS.map((opt, i) => (
@@ -37,14 +37,14 @@ export default function TechField({ formData, onChange }) {
         </select>
       </div>
 
-      <label className="text-[10px] uppercase tracking-[0.15em] text-white/30 block mb-1.5">Custom Tech Notes & Libraries</label>
-      <div className="liquid-glass rounded-xl px-4 py-2.5 w-full">
+      <label className="text-[10px] uppercase tracking-[0.15em] text-[#6B7280] font-bold block mb-1.5">Custom Tech Notes & Libraries</label>
+      <div className="neumorphic-inset rounded-2xl px-4 py-3 w-full bg-[#E0E5EC] border border-black/5">
         <textarea 
           value={formData.wizardAnswers.techPreferences || ''}
           onChange={(e) => onChange('wizardAnswers.techPreferences', e.target.value)}
           placeholder="e.g. Next.js 14, Tailwind, PostgreSQL, Stripe, Redis..."
           rows={2}
-          className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
+          className="bg-transparent text-[#3D4852] font-semibold placeholder:text-[#9CA3AF] outline-none w-full text-sm resize-none"
         />
       </div>
 

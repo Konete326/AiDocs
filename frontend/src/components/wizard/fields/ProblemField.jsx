@@ -12,14 +12,14 @@ export default function ProblemField({ formData, onChange }) {
 
   return (
     <div>
-      <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-1.5">Problem Statement</label>
-      <div className="liquid-glass rounded-xl px-4 py-2.5 w-full">
+      <label className="text-xs uppercase tracking-[0.2em] text-[#6B7280] font-extrabold block mb-1.5">Problem Statement</label>
+      <div className="neumorphic-inset rounded-2xl px-4 py-3 w-full bg-[#E0E5EC] border border-black/5">
         <textarea 
           value={formData.wizardAnswers.problemStatement}
           onChange={(e) => onChange('wizardAnswers.problemStatement', e.target.value)}
           placeholder="What gap in the market are you filling? What is the main pain point?"
-          rows={2}
-          className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
+          rows={3}
+          className="bg-transparent text-[#3D4852] font-semibold placeholder:text-[#9CA3AF] outline-none w-full text-sm resize-none"
         />
       </div>
       <SuggestionPills

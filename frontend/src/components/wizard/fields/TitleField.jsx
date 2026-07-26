@@ -12,16 +12,16 @@ export default function TitleField({ formData, onChange }) {
 
   return (
     <div>
-      <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-1.5">Project Title</label>
-      <div className="liquid-glass rounded-xl px-4 py-2.5 flex items-center gap-3">
+      <label className="text-xs uppercase tracking-[0.2em] text-[#6B7280] font-extrabold block mb-1.5">Project Title</label>
+      <div className="neumorphic-inset rounded-2xl px-4 py-3 flex items-center gap-3 bg-[#E0E5EC] border border-black/5">
         <input 
           value={formData.title} 
           onChange={(e) => onChange('title', e.target.value)}
           placeholder="e.g. AI-powered invoice generator"
-          className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm"
+          className="bg-transparent text-[#3D4852] font-bold placeholder:text-[#9CA3AF] outline-none w-full text-sm"
         />
       </div>
-      <p className="mt-1.5 text-[10px] text-white/30 uppercase tracking-wider">
+      <p className="mt-1.5 text-[10px] text-[#6B7280] font-bold uppercase tracking-wider">
         Give your idea a working name. You can change it later.
       </p>
       <SuggestionPills

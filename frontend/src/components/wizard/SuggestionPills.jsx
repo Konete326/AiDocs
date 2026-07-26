@@ -29,8 +29,8 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
 
   return (
     <div className="mt-2 space-y-1">
-      <div className="text-[10px] uppercase tracking-[0.2em] text-[#38B2AC] mb-1 flex items-center gap-1.5 font-semibold">
-        <Zap className="w-3 h-3 text-[#38B2AC]" />
+      <div className="text-[10px] uppercase tracking-[0.2em] text-[#6C63FF] mb-1 flex items-center gap-1.5 font-bold">
+        <Zap className="w-3 h-3 text-[#6C63FF]" />
         <span>Smart Suggestions</span>
       </div>
       <div className="flex gap-2 overflow-x-auto whitespace-nowrap custom-scrollbar pb-1 w-full flex-row">
@@ -38,7 +38,7 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
           <button
             key={`${fieldName}-${i}`}
             type="button"
-            className="liquid-glass no-hover rounded-full px-3.5 py-1 text-xs text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer inline-block flex-shrink-0 border border-white/10"
+            className="neumorphic-card bg-[#E0E5EC] rounded-full px-3.5 py-1 text-xs text-[#3D4852] font-bold hover:text-[#6C63FF] transition-all cursor-pointer inline-block flex-shrink-0 border border-black/5"
             onClick={() => onSelect(s)}
           >
             {s}

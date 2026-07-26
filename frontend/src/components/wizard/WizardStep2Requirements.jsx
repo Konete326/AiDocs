@@ -19,16 +19,16 @@ export default function WizardStep2Requirements({ formData, onChange }) {
   );
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div>
-        <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-1.5">Target Audience</label>
-        <div className="liquid-glass rounded-xl px-4 py-2.5 w-full">
+        <label className="text-xs uppercase tracking-[0.2em] text-[#6B7280] font-extrabold block mb-1.5">Target Audience</label>
+        <div className="neumorphic-inset rounded-2xl px-4 py-3 w-full bg-[#E0E5EC] border border-black/5">
           <textarea 
             value={formData.wizardAnswers.targetAudience}
             onChange={(e) => onChange('wizardAnswers.targetAudience', e.target.value)}
             placeholder="Who are your users? Seniors, tech-savvy teens, SMEs?"
             rows={2}
-            className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
+            className="bg-transparent text-[#3D4852] font-semibold placeholder:text-[#9CA3AF] outline-none w-full text-sm resize-none"
           />
         </div>
         <SuggestionPills
@@ -40,14 +40,14 @@ export default function WizardStep2Requirements({ formData, onChange }) {
       </div>
 
       <div>
-        <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-1.5">Core Features (MVP)</label>
-        <div className="liquid-glass rounded-xl px-4 py-2.5 w-full">
+        <label className="text-xs uppercase tracking-[0.2em] text-[#6B7280] font-extrabold block mb-1.5">Core Features (MVP)</label>
+        <div className="neumorphic-inset rounded-2xl px-4 py-3 w-full bg-[#E0E5EC] border border-black/5">
           <textarea 
             value={formData.wizardAnswers.coreFeatures}
             onChange={(e) => onChange('wizardAnswers.coreFeatures', e.target.value)}
             placeholder="user auth, searchable dashboard, CSV export..."
             rows={2}
-            className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-sm resize-none"
+            className="bg-transparent text-[#3D4852] font-semibold placeholder:text-[#9CA3AF] outline-none w-full text-sm resize-none"
           />
         </div>
         <SuggestionPills

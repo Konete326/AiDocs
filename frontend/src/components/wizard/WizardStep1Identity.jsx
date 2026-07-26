@@ -30,19 +30,19 @@ export default function WizardStep1Identity({ formData, onChange }) {
   const selectedType = types.find((t) => t.id === formData.projectType) || types[0];
 
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 items-start">
+    <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
         <TitleField formData={formData} onChange={onChange} />
 
         <div className="relative" ref={dropdownRef}>
-          <label className="text-xs uppercase tracking-[0.2em] text-white/40 block mb-1.5">Project Type</label>
+          <label className="text-xs uppercase tracking-[0.2em] text-[#6B7280] font-extrabold block mb-1.5">Project Type</label>
           <button
             type="button"
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="w-full liquid-glass rounded-xl px-4 py-2.5 flex items-center justify-between cursor-pointer border border-white/10 hover:border-white/20 transition-all text-left"
+            className="w-full neumorphic-inset rounded-2xl px-4 py-3 flex items-center justify-between cursor-pointer text-left text-[#3D4852] font-extrabold text-sm border border-black/5 hover:border-[#6C63FF]/30 transition-all bg-[#E0E5EC]"
           >
-            <span className="text-sm font-medium text-white">{selectedType.label}</span>
-            <ChevronDown className={`w-4 h-4 text-white/50 transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
+            <span className="text-sm font-extrabold text-[#3D4852]">{selectedType.label}</span>
+            <ChevronDown className={`w-4 h-4 text-[#6C63FF] transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />
           </button>
 
           <AnimatePresence>
@@ -52,7 +52,7 @@ export default function WizardStep1Identity({ formData, onChange }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 6, scale: 0.98 }}
                 transition={{ duration: 0.12 }}
-                className="absolute left-0 right-0 top-full mt-1.5 z-50 liquid-glass-strong rounded-2xl p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.8)] border border-white/15 bg-black/90 backdrop-blur-2xl space-y-1"
+                className="absolute left-0 right-0 top-full mt-2 z-50 neumorphic-card rounded-2xl p-2 shadow-2xl border border-black/10 bg-[#E0E5EC] text-[#3D4852] space-y-1"
               >
                 {types.map((type) => {
                   const isSelected = formData.projectType === type.id;
@@ -64,12 +64,12 @@ export default function WizardStep1Identity({ formData, onChange }) {
                         onChange('projectType', type.id);
                         setDropdownOpen(false);
                       }}
-                      className={`w-full px-3 py-2 rounded-xl text-xs font-medium text-left flex items-center justify-between transition-all cursor-pointer ${
-                        isSelected ? 'bg-[#38B2AC]/20 text-white border border-[#38B2AC]/30' : 'text-white/70 hover:text-white hover:bg-white/10'
+                      className={`w-full px-3.5 py-2.5 rounded-xl text-xs font-bold text-left flex items-center justify-between transition-all cursor-pointer ${
+                        isSelected ? 'bg-[#6C63FF] text-white shadow-md' : 'text-[#3D4852] hover:bg-black/5'
                       }`}
                     >
                       <span>{type.label}</span>
-                      {isSelected && <Check className="w-3.5 h-3.5 text-[#38B2AC]" />}
+                      {isSelected && <Check className="w-3.5 h-3.5 text-white" />}
                     </button>
                   );
                 })}

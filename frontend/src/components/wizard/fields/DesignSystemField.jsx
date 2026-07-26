@@ -16,8 +16,8 @@ export default function DesignSystemField({ formData, onChange }) {
 
   return (
     <div className="space-y-3">
-      <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-        <Palette size={14} className="text-indigo-400" />
+      <label className="text-xs font-bold text-[#6B7280] uppercase tracking-wider flex items-center gap-2">
+        <Palette size={14} className="text-[#6C63FF]" />
         <span>Design System Theme Template</span>
       </label>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -29,20 +29,20 @@ export default function DesignSystemField({ formData, onChange }) {
               type="button"
               onClick={() => handleSelectTheme(preset)}
               disabled={!preset.isAvailable}
-              className={`p-3 rounded-xl border text-left transition-all ${
+              className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                 isSelected
-                  ? "bg-indigo-600/20 border-indigo-500 text-white shadow-lg"
+                  ? "bg-[#6C63FF] border-[#6C63FF] text-white shadow-md"
                   : preset.isAvailable
-                  ? "bg-slate-900/60 border-slate-800 text-slate-400 hover:border-slate-700 hover:text-slate-200"
-                  : "bg-slate-950/40 border-slate-900 text-slate-600 opacity-60 cursor-not-allowed"
+                  ? "neumorphic-card bg-[#E0E5EC] border-black/5 text-[#3D4852] hover:border-[#6C63FF]/40"
+                  : "bg-[#E0E5EC]/50 border-black/5 text-[#9CA3AF] opacity-60 cursor-not-allowed"
               }`}
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-xs font-bold font-serif">{preset.name}</span>
-                {isSelected && <Check size={14} className="text-indigo-400" />}
-                {!preset.isAvailable && <span className="text-[9px] bg-slate-800 px-1 py-0.5 rounded">Soon</span>}
+                {isSelected && <Check size={14} className="text-white" />}
+                {!preset.isAvailable && <span className="text-[9px] bg-slate-300 px-1 py-0.5 rounded text-slate-700 font-bold">Soon</span>}
               </div>
-              <p className="text-[10px] text-slate-400 line-clamp-2">{preset.tagline}</p>
+              <p className={`text-[10px] line-clamp-2 ${isSelected ? 'text-white/90' : 'text-[#6B7280]'}`}>{preset.tagline}</p>
             </button>
           );
         })}
