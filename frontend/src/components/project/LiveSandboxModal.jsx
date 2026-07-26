@@ -265,13 +265,51 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
     setSandboxAnnotations(prev => [...prev, finalPin]);
     setActiveSandboxPin(null);
     setPinCommentText('');
-    toast.success(`Clarifyation Pin #${finalPin.number} saved!`);
+    toast.success(`Agentation Pin #${finalPin.number} saved!`);
+  };
+
+  const handleCopyAgentationMarkdown = () => {
+    if (sandboxAnnotations.length === 0) {
+      toast.error('No annotations to copy!');
+      return;
+    }
+
+    let markdown = `# Agentation Visual Feedback Context\n\n`;
+    markdown += `**Target Page**: \`${sandboxUrl || activeIframeUrl}\`\n\n`;
+    markdown += `## Annotations (${sandboxAnnotations.length})\n\n`;
+
+    sandboxAnnotations.forEach((ann) => {
+      markdown += `### Annotation #${ann.number}: \`${ann.elementSelector}\`\n`;
+      markdown += `- **Component / Tag**: \`${ann.componentTag || 'ELEMENT'}\`\n`;
+      markdown += `- **CSS Selector**: \`${ann.elementSelector}\`\n`;
+      if (ann.elementText) {
+        markdown += `- **Selected Text**: ${ann.elementText}\n`;
+      }
+      markdown += `- **Feedback / Instruction**: ${ann.comment}\n\n`;
+    });
+
+    markdown += `---\n*Agent Instruction*: Jump directly to the CSS selectors and source components above to address the feedback.`;
+
+    navigator.clipboard.writeText(markdown);
+    toast.success('Agentation Markdown copied! Ready to paste into Claude Code, Cursor, or Codex.');
   };
 
   const handleSendAnnotationsToAiCofounder = async () => {
     if (sandboxAnnotations.length === 0 || isSubmittingAnnotations) return;
     setIsSubmittingAnnotations(true);
     try {
+      let agentationMarkdown = `# Agentation Visual Feedback Context\n\n`;
+      agentationMarkdown += `**Target Page**: \`${sandboxUrl || activeIframeUrl}\`\n\n`;
+
+      sandboxAnnotations.forEach((ann) => {
+        agentationMarkdown += `### Annotation #${ann.number}: \`${ann.elementSelector}\`\n`;
+        agentationMarkdown += `- **Selector**: \`${ann.elementSelector}\`\n`;
+        if (ann.elementText) {
+          agentationMarkdown += `- **Selected Text**: ${ann.elementText}\n`;
+        }
+        agentationMarkdown += `- **Feedback**: ${ann.comment}\n\n`;
+      });
+
       await api.post(`/projects/${project._id}/annotations`, {
         annotations: sandboxAnnotations.map(p => ({
           elementSelector: p.elementSelector,
@@ -283,7 +321,11 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
         pageUrl: sandboxUrl
       });
 
-      toast.success('Sandbox Annotations sent to AI Co-founder! Redirecting to Chat...');
+      await api.post(`/projects/${project._id}/chat`, {
+        messages: [{ role: 'user', content: agentationMarkdown }]
+      });
+
+      toast.success('Agentation Feedback sent to AI Co-founder & Chat!');
       setSandboxAnnotations([]);
       setIsAnnotatingMode(false);
       onClose();
@@ -506,29 +548,38 @@ ${networkSummary || 'No network activity logged.'}`;
                 />
               )}
 
-              {/* Floating Custom Clarifyation Widget on Sandbox Preview */}
               <div className="absolute bottom-4 right-4 z-40 flex items-center gap-2">
                 {isAnnotatingMode ? (
                   <div className="neumorphic-card rounded-full p-1.5 bg-[#E0E5EC] flex items-center gap-2 shadow-xl border border-black/5 animate-in slide-in-from-bottom-2">
                     <div className="w-7 h-7 rounded-full bg-[#6C63FF] text-white flex items-center justify-center font-extrabold text-xs shadow-md">
-                      
+                      ⚡
                     </div>
-                    <span className="text-xs font-extrabold text-[#3D4852] px-1">Clarifyation</span>
+                    <span className="text-xs font-extrabold text-[#3D4852] px-1">Agentation</span>
                     <button
                       onClick={() => setIsAnnotatingMode(false)}
                       className="px-2.5 py-1 rounded-full text-xs font-bold bg-[#6C63FF] text-white cursor-pointer shadow-sm"
                     >
-                      <span>Click to Pin...</span>
+                      <span>Inspecting Elements...</span>
                     </button>
                     {sandboxAnnotations.length > 0 && (
-                      <button
-                        onClick={handleSendAnnotationsToAiCofounder}
-                        disabled={isSubmittingAnnotations}
-                        className="bg-[#38B2AC] hover:bg-[#4FD1C5] text-white px-3 py-1 rounded-full text-xs font-bold cursor-pointer shadow-sm flex items-center gap-1"
-                      >
-                        <Send className="w-3 h-3" />
-                        <span>Send to AI ({sandboxAnnotations.length})</span>
-                      </button>
+                      <>
+                        <button
+                          onClick={handleCopyAgentationMarkdown}
+                          className="bg-white hover:bg-slate-50 text-[#3D4852] px-2.5 py-1 rounded-full text-xs font-bold cursor-pointer shadow-sm flex items-center gap-1 border border-slate-200"
+                          title="Copy Agentation Markdown Context for Claude Code / Cursor"
+                        >
+                          <Copy className="w-3 h-3 text-[#6C63FF]" />
+                          <span>Copy Markdown ({sandboxAnnotations.length})</span>
+                        </button>
+                        <button
+                          onClick={handleSendAnnotationsToAiCofounder}
+                          disabled={isSubmittingAnnotations}
+                          className="bg-[#38B2AC] hover:bg-[#4FD1C5] text-white px-3 py-1 rounded-full text-xs font-bold cursor-pointer shadow-sm flex items-center gap-1"
+                        >
+                          <Send className="w-3 h-3" />
+                          <span>Send to AI Agent</span>
+                        </button>
+                      </>
                     )}
                     <button
                       onClick={() => setIsAnnotatingMode(false)}
@@ -538,21 +589,33 @@ ${networkSummary || 'No network activity logged.'}`;
                     </button>
                   </div>
                 ) : (
-                  <button
-                    onClick={() => setIsAnnotatingMode(true)}
-                    className="neumorphic-card rounded-full px-3.5 py-1.5 bg-[#E0E5EC] text-[#3D4852] font-extrabold text-xs flex items-center gap-2 shadow-xl hover:scale-105 transition-all cursor-pointer border border-black/5"
-                    title="Clarifyation Visual UI Annotator"
-                  >
-                    <div className="w-5 h-5 rounded-full bg-[#6C63FF] text-white flex items-center justify-center text-[10px]">
-                      ⚡
-                    </div>
-                    <span>Clarifyation AI</span>
+                  <div className="flex items-center gap-2">
                     {sandboxAnnotations.length > 0 && (
-                      <span className="w-4 h-4 rounded-full bg-[#6C63FF] text-white text-[9px] font-bold flex items-center justify-center">
-                        {sandboxAnnotations.length}
-                      </span>
+                      <button
+                        onClick={handleCopyAgentationMarkdown}
+                        className="neumorphic-card rounded-full px-3 py-1.5 bg-[#E0E5EC] text-[#3D4852] font-bold text-xs flex items-center gap-1.5 shadow-xl hover:scale-105 transition-all cursor-pointer border border-black/5"
+                        title="Copy Formatted Agentation Markdown for Claude Code / Cursor"
+                      >
+                        <Copy className="w-3.5 h-3.5 text-[#6C63FF]" />
+                        <span>Copy Agentation Context ({sandboxAnnotations.length})</span>
+                      </button>
                     )}
-                  </button>
+                    <button
+                      onClick={() => setIsAnnotatingMode(true)}
+                      className="neumorphic-card rounded-full px-3.5 py-1.5 bg-[#E0E5EC] text-[#3D4852] font-extrabold text-xs flex items-center gap-2 shadow-xl hover:scale-105 transition-all cursor-pointer border border-black/5"
+                      title="Agentation Visual Feedback & Annotation Engine"
+                    >
+                      <div className="w-5 h-5 rounded-full bg-[#6C63FF] text-white flex items-center justify-center text-[10px] font-bold">
+                        ⚡
+                      </div>
+                      <span>Agentation UI</span>
+                      {sandboxAnnotations.length > 0 && (
+                        <span className="w-4 h-4 rounded-full bg-[#6C63FF] text-white text-[9px] font-bold flex items-center justify-center">
+                          {sandboxAnnotations.length}
+                        </span>
+                      )}
+                    </button>
+                  </div>
                 )}
               </div>
             </div>
