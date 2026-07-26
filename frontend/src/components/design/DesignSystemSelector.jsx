@@ -114,16 +114,6 @@ export const DesignSystemSelector = ({ selectedPresetId, onSelectPreset }) => {
               </button>
             )}
 
-            <button onClick={() => setIsPromptModalOpen(true)} className="liquid-glass text-[#3D4852] hover:scale-105 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition-transform cursor-pointer min-w-[85px]">
-              <FileText size={13} className="text-[#38B2AC]" />
-              <span>Prompt</span>
-            </button>
-
-            <button onClick={handleCopy} title="Copy System Prompt" className="liquid-glass text-[#3D4852] hover:scale-105 px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center justify-center space-x-1.5 transition-transform cursor-pointer min-w-[75px]">
-              <Copy size={13} />
-              <span>{copied ? "Copied!" : "Copy"}</span>
-            </button>
-
             <div className="flex items-center liquid-glass rounded-xl p-0.5 space-x-1">
               <button onClick={() => setViewMode("landing")} className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer min-w-[75px] justify-center ${viewMode === "landing" ? "liquid-glass-strong text-[#38B2AC]" : "text-[#6B7280] hover:text-[#3D4852]"}`}>
                 <Layout size={12} />
