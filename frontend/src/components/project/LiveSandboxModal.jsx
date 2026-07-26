@@ -20,7 +20,7 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
   const [copyConsoleSuccess, setCopyConsoleSuccess] = useState(false);
   const [copyNetworkSuccess, setCopyNetworkSuccess] = useState(false);
 
-  const [isAnnotatingMode, setIsAnnotatingMode] = useState(true);
+  const [isAnnotatingMode, setIsAnnotatingMode] = useState(false);
   const [annotationMode, setAnnotationMode] = useState('elements');
   const [isPausedAnimations, setIsPausedAnimations] = useState(false);
   const [areMarkersVisible, setAreMarkersVisible] = useState(true);
@@ -84,8 +84,6 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
 
   useEffect(() => {
     if (isOpen) {
-      setIsAnnotatingMode(true);
-      console.log("[Agentation v2.0] Live Sandbox Modal Opened — Inspector Active");
       document.body.classList.add('sandbox-open');
     } else {
       document.body.classList.remove('sandbox-open');
@@ -567,10 +565,6 @@ ${networkSummary || 'No network activity logged.'}`;
               <ArrowLeft className="w-4 h-4 text-[#6C63FF]" />
               <span>Back to Project</span>
             </button>
-
-            <div className="w-8 h-8 rounded-xl neumorphic-inset flex items-center justify-center text-[#6C63FF] shrink-0">
-              <Play className="w-4 h-4 text-[#6C63FF]" />
-            </div>
             
             <div className="flex items-center gap-1 neumorphic-inset rounded-2xl p-1 shrink-0">
               <button onClick={handleHistoryBack} title="Back in History" className="p-1 rounded-xl text-[#6B7280] hover:text-[#3D4852] cursor-pointer">
