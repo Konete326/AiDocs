@@ -19,32 +19,31 @@ export default function DesignSystemField({ formData, onChange }) {
   };
 
   return (
-    <div className="space-y-2">
-      <label className="text-xs font-extrabold text-[#6B7280] uppercase tracking-wider flex items-center gap-2">
-        <Palette size={14} className="text-[#6C63FF]" />
-        <span>Design System Theme & Live Studio Preview</span>
+    <div className="space-y-1.5">
+      <label className="text-xs font-extrabold text-[#6B7280] uppercase tracking-wider flex items-center gap-1.5">
+        <Palette size={13} className="text-[#6C63FF]" />
+        <span className="truncate">Design System Theme</span>
       </label>
 
-      <div className="neumorphic-card rounded-2xl p-4 bg-[#E0E5EC] border border-black/5 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-[#6C63FF] text-white flex items-center justify-center font-extrabold text-sm shadow-md">
+      <div className="neumorphic-card rounded-2xl p-2.5 px-3 bg-[#E0E5EC] border border-black/5 flex items-center justify-between gap-2 min-w-0">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-[#6C63FF] text-white flex items-center justify-center font-extrabold text-xs shadow-sm shrink-0">
             🎨
           </div>
-          <div>
-            <h4 className="text-sm font-extrabold text-[#3D4852] flex items-center gap-2">
-              <span>{currentPreset.name} Theme</span>
-              <span className="text-[10px] bg-[#6C63FF] text-white px-2 py-0.5 rounded-full font-bold uppercase">Selected</span>
+          <div className="min-w-0">
+            <h4 className="text-xs font-extrabold text-[#3D4852] truncate">
+              {currentPreset.name} Theme
             </h4>
-            <p className="text-xs text-[#6B7280] font-medium line-clamp-1 mt-0.5">{currentPreset.tagline}</p>
+            <p className="text-[10px] text-[#6B7280] font-medium truncate mt-0.5">{currentPreset.tagline}</p>
           </div>
         </div>
 
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white px-4 py-2 rounded-2xl text-xs font-bold transition-all shadow-md cursor-pointer shrink-0 flex items-center gap-1.5"
+          className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm cursor-pointer shrink-0"
         >
-          <span>Open Live Preview Studio ↗</span>
+          <span>Studio ↗</span>
         </button>
       </div>
 
