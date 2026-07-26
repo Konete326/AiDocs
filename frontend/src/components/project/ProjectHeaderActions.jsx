@@ -1,7 +1,8 @@
-import { Download, MessageCircle, Loader2, Cpu, Palette, Layers, Play } from 'lucide-react';
+import { Download, MessageCircle, Loader2, Cpu, Palette, Layers, Play, ChevronDown, LayoutGrid } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { downloadZip } from '../../services/exportService';
+import { getAccessToken, refreshAccessTokenSilent } from '../../services/api';
 import LiveSandboxModal from './LiveSandboxModal';
 import { toast } from 'react-hot-toast';
 
@@ -9,24 +10,51 @@ const ProjectHeaderActions = ({ project }) => {
   const navigate = useNavigate();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSandboxOpen, setIsSandboxOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     if (!project?._id) return;
-    const token = localStorage.getItem('token');
-    const eventSource = new EventSource(`/api/projects/${project._id}/events?token=${token}`);
 
-    eventSource.onmessage = (e) => {
-      try {
-        const data = JSON.parse(e.data);
-        if (data.type === 'kanban_update') {
-          setIsSandboxOpen(true);
-          toast.success(`Antigravity Agent updated task "${data.taskId || 'status'}" to ${data.status || 'done'}! Live Sandbox auto-opened.`);
-        }
-      } catch (err) {}
+    let eventSource;
+    const initStream = async () => {
+      let token = getAccessToken();
+      if (!token) {
+        try {
+          token = await refreshAccessTokenSilent();
+        } catch (err) {}
+      }
+      if (!token) return;
+
+      eventSource = new EventSource(`/api/projects/${project._id}/events?token=${token}`);
+
+      eventSource.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (data.type === 'kanban_update') {
+            setIsSandboxOpen(true);
+            toast.success(`Antigravity Agent updated task "${data.taskId || 'status'}" to ${data.status || 'done'}! Live Sandbox auto-opened.`);
+          }
+        } catch (err) {}
+      };
     };
 
-    return () => eventSource.close();
+    initStream();
+
+    return () => {
+      if (eventSource) eventSource.close();
+    };
   }, [project?._id]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const handleZipDownload = async () => {
     if (isDownloading) return;
@@ -42,7 +70,7 @@ const ProjectHeaderActions = ({ project }) => {
 
   return (
     <>
-      <div className="flex items-center gap-2.5 flex-wrap">
+      <div className="flex items-center gap-2.5 flex-wrap relative">
         <button
           onClick={() => setIsSandboxOpen(true)}
           className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white rounded-2xl px-4 py-2 flex items-center gap-2 transition-all cursor-pointer shadow-md flex-shrink-0"
@@ -52,19 +80,11 @@ const ProjectHeaderActions = ({ project }) => {
         </button>
 
         <button
-          onClick={() => navigate(`/projects/${project._id}/stack`)}
+          onClick={() => navigate(`/projects/${project._id}/workspace`)}
           className="neumorphic-btn rounded-2xl px-4 py-2 flex items-center gap-2 cursor-pointer flex-shrink-0"
         >
-          <Layers className="w-4 h-4 text-[#38B2AC]" />
-          <span className="text-xs sm:text-sm text-[#3D4852] font-bold">Target Stack</span>
-        </button>
-
-        <button
-          onClick={() => navigate(`/projects/${project._id}/design-system`)}
-          className="neumorphic-btn rounded-2xl px-4 py-2 flex items-center gap-2 cursor-pointer flex-shrink-0"
-        >
-          <Palette className="w-4 h-4 text-[#6C63FF]" />
-          <span className="text-xs sm:text-sm text-[#3D4852] font-bold">Design System</span>
+          <LayoutGrid className="w-4 h-4 text-[#6C63FF]" />
+          <span className="text-xs sm:text-sm text-[#3D4852] font-bold">Workspace</span>
         </button>
 
         <button
@@ -75,35 +95,74 @@ const ProjectHeaderActions = ({ project }) => {
           <span className="text-xs sm:text-sm text-[#3D4852] font-bold">AI Chat</span>
         </button>
 
-        <button
-          onClick={() => navigate(`/projects/${project._id}/workspace`)}
-          className="neumorphic-btn rounded-2xl px-4 py-2 flex items-center gap-2 cursor-pointer flex-shrink-0"
-        >
-          <span className="text-xs sm:text-sm text-[#3D4852] font-bold">Workspace</span>
-        </button>
-
-        <button
-          onClick={() => navigate(`/projects/${project._id}/skills`)}
-          className="neumorphic-btn rounded-2xl px-4 py-2 flex items-center gap-2 cursor-pointer flex-shrink-0"
-        >
-          <Cpu className="w-4 h-4 text-[#6C63FF]" />
-          <span className="text-xs sm:text-sm text-[#3D4852] font-bold">Skills</span>
-        </button>
-
-        {project.status === 'complete' && (
+        <div className="relative" ref={dropdownRef}>
           <button
-            onClick={handleZipDownload}
-            disabled={isDownloading}
-            className="neumorphic-btn rounded-2xl px-4 py-2 flex items-center gap-2 disabled:opacity-50 cursor-pointer flex-shrink-0"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="neumorphic-btn rounded-2xl px-4 py-2 flex items-center gap-2 cursor-pointer flex-shrink-0"
           >
-            {isDownloading ? <Loader2 className="w-4 h-4 animate-spin text-[#3D4852]" /> : <Download className="w-4 h-4 text-[#3D4852]" />}
-            <span className="text-xs sm:text-sm text-[#3D4852] font-bold">Download All</span>
+            <span className="text-xs sm:text-sm text-[#3D4852] font-bold">More Tools</span>
+            <ChevronDown className={`w-4 h-4 text-[#3D4852] transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
           </button>
-        )}
+
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-52 bg-[#E0E5EC] rounded-2xl p-2 z-50 flex flex-col gap-1 border border-white/60 shadow-[9px_9px_16px_rgba(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)]">
+              <button
+                onClick={() => {
+                  navigate(`/projects/${project._id}/stack`);
+                  setIsDropdownOpen(false);
+                }}
+                className="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm text-[#3D4852] font-bold hover:bg-[#d1d7e0] flex items-center gap-2 transition-colors cursor-pointer"
+              >
+                <Layers className="w-4 h-4 text-[#38B2AC]" />
+                <span>Target Stack</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  navigate(`/projects/${project._id}/design-system`);
+                  setIsDropdownOpen(false);
+                }}
+                className="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm text-[#3D4852] font-bold hover:bg-[#d1d7e0] flex items-center gap-2 transition-colors cursor-pointer"
+              >
+                <Palette className="w-4 h-4 text-[#6C63FF]" />
+                <span>Design System</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  navigate(`/projects/${project._id}/skills`);
+                  setIsDropdownOpen(false);
+                }}
+                className="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm text-[#3D4852] font-bold hover:bg-[#d1d7e0] flex items-center gap-2 transition-colors cursor-pointer"
+              >
+                <Cpu className="w-4 h-4 text-[#6C63FF]" />
+                <span>Skills</span>
+              </button>
+
+              {project.status === 'complete' && (
+                <>
+                  <div className="h-px bg-[#c4cdd8] my-1" />
+                  <button
+                    onClick={() => {
+                      handleZipDownload();
+                      setIsDropdownOpen(false);
+                    }}
+                    disabled={isDownloading}
+                    className="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm text-[#3D4852] font-bold hover:bg-[#d1d7e0] flex items-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
+                  >
+                    {isDownloading ? <Loader2 className="w-4 h-4 animate-spin text-[#3D4852]" /> : <Download className="w-4 h-4 text-[#3D4852]" />}
+                    <span>Download All</span>
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       <LiveSandboxModal isOpen={isSandboxOpen} onClose={() => setIsSandboxOpen(false)} project={project} />
     </>
+  
   );
 };
 

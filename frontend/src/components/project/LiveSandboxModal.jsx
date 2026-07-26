@@ -70,8 +70,6 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
     }
   }, [project?._id]);
 
-  if (!isOpen) return null;
-
   const refreshApp = () => {
     setIsRefreshing(true);
     const target = getFormattedUrl(sandboxUrl);
@@ -271,6 +269,8 @@ ${networkSummary || 'No network activity logged.'}`;
 
   const RESTRICTED_DOMAINS = ['google.com', 'google.pk', 'google.co', 'facebook.com', 'github.com', 'twitter.com', 'x.com'];
   const isRestrictedDomain = RESTRICTED_DOMAINS.some(d => activeIframeUrl.toLowerCase().includes(d));
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 pt-16 sm:pt-20 pb-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">

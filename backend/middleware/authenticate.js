@@ -7,6 +7,8 @@ const authenticate = async (req, res, next) => {
     let token;
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
       token = req.headers.authorization.split(' ')[1];
+    } else if (req.query && req.query.token && req.query.token !== 'null' && req.query.token !== 'undefined') {
+      token = req.query.token;
     }
     if (!token) {
       return next(new AppError('You are not logged in. Please log in to get access.', 401, 'NOT_LOGGED_IN'));
@@ -22,3 +24,4 @@ const authenticate = async (req, res, next) => {
 };
 
 module.exports = authenticate;
+
