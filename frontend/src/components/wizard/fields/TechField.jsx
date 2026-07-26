@@ -2,6 +2,8 @@ import SuggestionPills from '../SuggestionPills';
 import { useSuggestions } from '../../../hooks/useSuggestions';
 
 const STACK_OPTIONS = [
+  { label: 'React Native (Expo Web + React Navigation)', value: 'React Native Expo SDK 51 Web with Expo Router and NativeWind' },
+  { label: 'Flutter 3.24+ Web App (Dart + Riverpod)', value: 'Flutter 3.24 Web App with Material 3, Dart, and Riverpod State Management' },
   { label: 'Next.js 15 Fullstack (App Router + Server Actions)', value: 'Next.js 15 App Router with Server Actions, React 19, and Tailwind CSS v4' },
   { label: 'Next.js 15 Decoupled (Next.js + Backend API)', value: 'Next.js 15 App Router Frontend with Decoupled REST API' },
   { label: 'Python 3.12+ (FastAPI / Django REST Framework)', value: 'Python 3.12 FastAPI Async API with Pydantic v2 and SQLAlchemy 2.0' },

@@ -79,8 +79,11 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
       const defaultUrl = `https://example.com`;
       setSandboxUrl(defaultUrl);
       setActiveIframeUrl(defaultUrl);
+      if (project.projectType === 'mobile' || project.projectType === 'react-native' || project.projectType === 'flutter') {
+        setDevice('mobile');
+      }
     }
-  }, [project?._id]);
+  }, [project?._id, project?.projectType]);
 
   useEffect(() => {
     if (isOpen) {
