@@ -4,6 +4,7 @@ import { ChevronLeft, Bot, FileText, Layers, Lightbulb, Trash2, UploadCloud, Ale
 import { getProject } from '../services/projectService';
 import { getMySubscription } from '../services/subscriptionService';
 import { sendChatMessage, getChatHistory, deleteChatHistory } from '../services/chatService';
+import { getAccessToken, refreshAccessTokenSilent } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ChatMessage from '../components/chat/ChatMessage';
 import ChatInput from '../components/chat/ChatInput';
@@ -24,7 +25,6 @@ export default function ProjectChat() {
   const scrollRef = useRef(null);
 
   useEffect(() => {
-    let timer;
     const init = async () => {
       try {
         const [proj, sub, history] = await Promise.all([
@@ -42,13 +42,30 @@ export default function ProjectChat() {
       }
     };
     init();
-    timer = setInterval(async () => {
-      try {
-        const history = await getChatHistory(id);
-        if (history && history.length > 0) setMessages(history);
-      } catch {}
-    }, 4000);
-    return () => clearInterval(timer);
+  }, [id]);
+
+  useEffect(() => {
+    if (!id) return;
+    let eventSource;
+    const initSSE = async () => {
+      let token = getAccessToken();
+      if (!token) {
+        try { token = await refreshAccessTokenSilent(); } catch {}
+      }
+      if (!token) return;
+      eventSource = new EventSource(`/api/projects/${id}/events?token=${token}`);
+      eventSource.onmessage = async (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (data.type === 'chat_updated') {
+            const history = await getChatHistory(id);
+            if (history && history.length > 0) setMessages(history);
+          }
+        } catch {}
+      };
+    };
+    initSSE();
+    return () => { if (eventSource) eventSource.close(); };
   }, [id]);
 
   useEffect(() => {

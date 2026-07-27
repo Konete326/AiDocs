@@ -62,11 +62,24 @@ const broadcastLiveSandbox = (projectId, liveUrl) => {
   }
 };
 
+const broadcastChatUpdate = (projectId) => {
+  const projectClients = clients.get(projectId.toString());
+  if (projectClients && projectClients.size > 0) {
+    const payload = `data: ${JSON.stringify({ type: 'chat_updated' })}
+
+`;
+    projectClients.forEach(res => {
+      try { res.write(payload); } catch (err) { console.error('SSE chat send error:', err); }
+    });
+  }
+};
+
 module.exports = {
   eventEmitter,
   addClient,
   broadcastKanbanUpdate,
   broadcastAnnotation,
-  broadcastLiveSandbox
+  broadcastLiveSandbox,
+  broadcastChatUpdate
 };
 

@@ -54,6 +54,8 @@ const saveMcpChatMessage = async (project, userPrompt, assistantReply) => {
   project.chatHistory.push({ role: 'user', content: userPrompt, isMcpAgent: true });
   project.chatHistory.push({ role: 'assistant', content: assistantReply, isMcpAgent: true });
   await project.save();
+  const { broadcastChatUpdate } = require('./eventBroadcaster');
+  broadcastChatUpdate(project._id);
 };
 
 const handleToolCall = async (userId, toolName, args = {}) => {

@@ -423,6 +423,9 @@ ${docsContext.slice(0, 10000)}`;
       content: rawReply
     });
     await project.save();
+
+    const { broadcastChatUpdate } = require('./eventBroadcaster');
+    broadcastChatUpdate(project._id);
   }
 
   return rawReply;
@@ -439,5 +442,9 @@ exports.deleteChatHistory = async (projectId, userId) => {
   if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');
   project.chatHistory = [];
   await project.save();
+
+  const { broadcastChatUpdate } = require('./eventBroadcaster');
+  broadcastChatUpdate(project._id);
+
   return { message: 'Chat history deleted' };
 };
