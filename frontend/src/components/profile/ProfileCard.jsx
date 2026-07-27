@@ -73,9 +73,9 @@ const ProfileCard = ({
             <KeyRound className="w-4 h-4 flex-shrink-0" />
             <span className="text-xs font-medium">Reset Password</span>
           </button>
-          <button onClick={onLogout} className="bg-red-500 hover:bg-red-600 text-white rounded-2xl px-3 py-2.5 flex items-center gap-2 transition-all active:scale-95 cursor-pointer justify-center shadow-md">
-            <LogOut className="w-4 h-4 flex-shrink-0 text-white" />
-            <span className="text-xs font-medium">Logout</span>
+          <button onClick={onLogout} className="bg-red-500 hover:bg-red-600 !text-white rounded-2xl px-3 py-2.5 flex items-center gap-2 transition-all active:scale-95 cursor-pointer justify-center shadow-md">
+            <LogOut className="w-4 h-4 flex-shrink-0 !text-white" style={{ stroke: '#ffffff' }} />
+            <span className="text-xs font-medium !text-white" style={{ color: '#ffffff' }}>Logout</span>
           </button>
         </div>
       )}

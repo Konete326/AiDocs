@@ -40,10 +40,10 @@ const UserAvatar = ({ user, size = 'md', showUpload = false, onUpload, className
           src={user.avatarUrl}
           alt={user.displayName}
           onError={() => setImgError(true)}
-          className="w-full h-full rounded-full object-cover"
+          className="w-full h-full rounded-full object-cover border border-slate-300/80 shadow-sm"
         />
       ) : (
-        <div className={`liquid-glass rounded-full w-full h-full flex items-center justify-center font-medium text-white ${textSize[size]}`}>
+        <div className={`liquid-glass rounded-full w-full h-full flex items-center justify-center font-medium text-[#3D4852] border border-slate-300/80 ${textSize[size]}`}>
           {initial}
         </div>
       )}
