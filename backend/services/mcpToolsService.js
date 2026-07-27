@@ -248,9 +248,33 @@ const handleToolCall = async (userId, toolName, args = {}) => {
   }
 
   if (toolName === 'clarifyai_ask_cofounder') {
-    const prd = await Document.findOne({ projectId: project._id, docType: 'prd' });
-    const reply = `AI Co-founder advice for "${project.title}": Regarding "${args.question}", scaffold frontend using npx -y create-vite@latest frontend --template react, align strictly with PRD specs (${prd ? prd.content.slice(0, 300) : 'Standard PRD'}), modular 120-line service architecture, and clean Tailwind glassmorphism design.`;
-    await saveMcpChatMessage(project, `[Antigravity IDE Agent]: ${args.question}`, reply);
+    const docs = await Document.find({ projectId: project._id });
+    const docsContext = docs.map(d => `=== ${d.docType.toUpperCase()} ===\n${d.content}`).join('\n\n');
+
+    const systemPrompt = `You are the Lead Technical AI Co-Founder and Architect for the project "${project.title}".
+Your job is to provide clear, actionable, highly intelligent, to-the-point technical advice to the IDE AI Agent (Antigravity/Claude).
+
+PROJECT CONTEXT & SPECIFICATIONS:
+${docsContext.slice(0, 8000)}
+
+RULES FOR YOUR ADVICE:
+1. Answer the question directly with concrete technical recommendations based strictly on the project documents above.
+2. Provide exact code structure, variable names, database schema guidelines, or API route designs as requested.
+3. Strictly ZERO dummy text or placeholders.
+4. Keep the answer concise, professional, and directly useful for automated coding.`;
+
+    let reply;
+    try {
+      const AIService = require('./AIService');
+      reply = await AIService.generateChat([
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: args.question }
+      ]);
+    } catch (err) {
+      reply = `AI Co-Founder Guidance for "${project.title}": Align with PRD specs for "${args.question}". Ensure modular architecture, zero comments, and empirical test build before completing tasks.`;
+    }
+
+    await saveMcpChatMessage(project, `[Antigravity IDE Agent Question]: ${args.question}`, reply);
     notify(userId, 'AI Co-founder Guidance', `Antigravity consulted Co-founder regarding "${args.question}"`, project._id);
     return { content: [{ type: 'text', text: reply }] };
   }
