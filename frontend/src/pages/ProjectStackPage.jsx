@@ -6,6 +6,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner';
 import PresetStackCards from '../components/project/PresetStackCards';
 import StackCategoryFilters from '../components/project/StackCategoryFilters';
 import { DEFAULT_MERN_VALUE } from '../constants/stackPresets';
+import { toast } from 'react-hot-toast';
 
 export default function ProjectStackPage() {
   const { id } = useParams();
@@ -44,9 +45,12 @@ export default function ProjectStackPage() {
       setProject(updatedProj);
       setSelectedStack(valToApply);
       setSuccessMsg('Target stack saved! Architecture blueprints re-generated.');
+      toast.success('Target stack updated successfully!');
       navigate(`/projects/${id}`);
     } catch (err) {
-      setErrorMsg(err.response?.data?.error || 'Failed to update target stack.');
+      const msg = err.response?.data?.error || 'Failed to update target stack.';
+      setErrorMsg(msg);
+      toast.error('Failed to update target stack.');
     } finally {
       setIsUpdating(false);
     }

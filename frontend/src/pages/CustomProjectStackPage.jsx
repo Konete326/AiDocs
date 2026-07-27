@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { getProject, updateProject, triggerGeneration } from '../services/projectService';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import CustomStackBuilderPanel from '../components/project/CustomStackBuilderPanel';
+import { toast } from 'react-hot-toast';
 
 export default function CustomProjectStackPage() {
   const { id } = useParams();
@@ -33,10 +34,13 @@ export default function CustomProjectStackPage() {
       const updatedAnswers = { ...(project.wizardAnswers || {}), techPreferences: customConfig.formattedValue };
       await updateProject(id, { wizardAnswers: updatedAnswers });
       await triggerGeneration(id, true);
+      toast.success('Custom target stack updated successfully!');
       navigate(`/projects/${id}`);
     } catch (err) {
       const msg = err.response?.data?.error;
-      setErrorMsg(typeof msg === 'string' ? msg : 'Failed to update target custom stack.');
+      const finalMsg = typeof msg === 'string' ? msg : 'Failed to update target stack.';
+      setErrorMsg(finalMsg);
+      toast.error('Failed to update target stack.');
     } finally {
       setIsUpdating(false);
     }

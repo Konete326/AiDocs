@@ -69,7 +69,8 @@ const handleToolCall = async (userId, toolName, args = {}) => {
     const docsMap = {};
     docs.forEach(d => { docsMap[d.docType] = d.content; });
 
-    const isMern = (project.projectType === 'saas' || project.projectType === 'ecommerce' || project.projectType === 'marketplace') || (docsMap['techStack'] && docsMap['techStack'].toLowerCase().includes('express'));
+    const techStackText = ((docsMap['techStack'] || '') + ' ' + (project.wizardAnswers?.techPreferences || '')).toLowerCase();
+    const isMern = techStackText.includes('express') || techStackText.includes('react') || techStackText.includes('node') || techStackText.includes('mern') || techStackText.includes('mongo');
 
     const baseFiles = [
       { path: 'clarifyai/PRD.md', content: docsMap['prd'] || `# PRD Document\n\nProject: ${project.title}` },
