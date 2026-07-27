@@ -158,8 +158,11 @@ const handleToolCall = async (userId, toolName, args = {}) => {
     if (liveUrl) {
       const { broadcastLiveSandbox } = require('./eventBroadcaster');
       broadcastLiveSandbox(project._id, liveUrl);
-      project.livePreviewUrl = liveUrl;
-      await project.save().catch(() => {});
+      await Project.findByIdAndUpdate(
+        project._id,
+        { livePreviewUrl: liveUrl },
+        { new: true }
+      ).catch(err => console.error('[report_agent_activity] Save error:', err.message));
     }
     return { content: [{ type: 'text', text: `Activity logged on ClarifyAI. ${liveUrl ? `Live Sandbox Modal auto-opened at ${liveUrl}.` : ''}` }] };
   }
