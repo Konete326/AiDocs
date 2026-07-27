@@ -3,75 +3,84 @@ const eventEmitter = new EventEmitter();
 
 const clients = new Map();
 
-const addClient = (projectId, res) => {
-  if (!clients.has(projectId)) {
-    clients.set(projectId, new Set());
+const cleanupStaleClients = () => {
+  for (const [projectId, projectClients] of clients.entries()) {
+    for (const res of projectClients) {
+      if (res.writableEnded || res.destroyed || res.closed || !res.writable) {
+        projectClients.delete(res);
+      }
+    }
+    if (projectClients.size === 0) {
+      clients.delete(projectId);
+    }
   }
-  clients.get(projectId).add(res);
+};
 
-  res.on('close', () => {
-    const projectClients = clients.get(projectId);
+if (!global._sseCleanupInterval) {
+  global._sseCleanupInterval = setInterval(cleanupStaleClients, 60 * 1000);
+  if (global._sseCleanupInterval.unref) global._sseCleanupInterval.unref();
+}
+
+const addClient = (projectId, res) => {
+  const key = projectId.toString();
+  if (!clients.has(key)) {
+    clients.set(key, new Set());
+  }
+  clients.get(key).add(res);
+
+  const cleanup = () => {
+    const projectClients = clients.get(key);
     if (projectClients) {
       projectClients.delete(res);
       if (projectClients.size === 0) {
-        clients.delete(projectId);
+        clients.delete(key);
       }
     }
+  };
+
+  res.on('close', cleanup);
+  res.on('finish', cleanup);
+  res.on('error', cleanup);
+};
+
+const sendToClients = (projectId, payload) => {
+  const key = projectId.toString();
+  const projectClients = clients.get(key);
+  if (!projectClients || projectClients.size === 0) return;
+
+  const toRemove = [];
+  projectClients.forEach(res => {
+    if (res.writableEnded || res.destroyed || res.closed || !res.writable) {
+      toRemove.push(res);
+      return;
+    }
+    try {
+      res.write(payload);
+    } catch (err) {
+      toRemove.push(res);
+    }
   });
+
+  toRemove.forEach(res => projectClients.delete(res));
+  if (projectClients.size === 0) {
+    clients.delete(key);
+  }
 };
 
 const broadcastKanbanUpdate = (projectId, data) => {
-  const projectClients = clients.get(projectId.toString());
-  if (projectClients && projectClients.size > 0) {
-    const payload = `data: ${JSON.stringify(data)}\n\n`;
-    projectClients.forEach(res => {
-      try {
-        res.write(payload);
-      } catch (err) {
-        console.error('SSE send error:', err);
-      }
-    });
-  }
+  sendToClients(projectId, `data: ${JSON.stringify(data)}\n\n`);
 };
 
 const broadcastAnnotation = (projectId, data) => {
-  const projectClients = clients.get(projectId.toString());
-  if (projectClients && projectClients.size > 0) {
-    const payload = `data: ${JSON.stringify({ type: 'annotation_created', ...data })}\n\n`;
-    projectClients.forEach(res => {
-      try {
-        res.write(payload);
-      } catch (err) {
-        console.error('SSE annotation send error:', err);
-      }
-    });
-  }
+  sendToClients(projectId, `data: ${JSON.stringify({ type: 'annotation_created', ...data })}\n\n`);
 };
 
 const broadcastLiveSandbox = (projectId, liveUrl) => {
-  const projectClients = clients.get(projectId.toString());
-  if (projectClients && projectClients.size > 0) {
-    const payload = `data: ${JSON.stringify({ type: 'live_sandbox', liveUrl })}\n\n`;
-    projectClients.forEach(res => {
-      try {
-        res.write(payload);
-      } catch (err) {
-        console.error('SSE live_sandbox send error:', err);
-      }
-    });
-  }
+  sendToClients(projectId, `data: ${JSON.stringify({ type: 'live_sandbox', liveUrl })}\n\n`);
 };
 
 const broadcastChatUpdate = (projectId) => {
-  const projectClients = clients.get(projectId.toString());
-  if (projectClients && projectClients.size > 0) {
-    const payload = `data: ${JSON.stringify({ type: 'chat_updated' })}
-
-`;
-    projectClients.forEach(res => {
-      try { res.write(payload); } catch (err) { console.error('SSE chat send error:', err); }
-    });
-  }
+  sendToClients(projectId, `data: ${JSON.stringify({ type: 'chat_updated' })}\n\n`);
 };
 
 module.exports = {
