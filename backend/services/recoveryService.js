@@ -40,9 +40,20 @@ const checkAndRecoverProject = async (project) => {
   return project;
 };
 
-const recoverAllStuckProjects = async () => {
+let lastRecoveryCheck = 0;
+const RECOVERY_INTERVAL_MS = 3 * 60 * 1000; // Check at most once every 3 minutes
+
+const recoverAllStuckProjects = async (force = false) => {
+  const now = Date.now();
+  if (!force && (now - lastRecoveryCheck) < RECOVERY_INTERVAL_MS) {
+    return;
+  }
+  lastRecoveryCheck = now;
+
   try {
-    const stuckProjects = await Project.find({ status: 'generating', isArchived: false });
+    const stuckProjects = await Project.find({ status: 'generating', isArchived: false }).limit(20);
+    if (stuckProjects.length === 0) return;
+
     for (const project of stuckProjects) {
       await checkAndRecoverProject(project);
     }
