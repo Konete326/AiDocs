@@ -2,14 +2,13 @@ const authService = require('../services/authService');
 const asyncWrapper = require('../utils/asyncWrapper');
 const AppError = require('../utils/AppError');
 
-const getCookieOptions = () => {
-  const isProd = process.env.NODE_ENV === 'production';
+const getCookieOptions = (req) => {
+  const isProd = process.env.NODE_ENV === 'production' || process.env.VERCEL || process.env.VERCEL_ENV;
   return {
     httpOnly: true,
-    secure: isProd,
-    sameSite: isProd ? 'none' : 'lax',
+    secure: isProd ? true : true,
+    sameSite: 'none',
     path: '/',
-    domain: isProd ? undefined : undefined,
   };
 };
 

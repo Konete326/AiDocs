@@ -29,23 +29,23 @@ export default function ForgotPassword() {
 
   return (
     <AuthLayout title="Reset password" subtitle="We'll send you a recovery link">
-      {message && <div className="liquid-glass rounded-xl px-4 py-3 text-sm text-white/80 mb-4">{message}</div>}
-      {error && <div className="liquid-glass rounded-xl px-4 py-3 text-sm text-white/80 mb-4">{error}</div>}
+      {message && <div className="liquid-glass rounded-xl px-4 py-3 text-sm text-[#38B2AC] font-bold mb-4">{message}</div>}
+      {error && <div className="liquid-glass rounded-xl px-4 py-3 text-sm text-rose-600 font-bold mb-4">{error}</div>}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="neumorphic-input-wrapper rounded-xl px-4 py-3 flex items-center gap-3">
-          <Mail className="w-4 h-4 text-white/40" />
-          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="bg-transparent text-white outline-none w-full text-sm" />
+          <Mail className="w-4 h-4 text-[#6B7280]" />
+          <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} required className="bg-transparent text-[#3D4852] placeholder-[#9CA3AF] outline-none w-full text-sm font-medium" />
         </div>
-        <button type="submit" disabled={isLoading} className="liquid-glass-strong rounded-full py-3 h-11 w-full mt-4 text-white font-medium text-sm hover:scale-105 disabled:hover:scale-100 transition-all flex justify-center items-center cursor-pointer disabled:cursor-not-allowed">
+        <button type="submit" disabled={isLoading} className="liquid-glass-strong rounded-2xl py-3 h-11 w-full mt-4 text-[#3D4852] font-extrabold text-sm hover:scale-105 disabled:hover:scale-100 transition-all flex justify-center items-center cursor-pointer disabled:cursor-not-allowed">
           {isLoading ? <LoadingSpinner /> : "Send Reset Link"}
         </button>
       </form>
       <div className="mt-8 text-center">
         <Link 
           to={fromProfile ? "/profile" : "/login"} 
-          className="text-xs text-white/50 hover:text-white/80 flex items-center justify-center gap-2"
+          className="text-xs text-[#6C63FF] font-bold hover:underline underline-offset-4 flex items-center justify-center gap-2"
         >
-          <ArrowLeft className="w-3 h-3" /> {fromProfile ? "Back to profile" : "Back to sign in"}
+          <ArrowLeft className="w-3.5 h-3.5 text-[#6C63FF]" /> {fromProfile ? "Back to profile" : "Back to sign in"}
         </Link>
       </div>
     </AuthLayout>

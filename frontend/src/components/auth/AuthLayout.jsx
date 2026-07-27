@@ -45,11 +45,11 @@ const AuthLayout = ({ children, title, subtitle }) => (
       <div className="w-full md:w-[58%] p-5 sm:p-6 md:px-8 md:py-6 flex flex-col justify-center">
         <Link to="/" className="flex items-center gap-2 justify-center md:justify-start hover:opacity-80 transition-opacity cursor-pointer select-none">
           <img src={logo} alt="ClarifyAI" className="w-7 h-7 rounded-lg object-cover shadow-md" />
-          <span className="text-base font-semibold tracking-tighter text-white">ClarifyAI</span>
+          <span className="text-base font-extrabold tracking-tight text-[#3D4852]">ClarifyAI</span>
         </Link>
         <div className="mt-4 text-center md:text-left">
-          <h1 className="text-xl sm:text-2xl font-medium text-white tracking-tight">{title}</h1>
-          <p className="text-xs text-white/60 mt-0.5">{subtitle}</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-[#3D4852] tracking-tight">{title}</h1>
+          <p className="text-xs text-[#6B7280] font-medium mt-0.5">{subtitle}</p>
         </div>
         <div className="w-full mt-4">{children}</div>
       </div>

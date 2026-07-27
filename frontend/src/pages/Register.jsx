@@ -45,7 +45,7 @@ export default function Register() {
     finally { setIsLoading(false); }
   };
 
-  const inputCls = "bg-transparent text-white outline-none w-full text-sm";
+  const inputCls = "bg-transparent text-[#3D4852] placeholder-[#9CA3AF] outline-none w-full text-sm font-medium";
   const rowCls = "neumorphic-input-wrapper rounded-xl px-4 py-2.5 flex items-center gap-3";
 
   return (
@@ -62,11 +62,11 @@ export default function Register() {
           </div>
           <div className={rowCls}><ShieldCheck className="w-4 h-4 text-[#6B7280]" /><input type={show.cp ? 'text' : 'password'} placeholder="Confirm password" value={form.confirmPassword} onChange={e => setForm({...form, confirmPassword: e.target.value})} className={inputCls} required /><button type="button" onClick={() => setShow({...show, cp: !show.cp})} aria-label="Toggle confirm password visibility" className="cursor-pointer">{show.cp ? <EyeOff className="w-4 h-4 text-[#6B7280]" /> : <Eye className="w-4 h-4 text-[#6B7280]" />}</button></div>
         </div>
-        <button type="submit" disabled={isLoading} className="liquid-glass-strong rounded-2xl py-2.5 h-10 w-full mt-2 text-[#3D4852] font-semibold text-sm hover:scale-105 disabled:hover:scale-100 transition-all flex justify-center items-center cursor-pointer disabled:cursor-not-allowed">{isLoading ? <LoadingSpinner /> : "Create Account"}</button>
+        <button type="submit" disabled={isLoading} className="liquid-glass-strong rounded-2xl py-2.5 h-10 w-full mt-2 text-[#3D4852] font-extrabold text-sm hover:scale-105 disabled:hover:scale-100 transition-all flex justify-center items-center cursor-pointer disabled:cursor-not-allowed">{isLoading ? <LoadingSpinner /> : "Create Account"}</button>
       </form>
-      <div className="flex items-center gap-3 mt-6"><div className="h-px flex-1 bg-white/10" /><span className="text-xs text-white/40">or</span><div className="h-px flex-1 bg-white/10" /></div>
+      <div className="flex items-center gap-3 mt-6"><div className="h-px flex-1 bg-black/10" /><span className="text-xs text-[#6B7280] font-semibold">or</span><div className="h-px flex-1 bg-black/10" /></div>
       <GoogleSignInButton onClick={async () => { try { setIsLoading(true); await loginGoogle(); navigate('/dashboard'); } catch (err) { setError('Google failed.'); } finally { setIsLoading(false); } }} isLoading={isLoading} />
-      <div className="mt-6 text-center"><span className="text-xs text-[#6B7280]">Joined? </span><Link to="/login" className="text-xs text-[#3D4852] underline underline-offset-4 font-semibold">Sign in</Link></div>
+      <div className="mt-6 text-center"><span className="text-xs text-[#6B7280] font-medium">Joined? </span><Link to="/login" className="text-xs text-[#6C63FF] font-extrabold hover:underline underline-offset-4">Sign in</Link></div>
     </AuthLayout>
   );
 }
