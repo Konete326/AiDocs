@@ -43,8 +43,21 @@ const processMcpMessage = async (userId, body) => {
   if (method === 'tools/call') {
     const name = params?.name;
     const args = params?.arguments || {};
-    const result = await handleToolCall(userId, name, args);
-    return { jsonrpc: '2.0', id, result };
+    try {
+      const result = await handleToolCall(userId, name, args);
+      return { jsonrpc: '2.0', id, result };
+    } catch (err) {
+      console.error(`[MCP Tool Error] ${name}:`, err);
+      const safeMessage = err.isOperational ? err.message : `Tool call "${name}" failed: ${err.message || 'Internal server error'}`;
+      return {
+        jsonrpc: '2.0',
+        id,
+        result: {
+          isError: true,
+          content: [{ type: 'text', text: safeMessage }]
+        }
+      };
+    }
   }
 
   return { jsonrpc: '2.0', id: id || null, error: { code: -32601, message: `Method not found: ${method}` } };
