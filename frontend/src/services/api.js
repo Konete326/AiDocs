@@ -7,15 +7,18 @@ let refreshPromise = null;
 export const getAccessToken = () => _accessToken;
 export const setAccessToken = (token) => { _accessToken = token; };
 
+const rawBaseUrl = import.meta.env.VITE_API_URL || '/api';
+const cleanBaseUrl = rawBaseUrl.replace(/\/+$/, '');
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: cleanBaseUrl,
   withCredentials: true,
 });
 
 export const refreshAccessTokenSilent = async () => {
   if (!refreshPromise) {
     refreshPromise = axios.post(
-      `${api.defaults.baseURL}/auth/refresh`,
+      `${cleanBaseUrl}/auth/refresh`,
       {},
       { withCredentials: true }
     ).then(response => {
@@ -24,7 +27,7 @@ export const refreshAccessTokenSilent = async () => {
       return newAccessToken;
     }).catch(err => {
       setAccessToken(null);
-      axios.post(`${api.defaults.baseURL}/auth/logout`, {}, { withCredentials: true }).catch(() => {});
+      axios.post(`${cleanBaseUrl}/auth/logout`, {}, { withCredentials: true }).catch(() => {});
       throw err;
     }).finally(() => {
       refreshPromise = null;
@@ -38,6 +41,9 @@ api.interceptors.request.use(
     const token = getAccessToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    if (config.url && config.url.includes('//')) {
+      config.url = config.url.replace(/([^:]\/)\/+/g, '$1');
     }
     return config;
   },
@@ -63,7 +69,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         setAccessToken(null);
-        axios.post(`${api.defaults.baseURL}/auth/logout`, {}, { withCredentials: true }).catch(() => {});
+        axios.post(`${cleanBaseUrl}/auth/logout`, {}, { withCredentials: true }).catch(() => {});
         return Promise.reject(refreshError);
       }
     }

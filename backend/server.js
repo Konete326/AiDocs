@@ -31,24 +31,19 @@ const suggestionRoutes = require('./routes/suggestionRoutes');
 
 const app = express();
 
-const { recoverAllStuckProjects } = require('./services/recoveryService');
-
-// Database connection middleware for Serverless
-app.use(async (req, res, next) => {
-  try {
-    await db();
-    recoverAllStuckProjects().catch(() => {});
-    next();
-  } catch (err) {
-    res.status(500).json({ success: false, error: 'Database connection failed', details: err.message });
-  }
-});
-
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
+  'https://testclarifyai.vercel.app',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
+
+app.use((req, res, next) => {
+  if (req.url && req.url.includes('//')) {
+    req.url = req.url.replace(/\/+/g, '/');
+  }
+  next();
+});
 
 app.use(cors({
   origin: (origin, callback) => {
@@ -62,6 +57,21 @@ app.use(cors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
+app.options('*', cors());
+
+const { recoverAllStuckProjects } = require('./services/recoveryService');
+
+// Database connection middleware for Serverless
+app.use(async (req, res, next) => {
+  try {
+    await db();
+    recoverAllStuckProjects().catch(() => {});
+    next();
+  } catch (err) {
+    res.status(500).json({ success: false, error: 'Database connection failed', details: err.message });
+  }
+});
 
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }
