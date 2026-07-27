@@ -142,21 +142,27 @@ exports.generateAll = async (projectId, userId, force = false) => {
 
       if (group.parallel) {
         // Run all pending types in this group concurrently
-        // Use allSettled so one doc failure doesn't kill the entire group
         const results = await Promise.allSettled(
           pending.map(async (docType) => {
-            const content = await generateOne(docType, project, userId, generatedSoFar);
-            return { docType, content };
+            try {
+              const content = await generateOne(docType, project, userId, generatedSoFar);
+              return { docType, content };
+            } catch (firstErr) {
+              console.warn(`[generateAll] Retrying generation for ${docType} due to error: ${firstErr.message}`);
+              const content = await generateOne(docType, project, userId, generatedSoFar);
+              return { docType, content };
+            }
           })
         );
 
         const failed = results.filter(r => r.status === 'rejected');
         if (failed.length > 0) {
-          console.error(`[generateAll] ${failed.length}/${pending.length} docs failed in parallel group:`,
-            failed.map(f => f.reason?.message));
+          const failedDocTypes = pending.filter((_, idx) => results[idx].status === 'rejected');
+          console.error(`[generateAll] Core document generation failed for: ${failedDocTypes.join(', ')}`);
+          throw new AppError(`Document pipeline halted: ${failedDocTypes.join(', ')} failed to generate. Please retry generation.`, 500);
         }
 
-        // Merge only successful results into context for next groups
+        // Merge successful results into context for next groups
         for (const r of results) {
           if (r.status === 'fulfilled') {
             const { docType, content } = r.value;
