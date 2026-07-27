@@ -580,7 +580,7 @@ ${networkSummary || 'No network activity logged.'}`;
     }
   };
 
-  const previewWidth = device === 'mobile' ? 'max-w-[375px]' : device === 'tablet' ? 'max-w-[768px]' : 'w-full';
+  const previewWidth = device === 'mobile' ? 'w-[375px] max-w-full' : device === 'tablet' ? 'w-[768px] max-w-full' : 'w-full';
 
   const RESTRICTED_DOMAINS = ['google.com', 'google.pk', 'google.co', 'facebook.com', 'github.com', 'twitter.com', 'x.com'];
   const isRestrictedDomain = RESTRICTED_DOMAINS.some(d => activeIframeUrl.toLowerCase().includes(d));
@@ -588,9 +588,9 @@ ${networkSummary || 'No network activity logged.'}`;
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex flex-col p-2 sm:p-4 bg-black/75 backdrop-blur-xl animate-in fade-in duration-200">
-      <div className="w-full h-full neumorphic-card rounded-[2.5rem] flex flex-col overflow-hidden bg-[#E0E5EC] text-[#3D4852] relative">
-        <div className="flex items-center justify-between p-3 px-6 border-b border-black/5 flex-shrink-0 bg-[#E0E5EC] gap-4">
+    <div className="fixed inset-0 z-[100] flex flex-col p-2 sm:p-3 bg-black/75 backdrop-blur-xl animate-in fade-in duration-200 overflow-hidden">
+      <div className="w-full h-full max-h-screen neumorphic-card rounded-2xl sm:rounded-[2.5rem] flex flex-col overflow-hidden bg-[#E0E5EC] text-[#3D4852] relative">
+        <div className="flex items-center justify-between p-3 px-4 sm:px-6 border-b border-black/5 flex-shrink-0 bg-[#E0E5EC] gap-4">
           <div className="flex items-center gap-3 flex-1 max-w-3xl">
             <button
               onClick={onClose}
@@ -611,8 +611,8 @@ ${networkSummary || 'No network activity logged.'}`;
             </div>
             
             {/* Browser Address Bar */}
-            <div className="flex items-center gap-2 flex-1 neumorphic-inset rounded-2xl px-3 py-1.5">
-              <button onClick={refreshApp} title="Refresh / Load URL" className="cursor-pointer text-[#6B7280] hover:text-[#3D4852]">
+            <div className="flex items-center gap-2 flex-1 neumorphic-inset rounded-2xl px-3 py-1.5 min-w-0">
+              <button onClick={refreshApp} title="Refresh / Load URL" className="cursor-pointer text-[#6B7280] hover:text-[#3D4852] shrink-0">
                 <RotateCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
               </button>
               <input
@@ -620,7 +620,7 @@ ${networkSummary || 'No network activity logged.'}`;
                 value={sandboxUrl}
                 onChange={(e) => setSandboxUrl(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && refreshApp()}
-                className="w-full bg-transparent text-xs font-mono font-bold text-[#3D4852] outline-none"
+                className="w-full bg-transparent text-xs font-mono font-bold text-[#3D4852] outline-none truncate"
                 placeholder="https://preview.clarifyai.app/projects/..."
               />
               <button
@@ -694,9 +694,9 @@ ${networkSummary || 'No network activity logged.'}`;
           </div>
         </div>
 
-        <div className="flex-1 min-h-0 bg-[#E0E5EC] p-6 flex justify-center items-center overflow-hidden">
+        <div className="flex-1 min-h-0 bg-[#E0E5EC] p-3 sm:p-4 flex justify-center items-center overflow-hidden">
           {activeTab === 'preview' ? (
-            <div className={`${previewWidth} h-full neumorphic-inset rounded-3xl overflow-hidden flex flex-col transition-all duration-300 relative bg-white`}>
+            <div className={`${previewWidth} h-full min-h-0 neumorphic-inset rounded-3xl overflow-hidden flex flex-col transition-all duration-300 relative bg-white`}>
               {isAnnotatingMode && (
                 <div
                   onMouseMove={handleOverlayMouseMove}
