@@ -7,13 +7,21 @@ const normalizeColumns = (cols) => {
   if (!cols || !Array.isArray(cols) || cols.length === 0) return DEFAULT_COLUMNS;
   return cols.map((col, cIdx) => {
     const rawTasks = col.tasks || col.cards || [];
-    const tasks = rawTasks.map((t, tIdx) => ({
-      id: t.id || t._id || `task-${cIdx}-${tIdx}-${Date.now()}`,
-      text: t.text || t.title || t.description || 'Untitled Task',
-      completed: Boolean(t.completed || t.status === 'done')
-    }));
+    const tasks = rawTasks.map((t, tIdx) => {
+      const rawId = t.id || t._id;
+      const taskId = rawId ? String(rawId) : `task-${cIdx}-${tIdx}-${Date.now()}`;
+      return {
+        id: taskId,
+        _id: taskId,
+        text: t.text || t.title || t.description || 'Untitled Task',
+        status: t.status || (t.completed || col.title === 'Done' ? 'done' : 'todo'),
+        completed: Boolean(t.completed || t.status === 'done' || t.status === 'complete')
+      };
+    });
+    const colId = col.id || col._id ? String(col.id || col._id) : `col-${cIdx}-${Date.now()}`;
     return {
-      id: col.id || col._id || `col-${cIdx}-${Date.now()}`,
+      id: colId,
+      _id: colId,
       title: col.title || `Column ${cIdx + 1}`,
       tasks
     };
