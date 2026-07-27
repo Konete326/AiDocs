@@ -50,10 +50,16 @@ const notify = (userId, title, message, projectId) => Notification.create({ user
 const resolveProject = (userId, projectId) => projectId ? Project.findOne({ _id: projectId, userId }) : Project.findOne({ userId }).sort({ updatedAt: -1 });
 
 const saveMcpChatMessage = async (project, userPrompt, assistantReply) => {
-  if (!project.chatHistory) project.chatHistory = [];
-  project.chatHistory.push({ role: 'user', content: userPrompt, isMcpAgent: true });
-  project.chatHistory.push({ role: 'assistant', content: assistantReply, isMcpAgent: true });
-  await project.save();
+  const newMessages = [
+    { role: 'user', content: userPrompt, isMcpAgent: true },
+    { role: 'assistant', content: assistantReply, isMcpAgent: true }
+  ];
+  await Project.findByIdAndUpdate(
+    project._id,
+    { $push: { chatHistory: { $each: newMessages } } },
+    { new: true }
+  ).catch(err => console.error('[saveMcpChatMessage] Atomic push error:', err.message));
+
   const { broadcastChatUpdate } = require('./eventBroadcaster');
   broadcastChatUpdate(project._id);
 };
