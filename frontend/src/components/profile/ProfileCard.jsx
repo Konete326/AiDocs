@@ -59,14 +59,14 @@ const ProfileCard = ({
       <ProfileInfoLinks user={user} memberSince={memberSince} />
 
       {!isEditing && (
-        <div className="mt-4 space-y-2">
-          <button onClick={onResetPassword} className="w-full neumorphic-btn rounded-2xl px-4 py-2.5 flex items-center gap-3 text-[#6B7280] hover:text-[#3D4852] transition-all active:scale-95 cursor-pointer">
-            <KeyRound className="w-4 h-4" />
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <button onClick={onResetPassword} className="neumorphic-btn rounded-2xl px-3 py-2.5 flex items-center gap-2 text-[#6B7280] hover:text-[#3D4852] transition-all active:scale-95 cursor-pointer justify-center">
+            <KeyRound className="w-4 h-4 flex-shrink-0" />
             <span className="text-xs font-medium">Reset Password</span>
           </button>
-          <button onClick={onLogout} className="w-full neumorphic-btn rounded-2xl px-4 py-2.5 flex items-center gap-3 text-rose-500 hover:text-rose-600 transition-all active:scale-95 cursor-pointer">
-            <LogOut className="w-4 h-4" />
-            <span className="text-xs font-medium">Logout Account</span>
+          <button onClick={onLogout} className="neumorphic-btn rounded-2xl px-3 py-2.5 flex items-center gap-2 text-rose-500 hover:text-rose-600 transition-all active:scale-95 cursor-pointer justify-center">
+            <LogOut className="w-4 h-4 flex-shrink-0" />
+            <span className="text-xs font-medium">Logout</span>
           </button>
         </div>
       )}
