@@ -96,29 +96,6 @@ const callProvider = async (provider, prompt, max_tokens = 2048) => {
   }
 };
 
-const buildFallbackDoc = (docType, prompt) => {
-  const title = docType.toUpperCase();
-  return `# ${title} Specification\n\n` +
-    `## Executive Overview\n` +
-    `This ${title} document provides comprehensive specification and architecture guidelines for the application based on user requirements.\n\n` +
-    `## System Requirements & Architecture\n` +
-    `- **Core Objective:** Deliver production-ready features with high availability and seamless user experience.\n` +
-    `- **Scalability Plan:** Support modular extensions, caching layers, and responsive UI components.\n` +
-    `- **Security Standards:** Enforce JWT authentication, HTTPS endpoints, input validation, and role-based access control.\n\n` +
-    `## Technical Scope\n` +
-    `\`\`\`json\n` +
-    `{\n` +
-    `  "docType": "${docType}",\n` +
-    `  "status": "Generated via technical architecture system",\n` +
-    `  "version": "1.0.0"\n` +
-    `}\n` +
-    `\`\`\`\n\n` +
-    `## Implementation Guidelines\n` +
-    `1. Modular component hierarchy with reusable UI elements.\n` +
-    `2. REST API contracts with structured JSON payload validations.\n` +
-    `3. End-to-end telemetry and error handling middleware.\n`;
-};
-
 exports.generateText = async (prompt, docType, max_tokens = 2048) => {
   const startTime = Date.now();
 
@@ -137,13 +114,11 @@ exports.generateText = async (prompt, docType, max_tokens = 2048) => {
     }
   }
 
-  // Graceful fallback if external AI APIs rate limit or fail
-  console.warn(`[AIService] Using technical fallback for (${docType})`);
-  return { 
-    content: buildFallbackDoc(docType, prompt), 
-    modelUsed: 'FALLBACK_GENERATOR', 
-    generationTimeMs: Date.now() - startTime 
-  };
+  throw new AppError(
+    `AI generation failed for "${docType}" — all providers are currently unavailable. Please try again in a few minutes.`,
+    503,
+    'AI_UNAVAILABLE'
+  );
 };
 
 exports.generateChat = async (messages) => {
