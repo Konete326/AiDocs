@@ -47,13 +47,8 @@ export default function ProjectChat() {
   useEffect(() => {
     if (!id) return;
     let eventSource;
-    const initSSE = async () => {
-      let token = getAccessToken();
-      if (!token) {
-        try { token = await refreshAccessTokenSilent(); } catch {}
-      }
-      if (!token) return;
-      eventSource = new EventSource(`/api/projects/${id}/events?token=${token}`);
+    try {
+      eventSource = new EventSource(`/api/projects/${id}/events`, { withCredentials: true });
       eventSource.onmessage = async (e) => {
         try {
           const data = JSON.parse(e.data);
@@ -63,8 +58,7 @@ export default function ProjectChat() {
           }
         } catch {}
       };
-    };
-    initSSE();
+    } catch {}
     return () => { if (eventSource) eventSource.close(); };
   }, [id]);
 

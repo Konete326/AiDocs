@@ -41,8 +41,7 @@ export const useKanban = (projectId) => {
     };
     fetchProject();
 
-    const token = localStorage.getItem('token');
-    const eventSource = new EventSource(`/api/projects/${projectId}/events?token=${token}`);
+    const eventSource = new EventSource(`/api/projects/${projectId}/events`, { withCredentials: true });
 
     eventSource.onmessage = (e) => {
       try {

@@ -132,8 +132,7 @@ const LiveSandboxModal = ({ isOpen, onClose, project, initialUrl }) => {
 
     let eventSource;
     try {
-      const token = api.getAccessToken ? api.getAccessToken() : '';
-      eventSource = new EventSource(`/api/projects/${project._id}/events?token=${token}`);
+      eventSource = new EventSource(`/api/projects/${project._id}/events`, { withCredentials: true });
       eventSource.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);

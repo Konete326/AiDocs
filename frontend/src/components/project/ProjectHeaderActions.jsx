@@ -18,16 +18,8 @@ const ProjectHeaderActions = ({ project }) => {
     if (!project?._id) return;
 
     let eventSource;
-    const initStream = async () => {
-      let token = getAccessToken();
-      if (!token) {
-        try {
-          token = await refreshAccessTokenSilent();
-        } catch (err) {}
-      }
-      if (!token) return;
-
-      eventSource = new EventSource(`/api/projects/${project._id}/events?token=${token}`);
+    try {
+      eventSource = new EventSource(`/api/projects/${project._id}/events`, { withCredentials: true });
 
       eventSource.onmessage = (e) => {
         try {
@@ -43,9 +35,7 @@ const ProjectHeaderActions = ({ project }) => {
           }
         } catch (err) {}
       };
-    };
-
-    initStream();
+    } catch (err) {}
 
     return () => {
       if (eventSource) eventSource.close();
