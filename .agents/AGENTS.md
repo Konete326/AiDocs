@@ -22,3 +22,9 @@
 
 1. **Auto-Register Live Sandbox Link**:
    - As soon as dev server (`npm run dev` or `npm start` at `http://localhost:5173` or `http://localhost:3000`) is launched in the background, IMMEDIATELY report the live URL via `clarifyai_report_agent_activity` so ClarifyAI's Live Sandbox Modal opens automatically to render the live web app.
+
+## Rule 5 — Background Timer & Auto-Wakeup Directive
+
+1. **Background Schedule Timer for Real-Time Fixes**:
+   - IMMEDIATELY after reporting `liveUrl` via `clarifyai_report_agent_activity`, set a background timer using the `schedule` tool (`schedule(DurationSeconds=120, Prompt="Check ClarifyAI Kanban board and AI Co-founder for new Live Sandbox fixes or user requests")`).
+   - This ensures the Agent automatically wakes up to process any new "AI Fix" requests, annotations, or Kanban task updates sent from the ClarifyAI web application.
