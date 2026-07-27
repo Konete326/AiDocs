@@ -34,7 +34,7 @@ const Profile = () => {
       <div className="flex-1 flex flex-col pt-20 px-4 pb-3 md:px-8 min-h-0">
         <div className="max-w-7xl w-full mx-auto flex flex-col flex-1 min-h-0">
 
-          <div className="flex items-center justify-between mb-3 flex-shrink-0">
+          <div className="flex items-center justify-between mb-3 mt-2 flex-shrink-0">
             <button
               onClick={() => navigate('/dashboard')}
               className="neumorphic-btn rounded-2xl px-4 py-2 flex items-center gap-2 text-xs text-[#3D4852] font-bold cursor-pointer"
