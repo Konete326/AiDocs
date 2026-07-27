@@ -1150,28 +1150,28 @@ ${networkSummary || 'No network activity logged.'}`;
                 <div className="flex items-center gap-2.5">
                   <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
                   <p className="text-xs font-semibold text-[#3D4852] leading-relaxed">
-                    <strong>Antigravity</strong> ya koi bhi AI coding tool (Claude, Cursor) abhi is project se connected nahi hai.
+                    <strong>Antigravity Agent</strong> (or AI coding tools like Claude Code & Cursor) is currently not connected to this project.
                   </p>
                 </div>
                 <p className="text-[11px] text-[#6B7280] font-medium leading-relaxed pl-6">
-                  AI Fix feature ko kaam karne ke liye MCP (Model Context Protocol) connection active honi chahiye. Jab agent connected hoga, yeh automatically live sandbox se tasks lega aur fix karta rahe ga.
+                  The AI Fix feature requires an active Model Context Protocol (MCP) connection. Once connected, your AI agent will automatically receive feedback pins from the live sandbox and resolve issues in real time.
                 </p>
               </div>
 
               <div className="flex flex-col gap-2">
-                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Connect karne ke liye:</p>
+                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">How to Connect:</p>
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/60 border border-slate-200/80">
                     <div className="w-5 h-5 rounded-full bg-[#6C63FF] text-white flex items-center justify-center text-[10px] font-extrabold shrink-0">1</div>
-                    <p className="text-[11px] font-medium text-[#3D4852]">Antigravity IDE ya Claude Code open karo</p>
+                    <p className="text-[11px] font-medium text-[#3D4852]">Open Antigravity IDE or Claude Code</p>
                   </div>
                   <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/60 border border-slate-200/80">
                     <div className="w-5 h-5 rounded-full bg-[#6C63FF] text-white flex items-center justify-center text-[10px] font-extrabold shrink-0">2</div>
-                    <p className="text-[11px] font-medium text-[#3D4852]">ClarifyAI MCP server ko connect karo aur project open karo</p>
+                    <p className="text-[11px] font-medium text-[#3D4852]">Connect the ClarifyAI MCP server & open your project workspace</p>
                   </div>
                   <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/60 border border-slate-200/80">
                     <div className="w-5 h-5 rounded-full bg-[#6C63FF] text-white flex items-center justify-center text-[10px] font-extrabold shrink-0">3</div>
-                    <p className="text-[11px] font-medium text-[#3D4852]">Connection ke baad dobara "AI Fix" button press karo</p>
+                    <p className="text-[11px] font-medium text-[#3D4852]">Click "AI Fix" again after establishing connection</p>
                   </div>
                 </div>
               </div>
@@ -1181,7 +1181,7 @@ ${networkSummary || 'No network activity logged.'}`;
                   onClick={() => setIsMCPAlertOpen(false)}
                   className="px-4 py-2 rounded-xl text-xs font-bold text-[#6B7280] hover:text-[#3D4852] cursor-pointer"
                 >
-                  Theek Hai
+                  Dismiss
                 </button>
                 <button
                   onClick={() => {
@@ -1191,7 +1191,7 @@ ${networkSummary || 'No network activity logged.'}`;
                   className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white px-5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer shadow-sm"
                 >
                   <Zap className="w-3.5 h-3.5" />
-                  <span>Setup Guide Dekho</span>
+                  <span>View Setup Guide</span>
                 </button>
               </div>
             </div>
