@@ -46,20 +46,25 @@ export default function ProjectChat() {
 
   useEffect(() => {
     if (!id) return;
+    let isMounted = true;
     let eventSource;
     try {
       eventSource = new EventSource(`/api/projects/${id}/events`, { withCredentials: true });
       eventSource.onmessage = async (e) => {
+        if (!isMounted) return;
         try {
           const data = JSON.parse(e.data);
           if (data.type === 'chat_updated') {
             const history = await getChatHistory(id);
-            if (history && history.length > 0) setMessages(history);
+            if (isMounted && history && history.length > 0) setMessages(history);
           }
         } catch {}
       };
     } catch {}
-    return () => { if (eventSource) eventSource.close(); };
+    return () => {
+      isMounted = false;
+      if (eventSource) eventSource.close();
+    };
   }, [id]);
 
   useEffect(() => {
@@ -69,15 +74,20 @@ export default function ProjectChat() {
   const handleSend = async (text, attachments = []) => {
     if ((!text.trim() && attachments.length === 0) || isSending) return;
     const userMsg = { role: 'user', content: text, attachments };
+    const thinkingMsg = { role: 'assistant', content: '...', isThinking: true, userQuery: text };
     const updated = [...messages, userMsg];
-    setMessages(updated);
+    setMessages([...updated, thinkingMsg]);
     setIsSending(true);
     setError('');
 
     try {
       const reply = await sendChatMessage(id, updated);
-      setMessages(prev => [...prev, { role: 'assistant', content: reply }]);
+      setMessages(prev => {
+        const filtered = prev.filter(m => !m.isThinking);
+        return [...filtered, { role: 'assistant', content: reply, userQuery: text }];
+      });
     } catch (err) {
+      setMessages(prev => prev.filter(m => !m.isThinking));
       const raw = err.response?.data?.error;
       let friendly = 'Connection temporarily delayed. Please try sending again!';
       if (typeof raw === 'string' && !raw.includes('timed out') && !raw.includes('Socket') && !raw.includes('connect') && !raw.includes('503')) {
