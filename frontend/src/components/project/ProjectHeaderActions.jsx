@@ -78,13 +78,6 @@ const ProjectHeaderActions = ({ project }) => {
           <span className="text-xs sm:text-sm font-bold">Live Sandbox</span>
         </button>
 
-        <button
-          onClick={() => navigate(`/projects/${project._id}/workspace`)}
-          className="neumorphic-btn rounded-2xl px-4 py-2 flex items-center gap-2 cursor-pointer flex-shrink-0"
-        >
-          <LayoutGrid className="w-4 h-4 text-[#6C63FF]" />
-          <span className="text-xs sm:text-sm text-[#3D4852] font-bold">Workspace</span>
-        </button>
 
         <button
           onClick={() => navigate(`/projects/${project._id}/chat`)}
@@ -105,6 +98,17 @@ const ProjectHeaderActions = ({ project }) => {
 
           {isDropdownOpen && (
             <div className="absolute right-0 mt-2 w-52 bg-[#E0E5EC] rounded-2xl p-2 z-50 flex flex-col gap-1 border border-white/60 shadow-[9px_9px_16px_rgba(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)]">
+              <button
+                onClick={() => {
+                  navigate(`/projects/${project._id}/workspace`);
+                  setIsDropdownOpen(false);
+                }}
+                className="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm text-[#3D4852] font-bold hover:bg-[#d1d7e0] flex items-center gap-2 transition-colors cursor-pointer"
+              >
+                <LayoutGrid className="w-4 h-4 text-[#6C63FF]" />
+                <span>Workspace</span>
+              </button>
+
               <button
                 onClick={() => {
                   navigate(`/projects/${project._id}/stack`);

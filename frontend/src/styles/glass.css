@@ -119,16 +119,24 @@ select:focus,
 }
 
 .text-white,
+.text-white\/90,
+.text-white\/80,
+.text-white\/70,
+.text-white\/60,
+.text-white\/50,
+.text-white\/45,
+.text-white\/40,
+.text-white\/30,
+.text-white\/20,
+.text-white\/10,
 .text-slate-900,
 .text-slate-800 {
   color: #3D4852 !important;
 }
 
-.text-white\/60,
-.text-white\/70,
-.text-white\/80,
 .text-slate-600,
-.text-slate-500 {
+.text-slate-500,
+.text-slate-400 {
   color: #6B7280 !important;
 }
 
@@ -254,10 +262,12 @@ nav .max-w-7xl:hover,
 
 .liquid-glass.no-hover:hover {
   transform: none !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 9px 9px 16px rgba(163, 177, 198, 0.6), -9px -9px 16px rgba(255, 255, 255, 0.5) !important;
+  transition: none !important;
 }
 
 .liquid-glass-strong.no-hover:hover {
   transform: none !important;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.07) !important;
+  box-shadow: 12px 12px 20px rgba(163, 177, 198, 0.7), -12px -12px 20px rgba(255, 255, 255, 0.6) !important;
+  transition: none !important;
 }

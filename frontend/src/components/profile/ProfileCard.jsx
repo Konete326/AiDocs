@@ -18,7 +18,7 @@ const ProfileCard = ({
           onUpload={onAvatarUpload}
         />
         {isUploadingAvatar && (
-          <div className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center">
+          <div className="absolute inset-0 rounded-full bg-black/20 flex items-center justify-center">
             <LoadingSpinner size="md" />
           </div>
         )}
@@ -27,26 +27,26 @@ const ProfileCard = ({
       <div className="mt-10 w-full flex flex-col items-center text-center">
         {isEditing ? (
           <div className="w-full space-y-4">
-            <div className="liquid-glass no-hover rounded-xl px-4 py-2">
-              <input type="text" value={editData.displayName} onChange={(e) => onChange('displayName', e.target.value)} placeholder="Your name" className="bg-transparent text-white placeholder:text-white/40 outline-none w-full text-center text-2xl font-medium" />
+            <div className="neumorphic-inset rounded-xl px-4 py-2">
+              <input type="text" value={editData.displayName} onChange={(e) => onChange('displayName', e.target.value)} placeholder="Your name" className="bg-transparent text-[#3D4852] placeholder:text-[#6B7280] outline-none w-full text-center text-2xl font-medium" />
             </div>
-            {saveError && <p className="text-xs text-white/50">{saveError}</p>}
+            {saveError && <p className="text-xs text-rose-600">{saveError}</p>}
             <div className="flex gap-3 justify-center pt-2">
-              <button onClick={onSave} disabled={isSaving} className="liquid-glass-strong rounded-full px-6 py-2 text-sm text-white hover:scale-105 transition-transform cursor-pointer flex items-center gap-2">
+              <button onClick={onSave} disabled={isSaving} className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white rounded-full px-6 py-2 text-sm font-semibold hover:scale-105 transition-transform cursor-pointer flex items-center gap-2 shadow-md">
                 {isSaving ? <LoadingSpinner size="sm" /> : 'Save Changes'}
               </button>
-              <button onClick={onCancel} className="liquid-glass rounded-full px-6 py-2 text-sm text-white/70 hover:scale-105 transition-transform cursor-pointer">Cancel</button>
+              <button onClick={onCancel} className="neumorphic-btn rounded-full px-6 py-2 text-sm text-[#6B7280] hover:scale-105 transition-transform cursor-pointer">Cancel</button>
             </div>
           </div>
         ) : (
           <>
-            <h3 className="text-2xl font-medium text-white">{user?.displayName || 'User'}</h3>
+            <h3 className="text-2xl font-medium text-[#3D4852]">{user?.displayName || 'User'}</h3>
             <div className="mt-1">
               <SpecialText
                 inView={true}
                 speed={20}
                 delay={0.5}
-                className="text-[10px] uppercase tracking-[0.35em] text-white/45"
+                className="text-[10px] uppercase tracking-[0.35em] text-[#6B7280]"
               >
                 ClarifyAI Member
               </SpecialText>
@@ -59,18 +59,17 @@ const ProfileCard = ({
 
       {!isEditing && (
         <div className="w-full mt-6 space-y-6">
-          {/* Current Plan Section */}
-          <div className="liquid-glass no-hover rounded-3xl p-6 border border-white/5 bg-white/[0.01]">
+          <div className="neumorphic-inset rounded-3xl p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="flex flex-col">
-                <span className="text-[10px] uppercase tracking-widest text-white/30 mb-1">Current Plan</span>
-                <span className="text-xl font-semibold text-white capitalize">{subscription?.plan || 'Free'}</span>
+                <span className="text-[10px] uppercase tracking-widest text-[#6B7280] mb-1">Current Plan</span>
+                <span className="text-xl font-semibold text-[#3D4852] capitalize">{subscription?.plan || 'Free'}</span>
               </div>
-              <div className="liquid-glass-strong rounded-full px-3 py-1 text-[10px] text-blue-400 font-bold border border-blue-500/20">
+              <div className="neumorphic-btn rounded-full px-3 py-1 text-[10px] text-[#6C63FF] font-bold">
                 ACTIVE
               </div>
             </div>
-            <p className="text-xs text-white/40 font-light">
+            <p className="text-xs text-[#6B7280]">
               Your active subscription tier.
             </p>
           </div>
@@ -78,17 +77,17 @@ const ProfileCard = ({
           <div className="pt-2 space-y-3">
             <button
               onClick={onResetPassword}
-              className="w-full liquid-glass rounded-2xl px-4 py-3 flex items-center gap-3 text-white/70 hover:text-white hover:bg-white/5 transition-all active:scale-95 cursor-pointer"
+              className="w-full neumorphic-btn rounded-2xl px-4 py-3 flex items-center gap-3 text-[#6B7280] hover:text-[#3D4852] transition-all active:scale-95 cursor-pointer"
             >
-              <KeyRound className="w-5 h-5 opacity-70" />
+              <KeyRound className="w-5 h-5" />
               <span className="text-sm font-medium">Reset Password</span>
             </button>
 
             <button
               onClick={onLogout}
-              className="w-full liquid-glass rounded-2xl px-4 py-3 flex items-center gap-3 text-red-400/60 hover:text-red-400 hover:bg-red-400/5 transition-all active:scale-95 cursor-pointer"
+              className="w-full neumorphic-btn rounded-2xl px-4 py-3 flex items-center gap-3 text-rose-500 hover:text-rose-600 transition-all active:scale-95 cursor-pointer"
             >
-              <LogOut className="w-5 h-5 opacity-70" />
+              <LogOut className="w-5 h-5" />
               <span className="text-sm font-medium">Logout Account</span>
             </button>
           </div>

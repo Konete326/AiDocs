@@ -135,13 +135,12 @@ ${ds.prompt || ds.tagline || ''}
   );
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-white">
-      <div className="fixed inset-0 bg-white z-[0]" />
-      <div className="relative z-10 pt-20 px-4 py-4 md:px-8">
-        <div className="max-w-7xl mx-auto">
+    <div className="h-screen w-full flex flex-col bg-[#E0E5EC] overflow-hidden">
+      <div className="flex-1 flex flex-col pt-20 px-4 pb-3 md:px-8 min-h-0">
+        <div className="max-w-7xl w-full mx-auto flex flex-col flex-1 min-h-0">
 
           {isGenerating && viewingPartial && (
-            <div className="liquid-glass rounded-2xl px-6 py-3 mb-6 flex items-center justify-between border border-blue-200 bg-blue-50/50">
+            <div className="liquid-glass rounded-2xl px-6 py-3 mb-3 flex items-center justify-between border border-blue-200 bg-blue-50/50 flex-shrink-0">
               <div className="flex items-center gap-3">
                 <div className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse" />
                 <span className="text-sm font-semibold text-slate-800">
@@ -157,14 +156,16 @@ ${ds.prompt || ds.tagline || ''}
             </div>
           )}
 
-          <ProjectHeader
-            project={project}
-            onBack={() => navigate('/dashboard')}
-            subscription={subscription}
-            onProjectUpdated={(updated) => setProject(updated)}
-          />
+          <div className="flex-shrink-0">
+            <ProjectHeader
+              project={project}
+              onBack={() => navigate('/dashboard')}
+              subscription={subscription}
+              onProjectUpdated={(updated) => setProject(updated)}
+            />
+          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4 lg:h-[calc(100vh-230px)] min-h-[500px] lg:min-h-0">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4 flex-1 min-h-0">
 
             <div className="md:col-span-1 lg:col-span-3 h-full overflow-hidden rounded-3xl border border-slate-200 shadow-sm">
               <DocsList
@@ -175,7 +176,7 @@ ${ds.prompt || ds.tagline || ''}
               />
             </div>
 
-            <div className="md:col-span-1 lg:col-span-5 h-full overflow-hidden rounded-3xl">
+            <div className="md:col-span-1 lg:col-span-5 h-full overflow-hidden rounded-3xl border border-slate-200 shadow-sm">
               {selectedDoc ? (
                 <DocumentViewer
                   document={activeDoc}

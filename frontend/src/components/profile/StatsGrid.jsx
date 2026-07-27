@@ -16,9 +16,9 @@ const StatsGrid = ({ projectsCount, totalDocs, plan }) => {
           whileInView={{ opacity: 1, y: 0 }}
           className="liquid-glass no-hover rounded-2xl p-5 cursor-default"
         >
-          <p className="text-xs uppercase tracking-[0.25em] text-white/40">{stat.label}</p>
-          <p className="text-2xl font-medium text-white mt-1">{stat.value}</p>
-          <p className="text-sm text-white/60">{stat.desc}</p>
+          <p className="text-xs uppercase tracking-[0.25em] text-[#6B7280]">{stat.label}</p>
+          <p className="text-2xl font-bold text-[#3D4852] mt-1">{stat.value}</p>
+          <p className="text-sm text-[#6B7280]">{stat.desc}</p>
         </motion.div>
       ))}
     </div>

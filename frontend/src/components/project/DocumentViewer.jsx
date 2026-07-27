@@ -159,7 +159,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   };
 
   return (
-    <div className="neumorphic-card rounded-3xl flex flex-col h-full min-h-[450px] lg:min-h-0 overflow-hidden relative bg-[#E0E5EC] text-[#3D4852]">
+    <div className="neumorphic-card rounded-3xl flex flex-col h-full min-h-[450px] lg:min-h-0 overflow-hidden relative bg-[#E0E5EC] text-[#3D4852] border border-slate-200">
       <div className="sticky top-0 z-20 shrink-0 bg-[#E0E5EC] border-b border-black/5 grid grid-cols-12 items-center px-6 py-3.5 gap-1.5">
         <div className="col-span-12 sm:col-span-3 flex items-center gap-2.5 min-w-0">
           <p className="text-base sm:text-lg font-bold text-[#3D4852] truncate leading-tight">{DOC_LABELS[document.docType]}</p>
@@ -245,7 +245,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
           {renderButtons()}
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto px-6 py-6 font-medium text-[#3D4852]">
+      <div className={`flex-1 px-6 py-6 font-medium text-[#3D4852] ${isEditing ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
         {isEditing ? (
           <DocumentEditor content={editContent} onChange={setEditContent} saveError={saveError} />
         ) : renderedMarkdown}

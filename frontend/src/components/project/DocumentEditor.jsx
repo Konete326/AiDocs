@@ -1,11 +1,11 @@
 const DocumentEditor = ({ content, onChange, saveError }) => (
-  <div className="liquid-glass rounded-2xl p-4 h-full flex flex-col">
+  <div className="rounded-2xl h-full flex flex-col overflow-hidden">
     <textarea
-      className="bg-transparent text-white/80 text-sm leading-relaxed outline-none w-full resize-none font-mono flex-1 min-h-[500px]"
+      className="bg-[#d8dde6] text-[#3D4852] text-sm leading-relaxed outline-none w-full resize-none font-mono flex-1 p-4 rounded-2xl border border-slate-300 focus:border-[#6C63FF] transition-colors overflow-y-auto"
       value={content}
       onChange={(e) => onChange(e.target.value)}
     />
-    {saveError && <p className="text-xs text-white/50 mt-2">{saveError}</p>}
+    {saveError && <p className="text-xs text-rose-600 mt-2">{saveError}</p>}
   </div>
 );
 

@@ -41,31 +41,23 @@ button, [role="button"] {
   cursor: pointer;
 }
 
-html, body, #root, main {
-  min-height: 100%;
+html, body {
+  height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #E0E5EC !important;
-  color: #3D4852 !important;
+  background-color: #E0E5EC;
+  color: #3D4852;
+}
+
+#root {
+  height: 100%;
+  min-height: 100%;
 }
 
 body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #E0E5EC !important;
-  color: #3D4852 !important;
-}
-
-*:focus-visible {
-  outline: none !important;
-  box-shadow: 0 0 0 2px #FFFFFF, 0 0 0 4px #2563EB !important;
-}
-
-.min-h-screen.overflow-hidden,
-section.min-h-screen.overflow-hidden,
-div.min-h-screen.overflow-hidden {
-  overflow: visible !important;
 }
 
 /* Custom Scrollbar */
