@@ -11,6 +11,7 @@ const ProjectHeaderActions = ({ project }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSandboxOpen, setIsSandboxOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [agentLiveUrl, setAgentLiveUrl] = useState('');
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -34,6 +35,11 @@ const ProjectHeaderActions = ({ project }) => {
           if (data.type === 'kanban_update') {
             setIsSandboxOpen(true);
             toast.success(`Antigravity Agent updated task "${data.taskId || 'status'}" to ${data.status || 'done'}! Live Sandbox auto-opened.`);
+          }
+          if (data.type === 'live_sandbox' && data.liveUrl) {
+            setAgentLiveUrl(data.liveUrl);
+            setIsSandboxOpen(true);
+            toast.success(`🚀 Antigravity Dev Server running at ${data.liveUrl} — Live Sandbox auto-opened!`, { duration: 5000 });
           }
         } catch (err) {}
       };
@@ -160,7 +166,7 @@ const ProjectHeaderActions = ({ project }) => {
         </div>
       </div>
 
-      <LiveSandboxModal isOpen={isSandboxOpen} onClose={() => setIsSandboxOpen(false)} project={project} />
+      <LiveSandboxModal isOpen={isSandboxOpen} onClose={() => setIsSandboxOpen(false)} project={project} initialUrl={agentLiveUrl} />
     </>
   
   );

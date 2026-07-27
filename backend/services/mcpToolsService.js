@@ -3,7 +3,7 @@ const Document = require('../models/Document');
 const Notification = require('../models/Notification');
 const { evaluateCode } = require('./mcpRulesEvaluator');
 
-const FILE_MAPPING = { prd: 'docs/PRD.md', srd: 'docs/SRD.md', techStack: 'docs/TechStack.md', dbSchema: 'docs/DatabaseSchema.md', userFlows: 'docs/UserFlows.md', mvpPlan: 'docs/MVPPlan.md', folderStructure: 'docs/FolderStructure.md', claudeContext: 'CLAUDE.md', agentSystemPrompt: 'AGENT_RULES.md' };
+const FILE_MAPPING = { prd: 'clarifyai/PRD.md', srd: 'clarifyai/SRD.md', techStack: 'clarifyai/TechStack.md', dbSchema: 'clarifyai/DatabaseSchema.md', userFlows: 'clarifyai/UserFlows.md', mvpPlan: 'clarifyai/MVPPlan.md', folderStructure: 'clarifyai/FolderStructure.md', claudeContext: 'clarifyai/ClaudeContext.md', agentSystemPrompt: 'clarifyai/AgentSystemPrompts.md' };
 const DEFAULT_RULES = `# CONTINUOUS AUTONOMOUS ENGINE LOOP RULE (30-MINUTE TIMEOUT)
 - DO NOT stop or exit execution after initial project build!
 - Continuously query ClarifyAI AI Co-founder (clarifyai_get_next_step, clarifyai_ask_cofounder) to autonomously implement remaining Kanban tasks, refine features, and polish the application.
@@ -36,7 +36,7 @@ const TOOLS_MANIFEST = [
   { name: 'clarifyai_list_user_projects', description: 'List all projects owned by user.', inputSchema: { type: 'object', properties: {} } },
   { name: 'clarifyai_get_all_documents', description: 'Download all generated project docs directly to avoid wasting tokens.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
   { name: 'clarifyai_get_next_step', description: 'Get the single next step/task to build from the AI Co-founder & Project Manager.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
-  { name: 'clarifyai_report_agent_activity', description: 'Report live coding activity progress to ClarifyAI Kanban board in real time.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, currentTask: { type: 'string' }, activityDetails: { type: 'string' }, percentComplete: { type: 'number' } }, required: ['currentTask', 'activityDetails'] } },
+  { name: 'clarifyai_report_agent_activity', description: 'Report live coding activity progress to ClarifyAI Kanban board in real time. If liveUrl is provided (e.g. http://localhost:5173), ClarifyAI Live Sandbox Modal auto-opens to show the running app.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, currentTask: { type: 'string' }, activityDetails: { type: 'string' }, percentComplete: { type: 'number' }, liveUrl: { type: 'string', description: 'Live dev server URL e.g. http://localhost:5173 — triggers auto-open of Live Sandbox Modal in ClarifyAI' } }, required: ['currentTask', 'activityDetails'] } },
   { name: 'clarifyai_get_project_context', description: 'Fetch complete PRD, SRD, TRD context for project.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
   { name: 'clarifyai_get_kanban_tasks', description: 'Retrieve Kanban tasks for project.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' } } } },
   { name: 'clarifyai_update_task_status', description: 'Update status of a Kanban task.', inputSchema: { type: 'object', properties: { projectId: { type: 'string' }, taskId: { type: 'string' }, status: { type: 'string' } }, required: ['taskId', 'status'] } },
@@ -67,26 +67,39 @@ const handleToolCall = async (userId, toolName, args = {}) => {
     const docsMap = {};
     docs.forEach(d => { docsMap[d.docType] = d.content; });
 
-    const fileSuite = [
-      { path: 'docs/PRD.md', content: docsMap['prd'] || `# PRD Document\n\nProject: ${project.title}` },
-      { path: 'docs/SRD.md', content: docsMap['srd'] || `# SRD Document\n\nProject: ${project.title}` },
-      { path: 'docs/TechStack.md', content: docsMap['techStack'] || `# Tech Stack\n\nProject: ${project.title}` },
-      { path: 'docs/DatabaseSchema.md', content: docsMap['dbSchema'] || `# Database Schema\n\nProject: ${project.title}` },
-      { path: 'docs/UserFlows.md', content: docsMap['userFlows'] || `# User Flows\n\nProject: ${project.title}` },
-      { path: 'docs/MVPPlan.md', content: docsMap['mvpPlan'] || `# MVP Plan\n\nProject: ${project.title}` },
-      { path: 'docs/FolderStructure.md', content: docsMap['folderStructure'] || `# Folder Structure\n\nProject: ${project.title}` },
-      { path: 'docs/ClaudeContext.md', content: docsMap['claudeContext'] || `# Claude Context\n\nProject: ${project.title}` },
-      { path: 'docs/AgentSystemPrompts.md', content: docsMap['agentSystemPrompt'] || `# Agent Prompts\n\nProject: ${project.title}` },
-      { path: 'docs/rules.md', content: DEFAULT_RULES },
+    const isMern = (project.projectType === 'saas' || project.projectType === 'ecommerce' || project.projectType === 'marketplace') || (docsMap['techStack'] && docsMap['techStack'].toLowerCase().includes('express'));
+
+    const baseFiles = [
+      { path: 'clarifyai/PRD.md', content: docsMap['prd'] || `# PRD Document\n\nProject: ${project.title}` },
+      { path: 'clarifyai/SRD.md', content: docsMap['srd'] || `# SRD Document\n\nProject: ${project.title}` },
+      { path: 'clarifyai/TechStack.md', content: docsMap['techStack'] || `# Tech Stack\n\nProject: ${project.title}` },
+      { path: 'clarifyai/DatabaseSchema.md', content: docsMap['dbSchema'] || `# Database Schema\n\nProject: ${project.title}` },
+      { path: 'clarifyai/UserFlows.md', content: docsMap['userFlows'] || `# User Flows\n\nProject: ${project.title}` },
+      { path: 'clarifyai/MVPPlan.md', content: docsMap['mvpPlan'] || `# MVP Plan\n\nProject: ${project.title}` },
+      { path: 'clarifyai/FolderStructure.md', content: docsMap['folderStructure'] || `# Folder Structure\n\nProject: ${project.title}` },
+      { path: 'clarifyai/ClaudeContext.md', content: docsMap['claudeContext'] || `# Claude Context\n\nProject: ${project.title}` },
+      { path: 'clarifyai/AgentSystemPrompts.md', content: docsMap['agentSystemPrompt'] || `# Agent Prompts\n\nProject: ${project.title}` },
+      { path: 'clarifyai/DesignSystem.md', content: docsMap['designSystem'] || `# Design System\n\nProject: ${project.title}` },
+      { path: 'clarifyai/ProjectSkills.md', content: docsMap['projectSkills'] || `# Project Skills\n\nProject: ${project.title}` },
+      { path: 'clarifyai/AgentRules.md', content: DEFAULT_RULES },
       { path: 'CLAUDE.md', content: docsMap['claudeContext'] || `# Claude Context\n\nProject: ${project.title}` },
-      { path: 'AGENT_RULES.md', content: docsMap['agentSystemPrompt'] || DEFAULT_RULES },
-      { path: 'rules.md', content: DEFAULT_RULES },
-      { path: '.agents/AGENTS.md', content: `# Agent Custom Rules — ${project.title}\n\n## Rule 1 — Non-Blocking Async Dependency Installations\n- Whenever long-running commands or package dependency installations (such as \`npm install\`, \`npx create-next-app\`, \`npm run build\`, etc.) are launched in background, DO NOT wait idle.\n- Immediately write source code files, React components, backend API routes, and database schemas while node_modules install in background.\n\n## Rule 2 — Mandatory Runtime Verification\n- Before completing any task, verify background installations finished cleanly and run empirical test or build commands (\`npm run build\` / dev server check) to confirm zero errors.\n\n## Rule 3 — Strictly Zero Code Comments\n- DO NOT write code comments (no // ..., {/* ... */}, /* ... */, # ...) in any generated source code files. Code must be 100% clean and comment-free.\n` }
+      { path: '.agents/AGENTS.md', content: `# Agent Custom Rules — ${project.title}\n\n## Rule 1 — Non-Blocking Async Dependency Installations\n- Whenever long-running commands or package dependency installations (such as \`npm install\`, \`npx create-next-app\`, \`npm run build\`, etc.) are launched in background, DO NOT wait idle.\n- Immediately write source code files, React components, backend API routes, and database schemas while node_modules install in background.\n\n## Rule 2 — Mandatory Runtime Verification\n- Before completing any task, verify background installations finished cleanly and run empirical test or build commands (\`npm run build\` / dev server check) to confirm zero errors.\n\n## Rule 3 — Strictly Zero Code Comments\n- DO NOT write code comments (no // ..., {/* ... */}, /* ... */, # ...) in any generated source code files.\n\n## Rule 4 — Live Sandbox Auto-Registration\n- As soon as dev server (npm run dev at http://localhost:5173 or http://localhost:3000) launches, IMMEDIATELY call clarifyai_report_agent_activity with liveUrl field set to the running URL.\n` }
     ];
 
+    const mernScaffoldFiles = isMern ? [
+      { path: 'frontend/.gitkeep', content: '' },
+      { path: 'backend/.gitkeep', content: '' }
+    ] : [];
+
+    const fileSuite = [...baseFiles, ...mernScaffoldFiles];
+
+    const structureNote = isMern
+      ? `MERN Project Structure:\n- frontend/   → React Vite app (npx -y create-vite@latest frontend --template react)\n- backend/    → Node.js + Express API server\n- clarifyai/  → All 12 ClarifyAI generated documents\n- CLAUDE.md   → AI coding agent context\n- .agents/AGENTS.md → Agent rules`
+      : `Project Structure:\n- clarifyai/  → All 12 ClarifyAI generated documents\n- CLAUDE.md   → AI coding agent context\n- .agents/AGENTS.md → Agent rules`;
+
     notify(userId, 'Autonomous Engine Boot', `Autonomous Engine started for "${project.title}"`, project._id);
-    await saveMcpChatMessage(project, '[Antigravity IDE Agent]: Triggered Autonomous Engine.', `Bootstrapped 13-doc package suite including docs/ folder, CLAUDE.md, AGENT_RULES.md, rules.md, and .agents/AGENTS.md.`);
-    return { content: [{ type: 'text', text: JSON.stringify({ CRITICAL_DIRECTIVE: 'MANDATORY STEP 1: WRITE ALL 13 UNZIPPED FILES BELOW DIRECTLY TO WORKSPACE FILES BEFORE ANY CODING.', STEP_2: 'RUN NON-BLOCKING BACKGROUND INSTALLATIONS AND IMMEDIATELY WRITE SOURCE CODE WHILE DEPENDENCIES INSTALL.', STEP_FINAL: 'VERIFY ALL BACKGROUND PROCESSES AND EXECUTE BUILD/TEST VERIFICATION.', projectTitle: project.title, files: fileSuite }, null, 2) }] };
+    await saveMcpChatMessage(project, '[Antigravity IDE Agent]: Triggered Autonomous Engine.', `Bootstrapped 12-doc package suite in clarifyai/ folder, CLAUDE.md, and .agents/AGENTS.md.`);
+    return { content: [{ type: 'text', text: JSON.stringify({ CRITICAL_DIRECTIVE: 'MANDATORY STEP 1: WRITE ALL UNZIPPED FILES BELOW DIRECTLY TO WORKSPACE BEFORE ANY CODING. ALL CLARIFYAI DOCS GO INTO clarifyai/ FOLDER.', STEP_2: 'RUN NON-BLOCKING BACKGROUND INSTALLATIONS AND IMMEDIATELY WRITE SOURCE CODE WHILE DEPENDENCIES INSTALL.', STEP_FINAL: 'CALL clarifyai_report_agent_activity WITH liveUrl FIELD AS SOON AS DEV SERVER STARTS TO AUTO-OPEN LIVE SANDBOX MODAL IN CLARIFYAI.', projectTitle: project.title, projectType: project.projectType, structureNote, files: fileSuite }, null, 2) }] };
   }
 
   if (toolName === 'clarifyai_get_next_step') {
@@ -100,9 +113,16 @@ const handleToolCall = async (userId, toolName, args = {}) => {
   }
 
   if (toolName === 'clarifyai_report_agent_activity') {
+    const liveUrl = args.liveUrl || null;
     notify(userId, 'Live Agent Activity', `Antigravity working on "${args.currentTask}": ${args.activityDetails} (${args.percentComplete || 50}%)`, project._id);
-    await saveMcpChatMessage(project, `[Antigravity IDE Agent]: Active work report on "${args.currentTask}"`, `Progress: **${args.activityDetails}** (${args.percentComplete || 50}% completed). Updated live on Kanban board.`);
-    return { content: [{ type: 'text', text: `Activity logged on ClarifyAI Kanban board for "${args.currentTask}"` }] };
+    await saveMcpChatMessage(project, `[Antigravity IDE Agent]: Active work report on "${args.currentTask}"`, `Progress: **${args.activityDetails}** (${args.percentComplete || 50}% completed).${liveUrl ? ` Live preview running at: ${liveUrl}` : ''}`);
+    if (liveUrl) {
+      const { broadcastLiveSandbox } = require('./eventBroadcaster');
+      broadcastLiveSandbox(project._id, liveUrl);
+      project.livePreviewUrl = liveUrl;
+      await project.save().catch(() => {});
+    }
+    return { content: [{ type: 'text', text: `Activity logged on ClarifyAI. ${liveUrl ? `Live Sandbox Modal auto-opened at ${liveUrl}.` : ''}` }] };
   }
 
   if (toolName === 'clarifyai_get_project_context') {

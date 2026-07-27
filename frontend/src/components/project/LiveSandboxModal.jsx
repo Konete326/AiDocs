@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Play, RefreshCw, Smartphone, Monitor, Terminal, CheckCircle2, Globe, Activity, Trash2, Sparkles, Send, Loader2, Copy, Check, MousePointer, MessageSquare, ArrowLeft, Settings, Layers, Layout, ChevronLeft, ChevronRight, RotateCw, Home } from 'lucide-react';
+import { X, Play, RefreshCw, Smartphone, Monitor, Terminal, CheckCircle2, Globe, Activity, Trash2, Sparkles, Send, Loader2, Copy, Check, MousePointer, MessageSquare, ArrowLeft, Settings, Layers, Layout, ChevronLeft, ChevronRight, RotateCw, Home, WifiOff, Zap, AlertTriangle } from 'lucide-react';
 import api from '../../services/api';
 import { toast } from 'react-hot-toast';
 import logo from '../../assets/logo.png';
 import CustomAgentationSetupModal from './CustomAgentationSetupModal';
 
-const LiveSandboxModal = ({ isOpen, onClose, project }) => {
+const LiveSandboxModal = ({ isOpen, onClose, project, initialUrl }) => {
   const [device, setDevice] = useState('desktop');
   const [activeTab, setActiveTab] = useState('preview');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -28,6 +28,9 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
   const [pinPriority, setPinPriority] = useState('medium');
   const [isSetupWizardOpen, setIsSetupWizardOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isMCPConnected, setIsMCPConnected] = useState(false);
+  const [isMCPAlertOpen, setIsMCPAlertOpen] = useState(false);
+  const [isMCPChecking, setIsMCPChecking] = useState(false);
 
   const handleHistoryBack = () => {
     try {
@@ -76,23 +79,53 @@ const LiveSandboxModal = ({ isOpen, onClose, project }) => {
 
   useEffect(() => {
     if (project?._id) {
-      const defaultUrl = `https://example.com`;
+      const defaultUrl = initialUrl && initialUrl.trim() ? initialUrl.trim() : 'https://example.com';
       setSandboxUrl(defaultUrl);
       setActiveIframeUrl(defaultUrl);
       if (project.projectType === 'mobile' || project.projectType === 'react-native' || project.projectType === 'flutter') {
         setDevice('mobile');
       }
     }
-  }, [project?._id, project?.projectType]);
+  }, [project?._id, project?.projectType, initialUrl]);
 
   useEffect(() => {
     if (isOpen) {
       document.body.classList.add('sandbox-open');
+      checkMCPStatus();
     } else {
       document.body.classList.remove('sandbox-open');
     }
     return () => document.body.classList.remove('sandbox-open');
   }, [isOpen]);
+
+  const checkMCPStatus = async () => {
+    try {
+      const res = await api.get('/agent/mcp-status');
+      setIsMCPConnected(res.data?.data?.connected === true);
+    } catch {
+      setIsMCPConnected(false);
+    }
+  };
+
+  const handleAiFixClick = async () => {
+    if (isMCPChecking) return;
+    setIsMCPChecking(true);
+    try {
+      const res = await api.get('/agent/mcp-status');
+      const connected = res.data?.data?.connected === true;
+      setIsMCPConnected(connected);
+      if (connected) {
+        setIsAiModalOpen(true);
+      } else {
+        setIsMCPAlertOpen(true);
+      }
+    } catch {
+      setIsMCPConnected(false);
+      setIsMCPAlertOpen(true);
+    } finally {
+      setIsMCPChecking(false);
+    }
+  };
 
   useEffect(() => {
     if (!isOpen || !project?._id) return;
@@ -639,10 +672,11 @@ ${networkSummary || 'No network activity logged.'}`;
             </div>
 
             <button
-              onClick={() => setIsAiModalOpen(true)}
-              className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white rounded-xl px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shadow-sm"
+              onClick={handleAiFixClick}
+              disabled={isMCPChecking}
+              className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white rounded-xl px-3 py-1.5 flex items-center gap-1.5 text-xs font-bold transition-all cursor-pointer shadow-sm disabled:opacity-70"
             >
-              <Sparkles className="w-3.5 h-3.5" />
+              {isMCPChecking ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
               <span>AI Fix</span>
             </button>
 
@@ -1086,6 +1120,79 @@ ${networkSummary || 'No network activity logged.'}`;
                 >
                   {isSendingAi ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   <span>Send to AI Agents</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isMCPAlertOpen && (
+          <div className="absolute inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-150">
+            <div className="w-full max-w-md neumorphic-card rounded-3xl p-7 bg-[#E0E5EC] flex flex-col gap-5 text-[#3D4852] animate-in zoom-in-95 duration-200">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-amber-400/20 to-red-400/20 flex items-center justify-center shadow-[4px_4px_8px_rgba(163,177,198,0.6),-4px_-4px_8px_rgba(255,255,255,0.5)]">
+                    <WifiOff className="w-5 h-5 text-amber-500" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-extrabold text-[#3D4852]">MCP Not Connected</h4>
+                    <p className="text-[11px] text-[#6B7280] font-medium mt-0.5">Antigravity Agent Offline</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsMCPAlertOpen(false)}
+                  className="w-7 h-7 rounded-full neumorphic-btn flex items-center justify-center text-[#6B7280] hover:text-[#3D4852] cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-3 p-4 rounded-2xl bg-gradient-to-br from-amber-50/80 to-red-50/60 border border-amber-200/60 shadow-[inset_4px_4px_8px_rgba(163,177,198,0.4),inset_-4px_-4px_8px_rgba(255,255,255,0.5)]">
+                <div className="flex items-center gap-2.5">
+                  <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />
+                  <p className="text-xs font-semibold text-[#3D4852] leading-relaxed">
+                    <strong>Antigravity</strong> ya koi bhi AI coding tool (Claude, Cursor) abhi is project se connected nahi hai.
+                  </p>
+                </div>
+                <p className="text-[11px] text-[#6B7280] font-medium leading-relaxed pl-6">
+                  AI Fix feature ko kaam karne ke liye MCP (Model Context Protocol) connection active honi chahiye. Jab agent connected hoga, yeh automatically live sandbox se tasks lega aur fix karta rahe ga.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <p className="text-[10px] font-bold text-[#6B7280] uppercase tracking-wider">Connect karne ke liye:</p>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/60 border border-slate-200/80">
+                    <div className="w-5 h-5 rounded-full bg-[#6C63FF] text-white flex items-center justify-center text-[10px] font-extrabold shrink-0">1</div>
+                    <p className="text-[11px] font-medium text-[#3D4852]">Antigravity IDE ya Claude Code open karo</p>
+                  </div>
+                  <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/60 border border-slate-200/80">
+                    <div className="w-5 h-5 rounded-full bg-[#6C63FF] text-white flex items-center justify-center text-[10px] font-extrabold shrink-0">2</div>
+                    <p className="text-[11px] font-medium text-[#3D4852]">ClarifyAI MCP server ko connect karo aur project open karo</p>
+                  </div>
+                  <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/60 border border-slate-200/80">
+                    <div className="w-5 h-5 rounded-full bg-[#6C63FF] text-white flex items-center justify-center text-[10px] font-extrabold shrink-0">3</div>
+                    <p className="text-[11px] font-medium text-[#3D4852]">Connection ke baad dobara "AI Fix" button press karo</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setIsMCPAlertOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-bold text-[#6B7280] hover:text-[#3D4852] cursor-pointer"
+                >
+                  Theek Hai
+                </button>
+                <button
+                  onClick={() => {
+                    setIsMCPAlertOpen(false);
+                    setIsSetupWizardOpen(true);
+                  }}
+                  className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white px-5 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer shadow-sm"
+                >
+                  <Zap className="w-3.5 h-3.5" />
+                  <span>Setup Guide Dekho</span>
                 </button>
               </div>
             </div>

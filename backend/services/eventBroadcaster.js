@@ -48,9 +48,25 @@ const broadcastAnnotation = (projectId, data) => {
   }
 };
 
+const broadcastLiveSandbox = (projectId, liveUrl) => {
+  const projectClients = clients.get(projectId.toString());
+  if (projectClients && projectClients.size > 0) {
+    const payload = `data: ${JSON.stringify({ type: 'live_sandbox', liveUrl })}\n\n`;
+    projectClients.forEach(res => {
+      try {
+        res.write(payload);
+      } catch (err) {
+        console.error('SSE live_sandbox send error:', err);
+      }
+    });
+  }
+};
+
 module.exports = {
   eventEmitter,
   addClient,
   broadcastKanbanUpdate,
-  broadcastAnnotation
+  broadcastAnnotation,
+  broadcastLiveSandbox
 };
+

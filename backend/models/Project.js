@@ -34,9 +34,11 @@ const projectSchema = new mongoose.Schema(
     chatHistory: [{
       role: { type: String, enum: ['user', 'assistant'] },
       content: { type: String },
+      isMcpAgent: { type: Boolean, default: false },
       attachments: [{ type: Object }],
       createdAt: { type: Date, default: Date.now }
-    }]
+    }],
+    livePreviewUrl: { type: String, default: null }
   },
   { timestamps: true }
 );

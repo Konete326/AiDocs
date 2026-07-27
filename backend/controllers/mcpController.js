@@ -66,4 +66,15 @@ const deleteMcpKey = async (req, res) => {
   }
 };
 
-module.exports = { handleMcpRequest, getMcpConfig, regenerateMcpKey, deleteMcpKey };
+const getMcpStatus = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('lastMcpActivityAt mcpApiKey');
+    if (!user) return res.status(404).json({ success: false, error: 'User not found' });
+    const connected = !!(user.mcpApiKey && user.lastMcpActivityAt && (Date.now() - new Date(user.lastMcpActivityAt).getTime()) < 5 * 60 * 1000);
+    return res.status(200).json({ success: true, data: { connected, lastMcpActivityAt: user.lastMcpActivityAt || null } });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: err.message });
+  }
+};
+
+module.exports = { handleMcpRequest, getMcpConfig, regenerateMcpKey, deleteMcpKey, getMcpStatus };
