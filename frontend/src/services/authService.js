@@ -15,11 +15,18 @@ export async function loginUser(email, password) {
 }
 
 export async function loginWithGoogle() {
-  const result = await signInWithPopup(auth, googleProvider);
-  const idToken = await result.user.getIdToken();
-  const response = await api.post('/auth/google', { idToken });
-  setAccessToken(response.data.data.accessToken);
-  return response.data.data.user;
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const idToken = await result.user.getIdToken();
+    const response = await api.post('/auth/google', { idToken });
+    setAccessToken(response.data.data.accessToken);
+    return response.data.data.user;
+  } catch (err) {
+    if (err.code === 'auth/unauthorized-domain') {
+      throw new Error('Domain (testclarifyai.vercel.app) is not authorized in Firebase Console -> Authentication -> Settings -> Authorized Domains.');
+    }
+    throw err;
+  }
 }
 
 export async function logoutUser() {

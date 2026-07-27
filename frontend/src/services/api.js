@@ -27,7 +27,6 @@ export const refreshAccessTokenSilent = async () => {
       return newAccessToken;
     }).catch(err => {
       setAccessToken(null);
-      axios.post(`${cleanBaseUrl}/auth/logout`, {}, { withCredentials: true }).catch(() => {});
       throw err;
     }).finally(() => {
       refreshPromise = null;
