@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Pencil, ChevronLeft, Settings as SettingsIcon } from 'lucide-react';
+import { ChevronLeft, Settings as SettingsIcon } from 'lucide-react';
 import { useProfileFetch } from '../hooks/useProfileFetch';
 import StatsGrid from '../components/profile/StatsGrid';
 import ProfileCard from '../components/profile/ProfileCard';
@@ -54,12 +54,6 @@ const Profile = () => {
           <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
             <div className="neumorphic-card rounded-3xl p-6 flex flex-col gap-4 overflow-y-auto min-h-0">
               <ProfileHeader user={user} />
-              {!isEditing && (
-                <button onClick={handleEditToggle} className="neumorphic-btn rounded-2xl px-4 py-2 flex items-center gap-2 text-xs text-[#3D4852] font-bold cursor-pointer w-fit">
-                  <Pencil className="w-3.5 h-3.5 text-[#3D4852]" />
-                  <span>Edit Profile</span>
-                </button>
-              )}
               <StatsGrid projectsCount={projectsCount} totalDocs={totalDocs} plan={subscription?.plan || 'free'} />
             </div>
 
@@ -74,6 +68,7 @@ const Profile = () => {
                 isUploadingAvatar={isUploadingAvatar}
                 onLogout={handleLogout}
                 onResetPassword={handleResetPassword}
+                onEditToggle={handleEditToggle}
               />
             </div>
           </div>
