@@ -42,7 +42,7 @@ const fetchWebsiteSummary = async (url) => {
       .trim();
 
     return {
-      url: formattedUrl,
+      url: safeUrl,
       title,
       description,
       textSnippet: cleanText.slice(0, 3000)
