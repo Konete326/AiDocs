@@ -234,19 +234,23 @@ ${docsContext.slice(0, 10000)}`;
 
   let rawReply = await AIService.generateChat(aiMessages);
 
-  const kanbanMatch = rawReply.match(/\[KANBAN_ACTION:(todo|in_progress|done|complete):(.*?)\]/i);
-  if (kanbanMatch) {
-    const status = kanbanMatch[1].toLowerCase();
-    const taskTitle = kanbanMatch[2].trim();
+  const kanbanMatches = Array.from(rawReply.matchAll(/\[KANBAN_ACTION:(todo|in_progress|done|complete):(.*?)\]/gi));
+  if (kanbanMatches.length > 0) {
+    if (!project.kanbanColumns || project.kanbanColumns.length === 0) {
+      project.kanbanColumns = [
+        { id: 'col-todo', title: 'To Do', tasks: [] },
+        { id: 'col-in-progress', title: 'In Progress', tasks: [] },
+        { id: 'col-done', title: 'Done', tasks: [] }
+      ];
+    }
 
-    if (taskTitle) {
-      if (!project.kanbanColumns || project.kanbanColumns.length === 0) {
-        project.kanbanColumns = [
-          { id: 'col-todo', title: 'To Do', tasks: [] },
-          { id: 'col-in-progress', title: 'In Progress', tasks: [] },
-          { id: 'col-done', title: 'Done', tasks: [] }
-        ];
-      }
+    const updatedTasksSummary = [];
+
+    for (const match of kanbanMatches) {
+      const status = match[1].toLowerCase();
+      const taskTitle = match[2].trim();
+
+      if (!taskTitle) continue;
 
       const destColTitle = status === 'done' || status === 'complete' ? 'Done' : status === 'in_progress' ? 'In Progress' : 'To Do';
       let destCol = project.kanbanColumns.find(c => c.title?.toLowerCase() === destColTitle.toLowerCase() || c.id === status);
@@ -256,7 +260,7 @@ ${docsContext.slice(0, 10000)}`;
       project.kanbanColumns.forEach(col => {
         const list = col.tasks || col.cards || [];
         list.forEach((t, idx) => {
-          if (t.text?.toLowerCase() === taskTitle.toLowerCase() || t.id === taskTitle) {
+          if (t.text?.toLowerCase() === taskTitle.toLowerCase() || t.id === taskTitle || t.title?.toLowerCase() === taskTitle.toLowerCase()) {
             existingTask = t;
             list.splice(idx, 1);
           }
@@ -277,19 +281,21 @@ ${docsContext.slice(0, 10000)}`;
 
       if (!destCol.tasks) destCol.tasks = destCol.cards || [];
       destCol.tasks.push(existingTask);
-      project.markModified('kanbanColumns');
-      await project.save();
+      updatedTasksSummary.push(`**"${taskTitle}"** → **${destColTitle}**`);
+    }
 
-      const { broadcastKanbanUpdate } = require('./eventBroadcaster');
-      broadcastKanbanUpdate(project._id, {
-        type: 'kanban_update',
-        taskId: existingTask.id,
-        status,
-        kanbanColumns: project.kanbanColumns
-      });
+    project.markModified('kanbanColumns');
+    await project.save();
 
-      rawReply = rawReply.replace(/\[KANBAN_ACTION:(todo|in_progress|done|complete):.*?\]/gi, '').trim();
-      rawReply += `\n\n**Kanban Board Updated:** Task **"${taskTitle}"** set to **${destColTitle}** and synced in real time to your Workspace!`;
+    const { broadcastKanbanUpdate } = require('./eventBroadcaster');
+    broadcastKanbanUpdate(project._id, {
+      type: 'kanban_update',
+      kanbanColumns: project.kanbanColumns
+    });
+
+    rawReply = rawReply.replace(/\[KANBAN_ACTION:(todo|in_progress|done|complete):.*?\]/gi, '').trim();
+    if (updatedTasksSummary.length > 0) {
+      rawReply += `\n\n**Kanban Board Updated:** ${updatedTasksSummary.join(', ')} synced in real time to your Workspace!`;
     }
   }
 
