@@ -22,6 +22,10 @@ export const refreshAccessTokenSilent = async () => {
       const newAccessToken = response.data.data.accessToken;
       setAccessToken(newAccessToken);
       return newAccessToken;
+    }).catch(err => {
+      setAccessToken(null);
+      axios.post(`${api.defaults.baseURL}/auth/logout`, {}, { withCredentials: true }).catch(() => {});
+      throw err;
     }).finally(() => {
       refreshPromise = null;
     });
@@ -59,6 +63,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         setAccessToken(null);
+        axios.post(`${api.defaults.baseURL}/auth/logout`, {}, { withCredentials: true }).catch(() => {});
         return Promise.reject(refreshError);
       }
     }

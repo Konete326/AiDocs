@@ -23,8 +23,13 @@ export async function loginWithGoogle() {
 }
 
 export async function logoutUser() {
-  await api.post('/auth/logout');
-  setAccessToken(null);
+  try {
+    await api.post('/auth/logout');
+  } catch (err) {
+    // Ignore network error on logout
+  } finally {
+    setAccessToken(null);
+  }
 }
 
 export async function refreshAccessToken() {
