@@ -17,6 +17,7 @@ const projectSchema = new mongoose.Schema(
     },
     docsGenerated: [{ type: String }],
     customSkills: [{ type: String }],
+    disabledSkills: [{ type: String }],
     designSystem: {
       id: { type: String, default: 'monochrome' },
       name: { type: String, default: 'Monochrome' },
