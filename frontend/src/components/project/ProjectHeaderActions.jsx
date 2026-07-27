@@ -16,12 +16,14 @@ const ProjectHeaderActions = ({ project }) => {
 
   useEffect(() => {
     if (!project?._id) return;
-
+    let isMounted = true;
     let eventSource;
+
     try {
       eventSource = new EventSource(`/api/projects/${project._id}/events`, { withCredentials: true });
 
       eventSource.onmessage = (e) => {
+        if (!isMounted) return;
         try {
           const data = JSON.parse(e.data);
           if (data.type === 'kanban_update') {
@@ -38,6 +40,7 @@ const ProjectHeaderActions = ({ project }) => {
     } catch (err) {}
 
     return () => {
+      isMounted = false;
       if (eventSource) eventSource.close();
     };
   }, [project?._id]);
