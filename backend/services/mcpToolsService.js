@@ -112,22 +112,43 @@ const handleToolCall = async (userId, toolName, args = {}) => {
   }
 
   if (toolName === 'clarifyai_get_next_step') {
-    let nextCard = null;
+    let todoTask = null;
+    let inProgressTask = null;
+
     (project.kanbanColumns || []).forEach(col => {
       const list = col.tasks || col.cards || [];
       list.forEach(card => {
-        const isDone = card.status === 'done' || card.status === 'complete' || card.completed === true;
-        if (!nextCard && !isDone) {
-          nextCard = card;
-        }
+        const status = (card.status || '').toLowerCase();
+        const isDone = status === 'done' || status === 'complete' || card.completed === true;
+        const isTodo = status === 'todo' || status === 'to do' || (!status && !isDone);
+        const isInProgress = status === 'in_progress' || status === 'in-progress' || status === 'doing';
+
+        if (!todoTask && isTodo) todoTask = card;
+        if (!inProgressTask && isInProgress) inProgressTask = card;
       });
     });
 
+    const nextCard = todoTask || inProgressTask;
+    const hasRemainingTasks = Boolean(nextCard);
     const prd = await Document.findOne({ projectId: project._id, docType: 'prd' });
-    const resolvedTitle = nextCard ? (nextCard.title || nextCard.text || 'Build Project Task') : 'Scaffold frontend using npx -y create-vite@latest';
+    const resolvedTitle = nextCard ? (nextCard.title || nextCard.text || 'Build Project Task') : 'All Kanban tasks completed!';
+
     notify(userId, 'Project Manager Step', `AI Co-founder assigned next step for "${project.title}"`, project._id);
-    await saveMcpChatMessage(project, `[Antigravity IDE Agent]: Requesting next task assignment from AI Co-founder & Project Manager.`, `Assigned next step: **"${resolvedTitle}"**. Initialize frontend with: \`npx -y create-vite@latest frontend --template react\`. Keep React components under 80 lines.`);
-    return { content: [{ type: 'text', text: JSON.stringify({ projectTitle: project.title, nextTask: nextCard ? { id: nextCard.id || nextCard._id, title: resolvedTitle, status: nextCard.status || 'todo' } : { title: 'Scaffold frontend using create-vite@latest', description: 'Run npx -y create-vite@latest frontend --template react' }, prdReference: prd ? prd.content.slice(0, 500) : '' }, null, 2) }] };
+    await saveMcpChatMessage(project, `[Antigravity IDE Agent]: Requesting next task assignment from AI Co-founder & Project Manager.`, `Assigned next step: **"${resolvedTitle}"**.`);
+
+    return {
+      content: [{
+        type: 'text',
+        text: JSON.stringify({
+          projectTitle: project.title,
+          hasRemainingTasks,
+          nextTask: nextCard
+            ? { id: nextCard.id || nextCard._id, title: resolvedTitle, status: nextCard.status || 'todo' }
+            : { title: 'All Kanban tasks completed', status: 'complete' },
+          prdReference: prd ? prd.content.slice(0, 500) : ''
+        }, null, 2)
+      }]
+    };
   }
 
   if (toolName === 'clarifyai_report_agent_activity') {
