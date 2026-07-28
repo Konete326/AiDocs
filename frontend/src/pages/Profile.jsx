@@ -5,7 +5,7 @@ import StatsGrid from '../components/profile/StatsGrid';
 import ProfileCard from '../components/profile/ProfileCard';
 import ProfileHeader from '../components/profile/ProfileHeader';
 import McpStatusWidget from '../components/profile/McpStatusWidget';
-import ActivityChart from '../components/profile/ActivityChart';
+import MonthlyTokenChart from '../components/profile/ActivityChart';
 import AiUsagePanel from '../components/profile/AiUsagePanel';
 import { useAuth } from '../context/AuthContext';
 
@@ -53,7 +53,7 @@ const Profile = () => {
               <StatsGrid projectsCount={projectsCount} totalDocs={totalDocs} plan={subscription?.plan || 'free'} />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <ActivityChart chartData={stats?.chartData} />
+                <MonthlyTokenChart monthlyTokens={stats?.monthlyTokens} />
                 <AiUsagePanel stats={stats} />
               </div>
 

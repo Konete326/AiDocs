@@ -48,23 +48,43 @@ exports.uploadAvatar = asyncWrapper(async (req, res) => {
 
 exports.getMyStats = asyncWrapper(async (req, res) => {
   const userId = req.user.id;
+  const mongoose = require('mongoose');
+  const userObjId = new mongoose.Types.ObjectId(userId);
 
-  const [projects, documents] = await Promise.all([
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+  sixMonthsAgo.setDate(1);
+  sixMonthsAgo.setHours(0, 0, 0, 0);
+
+  const [projects, documents, monthlyAgg] = await Promise.all([
     Project.find({ userId, isArchived: false }).select('title docsGenerated chatHistory createdAt').sort({ createdAt: -1 }).limit(6).lean(),
     Document.find({ userId }).select('contentTokenCount modelUsed generationTimeMs').lean(),
+    Document.aggregate([
+      { $match: { userId: userObjId, createdAt: { $gte: sixMonthsAgo } } },
+      { $group: {
+        _id: { year: { $year: '$createdAt' }, month: { $month: '$createdAt' } },
+        tokens: { $sum: { $ifNull: ['$contentTokenCount', 0] } },
+        count: { $sum: 1 },
+      }},
+      { $sort: { '_id.year': 1, '_id.month': 1 } },
+    ]),
   ]);
 
-  const chartData = projects.slice().reverse().map(p => ({
-    name: p.title.length > 12 ? p.title.slice(0, 12) + '…' : p.title,
-    docs: p.docsGenerated?.length || 0,
-  }));
+  const MONTH_SHORT = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const now = new Date();
+  const monthlyTokens = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - 5 + i, 1);
+    const yr = d.getFullYear();
+    const mo = d.getMonth() + 1;
+    const found = monthlyAgg.find(a => a._id.year === yr && a._id.month === mo);
+    return { month: `${MONTH_SHORT[mo - 1]} ${String(yr).slice(2)}`, tokens: found?.tokens || 0, docs: found?.count || 0 };
+  });
 
   const totalTokens = documents.reduce((s, d) => s + (d.contentTokenCount || 0), 0);
   const totalDocs = documents.length;
 
   const totalAiMessages = projects.reduce((s, p) => {
-    const assistantMsgs = (p.chatHistory || []).filter(m => m.role === 'assistant').length;
-    return s + assistantMsgs;
+    return s + (p.chatHistory || []).filter(m => m.role === 'assistant').length;
   }, 0);
 
   const modelBreakdown = {};
@@ -74,12 +94,18 @@ exports.getMyStats = asyncWrapper(async (req, res) => {
     modelBreakdown[short] = (modelBreakdown[short] || 0) + 1;
   });
 
-  const avgGenMs = documents.filter(d => d.generationTimeMs).length
-    ? Math.round(documents.filter(d => d.generationTimeMs).reduce((s, d) => s + d.generationTimeMs, 0) / documents.filter(d => d.generationTimeMs).length)
+  const genDocs = documents.filter(d => d.generationTimeMs);
+  const avgGenMs = genDocs.length
+    ? Math.round(genDocs.reduce((s, d) => s + d.generationTimeMs, 0) / genDocs.length)
     : 0;
+
+  const docsPerProject = projects.slice().reverse().map(p => ({
+    name: p.title.length > 12 ? p.title.slice(0, 12) + '\u2026' : p.title,
+    docs: p.docsGenerated?.length || 0,
+  }));
 
   res.status(200).json({
     success: true,
-    data: { chartData, totalTokens, totalDocs, totalAiMessages, modelBreakdown, avgGenMs },
+    data: { monthlyTokens, docsPerProject, totalTokens, totalDocs, totalAiMessages, modelBreakdown, avgGenMs },
   });
 });
