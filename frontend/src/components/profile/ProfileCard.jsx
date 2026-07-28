@@ -32,7 +32,7 @@ const ProfileCard = ({
           <img
             src={user.bgImageUrl}
             alt="Profile background"
-            className="w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover object-center"
           />
         ) : (
           <div
