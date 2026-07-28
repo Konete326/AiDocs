@@ -7,6 +7,8 @@ const userSchema = new mongoose.Schema(
     firebaseUid: { type: String, sparse: true, index: true },
     displayName: { type: String, minlength: 2, maxlength: 80, required: true },
     avatarUrl: { type: String },
+    bio: { type: String, default: '', maxlength: 160 },
+    bgImageUrl: { type: String, default: null },
     role: { type: String, enum: ['user', 'admin'], default: 'user' },
     plan: { type: String, enum: ['free', 'pro'], default: 'free' },
     isVerified: { type: Boolean, default: false },

@@ -14,8 +14,9 @@ const Profile = () => {
   const {
     user, subscription, projectsCount, completedCount, totalDocs, stats,
     isEditing, setIsEditing, isSaving, saveError,
-    editData, setEditData, handleEditToggle, handleSave, handleAvatarUpload,
-    isUploadingAvatar
+    editData, setEditData, handleEditToggle, handleSave,
+    handleAvatarUpload, isUploadingAvatar,
+    handleBgUpload, isUploadingBg,
   } = useProfileFetch();
 
   const handleLogout = async () => {
@@ -55,8 +56,8 @@ const Profile = () => {
                 onChange={(f, v) => setEditData({ ...editData, [f]: v })}
                 onSave={handleSave} onCancel={() => setIsEditing(false)}
                 isSaving={isSaving} saveError={saveError}
-                onAvatarUpload={handleAvatarUpload}
-                isUploadingAvatar={isUploadingAvatar}
+                onAvatarUpload={handleAvatarUpload} isUploadingAvatar={isUploadingAvatar}
+                onBgUpload={handleBgUpload} isUploadingBg={isUploadingBg}
                 onLogout={handleLogout}
                 onResetPassword={handleResetPassword}
                 onEditToggle={handleEditToggle}

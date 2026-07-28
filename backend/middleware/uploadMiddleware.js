@@ -14,8 +14,14 @@ const fileFilter = (req, file, cb) => {
 
 const uploadAvatar = multer({
   storage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  limits: { fileSize: 2 * 1024 * 1024 },
   fileFilter
 }).single('avatar');
 
-module.exports = { uploadAvatar };
+const uploadBg = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter
+}).single('bgImage');
+
+module.exports = { uploadAvatar, uploadBg };

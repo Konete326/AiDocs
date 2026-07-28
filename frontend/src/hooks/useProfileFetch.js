@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { updateMe, uploadAvatar, getMyStats } from '../services/userService';
+import { updateMe, uploadAvatar, getMyStats, uploadBgImage } from '../services/userService';
 import { getMySubscription } from '../services/subscriptionService';
 import { getProjects } from '../services/projectService';
 
@@ -15,7 +15,8 @@ export const useProfileFetch = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
-  const [editData, setEditData] = useState({ displayName: '' });
+  const [isUploadingBg, setIsUploadingBg] = useState(false);
+  const [editData, setEditData] = useState({ displayName: '', bio: '' });
 
   useEffect(() => {
     (async () => {
@@ -25,12 +26,12 @@ export const useProfileFetch = () => {
       setCompletedCount(projects.filter(p => p.status === 'complete').length);
       setTotalDocs(projects.reduce((sum, p) => sum + (p.docsGenerated?.length || 0), 0));
       setStats(userStats);
-      setEditData({ displayName: user?.displayName || '' });
+      setEditData({ displayName: user?.displayName || '', bio: user?.bio || '' });
     })();
   }, [user]);
 
   const handleEditToggle = () => {
-    setEditData({ displayName: user?.displayName || '' });
+    setEditData({ displayName: user?.displayName || '', bio: user?.bio || '' });
     setSaveError('');
     setIsEditing(true);
   };
@@ -39,10 +40,10 @@ export const useProfileFetch = () => {
     setIsSaving(true);
     setSaveError('');
     try {
-      const updated = await updateMe({ displayName: editData.displayName });
+      const updated = await updateMe({ displayName: editData.displayName, bio: editData.bio });
       updateUser(updated);
       setIsEditing(false);
-    } catch { setSaveError('Save failed. Please try again.'); } 
+    } catch { setSaveError('Save failed. Please try again.'); }
     finally { setIsSaving(false); }
   };
 
@@ -51,16 +52,24 @@ export const useProfileFetch = () => {
     try {
       const updated = await uploadAvatar(file);
       updateUser(updated);
-    } catch { 
-    } finally {
-      setIsUploadingAvatar(false);
-    }
+    } catch { }
+    finally { setIsUploadingAvatar(false); }
+  };
+
+  const handleBgUpload = async (file) => {
+    setIsUploadingBg(true);
+    try {
+      const updated = await uploadBgImage(file);
+      updateUser(updated);
+    } catch { }
+    finally { setIsUploadingBg(false); }
   };
 
   return {
     user, subscription, projectsCount, completedCount, totalDocs, stats,
     isEditing, setIsEditing, isSaving, saveError,
-    editData, setEditData, handleEditToggle, handleSave, handleAvatarUpload,
-    isUploadingAvatar
+    editData, setEditData, handleEditToggle, handleSave,
+    handleAvatarUpload, isUploadingAvatar,
+    handleBgUpload, isUploadingBg,
   };
 };

@@ -30,3 +30,25 @@ exports.deleteImage = async (publicId) => {
   if (!publicId) return;
   return await cloudinary.uploader.destroy(publicId);
 };
+
+exports.uploadBannerImage = async (fileBuffer, folder, publicId) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder,
+        public_id: publicId,
+        overwrite: true,
+        resource_type: 'image',
+        transformation: [
+          { width: 1200, height: 300, crop: 'fill', gravity: 'auto' },
+          { quality: 'auto', fetch_format: 'auto' }
+        ]
+      },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve({ url: result.secure_url, publicId: result.public_id });
+      }
+    );
+    stream.end(fileBuffer);
+  });
+};

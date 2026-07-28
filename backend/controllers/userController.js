@@ -12,7 +12,7 @@ exports.getMe = asyncWrapper(async (req, res) => {
 });
 
 exports.updateMe = asyncWrapper(async (req, res) => {
-  const allowedUpdates = ['displayName', 'avatarUrl'];
+  const allowedUpdates = ['displayName', 'avatarUrl', 'bio'];
   const updates = {};
   
   Object.keys(req.body).forEach(key => {
@@ -43,6 +43,18 @@ exports.uploadAvatar = asyncWrapper(async (req, res) => {
     { new: true }
   ).select('-passwordHash -refreshTokenHash');
   
+  res.status(200).json({ success: true, data: user });
+});
+
+exports.uploadBgImage = asyncWrapper(async (req, res) => {
+  if (!req.file) throw new AppError('Background image file is required', 400, 'MISSING_FILE');
+  const { uploadBannerImage } = require('../services/cloudinaryService');
+  const result = await uploadBannerImage(req.file.buffer, 'aidocs/backgrounds', `bg_${req.user.id}`);
+  const user = await User.findByIdAndUpdate(
+    req.user.id,
+    { bgImageUrl: result.url },
+    { new: true }
+  ).select('-passwordHash -refreshTokenHash');
   res.status(200).json({ success: true, data: user });
 });
 
