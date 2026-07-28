@@ -8,6 +8,7 @@ export const useProfileFetch = () => {
   const { user, updateUser } = useAuth();
   const [subscription, setSubscription] = useState(null);
   const [projectsCount, setProjectsCount] = useState(0);
+  const [completedCount, setCompletedCount] = useState(0);
   const [totalDocs, setTotalDocs] = useState(0);
   const [stats, setStats] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -21,6 +22,7 @@ export const useProfileFetch = () => {
       const [sub, projects, userStats] = await Promise.all([getMySubscription(), getProjects(), getMyStats()]);
       setSubscription(sub);
       setProjectsCount(projects.length);
+      setCompletedCount(projects.filter(p => p.status === 'complete').length);
       setTotalDocs(projects.reduce((sum, p) => sum + (p.docsGenerated?.length || 0), 0));
       setStats(userStats);
       setEditData({ displayName: user?.displayName || '' });
@@ -56,7 +58,7 @@ export const useProfileFetch = () => {
   };
 
   return {
-    user, subscription, projectsCount, totalDocs, stats,
+    user, subscription, projectsCount, completedCount, totalDocs, stats,
     isEditing, setIsEditing, isSaving, saveError,
     editData, setEditData, handleEditToggle, handleSave, handleAvatarUpload,
     isUploadingAvatar

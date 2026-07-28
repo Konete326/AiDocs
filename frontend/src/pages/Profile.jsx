@@ -13,7 +13,7 @@ const Profile = () => {
   const navigate = useNavigate();
   const { logout } = useAuth();
   const {
-    user, subscription, projectsCount, totalDocs, stats,
+    user, subscription, projectsCount, completedCount, totalDocs, stats,
     isEditing, setIsEditing, isSaving, saveError,
     editData, setEditData, handleEditToggle, handleSave, handleAvatarUpload,
     isUploadingAvatar
@@ -50,7 +50,7 @@ const Profile = () => {
           <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
             <div className="neumorphic-card rounded-3xl p-5 flex flex-col gap-4 overflow-y-auto min-h-0">
               <ProfileHeader user={user} />
-              <StatsGrid projectsCount={projectsCount} totalDocs={totalDocs} plan={subscription?.plan || 'free'} />
+              <StatsGrid projectsCount={projectsCount} completedCount={completedCount} joinedAt={user?.createdAt} />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <MonthlyTokenChart monthlyTokens={stats?.monthlyTokens} />
