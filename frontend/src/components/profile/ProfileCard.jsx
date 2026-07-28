@@ -26,7 +26,7 @@ const ProfileCard = ({
     <div className="liquid-glass-strong no-hover rounded-[28px] flex flex-col h-full relative overflow-hidden">
       <div
         className="relative w-full flex-shrink-0 overflow-hidden"
-        style={{ height: '110px' }}
+        style={{ height: '90px' }}
       >
         {user?.bgImageUrl ? (
           <img
@@ -79,7 +79,7 @@ const ProfileCard = ({
       </div>
 
       <div className="p-5 flex flex-col flex-1 gap-0">
-        <div className="flex items-end justify-between -mt-8 mb-3">
+        <div className="flex items-end justify-between -mt-10 mb-3">
           <div className="relative flex-shrink-0">
             <UserAvatar user={user} size="lg" showUpload={isEditing} onUpload={onAvatarUpload} />
             {isUploadingAvatar && (
@@ -129,7 +129,9 @@ const ProfileCard = ({
           <div className="mb-2">
             <h3 className="text-base font-bold text-[#3D4852] truncate">{user?.displayName || 'User'}</h3>
             {user?.bio ? (
-              <p className="text-xs text-[#6B7280] mt-0.5 leading-relaxed line-clamp-2">{user.bio}</p>
+              <SpecialText inView speed={25} delay={0.3} className="text-xs text-[#6B7280] mt-0.5 leading-relaxed">
+                {user.bio}
+              </SpecialText>
             ) : (
               <SpecialText inView speed={20} delay={0.5} className="text-[10px] uppercase tracking-[0.35em] text-[#6B7280]">
                 ClarifyAI Member
