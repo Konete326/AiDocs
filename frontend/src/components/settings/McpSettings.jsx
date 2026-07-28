@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Cpu, RefreshCw, Copy, Check, Trash2, KeyRound, HelpCircle } from 'lucide-react';
+import { Cpu, RefreshCw, Copy, Check, Trash2, KeyRound, HelpCircle, AlertTriangle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { getMcpConfig, regenerateMcpKey, deleteMcpKey } from '../../services/mcpService';
 import McpConfigCard from './McpConfigCard';
@@ -12,6 +12,7 @@ const McpSettings = () => {
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [isRegenConfirmOpen, setIsRegenConfirmOpen] = useState(false);
 
   useEffect(() => {
     fetchConfig();
@@ -32,6 +33,7 @@ const McpSettings = () => {
   };
 
   const handleGenerate = async () => {
+    setIsRegenConfirmOpen(false);
     try { setBusy(true); const res = await regenerateMcpKey(); if (res.success) { setConfig(res); toast.success('MCP Key updated'); } }
     catch { toast.error('Failed to generate key'); }
     finally { setBusy(false); }
@@ -48,7 +50,7 @@ const McpSettings = () => {
   if (loading) return <div className="flex items-center justify-center p-12"><div className="w-6 h-6 border-2 border-[#2563EB] border-t-transparent rounded-full animate-spin" /></div>;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-xl font-bold text-[#3D4852] tracking-tight flex items-center gap-2">
@@ -58,8 +60,8 @@ const McpSettings = () => {
         </div>
         <div className="flex items-center gap-3">
           {config.apiKey && (
-            <div className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-full neumorphic-inset ${config.isAgentActive ? 'text-[#38B2AC] font-bold' : 'text-[#6B7280] font-bold'}`}>
-              <span className={`w-2 h-2 rounded-full ${config.isAgentActive ? 'bg-[#38B2AC] animate-pulse' : 'bg-[#6B7280]'}`} />
+            <div className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-full font-bold text-white ${config.isAgentActive ? 'bg-emerald-500' : 'bg-rose-500'}`}>
+              <span className={`w-2 h-2 rounded-full bg-white ${config.isAgentActive ? 'animate-pulse' : ''}`} />
               <span>{config.isAgentActive ? 'Agent Connected' : 'Idle'}</span>
             </div>
           )}
@@ -68,42 +70,51 @@ const McpSettings = () => {
             className="neumorphic-btn rounded-2xl px-3.5 py-1.5 flex items-center gap-1.5 text-xs text-[#2563EB] font-bold cursor-pointer hover:bg-[#2563EB] hover:text-white transition-all shadow-sm"
           >
             <HelpCircle className="w-4 h-4" />
-            <span>Setup Guide & Info</span>
+            <span>Setup Guide</span>
           </Link>
         </div>
       </div>
 
       {!config.apiKey ? (
-        <div className="liquid-glass rounded-3xl p-8 text-center space-y-4">
-          <div className="w-12 h-12 rounded-2xl neumorphic-inset-deep flex items-center justify-center text-[#2563EB] mx-auto">
-            <KeyRound className="w-6 h-6" />
+        <div className="liquid-glass rounded-2xl p-5 text-center space-y-3">
+          <div className="w-10 h-10 rounded-xl neumorphic-inset-deep flex items-center justify-center text-[#2563EB] mx-auto">
+            <KeyRound className="w-5 h-5" />
           </div>
           <div>
             <h4 className="text-sm font-bold text-[#3D4852]">No active MCP API Key</h4>
-            <p className="text-xs text-[#6B7280] mt-1 max-w-sm mx-auto font-medium">Generate a key to connect Claude Code, Antigravity, or Cursor.</p>
+            <p className="text-xs text-[#6B7280] mt-0.5 max-w-sm mx-auto font-medium">Generate a key to connect Claude Code, Antigravity, or Cursor.</p>
           </div>
-          <button onClick={handleGenerate} disabled={busy} className="bg-[#2563EB] text-white text-xs font-bold px-5 py-2.5 rounded-2xl hover:bg-[#60a5fa] transition-all cursor-pointer shadow-md">
+          <button onClick={handleGenerate} disabled={busy} className="bg-[#2563EB] text-white text-xs font-bold px-5 py-2 rounded-2xl hover:bg-[#60a5fa] transition-all cursor-pointer shadow-md">
             {busy ? 'Generating...' : 'Generate Key'}
           </button>
         </div>
       ) : (
         <>
-          <div className="liquid-glass rounded-3xl p-5 space-y-3">
+          <div className="liquid-glass rounded-2xl p-3 space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-[#3D4852]">Server Endpoint URL</span>
-              <div className="flex gap-4">
-                <button onClick={handleGenerate} disabled={busy} className="text-xs text-[#3D4852] font-bold hover:text-[#2563EB] flex items-center gap-1 transition-colors cursor-pointer">
-                  <RefreshCw className={`w-3.5 h-3.5 ${busy ? 'animate-spin' : ''}`} /> Regenerate
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setIsRegenConfirmOpen(true)}
+                  disabled={busy}
+                  title="Regenerate Key"
+                  className="text-[#3D4852] hover:text-[#2563EB] transition-colors cursor-pointer p-1 rounded-lg"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${busy ? 'animate-spin' : ''}`} />
                 </button>
-                <button onClick={() => setIsDeleteOpen(true)} className="text-xs text-rose-600 font-bold hover:text-rose-700 flex items-center gap-1 transition-colors cursor-pointer">
-                  <Trash2 className="w-3.5 h-3.5" /> Delete Key
+                <button
+                  onClick={() => setIsDeleteOpen(true)}
+                  title="Delete Key"
+                  className="text-rose-500 hover:text-rose-700 transition-colors cursor-pointer p-1 rounded-lg"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
             <div className="flex gap-2">
-              <input type="text" readOnly value={config.mcpEndpoint} className="flex-1 bg-[#E0E5EC] rounded-2xl px-3.5 py-2 text-xs font-mono font-bold text-[#3D4852] outline-none neumorphic-inset" />
-              <button onClick={copyUrl} className="neumorphic-btn text-[#3D4852] text-xs px-4 py-2 rounded-2xl font-bold flex items-center gap-1.5 transition-all cursor-pointer">
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-[#3D4852]" />} Copy
+              <input type="text" readOnly value={config.mcpEndpoint} className="flex-1 bg-[#E0E5EC] rounded-xl px-3 py-1.5 text-xs font-mono font-bold text-[#3D4852] outline-none neumorphic-inset" />
+              <button onClick={copyUrl} className="neumorphic-btn text-[#3D4852] text-xs px-3 py-1.5 rounded-xl font-bold flex items-center gap-1 transition-all cursor-pointer">
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-[#3D4852]" />}
               </button>
             </div>
           </div>
@@ -112,6 +123,37 @@ const McpSettings = () => {
       )}
 
       <McpDeleteModal isOpen={isDeleteOpen} onClose={() => setIsDeleteOpen(false)} onConfirm={handleDelete} deleting={busy} />
+
+      {isRegenConfirmOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+          <div className="neumorphic-card rounded-3xl p-6 max-w-sm w-full mx-4 space-y-4 bg-[#E0E5EC]">
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-5 h-5 text-amber-600" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-[#3D4852]">Regenerate MCP Key?</h4>
+                <p className="text-xs text-[#6B7280] font-medium mt-1">Your current API key will be invalidated. Any connected agents will need to be reconfigured with the new key.</p>
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setIsRegenConfirmOpen(false)}
+                className="neumorphic-btn rounded-2xl px-4 py-2 text-xs font-bold text-[#3D4852] cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleGenerate}
+                disabled={busy}
+                className="bg-[#2563EB] text-white rounded-2xl px-4 py-2 text-xs font-bold cursor-pointer hover:bg-[#60a5fa] transition-all"
+              >
+                {busy ? 'Regenerating...' : 'Yes, Regenerate'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

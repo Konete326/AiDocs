@@ -44,7 +44,7 @@ const McpConfigCard = ({ endpointUrl, apiKey }) => {
   };
 
   return (
-    <div className="liquid-glass rounded-3xl p-5 space-y-4">
+    <div className="liquid-glass rounded-2xl p-3 space-y-2">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <span className="text-xs font-bold text-[#3D4852]">Setup Snippets</span>
         <div className="flex flex-wrap gap-1 p-1">
@@ -52,8 +52,8 @@ const McpConfigCard = ({ endpointUrl, apiKey }) => {
             <button
               key={key}
               onClick={() => setSelectedClient(key)}
-              className={`px-3 py-1.5 text-xs rounded-2xl transition-all cursor-pointer font-bold ${
-                selectedClient === key ? 'bg-[#6C63FF] text-white shadow-md' : 'neumorphic-btn text-[#3D4852]'
+              className={`px-2.5 py-1 text-[10px] rounded-xl transition-all cursor-pointer font-bold ${
+                selectedClient === key ? 'bg-[#2563EB] text-white shadow-md' : 'neumorphic-btn text-[#3D4852]'
               }`}
             >
               {configs[key].label}
@@ -63,7 +63,7 @@ const McpConfigCard = ({ endpointUrl, apiKey }) => {
       </div>
 
       <div className="relative">
-        <pre className="bg-[#E0E5EC] text-[#3D4852] text-xs font-mono p-4 rounded-2xl overflow-x-auto font-bold neumorphic-inset">
+        <pre className="bg-[#E0E5EC] text-[#3D4852] text-[10px] font-mono p-3 rounded-xl overflow-x-auto font-bold neumorphic-inset leading-relaxed">
           {current.json}
         </pre>
         <button
