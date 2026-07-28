@@ -82,8 +82,8 @@ const RecentProjects = () => {
   }
 
   return (
-    <div className="w-full lg:w-80 flex flex-col gap-4">
-      <div className="flex items-center justify-between px-2 mb-1">
+    <div className="w-full lg:w-80 flex flex-col gap-3">
+      <div className="flex items-center justify-between px-1 mb-0.5">
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-[#6C63FF]" />
           <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#6B7280] font-mono">Latest History</span>
@@ -96,43 +96,40 @@ const RecentProjects = () => {
         </button>
       </div>
 
-      <div className="flex flex-col gap-4">
-        {projects.map((project, i) => {
+      <div className="flex flex-col gap-2.5">
+        {projects.map((project) => {
           const Icon = TYPE_ICONS[project.projectType] || FileText;
           const status = STATUS_CONFIG[project.status] || STATUS_CONFIG.draft;
-          const isLeft = i % 2 === 0;
 
           return (
             <div
               key={project._id}
               onClick={() => navigate(`/projects/${project._id}`)}
-              className={`
-                group relative flex flex-col max-w-[85%] p-4 rounded-2xl transition-all cursor-pointer
-                neumorphic-card hover:-translate-y-1 active:scale-95
-                ${isLeft ? 'self-start rounded-tl-none' : 'self-end rounded-tr-none'}
-              `}
+              className="group flex items-center justify-between p-3.5 rounded-2xl w-full transition-all cursor-pointer neumorphic-card hover:-translate-y-0.5 active:scale-[0.99]"
             >
-              <div className="flex items-start gap-3">
-                <div className="p-2 rounded-xl neumorphic-inset text-[#6C63FF]">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                <div className="w-9 h-9 rounded-xl neumorphic-inset flex items-center justify-center flex-shrink-0">
                   <Icon className="w-4 h-4 text-[#6C63FF]" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2 mb-1">
-                    <h4 className="text-xs font-bold text-[#3D4852] truncate">
+                <div className="flex-1 min-w-0 pr-2">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <h4 className="text-xs font-bold text-[#3D4852] truncate group-hover:text-[#6C63FF] transition-colors">
                       {project.title}
                     </h4>
-                    <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full neumorphic-inset">
-                      <div className={`w-1.5 h-1.5 rounded-full ${status.color}`} />
-                      <span className="text-[8px] font-bold uppercase text-[#3D4852] font-mono">{status.label}</span>
-                    </div>
+                    <span className="text-[9px] font-mono uppercase font-bold text-[#6C63FF] neumorphic-inset px-2 py-0.5 rounded-full flex-shrink-0">
+                      {project.projectType}
+                    </span>
                   </div>
-                  <p className="text-[10px] text-[#6B7280] line-clamp-2 leading-relaxed font-medium">
+                  <p className="text-[10px] text-[#6B7280] truncate font-medium">
                     {project.wizardAnswers?.problemStatement || `An innovative ${project.projectType} solution.`}
                   </p>
                 </div>
               </div>
 
-              <div className={`absolute top-0 w-1 h-8 rounded-full bg-[#6C63FF] ${isLeft ? '-left-1' : '-right-1'}`} />
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full neumorphic-inset flex-shrink-0">
+                <div className={`w-1.5 h-1.5 rounded-full ${status.color}`} />
+                <span className="text-[8.5px] font-bold uppercase text-[#3D4852] font-mono">{status.label}</span>
+              </div>
             </div>
           );
         })}
