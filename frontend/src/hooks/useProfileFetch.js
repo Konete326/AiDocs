@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { updateMe, uploadAvatar } from '../services/userService';
+import { updateMe, uploadAvatar, getMyStats } from '../services/userService';
 import { getMySubscription } from '../services/subscriptionService';
 import { getProjects } from '../services/projectService';
 
@@ -9,6 +9,7 @@ export const useProfileFetch = () => {
   const [subscription, setSubscription] = useState(null);
   const [projectsCount, setProjectsCount] = useState(0);
   const [totalDocs, setTotalDocs] = useState(0);
+  const [stats, setStats] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
@@ -17,10 +18,11 @@ export const useProfileFetch = () => {
 
   useEffect(() => {
     (async () => {
-      const [sub, projects] = await Promise.all([getMySubscription(), getProjects()]);
+      const [sub, projects, userStats] = await Promise.all([getMySubscription(), getProjects(), getMyStats()]);
       setSubscription(sub);
       setProjectsCount(projects.length);
       setTotalDocs(projects.reduce((sum, p) => sum + (p.docsGenerated?.length || 0), 0));
+      setStats(userStats);
       setEditData({ displayName: user?.displayName || '' });
     })();
   }, [user]);
@@ -48,14 +50,13 @@ export const useProfileFetch = () => {
       const updated = await uploadAvatar(file);
       updateUser(updated);
     } catch { 
-      // silent fail
     } finally {
       setIsUploadingAvatar(false);
     }
   };
 
   return {
-    user, subscription, projectsCount, totalDocs,
+    user, subscription, projectsCount, totalDocs, stats,
     isEditing, setIsEditing, isSaving, saveError,
     editData, setEditData, handleEditToggle, handleSave, handleAvatarUpload,
     isUploadingAvatar

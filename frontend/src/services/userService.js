@@ -20,3 +20,8 @@ export async function uploadAvatar(file) {
   });
   return response.data.data;
 }
+
+export async function getMyStats() {
+  const response = await api.get('/users/me/stats');
+  return response.data.data;
+}

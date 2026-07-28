@@ -8,6 +8,7 @@ const router = express.Router();
 router.use(authenticate);
 
 router.get('/me', userController.getMe);
+router.get('/me/stats', userController.getMyStats);
 router.patch('/me', userController.updateMe);
 router.patch('/me/avatar', uploadAvatar, userController.uploadAvatar);
 
