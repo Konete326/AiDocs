@@ -2,10 +2,12 @@ import { Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import UserAvatar from '../common/UserAvatar';
 import { useAuth } from '../../context/AuthContext';
+import { SpecialText } from '../ui/SpecialText';
 
 export default function DashboardHeader({ projectCount }) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const subtitleText = `Free Plan • ${projectCount} Projects Created (Unlimited Access)`;
 
   return (
     <div className="flex items-center justify-between mt-4">
@@ -16,7 +18,9 @@ export default function DashboardHeader({ projectCount }) {
         <div>
           <h1 className="text-3xl font-extrabold text-[#3D4852] tracking-tight">Your Projects</h1>
           <p className="text-xs text-[#6B7280] font-mono font-bold uppercase tracking-wider mt-1">
-            Free Plan • {projectCount} Projects Created (Unlimited Access)
+            <SpecialText inView speed={20} delay={0.1}>
+              {subtitleText}
+            </SpecialText>
           </p>
         </div>
       </div>

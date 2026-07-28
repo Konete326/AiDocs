@@ -26,7 +26,7 @@ const ProfileCard = ({
     <div className="liquid-glass-strong no-hover rounded-[28px] flex flex-col h-full relative overflow-hidden">
       <div
         className="relative w-full flex-shrink-0 overflow-hidden"
-        style={{ height: '130px' }}
+        style={{ height: '100px' }}
       >
         {user?.bgImageUrl ? (
           <img
@@ -66,12 +66,10 @@ const ProfileCard = ({
           className="hidden"
           onChange={handleBgChange}
         />
-
-
       </div>
 
-      <div className="p-5 flex flex-col flex-1 gap-0">
-        <div className="flex items-end justify-between -mt-16 mb-3">
+      <div className="p-4 flex flex-col flex-1 gap-0">
+        <div className="flex items-end justify-between -mt-12 mb-2">
           <div className="relative flex-shrink-0">
             <UserAvatar user={user} size="lg" showUpload={isEditing} onUpload={onAvatarUpload} />
             {isUploadingAvatar && (

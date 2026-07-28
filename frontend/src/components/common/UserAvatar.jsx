@@ -1,9 +1,13 @@
-import { useState, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Camera } from 'lucide-react';
 
 const UserAvatar = ({ user, size = 'md', showUpload = false, onUpload, className = '', onClick }) => {
   const fileInputRef = useRef(null);
   const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [user?.avatarUrl]);
 
   const initial = user?.displayName?.charAt(0)?.toUpperCase() || '?';
   const hasAvatar = user?.avatarUrl && !imgError;

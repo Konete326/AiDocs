@@ -51,15 +51,15 @@ const Dashboard = () => {
       <ConfirmModal isOpen={confirmModal.isOpen} title={confirmModal.title} message={confirmModal.message} confirmLabel={confirmModal.confirmLabel} cancelLabel={confirmModal.cancelLabel} onConfirm={handleConfirm} onCancel={closeConfirm} isDangerous={confirmModal.isDangerous} />
       <AlertModal isOpen={alertModal.isOpen} title={alertModal.title} message={alertModal.message} buttonLabel={alertModal.buttonLabel} onClose={closeAlert} />
 
-      <div className="relative z-10 pt-28 p-6 md:p-12 lg:p-16 max-w-7xl mx-auto min-h-screen">
+      <div className="relative z-10 pt-20 pb-8 px-4 md:px-8 max-w-[95%] xl:max-w-[1500px] mx-auto">
         <DashboardHeader projectCount={projects?.length || 0} />
 
-        <div className="mt-8 space-y-6">
+        <div className="mt-5 space-y-4">
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[1, 2, 3].map(i => (
-                <div key={i} className="neumorphic-inset rounded-[32px] p-6 h-48 animate-pulse">
-                  <div className="h-4 bg-[#6B7280]/20 rounded-full w-3/4 mb-4" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="neumorphic-inset rounded-[24px] p-4 h-36 animate-pulse">
+                  <div className="h-4 bg-[#6B7280]/20 rounded-full w-3/4 mb-3" />
                   <div className="h-3 bg-[#6B7280]/20 rounded-full w-1/2" />
                 </div>
               ))}
@@ -67,7 +67,7 @@ const Dashboard = () => {
           ) : (projects?.length || 0) === 0 ? (
             <EmptyState />
           ) : (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {projects.map(project => (
                 <ProjectCard key={project._id} project={project} onDelete={handleDelete} />
               ))}

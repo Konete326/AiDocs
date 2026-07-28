@@ -40,18 +40,33 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
-    const user = await apiLogin(email, password);
-    dispatch({ type: 'SET_USER', payload: user });
+    const loginRes = await apiLogin(email, password);
+    try {
+      const fullUser = await getMe();
+      dispatch({ type: 'SET_USER', payload: fullUser });
+    } catch {
+      dispatch({ type: 'SET_USER', payload: loginRes });
+    }
   };
 
   const loginGoogle = async () => {
-    const user = await apiLoginGoogle();
-    dispatch({ type: 'SET_USER', payload: user });
+    const loginRes = await apiLoginGoogle();
+    try {
+      const fullUser = await getMe();
+      dispatch({ type: 'SET_USER', payload: fullUser });
+    } catch {
+      dispatch({ type: 'SET_USER', payload: loginRes });
+    }
   };
 
   const register = async (name, email, password) => {
-    const user = await apiRegister(name, email, password);
-    dispatch({ type: 'SET_USER', payload: user });
+    const regRes = await apiRegister(name, email, password);
+    try {
+      const fullUser = await getMe();
+      dispatch({ type: 'SET_USER', payload: fullUser });
+    } catch {
+      dispatch({ type: 'SET_USER', payload: regRes });
+    }
   };
 
   const logout = async () => {

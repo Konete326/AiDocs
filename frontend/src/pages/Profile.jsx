@@ -33,11 +33,11 @@ const Profile = () => {
     : 'N/A';
 
   return (
-    <div className="h-screen w-full flex flex-col bg-[#E0E5EC] overflow-hidden">
-      <div className="flex-1 flex flex-col pt-20 px-4 pb-3 md:px-8 min-h-0">
+    <div className="min-h-screen w-full flex flex-col bg-[#E0E5EC] overflow-hidden">
+      <div className="flex-1 flex flex-col pt-24 md:pt-28 px-4 pb-6 md:px-8 min-h-0">
         <div className="max-w-7xl w-full mx-auto flex flex-col flex-1 min-h-0">
-          <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
-            <div className="neumorphic-card rounded-3xl p-5 flex flex-col gap-4 overflow-y-auto min-h-0">
+          <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0 max-h-[calc(100vh-140px)]">
+            <div className="neumorphic-card rounded-3xl p-4 flex flex-col gap-3 overflow-y-auto min-h-0">
               <ProfileHeader user={user} />
               <StatsGrid projectsCount={projectsCount} completedCount={completedCount} joinedAt={user?.createdAt} />
 

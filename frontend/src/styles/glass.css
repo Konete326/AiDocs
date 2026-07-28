@@ -255,11 +255,15 @@ button.liquid-glass-strong.bg-blue-600 svg,
 }
 
 nav .liquid-glass-strong:hover,
-nav .liquid-glass-strong,
+nav .max-w-7xl,
 nav .max-w-7xl:hover,
+nav .no-hover,
+nav .no-hover:hover,
+.max-w-7xl.liquid-glass-strong,
 .max-w-7xl.liquid-glass-strong:hover {
   transform: none !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 5px 5px 12px rgba(163, 177, 198, 0.5), -5px -5px 12px rgba(255, 255, 255, 0.3) !important;
+  transition: none !important;
 }
 
 .liquid-glass:has(form):hover,
@@ -268,12 +272,14 @@ nav .max-w-7xl:hover,
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
 }
 
+.liquid-glass.no-hover,
 .liquid-glass.no-hover:hover {
   transform: none !important;
   box-shadow: 9px 9px 16px rgba(163, 177, 198, 0.6), -9px -9px 16px rgba(255, 255, 255, 0.5) !important;
   transition: none !important;
 }
 
+.liquid-glass-strong.no-hover,
 .liquid-glass-strong.no-hover:hover {
   transform: none !important;
   box-shadow: 12px 12px 20px rgba(163, 177, 198, 0.7), -12px -12px 20px rgba(255, 255, 255, 0.6) !important;
