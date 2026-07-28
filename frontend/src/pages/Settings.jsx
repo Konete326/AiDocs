@@ -21,16 +21,15 @@ const Settings = () => {
       <div className="flex-1 flex flex-col pt-20 px-4 pb-3 md:px-8 min-h-0">
         <div className="max-w-7xl w-full mx-auto flex flex-col flex-1 min-h-0">
 
-          <div className="flex items-center gap-3 mb-3 flex-shrink-0">
+          <div className="md:hidden flex items-center gap-2 mb-3 flex-shrink-0">
             <button
               onClick={() => navigate(-1)}
-              className="neumorphic-btn rounded-2xl px-4 py-2 flex items-center gap-2 text-xs text-[#3D4852] font-bold cursor-pointer"
+              className="neumorphic-btn rounded-2xl px-3.5 py-2 flex items-center gap-1.5 text-xs text-[#3D4852] font-bold cursor-pointer flex-shrink-0"
             >
               <ChevronLeft className="w-4 h-4 text-[#3D4852]" />
               <span>Back</span>
             </button>
-
-            <div className="md:hidden flex overflow-x-auto gap-2 scrollbar-none flex-1">
+            <div className="flex overflow-x-auto gap-2 scrollbar-none flex-1">
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
@@ -51,7 +50,16 @@ const Settings = () => {
           <div className="flex-1 flex flex-col md:flex-row gap-4 min-h-0">
 
             <div className="hidden md:flex flex-col w-56 flex-shrink-0 neumorphic-card rounded-3xl p-4 gap-2">
-              <h2 className="text-sm font-extrabold text-[#3D4852] mb-2 px-2 tracking-tight">Settings</h2>
+              <div className="flex items-center justify-between mb-2 px-1">
+                <h2 className="text-sm font-extrabold text-[#3D4852] tracking-tight">Settings</h2>
+                <button
+                  onClick={() => navigate(-1)}
+                  className="neumorphic-btn rounded-2xl px-3 py-1.5 flex items-center gap-1 text-xs text-[#3D4852] font-bold cursor-pointer hover:text-[#6C63FF] transition-colors"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5 text-[#3D4852]" />
+                  <span>Back</span>
+                </button>
+              </div>
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
@@ -73,14 +81,14 @@ const Settings = () => {
                 <div className="animate-in fade-in duration-300">
                   <h3 className="text-xl font-bold text-[#3D4852] tracking-tight mb-1">Display & Theme</h3>
                   <p className="text-[#6B7280] text-xs mb-6 font-medium">Your workspace is styled with a premium tactile design system.</p>
-                  <div className="neumorphic-btn p-5 rounded-3xl flex items-center justify-between">
+                  <div className="neumorphic-card no-hover p-5 rounded-3xl flex items-center justify-between">
                     <div>
                       <div className="text-sm font-bold text-[#3D4852]">Neumorphic Soft UI Engine</div>
                       <div className="text-xs mt-1 text-[#6B7280] font-medium max-w-md">
                         Dual-opposing shadows on a cool-monochromatic surface (#E0E5EC) for maximum physical depth and accessibility.
                       </div>
                     </div>
-                    <div className="text-xs font-mono font-bold uppercase tracking-widest text-[#38B2AC] neumorphic-inset px-4 py-2 rounded-full flex-shrink-0 ml-4">
+                    <div className="text-xs font-mono font-bold uppercase tracking-widest bg-emerald-600 text-white px-4 py-2 rounded-full flex-shrink-0 ml-4 shadow-sm">
                       Active
                     </div>
                   </div>

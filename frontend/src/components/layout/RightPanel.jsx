@@ -43,7 +43,7 @@ const RecentProjects = () => {
     return (
       <GlassCard
         onClick={() => navigate('/register')}
-        className="rounded-2xl p-5 w-full lg:w-72 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+        className="rounded-2xl p-5 w-full transition-transform hover:scale-105 active:scale-95 cursor-pointer"
       >
         <p className="text-sm font-bold text-[#3D4852] tracking-tight">Enter our ecosystem</p>
         <p className="text-xs text-[#6B7280] font-medium mt-1 leading-relaxed">Built for founders who ship.</p>
@@ -53,7 +53,7 @@ const RecentProjects = () => {
 
   if (loading) {
     return (
-      <div className="w-full lg:w-80 space-y-3">
+      <div className="w-full space-y-3">
         {[1,2,3,4,5].map(i => (
           <div key={i} className={`h-16 w-[85%] rounded-2xl neumorphic-inset animate-pulse ${i % 2 === 0 ? 'ml-auto rounded-tr-none' : 'mr-auto rounded-tl-none'}`} />
         ))}
@@ -65,7 +65,7 @@ const RecentProjects = () => {
     return (
       <GlassCard
         onClick={() => navigate('/projects/new')}
-        className="rounded-2xl p-6 w-full lg:w-80 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+        className="rounded-2xl p-6 w-full transition-transform hover:scale-105 active:scale-95 cursor-pointer"
       >
         <div className="flex items-center gap-3 mb-2">
           <div className="w-10 h-10 rounded-xl neumorphic-inset flex items-center justify-center">
@@ -82,7 +82,7 @@ const RecentProjects = () => {
   }
 
   return (
-    <div className="w-full lg:w-80 flex flex-col gap-3">
+    <div className="w-full flex flex-col gap-4">
       <div className="flex items-center justify-between px-1 mb-0.5">
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-[#6C63FF]" />
@@ -96,7 +96,7 @@ const RecentProjects = () => {
         </button>
       </div>
 
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col gap-3.5 md:gap-4 py-1">
         {projects.map((project, i) => {
           const Icon = TYPE_ICONS[project.projectType] || FileText;
           const status = STATUS_CONFIG[project.status] || STATUS_CONFIG.draft;
@@ -107,11 +107,11 @@ const RecentProjects = () => {
               key={project._id}
               onClick={() => navigate(`/projects/${project._id}`)}
               className={`
-                group relative flex items-center justify-between p-3 rounded-2xl transition-all cursor-pointer neumorphic-card hover:-translate-y-0.5 active:scale-[0.99] max-w-[90%]
+                group relative flex items-center justify-between p-3.5 md:p-4 rounded-2xl transition-all cursor-pointer neumorphic-card hover:-translate-y-0.5 active:scale-[0.99] max-w-[85%] sm:max-w-[88%]
                 ${isLeft ? 'self-start rounded-tl-none' : 'self-end rounded-tr-none'}
               `}
             >
-              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
                 <div className="w-8 h-8 rounded-xl neumorphic-inset flex items-center justify-center flex-shrink-0">
                   <Icon className="w-3.5 h-3.5 text-[#6C63FF]" />
                 </div>
@@ -130,7 +130,7 @@ const RecentProjects = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full neumorphic-inset flex-shrink-0 ml-1">
+              <div className="flex items-center gap-1 px-2.5 py-1 rounded-full neumorphic-inset flex-shrink-0 ml-2">
                 <div className={`w-1.5 h-1.5 rounded-full ${status.color}`} />
                 <span className="text-[8px] font-bold uppercase text-[#3D4852] font-mono">{status.label}</span>
               </div>
@@ -140,7 +140,7 @@ const RecentProjects = () => {
 
         <button
           onClick={() => navigate('/dashboard')}
-          className="self-center mt-1.5 text-xs font-bold text-[#6C63FF] hover:text-[#8B84FF] flex items-center gap-1 cursor-pointer transition-colors py-1 px-3 rounded-full neumorphic-inset"
+          className="self-center mt-2 text-xs font-bold text-[#6C63FF] hover:text-[#8B84FF] flex items-center gap-1 cursor-pointer transition-colors py-1.5 px-4 rounded-full neumorphic-inset"
         >
           <span>View More Projects</span>
           <ChevronRight className="w-3.5 h-3.5" />

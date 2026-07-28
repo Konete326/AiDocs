@@ -21,6 +21,8 @@ import ProjectDesignSystemPage from '../pages/ProjectDesignSystemPage';
 import ProjectStackPage from '../pages/ProjectStackPage';
 import CustomProjectStackPage from '../pages/CustomProjectStackPage';
 import Feedback from '../pages/Feedback';
+import ClarifyationSetupGuidePage from '../pages/ClarifyationSetupGuidePage';
+import McpSetupGuidePage from '../pages/McpSetupGuidePage';
 
 export default function AppRoutes() {
   return (
@@ -41,6 +43,8 @@ export default function AppRoutes() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/docs/clarifyation-setup" element={<ClarifyationSetupGuidePage />} />
+        <Route path="/docs/mcp-setup" element={<McpSetupGuidePage />} />
         <Route path="/projects/new" element={<CreateProject />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
         <Route path="/projects/:id/workspace" element={<Workspace />} />
