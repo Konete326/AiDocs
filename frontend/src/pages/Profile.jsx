@@ -4,6 +4,7 @@ import { useProfileFetch } from '../hooks/useProfileFetch';
 import StatsGrid from '../components/profile/StatsGrid';
 import ProfileCard from '../components/profile/ProfileCard';
 import ProfileHeader from '../components/profile/ProfileHeader';
+import McpStatusWidget from '../components/profile/McpStatusWidget';
 import { useAuth } from '../context/AuthContext';
 
 const Profile = () => {
@@ -48,6 +49,7 @@ const Profile = () => {
             <div className="neumorphic-card rounded-3xl p-6 flex flex-col gap-4 overflow-y-auto min-h-0">
               <ProfileHeader user={user} />
               <StatsGrid projectsCount={projectsCount} totalDocs={totalDocs} plan={subscription?.plan || 'free'} />
+              <McpStatusWidget />
             </div>
 
             <div className="neumorphic-card rounded-3xl overflow-y-auto min-h-0">
