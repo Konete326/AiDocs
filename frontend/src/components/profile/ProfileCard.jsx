@@ -67,19 +67,11 @@ const ProfileCard = ({
           onChange={handleBgChange}
         />
 
-        {!isEditing && (
-          <button
-            onClick={onEditToggle}
-            className="absolute top-2 right-2 neumorphic-btn rounded-xl px-2.5 py-1.5 flex items-center gap-1.5 text-xs text-[#3D4852] font-bold cursor-pointer"
-          >
-            <Pencil className="w-3 h-3" />
-            <span>Edit</span>
-          </button>
-        )}
+
       </div>
 
       <div className="p-5 flex flex-col flex-1 gap-0">
-        <div className="flex items-end justify-between -mt-12 mb-3">
+        <div className="flex items-end justify-between -mt-16 mb-3">
           <div className="relative flex-shrink-0">
             <UserAvatar user={user} size="lg" showUpload={isEditing} onUpload={onAvatarUpload} />
             {isUploadingAvatar && (
@@ -89,13 +81,21 @@ const ProfileCard = ({
             )}
           </div>
 
-          {isEditing && (
+          {isEditing ? (
             <div className="flex gap-2 mb-1">
               <button onClick={onSave} disabled={isSaving} className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white rounded-full px-4 py-1.5 text-xs font-semibold cursor-pointer flex items-center gap-1.5 shadow-md">
                 {isSaving ? <LoadingSpinner size="sm" /> : 'Save'}
               </button>
               <button onClick={onCancel} className="neumorphic-btn rounded-full px-4 py-1.5 text-xs text-[#6B7280] cursor-pointer">Cancel</button>
             </div>
+          ) : (
+            <button
+              onClick={onEditToggle}
+              className="neumorphic-btn rounded-xl px-2.5 py-1.5 flex items-center gap-1.5 text-xs text-[#3D4852] font-bold cursor-pointer mb-1"
+            >
+              <Pencil className="w-3 h-3" />
+              <span>Edit</span>
+            </button>
           )}
         </div>
 
