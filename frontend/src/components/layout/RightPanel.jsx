@@ -34,7 +34,7 @@ const RecentProjects = () => {
   useEffect(() => {
     if (!isAuthenticated) { setLoading(false); return; }
     getProjects()
-      .then(data => setProjects((data || []).slice(0, 3)))
+      .then(data => setProjects((data || []).slice(0, 5)))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [isAuthenticated]);
@@ -53,9 +53,9 @@ const RecentProjects = () => {
 
   if (loading) {
     return (
-      <div className="w-full lg:w-80 space-y-4">
-        {[1,2,3].map(i => (
-          <div key={i} className={`h-24 w-64 rounded-2xl neumorphic-inset animate-pulse ${i % 2 === 0 ? 'ml-auto' : ''}`} />
+      <div className="w-full lg:w-80 space-y-3">
+        {[1,2,3,4,5].map(i => (
+          <div key={i} className={`h-16 w-[85%] rounded-2xl neumorphic-inset animate-pulse ${i % 2 === 0 ? 'ml-auto rounded-tr-none' : 'mr-auto rounded-tl-none'}`} />
         ))}
       </div>
     );
@@ -97,26 +97,30 @@ const RecentProjects = () => {
       </div>
 
       <div className="flex flex-col gap-2.5">
-        {projects.map((project) => {
+        {projects.map((project, i) => {
           const Icon = TYPE_ICONS[project.projectType] || FileText;
           const status = STATUS_CONFIG[project.status] || STATUS_CONFIG.draft;
+          const isLeft = i % 2 === 0;
 
           return (
             <div
               key={project._id}
               onClick={() => navigate(`/projects/${project._id}`)}
-              className="group flex items-center justify-between p-3.5 rounded-2xl w-full transition-all cursor-pointer neumorphic-card hover:-translate-y-0.5 active:scale-[0.99]"
+              className={`
+                group relative flex items-center justify-between p-3 rounded-2xl transition-all cursor-pointer neumorphic-card hover:-translate-y-0.5 active:scale-[0.99] max-w-[90%]
+                ${isLeft ? 'self-start rounded-tl-none' : 'self-end rounded-tr-none'}
+              `}
             >
-              <div className="flex items-center gap-3 min-w-0 flex-1">
-                <div className="w-9 h-9 rounded-xl neumorphic-inset flex items-center justify-center flex-shrink-0">
-                  <Icon className="w-4 h-4 text-[#6C63FF]" />
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                <div className="w-8 h-8 rounded-xl neumorphic-inset flex items-center justify-center flex-shrink-0">
+                  <Icon className="w-3.5 h-3.5 text-[#6C63FF]" />
                 </div>
-                <div className="flex-1 min-w-0 pr-2">
-                  <div className="flex items-center gap-2 mb-0.5">
+                <div className="flex-1 min-w-0 pr-1">
+                  <div className="flex items-center gap-1.5 mb-0.5">
                     <h4 className="text-xs font-bold text-[#3D4852] truncate group-hover:text-[#6C63FF] transition-colors">
                       {project.title}
                     </h4>
-                    <span className="text-[9px] font-mono uppercase font-bold text-[#6C63FF] neumorphic-inset px-2 py-0.5 rounded-full flex-shrink-0">
+                    <span className="text-[8px] font-mono uppercase font-bold text-[#6C63FF] neumorphic-inset px-1.5 py-0.5 rounded-full flex-shrink-0">
                       {project.projectType}
                     </span>
                   </div>
@@ -126,13 +130,21 @@ const RecentProjects = () => {
                 </div>
               </div>
 
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full neumorphic-inset flex-shrink-0">
+              <div className="flex items-center gap-1 px-2 py-0.5 rounded-full neumorphic-inset flex-shrink-0 ml-1">
                 <div className={`w-1.5 h-1.5 rounded-full ${status.color}`} />
-                <span className="text-[8.5px] font-bold uppercase text-[#3D4852] font-mono">{status.label}</span>
+                <span className="text-[8px] font-bold uppercase text-[#3D4852] font-mono">{status.label}</span>
               </div>
             </div>
           );
         })}
+
+        <button
+          onClick={() => navigate('/dashboard')}
+          className="self-center mt-1.5 text-xs font-bold text-[#6C63FF] hover:text-[#8B84FF] flex items-center gap-1 cursor-pointer transition-colors py-1 px-3 rounded-full neumorphic-inset"
+        >
+          <span>View More Projects</span>
+          <ChevronRight className="w-3.5 h-3.5" />
+        </button>
       </div>
     </div>
   );
