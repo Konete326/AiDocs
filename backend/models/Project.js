@@ -39,7 +39,13 @@ const projectSchema = new mongoose.Schema(
       attachments: [{ type: Object }],
       createdAt: { type: Date, default: Date.now }
     }],
-    livePreviewUrl: { type: String, default: null }
+    livePreviewUrl: { type: String, default: null },
+    members: [{
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      email: { type: String, required: true },
+      role: { type: String, enum: ['admin', 'editor', 'viewer'], default: 'editor' },
+      invitedAt: { type: Date, default: Date.now }
+    }]
   },
   { timestamps: true }
 );

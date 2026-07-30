@@ -1,15 +1,17 @@
-import { Download, MessageCircle, Loader2, Cpu, Palette, Layers, Play, ChevronDown, LayoutGrid } from 'lucide-react';
+import { Download, MessageCircle, Loader2, Cpu, Palette, Layers, Play, ChevronDown, LayoutGrid, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { downloadZip } from '../../services/exportService';
 import { getAccessToken, refreshAccessTokenSilent } from '../../services/api';
 import LiveSandboxModal from './LiveSandboxModal';
+import TeamInviteModal from './TeamInviteModal';
 import { toast } from 'react-hot-toast';
 
 const ProjectHeaderActions = ({ project }) => {
   const navigate = useNavigate();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSandboxOpen, setIsSandboxOpen] = useState(false);
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [agentLiveUrl, setAgentLiveUrl] = useState('');
   const dropdownRef = useRef(null);
@@ -78,6 +80,14 @@ const ProjectHeaderActions = ({ project }) => {
           <span className="text-xs sm:text-sm font-bold">Live Sandbox</span>
         </button>
 
+        <button
+          onClick={() => setIsTeamModalOpen(true)}
+          className="neumorphic-btn rounded-2xl px-4 py-2 flex items-center gap-2 cursor-pointer flex-shrink-0"
+          title="Manage Team & Workspace Roles"
+        >
+          <Users className="w-4 h-4 text-[#6C63FF]" />
+          <span className="text-xs sm:text-sm text-[#3D4852] font-bold">Team</span>
+        </button>
 
         <button
           onClick={() => navigate(`/projects/${project._id}/chat`)}
@@ -164,8 +174,8 @@ const ProjectHeaderActions = ({ project }) => {
       </div>
 
       <LiveSandboxModal isOpen={isSandboxOpen} onClose={() => setIsSandboxOpen(false)} project={project} initialUrl={agentLiveUrl} />
+      <TeamInviteModal projectId={project?._id} isOpen={isTeamModalOpen} onClose={() => setIsTeamModalOpen(false)} />
     </>
-  
   );
 };
 

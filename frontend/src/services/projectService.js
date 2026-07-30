@@ -41,3 +41,23 @@ export async function updateKanban(projectId, kanbanColumns) {
   const response = await api.patch(`/projects/${projectId}`, { kanbanColumns });
   return response.data?.data?.project || response.data?.data;
 }
+
+export async function getProjectMembers(projectId) {
+  const response = await api.get(`/projects/${projectId}/members`);
+  return response.data?.data;
+}
+
+export async function inviteProjectMember(projectId, email, role) {
+  const response = await api.post(`/projects/${projectId}/members`, { email, role });
+  return response.data?.data;
+}
+
+export async function updateProjectMemberRole(projectId, memberId, role) {
+  const response = await api.patch(`/projects/${projectId}/members/${memberId}`, { role });
+  return response.data?.data;
+}
+
+export async function removeProjectMember(projectId, memberId) {
+  const response = await api.delete(`/projects/${projectId}/members/${memberId}`);
+  return response.data?.data;
+}
