@@ -1,0 +1,15 @@
+{
+  "short_name": "ClarifyAI",
+  "name": "ClarifyAI — AI Product Architecture & Documentation Platform",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "192x192 512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#E0E5EC",
+  "theme_color": "#6C63FF",
+  "display": "standalone"
+}

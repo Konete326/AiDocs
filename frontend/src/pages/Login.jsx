@@ -6,14 +6,16 @@ import { useAuth } from '../context/AuthContext';
 import AuthLayout from '../components/auth/AuthLayout';
 import GoogleSignInButton from '../components/auth/GoogleSignInButton';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import ComingSoonModal from '../components/common/ComingSoonModal';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [error, setError] = useState('');
-  const { login, loginGoogle, isAuthenticated } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => { if (isAuthenticated) navigate('/dashboard'); }, [isAuthenticated, navigate]);
@@ -62,8 +64,14 @@ export default function Login() {
         </button>
       </form>
       <div className="flex items-center gap-3 mt-6"><div className="h-px flex-1 bg-black/10" /><span className="text-xs text-[#6B7280] font-semibold">or</span><div className="h-px flex-1 bg-black/10" /></div>
-      <GoogleSignInButton onClick={async () => { try { setIsLoading(true); await loginGoogle(); navigate('/dashboard'); } catch (err) { setError('Google sign-in failed.'); } finally { setIsLoading(false); } }} isLoading={isLoading} />
+      <GoogleSignInButton onClick={() => setShowGoogleModal(true)} isLoading={false} />
       <div className="mt-6 text-center"><span className="text-xs text-[#6B7280] font-medium">New here? </span><Link to="/register" className="text-xs text-[#6C63FF] font-extrabold hover:underline underline-offset-4">Create account</Link></div>
+      <ComingSoonModal 
+        isOpen={showGoogleModal} 
+        onClose={() => setShowGoogleModal(false)} 
+        title="Google Sign-In Coming Soon" 
+        description="Google Authentication is currently under maintenance and will be live shortly. Please log in with your email and password." 
+      />
     </AuthLayout>
   );
 }

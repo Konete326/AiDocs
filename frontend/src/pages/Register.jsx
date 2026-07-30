@@ -8,13 +8,15 @@ import AuthLayout from '../components/auth/AuthLayout';
 import PasswordStrengthMeter from '../components/auth/PasswordStrengthMeter';
 import GoogleSignInButton from '../components/auth/GoogleSignInButton';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import ComingSoonModal from '../components/common/ComingSoonModal';
 
 export default function Register() {
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' });
   const [show, setShow] = useState({ p: false, cp: false });
   const [isLoading, setIsLoading] = useState(false);
+  const [showGoogleModal, setShowGoogleModal] = useState(false);
   const [error, setError] = useState('');
-  const { register, loginGoogle, isAuthenticated } = useAuth();
+  const { register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const score = usePasswordStrength(form.password);
 
@@ -65,8 +67,14 @@ export default function Register() {
         <button type="submit" disabled={isLoading} className="liquid-glass-strong rounded-2xl py-2.5 h-10 w-full mt-2 text-[#3D4852] font-extrabold text-sm hover:scale-105 disabled:hover:scale-100 transition-all flex justify-center items-center cursor-pointer disabled:cursor-not-allowed">{isLoading ? <LoadingSpinner /> : "Create Account"}</button>
       </form>
       <div className="flex items-center gap-3 mt-6"><div className="h-px flex-1 bg-black/10" /><span className="text-xs text-[#6B7280] font-semibold">or</span><div className="h-px flex-1 bg-black/10" /></div>
-      <GoogleSignInButton onClick={async () => { try { setIsLoading(true); await loginGoogle(); navigate('/dashboard'); } catch (err) { setError('Google failed.'); } finally { setIsLoading(false); } }} isLoading={isLoading} />
+      <GoogleSignInButton onClick={() => setShowGoogleModal(true)} isLoading={false} />
       <div className="mt-6 text-center"><span className="text-xs text-[#6B7280] font-medium">Joined? </span><Link to="/login" className="text-xs text-[#6C63FF] font-extrabold hover:underline underline-offset-4">Sign in</Link></div>
+      <ComingSoonModal 
+        isOpen={showGoogleModal} 
+        onClose={() => setShowGoogleModal(false)} 
+        title="Google Sign-In Coming Soon" 
+        description="Google Authentication is currently under maintenance and will be live shortly. Please register with your email and password." 
+      />
     </AuthLayout>
   );
 }

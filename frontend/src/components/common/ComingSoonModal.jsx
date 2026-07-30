@@ -2,7 +2,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Zap, X } from 'lucide-react';
 import { createPortal } from 'react-dom';
 
-const ComingSoonModal = ({ isOpen, onClose }) => {
+const ComingSoonModal = ({ 
+  isOpen, 
+  onClose, 
+  title = "Payments Coming Soon", 
+  description = "Payment integrations will be live very soon. All features are currently 100% free!" 
+}) => {
   const modalContent = (
     <AnimatePresence>
       {isOpen && (
@@ -34,9 +39,9 @@ const ComingSoonModal = ({ isOpen, onClose }) => {
               <Zap className="w-5 h-5 text-[#38B2AC]" />
             </div>
 
-            <h2 className="text-xl font-bold text-white tracking-tight mb-1">Payments Coming Soon</h2>
+            <h2 className="text-xl font-bold text-white tracking-tight mb-1">{title}</h2>
             <p className="text-white/60 text-xs leading-relaxed mb-5">
-              Payment integrations will be live very soon. All features are currently 100% free!
+              {description}
             </p>
 
             <button

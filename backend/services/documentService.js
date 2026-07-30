@@ -250,12 +250,18 @@ exports.getSingleDocument = async (projectId, docType, userId) => {
 };
 
 exports.updateDocument = async (projectId, docType, userId, updatedContent) => {
+  const existingDoc = await Document.findOne({ projectId, docType, userId });
+  if (!existingDoc) throw new AppError('Document not found', 404, 'NOT_FOUND');
+
   const doc = await Document.findOneAndUpdate(
     { projectId, docType, userId },
-    { content: updatedContent, $inc: { version: 1 } },
+    { 
+      previousContent: existingDoc.content,
+      content: updatedContent, 
+      $inc: { version: 1 } 
+    },
     { new: true }
   );
-  if (!doc) throw new AppError('Document not found', 404, 'NOT_FOUND');
   return doc;
 };
 

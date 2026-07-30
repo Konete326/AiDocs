@@ -135,21 +135,21 @@ ${ds.prompt || ds.tagline || ''}
   );
 
   return (
-    <div className="h-screen w-full flex flex-col bg-[#E0E5EC] overflow-hidden">
-      <div className="flex-1 flex flex-col pt-20 px-4 pb-3 md:px-8 min-h-0">
-        <div className="max-w-7xl w-full mx-auto flex flex-col flex-1 min-h-0">
+    <div className="min-h-screen lg:h-screen w-full flex flex-col bg-[#E0E5EC] overflow-x-hidden lg:overflow-hidden">
+      <div className="flex-1 flex flex-col pt-20 px-4 pb-4 md:px-8 min-h-0">
+        <div className="max-w-[1400px] w-full mx-auto flex flex-col flex-1 min-h-0">
 
           {isGenerating && viewingPartial && (
-            <div className="liquid-glass rounded-2xl px-6 py-3 mb-3 flex items-center justify-between border border-blue-200 bg-blue-50/50 flex-shrink-0">
+            <div className="neumorphic-card rounded-2xl px-6 py-3 mb-3 flex items-center justify-between border border-[#6C63FF]/30 bg-[#6C63FF]/5 flex-shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse" />
-                <span className="text-sm font-semibold text-slate-800">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#6C63FF] animate-pulse" />
+                <span className="text-sm font-extrabold text-[#3D4852]">
                   Still generating — {project.docsGenerated?.length || 0} of 9 docs ready
                 </span>
               </div>
               <button
                 onClick={() => setViewingPartial(false)}
-                className="text-xs font-semibold text-blue-600 hover:text-blue-800 transition-colors cursor-pointer"
+                className="text-xs font-extrabold text-[#6C63FF] hover:underline transition-all cursor-pointer"
               >
                 View progress →
               </button>
@@ -165,9 +165,9 @@ ${ds.prompt || ds.tagline || ''}
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-8 gap-4 flex-1 min-h-0">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 min-h-0 mt-1">
 
-            <div className="md:col-span-1 lg:col-span-3 h-full overflow-hidden rounded-3xl border border-slate-200 shadow-sm">
+            <div className="lg:col-span-4 h-[400px] lg:h-full overflow-hidden rounded-[32px]">
               <DocsList
                 documents={synthesizedDocs}
                 selectedDoc={activeDoc}
@@ -176,7 +176,7 @@ ${ds.prompt || ds.tagline || ''}
               />
             </div>
 
-            <div className="md:col-span-1 lg:col-span-5 h-full overflow-hidden rounded-3xl border border-slate-200 shadow-sm">
+            <div className="lg:col-span-8 h-[550px] lg:h-full overflow-hidden rounded-[32px]">
               {selectedDoc ? (
                 <DocumentViewer
                   document={activeDoc}

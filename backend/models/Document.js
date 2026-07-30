@@ -11,6 +11,7 @@ const documentSchema = new mongoose.Schema(
     },
     version: { type: Number, default: 1 },
     content: { type: String },
+    previousContent: { type: String },
     contentTokenCount: { type: Number },
     modelUsed: { type: String },
     generationTimeMs: { type: Number }

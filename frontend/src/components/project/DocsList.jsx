@@ -22,15 +22,15 @@ const DOC_ORDER = [
 ];
 
 const DocsList = ({ documents, selectedDoc, onSelect, isGenerating }) => (
-  <div className="liquid-glass no-hover rounded-3xl p-6 flex flex-col h-full border border-slate-200 overflow-hidden" style={{ willChange: 'transform' }}>
+  <div className="neumorphic-card rounded-[32px] p-6 flex flex-col h-full bg-[#E0E5EC] border border-white/60 shadow-[9px_9px_18px_rgba(163,177,198,0.5),-9px_-9px_18px_rgba(255,255,255,0.6)] overflow-hidden" style={{ willChange: 'transform' }}>
     <div className="flex items-center justify-between px-2 mb-4 flex-shrink-0">
-      <span className="text-xs uppercase tracking-widest text-slate-600 font-bold">Project Documents</span>
+      <span className="text-xs uppercase tracking-widest text-[#6B7280] font-extrabold">Project Documents</span>
       {isGenerating && (
-        <span className="text-xs text-slate-500 font-medium">{documents.length}/9 ready</span>
+        <span className="text-xs text-[#6C63FF] font-bold">{documents.length}/9 ready</span>
       )}
     </div>
     
-    <div className="space-y-2 overflow-y-auto flex-1 hover-scrollbar custom-scrollbar pr-1">
+    <div className="space-y-2.5 overflow-y-auto flex-1 hover-scrollbar custom-scrollbar pr-1">
       {DOC_ORDER.map((type) => {
         const doc = documents.find((d) => d.docType === type);
         const isGenerated = !!doc;
@@ -42,31 +42,31 @@ const DocsList = ({ documents, selectedDoc, onSelect, isGenerating }) => (
             className={[
               'rounded-2xl px-4 py-3 flex items-center gap-3 w-full transition-all border',
               isSelected 
-                ? 'bg-[#38B2AC] shadow-[3px_3px_8px_rgba(56,178,172,0.3)] border-[#38B2AC] text-white' 
-                : 'bg-slate-50 border-slate-200 hover:bg-slate-100 hover:border-slate-300',
+                ? 'bg-[#6C63FF] shadow-[5px_5px_12px_rgba(108,99,255,0.35)] border-[#6C63FF] text-white' 
+                : 'bg-[#E0E5EC] border-white/60 text-[#3D4852] hover:bg-white/40 shadow-[4px_4px_8px_rgba(163,177,198,0.4),-4px_-4px_8px_rgba(255,255,255,0.5)]',
               isGenerated ? 'cursor-pointer' : 'opacity-40 cursor-not-allowed',
             ].join(' ')}
             style={{ willChange: isGenerated ? 'transform' : 'auto' }}
           >
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isSelected ? 'bg-white/20' : 'bg-slate-200'}`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isSelected ? 'bg-white/20' : 'bg-black/5'}`}>
               {isGenerated
-                ? <FileText className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-slate-700'}`} />
+                ? <FileText className={`w-4 h-4 ${isSelected ? 'text-white' : 'text-[#6C63FF]'}`} />
                 : isGenerating
-                  ? <Loader className="w-4 h-4 text-slate-400 animate-spin" />
-                  : <span className="text-slate-400 text-xs">—</span>
+                  ? <Loader className="w-4 h-4 text-[#6C63FF] animate-spin" />
+                  : <span className="text-[#6B7280] text-xs">—</span>
               }
             </div>
             <div className="flex-1 min-w-0">
               <p
                 style={isSelected ? { color: '#ffffff' } : undefined}
-                className={`text-xs sm:text-sm font-semibold truncate ${isSelected ? '' : isGenerated ? 'text-slate-800' : 'text-slate-400'}`}
+                className={`text-xs sm:text-sm font-extrabold truncate ${isSelected ? '' : isGenerated ? 'text-[#3D4852]' : 'text-[#6B7280]'}`}
               >
                 {DOC_LABELS[type]}
               </p>
               {isGenerated && (
                 <p
                   style={isSelected ? { color: 'rgba(255, 255, 255, 0.85)' } : undefined}
-                  className={`text-[10px] mt-0.5 ${isSelected ? '' : 'text-slate-500'}`}
+                  className={`text-[10px] font-bold mt-0.5 ${isSelected ? '' : 'text-[#6B7280]'}`}
                 >
                   v{doc.version}
                 </p>
@@ -74,7 +74,7 @@ const DocsList = ({ documents, selectedDoc, onSelect, isGenerating }) => (
             </div>
             {isGenerated && (
               <CheckCircle 
-                className={`w-4 h-4 flex-shrink-0 transition-colors ${isSelected ? 'text-white' : 'text-emerald-600'}`} 
+                className={`w-4 h-4 flex-shrink-0 transition-colors ${isSelected ? 'text-white' : 'text-[#6C63FF]'}`} 
               />
             )}
           </div>

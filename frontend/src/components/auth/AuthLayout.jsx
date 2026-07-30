@@ -41,7 +41,7 @@ const InfoPanel = () => (
 
 const AuthLayout = ({ children, title, subtitle }) => (
   <div className="relative min-h-screen flex items-center justify-center p-4 pt-24 pb-8">
-    <div className="w-full max-w-5xl h-fit flex flex-col md:flex-row rounded-[32px] overflow-hidden liquid-glass-strong items-stretch">
+    <div className="w-full max-w-5xl h-fit flex flex-col md:flex-row rounded-[32px] overflow-hidden liquid-glass-strong no-hover items-stretch">
       <div className="w-full md:w-[58%] p-5 sm:p-6 md:px-8 md:py-6 flex flex-col justify-center">
         <Link to="/" className="flex items-center gap-2 justify-center md:justify-start hover:opacity-80 transition-opacity cursor-pointer select-none">
           <img src={logo} alt="ClarifyAI" className="w-7 h-7 rounded-lg object-cover shadow-md" />
