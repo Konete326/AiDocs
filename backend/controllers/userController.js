@@ -12,7 +12,7 @@ exports.getMe = asyncWrapper(async (req, res) => {
 });
 
 exports.updateMe = asyncWrapper(async (req, res) => {
-  const allowedUpdates = ['displayName', 'avatarUrl', 'bio'];
+  const allowedUpdates = ['displayName', 'avatarUrl', 'bio', 'branding'];
   const updates = {};
   
   Object.keys(req.body).forEach(key => {

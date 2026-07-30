@@ -19,7 +19,12 @@ const userSchema = new mongoose.Schema(
     passwordResetToken: { type: String },
     passwordResetExpiry: { type: Date },
     mcpApiKey: { type: String, unique: true, sparse: true, index: true },
-    lastMcpActivityAt: { type: Date }
+    lastMcpActivityAt: { type: Date },
+    branding: {
+      agencyName: { type: String, default: '' },
+      logoUrl: { type: String, default: '' },
+      primaryColor: { type: String, default: '#6C63FF' }
+    }
   },
   { timestamps: true }
 );

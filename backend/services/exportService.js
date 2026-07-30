@@ -398,6 +398,12 @@ exports.generatePdf = async (projectId, docType, userId) => {
     content = doc.content;
   }
 
+  const User = require('../models/User');
+  const user = await User.findById(userId).lean();
+  const branding = user?.branding || {};
+  const agencyName = branding.agencyName || 'ClarifyAI';
+  const primaryColor = branding.primaryColor || '#6C63FF';
+
   return new Promise((resolve, reject) => {
     try {
       const PDFDocument = require('pdfkit');
@@ -407,8 +413,9 @@ exports.generatePdf = async (projectId, docType, userId) => {
       doc.on('data', buffers.push.bind(buffers));
       doc.on('end', () => resolve(Buffer.concat(buffers)));
 
-      doc.fontSize(18).fillColor('#3D4852').text(`ClarifyAI Specification: ${docType.toUpperCase()}`).moveDown(1);
-      doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor('#6C63FF').stroke().moveDown(1);
+      doc.fontSize(10).fillColor('#6B7280').text(agencyName, { align: 'right' });
+      doc.fontSize(18).fillColor('#3D4852').text(`Specification: ${docType.toUpperCase()}`).moveDown(0.5);
+      doc.moveTo(40, doc.y).lineTo(550, doc.y).strokeColor(primaryColor).stroke().moveDown(1);
 
       const lines = content.split('\n');
       lines.forEach((line) => {
@@ -424,6 +431,9 @@ exports.generatePdf = async (projectId, docType, userId) => {
           doc.moveDown(0.15);
         }
       });
+
+      doc.moveDown(2);
+      doc.fontSize(8).fillColor('#A0AEC0').text(`Prepared by ${agencyName} | ClarifyAI Engine`, { align: 'center' });
 
       doc.end();
     } catch (err) {
