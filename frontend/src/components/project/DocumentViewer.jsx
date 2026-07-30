@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Copy, Pencil, Lock, FileText, FileDown, Check, Search, X, ChevronDown, Download, GitCompare, Play } from 'lucide-react';
-import { downloadDocAsPdf, downloadDocAsWord } from '../../services/exportService';
+import { downloadDocAsPdf, downloadDocAsWord, downloadZip } from '../../services/exportService';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { updateDocument } from '../../services/documentService';
 import { mdComponents, DOC_LABELS } from './markdownComponents';
@@ -315,6 +315,16 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
                       Export Word (.docx)
                     </span>
                     {wordSuccess && <Check className="w-3.5 h-3.5 text-emerald-600" />}
+                  </button>
+
+                  <button
+                    onClick={() => { downloadZip(project?._id, project?.title); setShowExportMenu(false); }}
+                    className="w-full px-4 py-2.5 text-left text-xs text-[#3D4852] hover:bg-[#6C63FF]/10 flex items-center justify-between transition-colors cursor-pointer font-bold border-t border-black/5"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Download className="w-3.5 h-3.5 text-[#6C63FF]" />
+                      Export Full Suite (.zip)
+                    </span>
                   </button>
                 </div>
               )}
