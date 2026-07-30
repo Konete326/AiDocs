@@ -24,6 +24,12 @@ const userSchema = new mongoose.Schema(
       agencyName: { type: String, default: '' },
       logoUrl: { type: String, default: '' },
       primaryColor: { type: String, default: '#6C63FF' }
+    },
+    notificationPreferences: {
+      docReady: { type: Boolean, default: true },
+      planStatus: { type: Boolean, default: true },
+      systemAlerts: { type: Boolean, default: true },
+      teamInvites: { type: Boolean, default: true }
     }
   },
   { timestamps: true }

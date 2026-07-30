@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Palette, Cpu, Sparkles, FileText } from 'lucide-react';
+import { ChevronLeft, Palette, Cpu, Sparkles, FileText, Bell } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 import McpSettings from '../components/settings/McpSettings';
 import ClarifyationSettings from '../components/settings/ClarifyationSettings';
 import BrandingSettings from '../components/settings/BrandingSettings';
+import NotificationSettings from '../components/settings/NotificationSettings';
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ const Settings = () => {
   const tabs = [
     { id: 'theme', label: 'Display & Theme', icon: Palette },
     { id: 'branding', label: 'PDF & Branding', icon: FileText },
+    { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'clarifyation', label: 'Clarifyation SDK', icon: Sparkles },
     { id: 'mcp', label: 'MCP Integration', icon: Cpu }
   ];
@@ -97,6 +99,7 @@ const Settings = () => {
                 </div>
               )}
               {activeTab === 'branding' && <BrandingSettings />}
+              {activeTab === 'notifications' && <NotificationSettings />}
               {activeTab === 'clarifyation' && <ClarifyationSettings />}
               {activeTab === 'mcp' && <McpSettings />}
             </div>
