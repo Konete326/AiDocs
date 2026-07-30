@@ -2,13 +2,14 @@ import { useState, useEffect, useMemo, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Copy, Pencil, Lock, FileText, FileDown, Check, Search, X, ChevronDown, Download, GitCompare } from 'lucide-react';
+import { Copy, Pencil, Lock, FileText, FileDown, Check, Search, X, ChevronDown, Download, GitCompare, Play } from 'lucide-react';
 import { downloadDocAsPdf, downloadDocAsWord } from '../../services/exportService';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { updateDocument } from '../../services/documentService';
 import { mdComponents, DOC_LABELS } from './markdownComponents';
 import DocumentEditor from './DocumentEditor';
 import UpgradeModal from '../common/UpgradeModal';
+import LiveSandboxModal from './LiveSandboxModal';
 
 const computeLineDiff = (oldText, newText) => {
   const oldLines = (oldText || '').split('\n');
@@ -56,6 +57,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [showDiff, setShowDiff] = useState(false);
+  const [isSandboxOpen, setIsSandboxOpen] = useState(false);
   const [editContent, setEditContent] = useState(document.content);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState('');
@@ -195,6 +197,14 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   const renderButtons = () => {
     if (!isEditing) return (
       <div className="flex items-center gap-2">
+        <button
+          onClick={() => setIsSandboxOpen(true)}
+          className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white rounded-2xl px-3.5 py-2 text-xs font-extrabold flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer shadow-[4px_4px_10px_rgba(108,99,255,0.35)]"
+          title="Live Component Sandbox Preview"
+        >
+          <Play className="w-3.5 h-3.5 text-white" />
+          <span>Live Sandbox</span>
+        </button>
         <button
           onClick={() => setShowDiff(!showDiff)}
           className={`neumorphic-btn rounded-2xl px-3.5 py-2 text-xs font-extrabold flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer ${
@@ -349,6 +359,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
           </div>
         ) : renderedMarkdown}
       </div>
+      <LiveSandboxModal isOpen={isSandboxOpen} onClose={() => setIsSandboxOpen(false)} project={project} initialUrl={project?.livePreviewUrl || 'http://localhost:5173'} />
     </div>
   );
 };
