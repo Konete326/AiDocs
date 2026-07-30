@@ -29,7 +29,8 @@ import { NeumorphismPreview } from "./previews/neumorphism/NeumorphismPreview";
 import { OrganicNaturalPreview } from "./previews/organicnatural/OrganicNaturalPreview";
 import { MaximalismPreview } from "./previews/maximalism/MaximalismPreview";
 import { DesignPromptModal } from "./DesignPromptModal";
-import { FileText, Check, Palette, Layout, Layers, Copy } from "lucide-react";
+import { FileText, Check, Palette, Layout, Layers, Copy, Download } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 export const DesignSystemSelector = ({ selectedPresetId, onSelectPreset }) => {
   const [activePresetId, setActivePresetId] = useState(selectedPresetId || "monochrome");
@@ -42,7 +43,54 @@ export const DesignSystemSelector = ({ selectedPresetId, onSelectPreset }) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(activePreset.prompt);
     setCopied(true);
+    toast.success(`Prompt copied for ${activePreset.name}!`);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleDownloadTailwindConfig = () => {
+    const colors = activePreset.tokens?.colors || {
+      primary: '#6C63FF',
+      secondary: '#38B2AC',
+      background: '#E0E5EC',
+      surface: '#F0F4F8',
+      text: '#3D4852',
+      muted: '#6B7280'
+    };
+
+    const fontFamily = activePreset.tokens?.fontFamily || 'Inter, sans-serif';
+
+    const configContent = `/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: ${JSON.stringify(colors, null, 8)},
+      fontFamily: {
+        preset: ["${fontFamily.split(',')[0].replace(/['"]/g, '').trim()}", "sans-serif"]
+      },
+      boxShadow: {
+        'neumorphic-raised': '9px 9px 16px rgba(163,177,198,0.6), -9px -9px 16px rgba(255,255,255,0.5)',
+        'neumorphic-inset': 'inset 6px 6px 10px rgba(163,177,198,0.6), inset -6px -6px 10px rgba(255,255,255,0.5)',
+      }
+    },
+  },
+  plugins: [],
+};
+`;
+
+    const blob = new Blob([configContent], { type: 'application/javascript;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'tailwind.config.js';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast.success(`tailwind.config.js downloaded for ${activePreset.name}!`);
   };
 
   const renderActivePreview = () => {
@@ -96,14 +144,14 @@ export const DesignSystemSelector = ({ selectedPresetId, onSelectPreset }) => {
                 onClick={() => setActivePresetId(preset.id)} 
                 className={`w-full text-left px-3 py-2 rounded-xl transition-all cursor-pointer border ${
                   isActive 
-                    ? "bg-[#2563EB]/15 border-2 border-[#2563EB] shadow-[0_0_10px_rgba(37,99,235,0.35)]" 
-                    : "bg-white/40 border-black/5 hover:border-[#2563EB]/40"
+                    ? "bg-[#6C63FF]/15 border-2 border-[#6C63FF] shadow-[0_0_10px_rgba(108,99,255,0.35)]" 
+                    : "bg-white/40 border-black/5 hover:border-[#6C63FF]/40"
                 }`}
               >
                 <div className="flex items-center justify-between mb-0.5">
-                  <span className={`text-xs font-extrabold truncate ${isActive ? "text-[#2563EB]" : "text-[#3D4852]"}`}>{preset.name}</span>
+                  <span className={`text-xs font-extrabold truncate ${isActive ? "text-[#6C63FF]" : "text-[#3D4852]"}`}>{preset.name}</span>
                   {isSelected && (
-                    <span className="text-[9px] bg-[#2563EB] text-white px-1.5 py-0.2 rounded-full font-bold uppercase shrink-0 ml-1">
+                    <span className="text-[9px] bg-[#6C63FF] text-white px-1.5 py-0.2 rounded-full font-bold uppercase shrink-0 ml-1">
                       Selected
                     </span>
                   )}
@@ -118,24 +166,33 @@ export const DesignSystemSelector = ({ selectedPresetId, onSelectPreset }) => {
       <div className="lg:col-span-9 flex flex-col overflow-hidden">
         <div className="p-2 flex flex-wrap items-center justify-between gap-2 shadow-[0_2px_6px_rgba(163,177,198,0.3)]">
           <div className="flex items-center space-x-2 px-1">
-            <Palette size={13} className="text-[#2563EB]" />
+            <Palette size={13} className="text-[#6C63FF]" />
             <span className="text-xs font-bold text-[#3D4852] tracking-wide">{activePreset.name} Studio Preview</span>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={handleDownloadTailwindConfig}
+              className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white px-3 py-1.5 rounded-xl text-xs font-extrabold flex items-center space-x-1.5 transition-transform hover:scale-105 cursor-pointer shadow-md"
+              title="Download tailwind.config.js theme preset"
+            >
+              <Download size={13} className="text-white" />
+              <span>tailwind.config.js</span>
+            </button>
+
             {onSelectPreset && (
-              <button onClick={() => onSelectPreset(activePreset)} className={`px-4 py-1.5 rounded-xl text-xs font-extrabold flex items-center justify-center space-x-1.5 transition-transform hover:scale-105 cursor-pointer min-w-[105px] ${selectedPresetId === activePreset.id ? "bg-[#2563EB] text-white shadow-md" : "bg-[#2563EB] hover:bg-[#1D4ED8] text-white shadow-md"}`}>
+              <button onClick={() => onSelectPreset(activePreset)} className={`px-4 py-1.5 rounded-xl text-xs font-extrabold flex items-center justify-center space-x-1.5 transition-transform hover:scale-105 cursor-pointer min-w-[105px] ${selectedPresetId === activePreset.id ? "bg-[#6C63FF] text-white shadow-md" : "bg-[#6C63FF] hover:bg-[#8B84FF] text-white shadow-md"}`}>
                 <Check size={13} className="text-white" />
                 <span>{selectedPresetId === activePreset.id ? "Applied" : "Apply Theme"}</span>
               </button>
             )}
 
             <div className="flex items-center liquid-glass rounded-xl p-0.5 space-x-1">
-              <button onClick={() => setViewMode("landing")} className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer min-w-[75px] justify-center ${viewMode === "landing" ? "liquid-glass-strong text-[#38B2AC]" : "text-[#6B7280] hover:text-[#3D4852]"}`}>
+              <button onClick={() => setViewMode("landing")} className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer min-w-[75px] justify-center ${viewMode === "landing" ? "liquid-glass-strong text-[#6C63FF]" : "text-[#6B7280] hover:text-[#3D4852]"}`}>
                 <Layout size={12} />
                 <span>Landing</span>
               </button>
-              <button onClick={() => setViewMode("showcase")} className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer min-w-[75px] justify-center ${viewMode === "showcase" ? "liquid-glass-strong text-[#38B2AC]" : "text-[#6B7280] hover:text-[#3D4852]"}`}>
+              <button onClick={() => setViewMode("showcase")} className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center space-x-1.5 transition-all cursor-pointer min-w-[75px] justify-center ${viewMode === "showcase" ? "liquid-glass-strong text-[#6C63FF]" : "text-[#6B7280] hover:text-[#3D4852]"}`}>
                 <Layers size={12} />
                 <span>UI Kit</span>
               </button>
