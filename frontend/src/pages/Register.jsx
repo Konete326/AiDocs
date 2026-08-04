@@ -64,7 +64,7 @@ export default function Register() {
           </div>
           <div className={rowCls}><ShieldCheck className="w-4 h-4 text-[#6B7280]" /><input type={show.cp ? 'text' : 'password'} placeholder="Confirm password" value={form.confirmPassword} onChange={e => setForm({...form, confirmPassword: e.target.value})} className={inputCls} required /><button type="button" onClick={() => setShow({...show, cp: !show.cp})} aria-label="Toggle confirm password visibility" className="cursor-pointer">{show.cp ? <EyeOff className="w-4 h-4 text-[#6B7280]" /> : <Eye className="w-4 h-4 text-[#6B7280]" />}</button></div>
         </div>
-        <button type="submit" disabled={isLoading} className="liquid-glass-strong rounded-2xl py-2.5 h-10 w-full mt-2 text-[#3D4852] font-extrabold text-sm hover:scale-105 disabled:hover:scale-100 transition-all flex justify-center items-center cursor-pointer disabled:cursor-not-allowed">{isLoading ? <LoadingSpinner /> : "Create Account"}</button>
+        <button type="submit" disabled={isLoading} className="liquid-glass-strong rounded-2xl py-2.5 h-10 w-full mt-2 text-[#3D4852] font-extrabold text-sm hover:scale-105 disabled:hover:scale-100 transition-all flex justify-center items-center cursor-pointer disabled:cursor-not-allowed">{isLoading ? <LoadingSpinner size="sm" /> : "Create Account"}</button>
       </form>
       <div className="flex items-center gap-3 mt-6"><div className="h-px flex-1 bg-black/10" /><span className="text-xs text-[#6B7280] font-semibold">or</span><div className="h-px flex-1 bg-black/10" /></div>
       <GoogleSignInButton onClick={() => setShowGoogleModal(true)} isLoading={false} />
