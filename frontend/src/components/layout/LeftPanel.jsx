@@ -11,7 +11,7 @@ const HeroText = () => {
   const { isAuthenticated } = useAuth();
   return (
   <div className="flex flex-col items-center justify-center text-center gap-4 lg:gap-8 flex-1 py-12 lg:py-0">
-    <img src={logo} alt="ClarifyAI Logo" className="h-16 lg:h-20 w-auto object-contain filter drop-shadow-2xl" />
+    <img src={logo} alt="ClarifyAI Logo" className="h-16 lg:h-20 w-auto object-contain bg-transparent filter drop-shadow-xl select-none pointer-events-none" />
     <h1 className="text-4xl md:text-6xl lg:text-[5.5rem] font-medium tracking-[-0.05em] text-white leading-[1.1]">
       Generating the<br />
       spirit of your{' '}
