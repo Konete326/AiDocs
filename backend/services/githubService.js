@@ -1,13 +1,20 @@
-const { Octokit } = require('@octokit/rest');
+let OctokitClass;
+async function getOctokit(token) {
+  if (!OctokitClass) {
+    const octokitModule = await import('@octokit/rest');
+    OctokitClass = octokitModule.Octokit;
+  }
+  return new OctokitClass({ auth: token });
+}
 
 async function getAuthenticatedUser(token) {
-  const octokit = new Octokit({ auth: token });
+  const octokit = await getOctokit(token);
   const { data } = await octokit.users.getAuthenticated();
   return { username: data.login, avatarUrl: data.avatar_url, name: data.name || data.login, profileUrl: data.html_url };
 }
 
 async function createOrFetchRepo(token, { repoName, isPrivate = false, description = '' }) {
-  const octokit = new Octokit({ auth: token });
+  const octokit = await getOctokit(token);
   const { data: user } = await octokit.users.getAuthenticated();
   const owner = user.login;
   try {
@@ -28,7 +35,7 @@ async function createOrFetchRepo(token, { repoName, isPrivate = false, descripti
 }
 
 async function pushDocumentsToRepo(token, { owner, repo, commitMessage, documents }) {
-  const octokit = new Octokit({ auth: token });
+  const octokit = await getOctokit(token);
   const repoInfo = await octokit.repos.get({ owner, repo });
   const defaultBranch = repoInfo.data.default_branch || 'main';
 
@@ -68,7 +75,7 @@ async function pushDocumentsToRepo(token, { owner, repo, commitMessage, document
 }
 
 async function createOrUpdateWebhook(token, { owner, repo, webhookUrl, secret }) {
-  const octokit = new Octokit({ auth: token });
+  const octokit = await getOctokit(token);
   try {
     const { data: hooks } = await octokit.repos.listWebhooks({ owner, repo });
     const existing = hooks.find(h => h.config && h.config.url === webhookUrl);
@@ -88,7 +95,7 @@ async function createOrUpdateWebhook(token, { owner, repo, webhookUrl, secret })
 }
 
 async function fetchRawFileContent(token, { owner, repo, path, branch = 'main' }) {
-  const octokit = new Octokit({ auth: token });
+  const octokit = await getOctokit(token);
   try {
     const { data } = await octokit.repos.getContent({ owner, repo, path, ref: branch });
     if (data.content && data.encoding === 'base64') {

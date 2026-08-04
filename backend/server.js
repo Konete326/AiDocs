@@ -74,8 +74,8 @@ app.use(cors({
 
 const { recoverAllStuckProjects } = require('./services/recoveryService');
 
-// Database connection middleware for Serverless
 app.use(async (req, res, next) => {
+  if (req.method === 'OPTIONS') return next();
   try {
     await db();
     recoverAllStuckProjects().catch(() => {});
