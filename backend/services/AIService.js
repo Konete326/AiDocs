@@ -10,7 +10,7 @@ const providers = [
   {
     name: 'GEMINI_FLASH',
     type: 'gemini',
-    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent',
     getKey: () => process.env.GEMINI_API_KEY
   },
   {
