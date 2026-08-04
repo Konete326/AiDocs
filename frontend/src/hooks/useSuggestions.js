@@ -55,7 +55,7 @@ export function useSuggestions(projectTitle, projectType, fieldName, currentValu
           setIsLoading(false);
         }
       }
-    }, 350);
+    }, 150);
 
     return () => {
       clearTimeout(timerRef.current);
