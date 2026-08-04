@@ -8,7 +8,7 @@ export default function BrandingSettings() {
   const { user, setUser } = useAuth();
   const [agencyName, setAgencyName] = useState(user?.branding?.agencyName || '');
   const [logoUrl, setLogoUrl] = useState(user?.branding?.logoUrl || '');
-  const [primaryColor, setPrimaryColor] = useState(user?.branding?.primaryColor || '#6C63FF');
+  const [primaryColor, setPrimaryColor] = useState(user?.branding?.primaryColor || '#2563EB');
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
 
@@ -16,7 +16,7 @@ export default function BrandingSettings() {
     if (user?.branding) {
       setAgencyName(user.branding.agencyName || '');
       setLogoUrl(user.branding.logoUrl || '');
-      setPrimaryColor(user.branding.primaryColor || '#6C63FF');
+      setPrimaryColor(user.branding.primaryColor || '#2563EB');
     }
   }, [user]);
 
@@ -41,82 +41,81 @@ export default function BrandingSettings() {
   };
 
   return (
-    <div className="animate-in fade-in duration-300 space-y-6">
+    <div className="animate-in fade-in duration-300 space-y-3.5">
       <div>
-        <h3 className="text-xl font-bold text-[#3D4852] tracking-tight mb-1">Custom PDF Branding & Logo</h3>
+        <h3 className="text-lg font-bold text-[#3D4852] tracking-tight mb-0.5">Custom PDF Branding & Logo</h3>
         <p className="text-[#6B7280] text-xs font-medium">
-          Add your agency branding, custom header logo, and client colors to exported PRDs, SRDs, and technical documents.
+          Add agency branding, custom logo URL, and accent colors to exported PRDs and SRDs.
         </p>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-5 max-w-xl">
-        <div className="space-y-1.5">
-          <label className="text-xs font-extrabold text-[#3D4852] flex items-center gap-2">
-            <FileText className="w-3.5 h-3.5 text-[#6C63FF]" /> Agency / Company Name
+      <form onSubmit={handleSave} className="grid grid-cols-1 sm:grid-cols-4 gap-3 items-end w-full">
+        <div className="space-y-1">
+          <label className="text-xs font-extrabold text-[#3D4852] flex items-center gap-1.5 truncate">
+            <FileText className="w-3.5 h-3.5 text-[#2563EB]" /> Agency Name
           </label>
           <input
             type="text"
             value={agencyName}
             onChange={(e) => setAgencyName(e.target.value)}
-            placeholder="e.g. Acme Digital Solutions"
-            className="w-full bg-[#E0E5EC] text-xs font-bold text-[#3D4852] placeholder:text-[#6B7280] p-3 rounded-2xl outline-none neumorphic-inset"
+            placeholder="e.g. Acme Digital"
+            className="w-full bg-[#E0E5EC] text-xs font-bold text-[#3D4852] placeholder:text-[#6B7280] p-2.5 rounded-xl outline-none neumorphic-inset"
           />
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-xs font-extrabold text-[#3D4852] flex items-center gap-2">
-            <Image className="w-3.5 h-3.5 text-[#6C63FF]" /> Custom Header Logo URL
+        <div className="space-y-1">
+          <label className="text-xs font-extrabold text-[#3D4852] flex items-center gap-1.5 truncate">
+            <Image className="w-3.5 h-3.5 text-[#2563EB]" /> Logo URL
           </label>
           <input
             type="url"
             value={logoUrl}
             onChange={(e) => setLogoUrl(e.target.value)}
-            placeholder="https://youragency.com/logo.png"
-            className="w-full bg-[#E0E5EC] text-xs font-bold text-[#3D4852] placeholder:text-[#6B7280] p-3 rounded-2xl outline-none neumorphic-inset"
+            placeholder="https://..."
+            className="w-full bg-[#E0E5EC] text-xs font-bold text-[#3D4852] placeholder:text-[#6B7280] p-2.5 rounded-xl outline-none neumorphic-inset"
           />
-          <p className="text-[10px] text-[#6B7280]">Provide a direct image URL (PNG/SVG/JPG) to render on PDF headers.</p>
         </div>
 
-        <div className="space-y-1.5">
-          <label className="text-xs font-extrabold text-[#3D4852] flex items-center gap-2">
-            <Palette className="w-3.5 h-3.5 text-[#6C63FF]" /> PDF Accent Color
+        <div className="space-y-1">
+          <label className="text-xs font-extrabold text-[#3D4852] flex items-center gap-1.5 truncate">
+            <Palette className="w-3.5 h-3.5 text-[#2563EB]" /> PDF Accent
           </label>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <input
               type="color"
               value={primaryColor}
               onChange={(e) => setPrimaryColor(e.target.value)}
-              className="w-10 h-10 rounded-xl cursor-pointer border-none bg-transparent"
+              className="w-8 h-8 rounded-lg cursor-pointer border-none bg-transparent flex-shrink-0"
             />
             <input
               type="text"
               value={primaryColor}
               onChange={(e) => setPrimaryColor(e.target.value)}
-              className="w-32 bg-[#E0E5EC] text-xs font-mono font-bold text-[#3D4852] p-2.5 rounded-2xl outline-none neumorphic-inset"
+              className="w-full bg-[#E0E5EC] text-xs font-mono font-bold text-[#3D4852] p-2 rounded-xl outline-none neumorphic-inset"
             />
           </div>
         </div>
 
-        <div className="pt-2 flex items-center gap-3">
+        <div>
           <button
             type="submit"
             disabled={isSaving}
-            className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white rounded-2xl px-6 py-2.5 text-xs font-extrabold flex items-center gap-2 shadow-[4px_4px_10px_rgba(108,99,255,0.35)] hover:scale-105 transition-transform cursor-pointer disabled:opacity-50"
+            className="w-full bg-[#2563EB] hover:bg-[#1d4ed8] !text-white rounded-xl py-2.5 text-xs font-extrabold flex items-center justify-center gap-2 shadow-md hover:scale-102 transition-all cursor-pointer disabled:opacity-50 border-none h-[38px]"
           >
-            {saveSuccess ? <Check className="w-4 h-4 text-white" /> : <Save className="w-4 h-4 text-white" />}
-            <span>{isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save Branding'}</span>
+            {saveSuccess ? <Check className="w-3.5 h-3.5 !text-white stroke-white" /> : <Save className="w-3.5 h-3.5 !text-white stroke-white" />}
+            <span className="!text-white whitespace-nowrap">{isSaving ? 'Saving...' : saveSuccess ? 'Saved!' : 'Save Branding'}</span>
           </button>
         </div>
       </form>
 
-      <div className="neumorphic-card no-hover p-5 rounded-3xl space-y-2 border border-white/60">
-        <h4 className="text-xs font-extrabold text-[#3D4852] uppercase tracking-wider">PDF Cover Preview</h4>
-        <div className="p-4 rounded-2xl neumorphic-inset bg-[#E0E5EC] space-y-2 font-mono text-xs">
-          <div className="flex justify-between items-center border-b pb-2 border-black/10">
+      <div className="neumorphic-card no-hover p-3 rounded-2xl space-y-1.5 border border-white/60">
+        <h4 className="text-[11px] font-extrabold text-[#3D4852] uppercase tracking-wider">PDF Cover Preview</h4>
+        <div className="p-3 rounded-xl neumorphic-inset bg-[#E0E5EC] space-y-1.5 font-mono text-[11px]">
+          <div className="flex justify-between items-center border-b pb-1 border-black/10">
             <span className="font-extrabold text-[#3D4852]">{agencyName || 'ClarifyAI Agency'}</span>
-            <span className="text-[10px] text-[#6B7280]">CONFIDENTIAL SPECIFICATION</span>
+            <span className="text-[9px] text-[#6B7280]">CONFIDENTIAL SPECIFICATION</span>
           </div>
-          <div className="text-[11px] font-bold text-[#3D4852]">PRODUCT REQUIREMENTS DOCUMENT</div>
+          <div className="text-[10px] font-bold text-[#3D4852]">PRODUCT REQUIREMENTS DOCUMENT</div>
           <div className="h-1 rounded-full w-full" style={{ backgroundColor: primaryColor }} />
         </div>
       </div>

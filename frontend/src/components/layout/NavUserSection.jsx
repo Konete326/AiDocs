@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { LogOut, Settings, Command } from 'lucide-react';
+import { LogOut, Settings } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import NotificationBell from '../notifications/NotificationBell';
 import UserAvatar from '../common/UserAvatar';
@@ -32,15 +32,6 @@ const NavUserSection = () => {
 
   return (
     <div className="flex items-center gap-3">
-      <button 
-        onClick={() => window.dispatchEvent(new CustomEvent('open-command-palette'))}
-        className="hidden sm:flex items-center gap-2 neumorphic-inset rounded-full px-3 py-1.5 text-xs text-[#6B7280] font-extrabold cursor-pointer hover:text-[#3D4852]"
-        title="Open Command Palette (Ctrl + K)"
-      >
-        <Command className="w-3.5 h-3.5 text-[#6C63FF]" />
-        <span className="text-[10px] font-mono bg-black/5 px-1.5 py-0.5 rounded">Ctrl K</span>
-      </button>
-
       <NotificationBell />
       <div onClick={() => navigate('/profile')} className="cursor-pointer p-0.5 rounded-full neumorphic-inset">
         <UserAvatar size="sm" user={user} />

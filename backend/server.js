@@ -106,6 +106,8 @@ app.use(['/api', '/'], require('./routes/mcpRoutes'));
 app.use(['/api', '/'], chatRoutes);
 app.use(['/api', '/'], exportRoutes);
 app.use(['/api/feedback', '/feedback'], feedbackRoutes);
+app.use(['/api/github', '/github'], require('./routes/githubRoutes'));
+app.use(['/api/webhooks', '/webhooks'], require('./routes/webhookRoutes'));
 app.use(['/api', '/'], suggestionRoutes);
 
 app.use((req, res, next) => {

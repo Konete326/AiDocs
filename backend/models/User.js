@@ -30,6 +30,12 @@ const userSchema = new mongoose.Schema(
       planStatus: { type: Boolean, default: true },
       systemAlerts: { type: Boolean, default: true },
       teamInvites: { type: Boolean, default: true }
+    },
+    github: {
+      githubUsername: { type: String, default: null },
+      githubAccessToken: { type: String, default: null },
+      connectedAt: { type: Date, default: null },
+      scope: { type: String, default: 'repo' }
     }
   },
   { timestamps: true }

@@ -1,8 +1,10 @@
 import { ChevronLeft, Bot, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../common/LoadingSpinner';
+import GithubIcon from '../common/GithubIcon';
+import GithubSyncStatusBadge from '../workspace/GithubSyncStatusBadge';
 
-const WorkspaceHeader = ({ project, isSaving, onBack }) => {
+const WorkspaceHeader = ({ project, isSaving, onBack, onOpenGithubModal }) => {
   const navigate = useNavigate();
   return (
     <div className="flex items-center justify-between pb-3 mb-2 border-b border-black/5 flex-shrink-0 gap-3 flex-wrap sm:flex-nowrap">
@@ -26,6 +28,17 @@ const WorkspaceHeader = ({ project, isSaving, onBack }) => {
       </div>
 
       <div className="flex items-center gap-2">
+        <GithubSyncStatusBadge project={project} />
+
+        <button
+          onClick={onOpenGithubModal}
+          className="neumorphic-btn hover:text-[#6C63FF] text-[#3D4852] rounded-2xl px-4 py-2 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
+          title="Push 9-Document Suite to GitHub"
+        >
+          <GithubIcon className="w-3.5 h-3.5 text-[#3D4852]" />
+          <span className="hidden sm:inline">Sync GitHub</span>
+        </button>
+
         {project?._id && (
           <button
             onClick={() => navigate(`/projects/${project._id}/chat`)}

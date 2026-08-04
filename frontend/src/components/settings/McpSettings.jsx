@@ -60,17 +60,17 @@ const McpSettings = () => {
         </div>
         <div className="flex items-center gap-3">
           {config.apiKey && (
-            <div className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-full font-bold text-white ${config.isAgentActive ? 'bg-emerald-500' : 'bg-rose-500'}`}>
+            <div className={`flex items-center gap-2 text-xs px-3 py-1.5 rounded-full font-bold !text-white ${config.isAgentActive ? 'bg-emerald-500' : 'bg-rose-500'}`}>
               <span className={`w-2 h-2 rounded-full bg-white ${config.isAgentActive ? 'animate-pulse' : ''}`} />
-              <span>{config.isAgentActive ? 'Agent Connected' : 'Idle'}</span>
+              <span className="!text-white">{config.isAgentActive ? 'Agent Connected' : 'Idle'}</span>
             </div>
           )}
           <Link
             to="/docs/mcp-setup"
-            className="neumorphic-btn rounded-2xl px-3.5 py-1.5 flex items-center gap-1.5 text-xs text-[#2563EB] font-bold cursor-pointer hover:bg-[#2563EB] hover:text-white transition-all shadow-sm"
+            className="bg-[#2563EB] hover:bg-[#1d4ed8] !text-white rounded-2xl px-3.5 py-1.5 flex items-center gap-1.5 text-xs font-bold cursor-pointer transition-all shadow-md"
           >
-            <HelpCircle className="w-4 h-4" />
-            <span>Setup Guide</span>
+            <HelpCircle className="w-4 h-4 !text-white stroke-white" />
+            <span className="!text-white">Setup Guide</span>
           </Link>
         </div>
       </div>

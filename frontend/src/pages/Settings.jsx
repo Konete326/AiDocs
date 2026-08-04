@@ -6,6 +6,8 @@ import McpSettings from '../components/settings/McpSettings';
 import ClarifyationSettings from '../components/settings/ClarifyationSettings';
 import BrandingSettings from '../components/settings/BrandingSettings';
 import NotificationSettings from '../components/settings/NotificationSettings';
+import GithubSettings from '../components/settings/GithubSettings';
+import GithubIcon from '../components/common/GithubIcon';
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -14,6 +16,7 @@ const Settings = () => {
 
   const tabs = [
     { id: 'theme', label: 'Display & Theme', icon: Palette },
+    { id: 'github', label: 'GitHub Sync', icon: GithubIcon },
     { id: 'branding', label: 'PDF & Branding', icon: FileText },
     { id: 'notifications', label: 'Notifications', icon: Bell },
     { id: 'clarifyation', label: 'Clarifyation SDK', icon: Sparkles },
@@ -22,8 +25,8 @@ const Settings = () => {
 
   return (
     <div className="h-screen w-full flex flex-col bg-[#E0E5EC] overflow-hidden">
-      <div className="flex-1 flex flex-col pt-20 px-4 pb-3 md:px-8 min-h-0">
-        <div className="max-w-7xl w-full mx-auto flex flex-col flex-1 min-h-0">
+      <div className="flex-1 flex flex-col pt-24 md:pt-28 px-4 pb-6 md:px-8 min-h-0">
+        <div className="max-w-7xl w-full mx-auto flex flex-col flex-1 min-h-0 mt-2 md:mt-4">
 
           <div className="md:hidden flex items-center gap-2 mb-3 flex-shrink-0">
             <button
@@ -40,25 +43,25 @@ const Settings = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`px-4 py-2 rounded-2xl flex items-center gap-2 transition-all cursor-pointer whitespace-nowrap text-xs font-bold flex-shrink-0 ${
                     activeTab === tab.id
-                      ? 'bg-[#6C63FF] text-white shadow-md'
+                      ? 'bg-[#2563EB] !text-white shadow-md'
                       : 'neumorphic-btn text-[#3D4852]'
                   }`}
                 >
-                  <tab.icon className="w-3.5 h-3.5" />
-                  <span>{tab.label}</span>
+                  <tab.icon className={`w-3.5 h-3.5 ${activeTab === tab.id ? '!text-white fill-current' : 'text-[#3D4852]'}`} />
+                  <span className={activeTab === tab.id ? '!text-white' : ''}>{tab.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col md:flex-row gap-4 min-h-0">
+          <div className="flex-1 flex flex-col md:flex-row gap-4 min-h-0 mt-2">
 
             <div className="hidden md:flex flex-col w-56 flex-shrink-0 neumorphic-card rounded-3xl p-4 gap-2">
               <div className="flex items-center justify-between mb-2 px-1">
                 <h2 className="text-sm font-extrabold text-[#3D4852] tracking-tight">Settings</h2>
                 <button
                   onClick={() => navigate(-1)}
-                  className="neumorphic-btn rounded-2xl px-3 py-1.5 flex items-center gap-1 text-xs text-[#3D4852] font-bold cursor-pointer hover:text-[#6C63FF] transition-colors"
+                  className="neumorphic-btn rounded-2xl px-3 py-1.5 flex items-center gap-1 text-xs text-[#3D4852] font-bold cursor-pointer hover:text-[#2563EB] transition-colors"
                 >
                   <ChevronLeft className="w-3.5 h-3.5 text-[#3D4852]" />
                   <span>Back</span>
@@ -70,12 +73,12 @@ const Settings = () => {
                   onClick={() => setActiveTab(tab.id)}
                   className={`w-full text-left px-4 py-3 rounded-2xl flex items-center gap-3 transition-all cursor-pointer text-xs font-bold ${
                     activeTab === tab.id
-                      ? 'bg-[#6C63FF] text-white shadow-md'
+                      ? 'bg-[#2563EB] !text-white shadow-md'
                       : 'neumorphic-btn text-[#3D4852]'
                   }`}
                 >
-                  <tab.icon className="w-4 h-4" />
-                  <span>{tab.label}</span>
+                  <tab.icon className={`w-4 h-4 ${activeTab === tab.id ? '!text-white fill-current' : 'text-[#3D4852]'}`} />
+                  <span className={activeTab === tab.id ? '!text-white' : ''}>{tab.label}</span>
                 </button>
               ))}
             </div>
@@ -98,6 +101,7 @@ const Settings = () => {
                   </div>
                 </div>
               )}
+              {activeTab === 'github' && <GithubSettings />}
               {activeTab === 'branding' && <BrandingSettings />}
               {activeTab === 'notifications' && <NotificationSettings />}
               {activeTab === 'clarifyation' && <ClarifyationSettings />}

@@ -40,6 +40,12 @@ const projectSchema = new mongoose.Schema(
       createdAt: { type: Date, default: Date.now }
     }],
     livePreviewUrl: { type: String, default: null },
+    githubRepoUrl: { type: String, default: null },
+    githubRepoName: { type: String, default: null },
+    lastPushedAt: { type: Date, default: null },
+    webhookSecret: { type: String, default: null },
+    webhookId: { type: mongoose.Schema.Types.Mixed, default: null },
+    lastSyncedFromGithubAt: { type: Date, default: null },
     members: [{
       userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
       email: { type: String, required: true },

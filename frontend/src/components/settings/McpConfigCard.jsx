@@ -53,10 +53,10 @@ const McpConfigCard = ({ endpointUrl, apiKey }) => {
               key={key}
               onClick={() => setSelectedClient(key)}
               className={`px-2.5 py-1 text-[10px] rounded-xl transition-all cursor-pointer font-bold ${
-                selectedClient === key ? 'bg-[#2563EB] text-white shadow-md' : 'neumorphic-btn text-[#3D4852]'
+                selectedClient === key ? 'bg-[#2563EB] !text-white shadow-md' : 'neumorphic-btn text-[#3D4852]'
               }`}
             >
-              {configs[key].label}
+              <span className={selectedClient === key ? '!text-white' : ''}>{configs[key].label}</span>
             </button>
           ))}
         </div>

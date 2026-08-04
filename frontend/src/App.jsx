@@ -4,7 +4,6 @@ import { ThemeProvider } from './context/ThemeContext';
 import AppRoutes from './routes/AppRoutes';
 import AppNavbar from './components/layout/AppNavbar';
 import PersistentBackground from './components/common/PersistentBackground';
-import CommandPalette from './components/common/CommandPalette';
 import { Toaster, toast } from 'react-hot-toast';
 import { AlertToast } from './components/ui/alert-toast';
 import { Agentation } from 'agentation';
@@ -15,7 +14,6 @@ const App = () => (
       <AuthProvider>
         <PersistentBackground />
         <AppNavbar />
-        <CommandPalette />
         <AppRoutes />
         <Toaster position="top-right" containerStyle={{ top: 75, right: 20 }}>
           {(t) => {

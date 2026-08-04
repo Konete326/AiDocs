@@ -9,6 +9,7 @@ import AddColumnButton from '../components/kanban/AddColumnButton';
 import WorkspaceHeader from '../components/kanban/WorkspaceHeader';
 import WebContainerSandbox from '../components/kanban/WebContainerSandbox';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import GithubPushModal from '../components/workspace/GithubPushModal';
 
 const CATEGORIES = [
   { id: 'all', label: 'All Cards' },
@@ -33,6 +34,7 @@ const Workspace = () => {
   const [activeTab, setActiveTab] = useState('kanban');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
+  const [isGithubModalOpen, setIsGithubModalOpen] = useState(false);
 
   const { 
     project, columns, isLoading, isSaving, 
@@ -80,7 +82,8 @@ const Workspace = () => {
           <WorkspaceHeader 
             project={project} 
             isSaving={isSaving} 
-            onBack={() => navigate(`/projects/${id}`)} 
+            onBack={() => navigate(`/projects/${id}`)}
+            onOpenGithubModal={() => setIsGithubModalOpen(true)}
           />
 
           <div className="flex items-center gap-2 flex-wrap">
@@ -170,6 +173,12 @@ const Workspace = () => {
           )}
         </div>
       </motion.div>
+
+      <GithubPushModal
+        isOpen={isGithubModalOpen}
+        onClose={() => setIsGithubModalOpen(false)}
+        project={project}
+      />
     </section>
   );
 };
