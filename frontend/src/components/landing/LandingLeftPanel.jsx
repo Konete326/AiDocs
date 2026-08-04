@@ -2,6 +2,7 @@ import { Menu, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import DynamicHeadline from '../ui/DynamicHeadline';
+import logo from '../../assets/logo.png';
 
 export default function LandingLeftPanel() {
   const navigate = useNavigate();
@@ -11,9 +12,12 @@ export default function LandingLeftPanel() {
       <div className="liquid-glass-strong rounded-3xl absolute inset-4 lg:inset-6 z-0" />
       <div className="relative z-10 flex flex-col min-h-full">
         <nav className="flex items-center justify-between px-6 pt-6">
-          <span className="text-2xl font-semibold tracking-tighter text-white select-none">
-            ClarifyAI
-          </span>
+          <div className="flex items-center gap-3 select-none cursor-pointer" onClick={() => navigate('/')}>
+            <img src={logo} alt="ClarifyAI Logo" className="h-8 w-auto object-contain drop-shadow-md" />
+            <span className="text-2xl font-semibold tracking-tighter text-white">
+              ClarifyAI
+            </span>
+          </div>
           <button className="liquid-glass rounded-full flex items-center gap-2 px-4 py-2 hover:scale-105 transition-transform cursor-pointer">
             <Menu className="w-4 h-4 text-white/80" />
             <span className="text-sm text-white/80 font-light">Menu</span>

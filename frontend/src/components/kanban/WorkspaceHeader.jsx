@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../common/LoadingSpinner';
 import GithubIcon from '../common/GithubIcon';
 import GithubSyncStatusBadge from '../workspace/GithubSyncStatusBadge';
+import logo from '../../assets/logo.png';
 
 const WorkspaceHeader = ({ project, isSaving, onBack, onOpenGithubModal }) => {
   const navigate = useNavigate();
@@ -17,12 +18,15 @@ const WorkspaceHeader = ({ project, isSaving, onBack, onOpenGithubModal }) => {
           <span className="whitespace-nowrap">Back to Project</span>
         </button>
 
-        <div className="flex flex-col min-w-0">
-          <div className="flex items-center gap-2">
-            <h1 className="text-base sm:text-lg font-bold text-[#3D4852] truncate max-w-[200px] sm:max-w-md">{project?.title}</h1>
-            <span className="text-[10px] text-[#6C63FF] font-mono font-bold uppercase tracking-wider neumorphic-inset px-2.5 py-0.5 rounded-full">
-              Workspace
-            </span>
+        <div className="flex items-center gap-2">
+          <img src={logo} alt="ClarifyAI Logo" className="h-8 w-auto object-contain neumorphic-card p-1 rounded-xl cursor-pointer" onClick={() => navigate('/')} />
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-2">
+              <h1 className="text-base sm:text-lg font-bold text-[#3D4852] truncate max-w-[200px] sm:max-w-md">{project?.title}</h1>
+              <span className="text-[10px] text-[#6C63FF] font-mono font-bold uppercase tracking-wider neumorphic-inset px-2.5 py-0.5 rounded-full">
+                Workspace
+              </span>
+            </div>
           </div>
         </div>
       </div>

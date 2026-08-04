@@ -34,13 +34,27 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:5173',
   'http://localhost:3000',
+  'http://localhost:5000',
   'https://testclarifyai.vercel.app',
+  'https://clarifyai.vercel.app',
+  'https://clarifyai-backend.vercel.app',
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
 app.use((req, res, next) => {
   if (req.url && req.url.includes('//')) {
     req.url = req.url.replace(/\/+/g, '/');
+  }
+  const origin = req.headers.origin;
+  const isAllowed = !origin || allowedOrigins.includes(origin) || (origin && origin.endsWith('.vercel.app'));
+  if (isAllowed && origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma, X-CSRF-Token, X-Api-Version');
+  }
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
   next();
 });
@@ -50,15 +64,13 @@ app.use(cors({
     if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(null, true);
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Cache-Control', 'Pragma', 'X-CSRF-Token', 'X-Api-Version'],
 }));
-
-app.options('*', cors());
 
 const { recoverAllStuckProjects } = require('./services/recoveryService');
 

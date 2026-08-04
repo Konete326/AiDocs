@@ -1,9 +1,9 @@
-const CACHE_NAME = 'clarifyai-pwa-v1';
+const CACHE_NAME = 'clarifyai-pwa-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/favicon.svg',
-  '/icons.svg'
+  '/logo.png',
+  '/manifest.json'
 ];
 
 self.addEventListener('install', (event) => {

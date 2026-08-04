@@ -34,7 +34,7 @@ const AppNavbar = () => {
           onClick={() => navigate('/')}
           className="flex items-center gap-3 cursor-pointer"
         >
-          <img src={logo} alt="Logo" className="w-8 h-8 rounded-lg object-cover" />
+          <img src={logo} alt="ClarifyAI Logo" className="h-8 w-auto object-contain rounded-lg" />
           <span className="hidden sm:block text-base font-bold tracking-tight text-slate-900">
             ClarifyAI
           </span>

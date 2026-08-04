@@ -31,7 +31,7 @@ function App() {
     <div className="animate-in fade-in slide-in-from-bottom-4 duration-500 space-y-3 text-[#3D4852]">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <img src={logo} alt="ClarifyAI" className="w-8 h-8 rounded-xl object-cover shadow-md flex-shrink-0" />
+          <img src={logo} alt="ClarifyAI Logo" className="h-8 w-auto object-contain neumorphic-card p-1 rounded-xl flex-shrink-0" />
           <div>
             <h3 className="text-base font-bold tracking-tight text-[#3D4852]">Clarifyation Visual SDK & MCP</h3>
             <p className="text-[#6B7280] text-xs font-medium">

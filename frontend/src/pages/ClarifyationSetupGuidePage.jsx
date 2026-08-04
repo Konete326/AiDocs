@@ -83,7 +83,7 @@ VITE_CLARIFYAI_PROJECT_ID=your-project-id`;
         </div>
 
         <div className="neumorphic-card rounded-3xl p-5 flex items-center gap-4">
-          <img src={logo} alt="ClarifyAI" className="w-12 h-12 rounded-2xl object-cover shadow-lg flex-shrink-0" />
+          <img src={logo} alt="ClarifyAI Logo" className="h-12 w-auto object-contain neumorphic-card p-1 rounded-2xl flex-shrink-0" />
           <div>
             <h1 className="text-xl font-extrabold text-[#3D4852] tracking-tight leading-tight">Clarifyation Visual SDK Setup Guide</h1>
             <p className="text-[#6B7280] text-xs font-medium mt-0.5">

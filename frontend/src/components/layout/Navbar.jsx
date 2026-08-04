@@ -42,7 +42,7 @@ const Navbar = () => {
     <>
       <nav className="flex justify-between items-center w-full relative z-50">
         <div className="flex items-center gap-2 cursor-pointer hover:scale-105 active:scale-95 transition-transform" onClick={() => navigate('/')}>
-          <img src={logo} alt="Logo" className="w-8 h-8 lg:w-10 lg:h-10 rounded-xl object-cover neumorphic-card" />
+          <img src={logo} alt="ClarifyAI Logo" className="h-8 lg:h-10 w-auto object-contain neumorphic-card p-1 rounded-xl" />
           <span className="font-extrabold text-xl lg:text-2xl tracking-tighter text-[#3D4852]">ClarifyAI</span>
         </div>
         

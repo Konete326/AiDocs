@@ -755,7 +755,7 @@ ${networkSummary || 'No network activity logged.'}`;
                 >
                   <div className="flex items-center justify-between pb-1 border-b border-black/5">
                     <div className="flex items-center gap-1.5 text-xs font-mono font-bold text-[#6C63FF]">
-                      <img src={logo} alt="ClarifyAI Logo" className="w-5 h-5 rounded-full object-cover border border-[#6C63FF]/30 shadow-sm" />
+                      <img src={logo} alt="ClarifyAI Logo" className="h-5 w-auto object-contain rounded-full border border-[#6C63FF]/30 shadow-sm" />
                       <span>ClarifyAI Agentation #{activeSandboxPin.number}</span>
                     </div>
                     <button onClick={() => setActiveSandboxPin(null)} className="text-[#6B7280] hover:text-[#3D4852] p-1 rounded-full hover:bg-black/5">
