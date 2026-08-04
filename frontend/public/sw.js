@@ -1,4 +1,4 @@
-const CACHE_NAME = 'clarifyai-pwa-v2';
+const CACHE_NAME = 'clarifyai-pwa-v3';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -47,6 +47,19 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          return networkResponse;
+        })
+        .catch(() => {
+          return caches.match('/index.html');
+        })
+    );
+    return;
+  }
+
   event.respondWith(
     caches.match(request).then((cachedResponse) => {
       if (cachedResponse) return cachedResponse;
@@ -56,6 +69,8 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(request, cloned));
         }
         return networkResponse;
+      }).catch(() => {
+        return caches.match('/index.html');
       });
     })
   );
