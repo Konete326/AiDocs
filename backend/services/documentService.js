@@ -111,7 +111,10 @@ const generateOne = async (docType, project, userId, generatedSoFar) => {
   return content;
 };
 
+const { executeParallelBatch, generateSingleDoc } = require('./documentBatcher');
+
 exports.generateAll = async (projectId, userId, force = false) => {
+  const totalStart = Date.now();
   const project = await Project.findOne({ _id: projectId, userId, isArchived: false });
   if (!project || project.status === 'error') return;
 
@@ -136,48 +139,18 @@ exports.generateAll = async (projectId, userId, force = false) => {
   }
 
   try {
-    for (const group of PIPELINE) {
-      const pending = group.types.filter(t => !alreadyDone.has(t));
-      if (pending.length === 0) continue; // Whole group already done
+    const batch1Types = ['prd', 'techStack', 'dbSchema'].filter(t => !alreadyDone.has(t));
+    if (batch1Types.length > 0) {
+      const res1 = await executeParallelBatch(batch1Types, project, userId, generatedSoFar);
+      Object.assign(generatedSoFar, res1);
+      Object.keys(res1).forEach(k => alreadyDone.add(k));
+    }
 
-      if (group.parallel) {
-        // Run all pending types in this group concurrently
-        const results = await Promise.allSettled(
-          pending.map(async (docType) => {
-            try {
-              const content = await generateOne(docType, project, userId, generatedSoFar);
-              return { docType, content };
-            } catch (firstErr) {
-              console.warn(`[generateAll] Retrying generation for ${docType} due to error: ${firstErr.message}`);
-              const content = await generateOne(docType, project, userId, generatedSoFar);
-              return { docType, content };
-            }
-          })
-        );
-
-        const failed = results.filter(r => r.status === 'rejected');
-        if (failed.length > 0) {
-          const failedDocTypes = pending.filter((_, idx) => results[idx].status === 'rejected');
-          console.error(`[generateAll] Core document generation failed for: ${failedDocTypes.join(', ')}`);
-          throw new AppError(`Document pipeline halted: ${failedDocTypes.join(', ')} failed to generate. Please retry generation.`, 500);
-        }
-
-        // Merge successful results into context for next groups
-        for (const r of results) {
-          if (r.status === 'fulfilled') {
-            const { docType, content } = r.value;
-            generatedSoFar[docType] = content;
-            alreadyDone.add(docType);
-          }
-        }
-      } else {
-        // Sequential within the group
-        for (const docType of pending) {
-          const content = await generateOne(docType, project, userId, generatedSoFar);
-          generatedSoFar[docType] = content;
-          alreadyDone.add(docType);
-        }
-      }
+    const batch2Types = ['srd', 'userFlows', 'mvpPlan'].filter(t => !alreadyDone.has(t));
+    if (batch2Types.length > 0) {
+      const res2 = await executeParallelBatch(batch2Types, project, userId, generatedSoFar);
+      Object.assign(generatedSoFar, res2);
+      Object.keys(res2).forEach(k => alreadyDone.add(k));
     }
 
     const localDocs = ['folderStructure', 'claudeContext', 'agentSystemPrompt'];
@@ -212,12 +185,15 @@ exports.generateAll = async (projectId, userId, force = false) => {
 
     await Project.findByIdAndUpdate(project._id, { status: 'complete' });
 
+    const totalDuration = Date.now() - totalStart;
+    console.log(`[HighSpeedEngine] Complete 9-Document Suite generated in ${totalDuration}ms (${(totalDuration / 1000).toFixed(2)}s)`);
+
     const notificationService = require('./notificationService');
     await notificationService.createNotification(
       userId,
       'doc_ready',
       'Documents Ready',
-      'Your AI document suite has been fully generated.',
+      'Your AI document suite has been fully generated in high-speed parallel mode.',
       { projectId }
     );
 

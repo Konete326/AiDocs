@@ -58,6 +58,7 @@ const callProvider = async (provider, prompt, max_tokens = 2048) => {
         ],
         generationConfig: {
           temperature: 0.2,
+          topP: 0.9,
           maxOutputTokens: max_tokens
         }
       },
