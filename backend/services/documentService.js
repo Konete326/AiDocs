@@ -139,18 +139,11 @@ exports.generateAll = async (projectId, userId, force = false) => {
   }
 
   try {
-    const batch1Types = ['prd', 'techStack', 'dbSchema'].filter(t => !alreadyDone.has(t));
-    if (batch1Types.length > 0) {
-      const res1 = await executeParallelBatch(batch1Types, project, userId, generatedSoFar);
-      Object.assign(generatedSoFar, res1);
-      Object.keys(res1).forEach(k => alreadyDone.add(k));
-    }
-
-    const batch2Types = ['srd', 'userFlows', 'mvpPlan'].filter(t => !alreadyDone.has(t));
-    if (batch2Types.length > 0) {
-      const res2 = await executeParallelBatch(batch2Types, project, userId, generatedSoFar);
-      Object.assign(generatedSoFar, res2);
-      Object.keys(res2).forEach(k => alreadyDone.add(k));
+    const allAiDocTypes = ['prd', 'techStack', 'dbSchema', 'srd', 'userFlows', 'mvpPlan'].filter(t => !alreadyDone.has(t));
+    if (allAiDocTypes.length > 0) {
+      const res = await executeParallelBatch(allAiDocTypes, project, userId, generatedSoFar);
+      Object.assign(generatedSoFar, res);
+      Object.keys(res).forEach(k => alreadyDone.add(k));
     }
 
     const localDocs = ['folderStructure', 'claudeContext', 'agentSystemPrompt'];

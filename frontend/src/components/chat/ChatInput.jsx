@@ -176,7 +176,7 @@ export default function ChatInput({ onSend, isDisabled }) {
   };
 
   return (
-    <div className="liquid-glass rounded-3xl p-3 flex flex-col gap-2">
+    <div className="neumorphic-inset rounded-3xl p-3 flex flex-col gap-2">
       {errorMsg && (
         <div className="flex items-center justify-between neumorphic-inset rounded-xl px-3 py-1.5 text-xs text-rose-600 font-bold">
           <div className="flex items-center gap-1.5">
