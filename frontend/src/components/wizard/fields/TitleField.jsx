@@ -13,7 +13,7 @@ export default function TitleField({ formData, onChange }) {
   return (
     <div>
       <label className="text-xs uppercase tracking-[0.2em] text-[#6B7280] font-extrabold block mb-1.5">Project Title</label>
-      <div className="neumorphic-inset rounded-2xl px-4 py-3 flex items-center gap-3 bg-[#E0E5EC] border border-black/5">
+      <div className="neumorphic-input-wrapper rounded-xl px-4 py-3 flex items-center gap-3">
         <input 
           value={formData.title} 
           onChange={(e) => onChange('title', e.target.value)}

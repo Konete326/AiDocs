@@ -29,7 +29,7 @@ export default function WizardStep2Requirements({ formData, onChange }) {
             onTranscript={(text) => onChange('wizardAnswers.targetAudience', text)}
           />
         </div>
-        <div className="neumorphic-inset rounded-2xl px-4 py-3 w-full bg-[#E0E5EC] border border-black/5">
+        <div className="neumorphic-input-wrapper rounded-xl px-4 py-3 w-full">
           <textarea 
             value={formData.wizardAnswers.targetAudience}
             onChange={(e) => onChange('wizardAnswers.targetAudience', e.target.value)}
@@ -54,7 +54,7 @@ export default function WizardStep2Requirements({ formData, onChange }) {
             onTranscript={(text) => onChange('wizardAnswers.coreFeatures', text)}
           />
         </div>
-        <div className="neumorphic-inset rounded-2xl px-4 py-3 w-full bg-[#E0E5EC] border border-black/5">
+        <div className="neumorphic-input-wrapper rounded-xl px-4 py-3 w-full">
           <textarea 
             value={formData.wizardAnswers.coreFeatures}
             onChange={(e) => onChange('wizardAnswers.coreFeatures', e.target.value)}

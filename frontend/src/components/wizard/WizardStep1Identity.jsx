@@ -39,7 +39,7 @@ export default function WizardStep1Identity({ formData, onChange }) {
           <button
             type="button"
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="w-full neumorphic-inset rounded-2xl px-4 py-3 flex items-center justify-between cursor-pointer text-left text-[#3D4852] font-extrabold text-sm border border-black/5 hover:border-[#6C63FF]/30 transition-all bg-[#E0E5EC]"
+            className="w-full neumorphic-input-wrapper rounded-xl px-4 py-3 flex items-center justify-between cursor-pointer text-left text-[#3D4852] font-extrabold text-sm transition-all"
           >
             <span className="text-sm font-extrabold text-[#3D4852]">{selectedType.label}</span>
             <ChevronDown className={`w-4 h-4 text-[#6C63FF] transition-transform duration-200 ${dropdownOpen ? 'rotate-180' : ''}`} />

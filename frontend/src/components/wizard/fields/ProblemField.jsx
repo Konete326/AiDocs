@@ -20,7 +20,7 @@ export default function ProblemField({ formData, onChange }) {
           onTranscript={(text) => onChange('wizardAnswers.problemStatement', text)}
         />
       </div>
-      <div className="neumorphic-inset rounded-2xl px-4 py-3 w-full bg-[#E0E5EC] border border-black/5">
+      <div className="neumorphic-input-wrapper rounded-xl px-4 py-3 w-full">
         <textarea 
           value={formData.wizardAnswers.problemStatement}
           onChange={(e) => onChange('wizardAnswers.problemStatement', e.target.value)}

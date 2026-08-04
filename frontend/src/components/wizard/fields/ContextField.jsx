@@ -13,7 +13,7 @@ export default function ContextField({ formData, onChange }) {
   return (
     <div className="space-y-1">
       <label className="text-[11px] uppercase tracking-[0.15em] text-[#6B7280] font-extrabold block">Additional Context</label>
-      <div className="neumorphic-inset rounded-2xl px-3.5 py-2 w-full bg-[#E0E5EC] border border-black/5">
+      <div className="neumorphic-input-wrapper rounded-xl px-4 py-2.5 w-full">
         <textarea 
           value={formData.wizardAnswers.additionalContext}
           onChange={(e) => onChange('wizardAnswers.additionalContext', e.target.value)}
