@@ -8,11 +8,8 @@ export default function PublicOnlyRoute() {
 
   if (isLoading) {
     return (
-      <div className="relative min-h-screen overflow-hidden">
-        {/* Video from PersistentBackground — no local video needed */}
-        <div className="relative z-10 min-h-screen flex items-center justify-center">
-          <LoadingSpinner size="lg" />
-        </div>
+      <div className="min-h-screen bg-[#E0E5EC] flex items-center justify-center relative z-50">
+        <LoadingSpinner size="lg" label="Loading Workspace..." />
       </div>
     );
   }

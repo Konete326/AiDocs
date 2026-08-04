@@ -119,8 +119,8 @@ const CreateProject = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center justify-center pt-20 pb-6 px-4">
-      <div className="fixed inset-0 bg-black/55 z-[1]" />
+    <div className="relative min-h-screen w-full flex flex-col items-center justify-center pt-20 pb-6 px-4 bg-[#E0E5EC]">
+      <div className="fixed inset-0 bg-[#E0E5EC]/85 backdrop-blur-md z-[1]" />
       
       <div className="relative z-10 w-full max-w-4xl flex flex-col items-center justify-center">
         {showRestorePrompt && (
