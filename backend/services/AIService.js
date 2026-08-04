@@ -8,6 +8,12 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 const providers = [
   {
+    name: 'GEMINI_FLASH',
+    type: 'gemini',
+    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
+    getKey: () => process.env.GEMINI_API_KEY
+  },
+  {
     name: 'NVIDIA_70B',
     type: 'openai',
     url: NVIDIA_URL,
@@ -22,12 +28,6 @@ const providers = [
     model: 'meta/llama-3.1-8b-instruct',
     getKey: () => process.env.NVIDIA_API_KEY,
     headers: {}
-  },
-  {
-    name: 'GEMINI_FLASH',
-    type: 'gemini',
-    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent',
-    getKey: () => process.env.GEMINI_API_KEY
   },
   {
     name: 'OPENROUTER_70B',
