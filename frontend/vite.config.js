@@ -11,6 +11,10 @@ export default defineConfig({
     dedupe: ['react', 'react-dom'],
   },
   server: {
+    host: true,
+    hmr: {
+      overlay: false,
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:5000',
