@@ -36,7 +36,9 @@ const userSchema = new mongoose.Schema(
       githubAccessToken: { type: String, default: null },
       connectedAt: { type: Date, default: null },
       scope: { type: String, default: 'repo' }
-    }
+    },
+    creatorPoints: { type: Number, default: 0 },
+    submittedComponentsCount: { type: Number, default: 0 }
   },
   { timestamps: true }
 );

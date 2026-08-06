@@ -23,23 +23,32 @@ import CustomProjectStackPage from '../pages/CustomProjectStackPage';
 import Feedback from '../pages/Feedback';
 import ClarifyationSetupGuidePage from '../pages/ClarifyationSetupGuidePage';
 import McpSetupGuidePage from '../pages/McpSetupGuidePage';
+import Marketplace from '../pages/Marketplace';
+import ComponentDetail from '../pages/ComponentDetail';
+import EmbedComponent from '../pages/EmbedComponent';
+import CreateComponent from '../pages/CreateComponent';
 
 export default function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
+      <Route path="/components" element={<Marketplace />} />
+      <Route path="/components/:id" element={<ComponentDetail />} />
+      <Route path="/embed/components/:id" element={<EmbedComponent />} />
       <Route path="/feedback" element={<Feedback />} />
+      
       <Route element={<PublicOnlyRoute />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Route>
+
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/features" element={<Features />} />
       
-      {/* Protected Routes */}
       <Route element={<PrivateRoute />}>
+        <Route path="/components/create" element={<CreateComponent />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />

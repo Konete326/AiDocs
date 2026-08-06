@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Home, CreditCard, LayoutDashboard, User, LogOut, LogIn, UserPlus, Settings } from 'lucide-react';
+import { Home, CreditCard, LayoutDashboard, User, LogOut, LogIn, UserPlus, Settings, Layers } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import ConfirmModal from '../common/ConfirmModal';
 
@@ -15,7 +15,6 @@ const NavMobileMenu = ({ isOpen, onClose }) => {
       setShowLogoutModal(true);
       return;
     }
-
     if (item.action) {
       await item.action();
     } else {
@@ -35,6 +34,7 @@ const NavMobileMenu = ({ isOpen, onClose }) => {
     ? [
         { label: 'Home', href: '/', icon: Home },
         { label: 'Projects', href: '/dashboard', icon: LayoutDashboard },
+        { label: 'Components', href: '/components', icon: Layers },
         { label: 'Pricing', href: '/pricing', icon: CreditCard },
         { label: 'Profile', href: '/profile', icon: User },
         { label: 'Settings', href: '/settings', icon: Settings },
@@ -42,6 +42,7 @@ const NavMobileMenu = ({ isOpen, onClose }) => {
       ]
     : [
         { label: 'Home', href: '/', icon: Home },
+        { label: 'Components', href: '/components', icon: Layers },
         { label: 'Pricing', href: '/pricing', icon: CreditCard },
         { label: 'Sign In', href: '/login', icon: LogIn },
         { label: 'Get Started', href: '/register', icon: UserPlus },
@@ -61,12 +62,19 @@ const NavMobileMenu = ({ isOpen, onClose }) => {
             <button
               key={item.label}
               onClick={() => handleLink(item)}
-              className="w-full liquid-glass rounded-xl px-4 py-2.5 flex items-center gap-3 transition-all hover:bg-white/5 active:scale-95 cursor-pointer text-left"
+              className="w-full liquid-glass rounded-xl px-4 py-2.5 flex items-center justify-between transition-all hover:bg-white/5 active:scale-95 cursor-pointer text-left"
             >
-              <item.icon className={`w-4 h-4 ${item.danger ? 'text-red-400/50' : 'text-white/50'}`} />
-              <span className={`text-sm ${item.danger ? 'text-red-400/70' : 'text-white/70'}`}>
-                {item.label}
-              </span>
+              <div className="flex items-center gap-3">
+                <item.icon className={`w-4 h-4 ${item.danger ? 'text-red-400/50' : 'text-white/50'}`} />
+                <span className={`text-sm ${item.danger ? 'text-red-400/70' : 'text-white/70'}`}>
+                  {item.label}
+                </span>
+              </div>
+              {item.badge && (
+                <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-blue-600 text-white">
+                  {item.badge}
+                </span>
+              )}
             </button>
           ))}
         </motion.div>

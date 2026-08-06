@@ -1,11 +1,11 @@
-import { ChevronLeft, Bot, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, Bot, CheckCircle2, Maximize2, Minimize2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import LoadingSpinner from '../common/LoadingSpinner';
 import GithubIcon from '../common/GithubIcon';
 import GithubSyncStatusBadge from '../workspace/GithubSyncStatusBadge';
 import logo from '../../assets/logo.png';
 
-const WorkspaceHeader = ({ project, isSaving, onBack, onOpenGithubModal }) => {
+const WorkspaceHeader = ({ project, isSaving, onBack, onOpenGithubModal, isFullWidth, onToggleFullWidth }) => {
   const navigate = useNavigate();
   return (
     <div className="flex items-center justify-between pb-3 mb-2 border-b border-black/5 flex-shrink-0 gap-3 flex-wrap sm:flex-nowrap">
@@ -23,7 +23,7 @@ const WorkspaceHeader = ({ project, isSaving, onBack, onOpenGithubModal }) => {
           <div className="flex flex-col min-w-0">
             <div className="flex items-center gap-2">
               <h1 className="text-base sm:text-lg font-bold text-[#3D4852] truncate max-w-[200px] sm:max-w-md">{project?.title}</h1>
-              <span className="text-[10px] text-[#6C63FF] font-mono font-bold uppercase tracking-wider neumorphic-inset px-2.5 py-0.5 rounded-full">
+              <span className="text-[10px] text-blue-600 font-mono font-bold uppercase tracking-wider neumorphic-inset px-2.5 py-0.5 rounded-full">
                 Workspace
               </span>
             </div>
@@ -32,12 +32,20 @@ const WorkspaceHeader = ({ project, isSaving, onBack, onOpenGithubModal }) => {
       </div>
 
       <div className="flex items-center gap-2">
+        <button
+          onClick={onToggleFullWidth}
+          className="neumorphic-btn text-[#3D4852] rounded-2xl px-3 py-2 text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+          title={isFullWidth ? "Standard Container" : "Full Width Canvas"}
+        >
+          {isFullWidth ? <Minimize2 className="w-3.5 h-3.5 text-[#3D4852]" /> : <Maximize2 className="w-3.5 h-3.5 text-blue-600" />}
+          <span className="hidden sm:inline text-xs">{isFullWidth ? "Boxed" : "Full Width"}</span>
+        </button>
+
         <GithubSyncStatusBadge project={project} />
 
         <button
           onClick={onOpenGithubModal}
-          className="neumorphic-btn hover:text-[#6C63FF] text-[#3D4852] rounded-2xl px-4 py-2 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
-          title="Push 9-Document Suite to GitHub"
+          className="neumorphic-btn hover:text-blue-600 text-[#3D4852] rounded-2xl px-4 py-2 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer"
         >
           <GithubIcon className="w-3.5 h-3.5 text-[#3D4852]" />
           <span className="hidden sm:inline">Sync GitHub</span>
@@ -46,8 +54,7 @@ const WorkspaceHeader = ({ project, isSaving, onBack, onOpenGithubModal }) => {
         {project?._id && (
           <button
             onClick={() => navigate(`/projects/${project._id}/chat`)}
-            className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white rounded-2xl px-4 py-2 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
-            title="Chat with AI Co-founder"
+            className="bg-blue-600 hover:bg-blue-700 text-white rounded-2xl px-4 py-2 text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shadow-md"
           >
             <Bot className="w-3.5 h-3.5 text-white" />
             <span className="hidden sm:inline">AI Co-founder</span>
