@@ -222,12 +222,12 @@ const Leaderboard = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 w-full mt-4">
+                  <div className={`grid ${String(top2._id) === String(myId) ? 'grid-cols-1' : 'grid-cols-2'} gap-2 w-full mt-4`}>
                     <button
                       onClick={() => navigate(`/profile/${top2._id}`)}
                       className="w-full py-2 bg-[#E0E5EC] hover:bg-white/50 text-[#3D4852] font-bold text-xs rounded-xl shadow-[2px_2px_4px_rgba(163,177,198,0.5),-2px_-2px_4px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20 cursor-pointer"
                     >
-                      Profile
+                      {String(top2._id) === String(myId) ? 'My Profile' : 'Profile'}
                     </button>
 
                     {String(top2._id) !== String(myId) && (
@@ -271,12 +271,12 @@ const Leaderboard = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 w-full mt-4">
+                  <div className={`grid ${String(top1._id) === String(myId) ? 'grid-cols-1' : 'grid-cols-2'} gap-2 w-full mt-4`}>
                     <button
                       onClick={() => navigate(`/profile/${top1._id}`)}
                       className="w-full py-2 bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold text-xs rounded-xl shadow-md cursor-pointer"
                     >
-                      Top Profile
+                      {String(top1._id) === String(myId) ? 'My Profile (#1 Top)' : 'Top Profile'}
                     </button>
 
                     {String(top1._id) !== String(myId) && (
@@ -320,12 +320,12 @@ const Leaderboard = () => {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 w-full mt-4">
+                  <div className={`grid ${String(top3._id) === String(myId) ? 'grid-cols-1' : 'grid-cols-2'} gap-2 w-full mt-4`}>
                     <button
                       onClick={() => navigate(`/profile/${top3._id}`)}
                       className="w-full py-2 bg-[#E0E5EC] hover:bg-white/50 text-[#3D4852] font-bold text-xs rounded-xl shadow-[2px_2px_4px_rgba(163,177,198,0.5),-2px_-2px_4px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20 cursor-pointer"
                     >
-                      Profile
+                      {String(top3._id) === String(myId) ? 'My Profile' : 'Profile'}
                     </button>
 
                     {String(top3._id) !== String(myId) && (
