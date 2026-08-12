@@ -1,5 +1,7 @@
 import { useRef } from 'react';
-import { LogOut, KeyRound, Pencil, ImagePlus, Award, CheckCircle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { LogOut, KeyRound, Pencil, ImagePlus, Award, CheckCircle, Share2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import UserAvatar from '../common/UserAvatar';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ProfileInfoLinks from './ProfileInfoLinks';
@@ -9,18 +11,19 @@ const ProfileCard = ({
   user, subscription, memberSince, isEditing, editData, onChange, onSave, onCancel,
   isSaving, saveError, onAvatarUpload, isUploadingAvatar, onBgUpload, isUploadingBg, onLogout, onResetPassword, onEditToggle
 }) => {
+  const navigate = useNavigate();
   const bgInputRef = useRef(null);
 
   return (
-    <div className="liquid-glass-strong no-hover rounded-[28px] flex flex-col h-full relative overflow-hidden">
-      <div className="relative w-full flex-shrink-0 overflow-hidden h-[100px]">
+    <div className="bg-[#E0E5EC] rounded-[32px] shadow-[9px_9px_16px_rgba(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)] border border-[#A3B1C6]/30 flex flex-col h-full relative overflow-hidden">
+      <div className="relative w-full flex-shrink-0 overflow-hidden h-[110px]">
         {user?.bgImageUrl ? (
           <img src={user.bgImageUrl} alt="Background" className="absolute inset-0 w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full bg-gradient-to-r from-blue-600/20 via-blue-500/10 to-indigo-600/20" />
+          <div className="w-full h-full bg-gradient-to-r from-blue-600/30 via-blue-500/20 to-indigo-600/30" />
         )}
         {isEditing && (
-          <button onClick={() => bgInputRef.current?.click()} className="absolute inset-0 flex flex-col items-center justify-center bg-black/30 text-white cursor-pointer">
+          <button onClick={() => bgInputRef.current?.click()} className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 text-white cursor-pointer transition-opacity hover:opacity-90">
             {isUploadingBg ? <LoadingSpinner size="sm" /> : <><ImagePlus className="w-5 h-5" /><span className="text-[10px] font-semibold">Change Banner</span></>}
           </button>
         )}
@@ -60,13 +63,11 @@ const ProfileCard = ({
           </div>
         ) : (
           <div className="mb-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <h3 className="text-base font-bold text-[#3D4852] truncate">{user?.displayName || 'User'}</h3>
-              {(user?.creatorPoints >= 50) && (
-                <span className="bg-blue-600 text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
-                  <CheckCircle className="w-3 h-3" /> Pro Creator
-                </span>
-              )}
+              <span className="inline-flex items-center" title="Verified Creator">
+                <CheckCircle className="w-4 h-4 text-blue-600 fill-blue-600/15" />
+              </span>
             </div>
 
             {user?.bio ? (
@@ -75,10 +76,21 @@ const ProfileCard = ({
               <SpecialText inView speed={20} delay={0.5} className="text-[10px] uppercase tracking-[0.35em] text-[#6B7280]">ClarifyAI Member</SpecialText>
             )}
 
-            <div className="mt-2 grid grid-cols-3 gap-2 p-2 bg-[#E0E5EC] rounded-xl shadow-[inset_3px_3px_6px_rgba(163,177,198,0.5),inset_-3px_-3px_6px_rgba(255,255,255,0.5)] text-center">
+            <div className="mt-2 grid grid-cols-4 gap-1.5 p-2 bg-[#E0E5EC] rounded-xl shadow-[inset_3px_3px_6px_rgba(163,177,198,0.5),inset_-3px_-3px_6px_rgba(255,255,255,0.5)] text-center">
               <div>
                 <span className="text-[10px] text-[#6B7280] block font-bold">Components</span>
                 <span className="text-xs font-extrabold text-blue-600">{user?.submittedComponentsCount || 0}</span>
+              </div>
+              <div
+                onClick={() => {
+                  const uid = user?._id || user?.id;
+                  if (uid) navigate(`/profile/${uid}/followers`);
+                }}
+                className="cursor-pointer hover:opacity-85 transition-opacity"
+                title="View my community followers"
+              >
+                <span className="text-[10px] text-[#6B7280] block font-bold">Followers</span>
+                <span className="text-xs font-extrabold text-emerald-600 underline decoration-dotted">{user?.followers?.length || 0}</span>
               </div>
               <div>
                 <span className="text-[10px] text-[#6B7280] block font-bold">Points</span>
@@ -97,13 +109,28 @@ const ProfileCard = ({
         <ProfileInfoLinks user={user} memberSince={memberSince} />
 
         {!isEditing && (
-          <div className="mt-auto pt-3 grid grid-cols-2 gap-2">
-            <button onClick={onResetPassword} className="neumorphic-btn rounded-2xl px-3 py-2.5 flex items-center gap-2 text-[#6B7280] hover:text-[#3D4852] transition-all cursor-pointer justify-center">
-              <KeyRound className="w-4 h-4" /><span className="text-xs font-medium">Reset Password</span>
+          <div className="mt-auto pt-3 flex flex-col gap-2">
+            <button
+              onClick={() => {
+                const userId = user?._id || user?.id;
+                if (userId) {
+                  navigator.clipboard.writeText(`${window.location.origin}/profile/${userId}`);
+                  toast.success('Your public profile link copied!');
+                }
+              }}
+              className="w-full py-2 bg-[#E0E5EC] hover:bg-white/50 text-blue-600 rounded-xl text-xs font-bold shadow-[3px_3px_6px_rgba(163,177,198,0.5),-3px_-3px_6px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+            >
+              <Share2 className="w-3.5 h-3.5 text-blue-600" /><span>Share My Profile Link</span>
             </button>
-            <button onClick={onLogout} className="bg-red-500 hover:bg-red-600 text-white rounded-2xl px-3 py-2.5 flex items-center gap-2 transition-all cursor-pointer justify-center shadow-md">
-              <LogOut className="w-4 h-4 text-white" /><span className="text-xs font-medium text-white">Logout</span>
-            </button>
+
+            <div className="grid grid-cols-2 gap-2">
+              <button onClick={onResetPassword} className="neumorphic-btn rounded-xl px-3 py-2 flex items-center gap-1.5 text-[#6B7280] hover:text-[#3D4852] transition-all cursor-pointer justify-center">
+                <KeyRound className="w-3.5 h-3.5" /><span className="text-xs font-medium">Reset Password</span>
+              </button>
+              <button onClick={onLogout} className="bg-red-500 hover:bg-red-600 text-white rounded-xl px-3 py-2 flex items-center gap-1.5 transition-all cursor-pointer justify-center shadow-md">
+                <LogOut className="w-3.5 h-3.5 text-white" /><span className="text-xs font-medium text-white">Logout</span>
+              </button>
+            </div>
           </div>
         )}
       </div>

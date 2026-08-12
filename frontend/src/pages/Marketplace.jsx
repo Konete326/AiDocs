@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import MarketplaceHeader from '../components/marketplace/MarketplaceHeader';
@@ -12,6 +12,7 @@ const Marketplace = () => {
   const [searchParams] = useSearchParams();
   const creatorId = searchParams.get('creator');
   const navigate = useNavigate();
+  const location = useLocation();
   const gridRef = useRef(null);
   const { user } = useAuth();
   const [components, setComponents] = useState([]);
@@ -25,12 +26,15 @@ const Marketplace = () => {
   const [totalComponents, setTotalComponents] = useState(0);
   const limit = 9;
 
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
   const fetchComponents = async () => {
     setLoading(true);
     try {
       const q = new URLSearchParams();
       q.append('page', page);
       q.append('limit', limit);
+      q.append('_t', Date.now().toString());
       if (selectedCategory !== 'All') q.append('category', selectedCategory);
       if (selectedFramework !== 'All') q.append('framework', selectedFramework);
       if (searchQuery.trim()) q.append('search', searchQuery.trim());
@@ -61,12 +65,50 @@ const Marketplace = () => {
     }
   };
 
+  useEffect(() => {
+    if (location.state?.refresh) {
+      setSelectedCategory('All');
+      setSearchQuery('');
+      setPage(1);
+    }
+  }, [location.key, location.state]);
+
   useEffect(() => { setPage(1); }, [searchQuery, selectedCategory, selectedFramework, creatorId, showFavoritesOnly]);
 
   useEffect(() => {
-    const timer = setTimeout(() => { fetchComponents(); }, 250);
+    const timer = setTimeout(() => { fetchComponents(); }, 150);
     return () => clearTimeout(timer);
-  }, [page, searchQuery, selectedCategory, selectedFramework, creatorId, showFavoritesOnly]);
+  }, [page, searchQuery, selectedCategory, selectedFramework, creatorId, showFavoritesOnly, location.key]);
+
+  useEffect(() => {
+    let eventSource;
+    try {
+      eventSource = new EventSource('/api/ui-components/stream');
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'COMPONENT_CREATED' && data.component) {
+            toast.success(`🚀 New Component Published: "${data.component.title}"!`);
+            setComponents((prev) => [data.component, ...prev.filter((c) => c._id !== data.component._id)]);
+            setTotalComponents((prev) => prev + 1);
+          }
+        } catch {}
+      };
+    } catch {}
+
+    const handleComponentCreated = () => {
+      setSelectedCategory('All');
+      setPage(1);
+      fetchComponents();
+    };
+    window.addEventListener('clarifyai_component_created', handleComponentCreated);
+    window.addEventListener('focus', fetchComponents);
+    return () => {
+      if (eventSource) eventSource.close();
+      window.removeEventListener('clarifyai_component_created', handleComponentCreated);
+      window.removeEventListener('focus', fetchComponents);
+    };
+  }, []);
 
   const handleFavorite = async (id) => {
     try {
@@ -87,12 +129,27 @@ const Marketplace = () => {
 
   return (
     <div className="h-screen max-h-screen overflow-hidden bg-[#E0E5EC] pt-4 pb-4 px-6 md:px-8 w-full max-w-none flex gap-6">
-      <div className="w-64 md:w-72 flex-shrink-0 h-full overflow-hidden">
-        <CategorySidebar selectedCategory={selectedCategory} setSelectedCategory={setSelectedCategory} />
+      <div className={`${isSidebarCollapsed ? 'w-16 md:w-20' : 'w-64 md:w-72'} flex-shrink-0 h-full overflow-hidden transition-all duration-300`}>
+        <CategorySidebar
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          isCollapsed={isSidebarCollapsed}
+          setIsCollapsed={setIsSidebarCollapsed}
+        />
       </div>
 
       <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
-        <MarketplaceHeader searchQuery={searchQuery} setSearchQuery={setSearchQuery} selectedFramework={selectedFramework} setSelectedFramework={setSelectedFramework} showFavoritesOnly={showFavoritesOnly} setShowFavoritesOnly={setShowFavoritesOnly} onOpenSubmit={() => navigate('/components/create')} />
+        <MarketplaceHeader
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          showFavoritesOnly={showFavoritesOnly}
+          setShowFavoritesOnly={setShowFavoritesOnly}
+          onOpenSubmit={() => navigate('/components/create')}
+          page={page}
+          setPage={setPage}
+          totalPages={totalPages}
+          totalComponents={totalComponents}
+        />
 
         <div ref={gridRef} className="flex-1 overflow-y-auto pr-2 custom-scrollbar min-h-0">
           {loading ? (
@@ -110,8 +167,8 @@ const Marketplace = () => {
               </button>
             </div>
           ) : (
-            <div className="pb-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div className="p-3 md:p-4 pb-12">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {components.map((comp) => (
                   <ComponentCard key={comp._id} component={comp} onFavorite={handleFavorite} />
                 ))}

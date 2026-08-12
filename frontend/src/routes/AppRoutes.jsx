@@ -27,6 +27,9 @@ import Marketplace from '../pages/Marketplace';
 import ComponentDetail from '../pages/ComponentDetail';
 import EmbedComponent from '../pages/EmbedComponent';
 import CreateComponent from '../pages/CreateComponent';
+import PublicProfile from '../pages/PublicProfile';
+import FollowersPage from '../pages/FollowersPage';
+import Leaderboard from '../pages/Leaderboard';
 
 export default function AppRoutes() {
   return (
@@ -34,6 +37,9 @@ export default function AppRoutes() {
       <Route path="/" element={<Home />} />
       <Route path="/components" element={<Marketplace />} />
       <Route path="/components/:id" element={<ComponentDetail />} />
+      <Route path="/leaderboard" element={<Leaderboard />} />
+      <Route path="/profile/:userId" element={<PublicProfile />} />
+      <Route path="/profile/:userId/followers" element={<FollowersPage />} />
       <Route path="/embed/components/:id" element={<EmbedComponent />} />
       <Route path="/feedback" element={<Feedback />} />
       

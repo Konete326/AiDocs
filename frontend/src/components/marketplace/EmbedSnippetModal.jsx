@@ -22,7 +22,7 @@ const EmbedSnippetModal = ({ componentId, onClose }) => {
 
   const getSnippet = () => {
     const embedUrl = `${window.location.origin}/embed/components/${componentId}?theme=${selectedTheme}`;
-    return `<iframe src="${embedUrl}" width="${width}" height="${height}" frameborder="0" style="border:none; overflow:hidden;"></iframe>`;
+    return `<!-- From ClarifyAI -->\n<iframe src="${embedUrl}" width="${width}" height="${height}" frameborder="0" style="border:none; overflow:hidden;"></iframe>`;
   };
 
   const handleCopy = () => {

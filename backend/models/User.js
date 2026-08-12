@@ -38,7 +38,9 @@ const userSchema = new mongoose.Schema(
       scope: { type: String, default: 'repo' }
     },
     creatorPoints: { type: Number, default: 0 },
-    submittedComponentsCount: { type: Number, default: 0 }
+    submittedComponentsCount: { type: Number, default: 0 },
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
   },
   { timestamps: true }
 );

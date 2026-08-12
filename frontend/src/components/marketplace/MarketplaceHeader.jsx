@@ -1,40 +1,50 @@
-import { Search, Plus, ArrowLeft, Heart } from 'lucide-react';
+import { Search, Plus, ArrowLeft, Heart, ChevronLeft, ChevronRight, Trophy, Layers } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-
-const frameworks = ['All', 'CSS', 'Tailwind', 'React'];
 
 const MarketplaceHeader = ({
   searchQuery,
   setSearchQuery,
-  selectedFramework,
-  setSelectedFramework,
   showFavoritesOnly,
   setShowFavoritesOnly,
-  onOpenSubmit
+  onOpenSubmit,
+  page = 1,
+  setPage,
+  totalPages = 1,
+  totalComponents = 0
 }) => {
   const navigate = useNavigate();
 
   return (
     <div className="bg-[#E0E5EC] rounded-[28px] p-4 md:p-5 shadow-[8px_8px_16px_rgba(163,177,198,0.5),-8px_-8px_16px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/30 mb-4">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => navigate('/dashboard')}
-            className="px-3.5 py-1.5 bg-[#E0E5EC] text-[#3D4852] font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(163,177,198,0.5),-3px_-3px_6px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20 active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 text-blue-600" />
-            <span>Back to Dashboard</span>
-          </button>
-
-          <h1 className="text-xl md:text-2xl font-extrabold text-[#3D4852] tracking-tight">
+        <div className="flex items-center gap-2">
+          <Layers className="w-6 h-6 text-blue-600 flex-shrink-0" />
+          <h1 className="text-xl md:text-2xl font-black text-[#3D4852] tracking-tight">
             UI Component Marketplace
           </h1>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="px-3 py-1.5 bg-[#E0E5EC] hover:bg-white/50 text-[#3D4852] font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(163,177,198,0.5),-3px_-3px_6px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20 active:scale-95 transition-all flex items-center gap-1 cursor-pointer"
+          >
+            <ArrowLeft className="w-3.5 h-3.5 text-blue-600" />
+            <span>Dashboard</span>
+          </button>
+
+          <button
+            onClick={() => navigate('/leaderboard')}
+            className="px-3 py-1.5 bg-[#E0E5EC] hover:bg-white/50 text-[#3D4852] border border-[#A3B1C6]/20 shadow-[3px_3px_6px_rgba(163,177,198,0.5),-3px_-3px_6px_rgba(255,255,255,0.35)] rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
+            title="View Top 100 Creators Leaderboard"
+          >
+            <Trophy className="w-3.5 h-3.5 text-amber-500" />
+            <span>Leaderboard</span>
+          </button>
+
           <button
             onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-            className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer border ${
               showFavoritesOnly
                 ? 'bg-red-50 text-red-500 border-red-300 shadow-[inset_3px_3px_6px_rgba(163,177,198,0.5),inset_-3px_-3px_6px_rgba(255,255,255,0.35)]'
                 : 'bg-[#E0E5EC] text-[#3D4852] hover:text-red-500 border-[#A3B1C6]/20 shadow-[3px_3px_6px_rgba(163,177,198,0.5),-3px_-3px_6px_rgba(255,255,255,0.35)]'
@@ -42,18 +52,15 @@ const MarketplaceHeader = ({
             title="Filter by your liked components"
           >
             <Heart className={`w-3.5 h-3.5 ${showFavoritesOnly ? 'fill-red-500 text-red-500' : 'text-red-500'}`} />
-            <span>My Favorites</span>
+            <span>Favorites</span>
           </button>
 
           <button
             onClick={onOpenSubmit || (() => navigate('/components/create'))}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl font-bold text-xs shadow-[4px_4px_8px_rgba(37,99,235,0.3)] active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-1.5 rounded-xl font-bold text-xs shadow-[3px_3px_6px_rgba(37,99,235,0.3)] active:scale-95 transition-all flex items-center gap-1 cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
-            Submit Component
-            <span className="bg-white/20 text-white text-[10px] px-1.5 py-0.5 rounded-full font-extrabold">
-              +10 PTS
-            </span>
+            <span>Submit (+10 PTS)</span>
           </button>
         </div>
       </div>
@@ -70,24 +77,29 @@ const MarketplaceHeader = ({
           />
         </div>
 
-        <div className="flex items-center gap-1.5 p-1 bg-[#E0E5EC] rounded-xl shadow-[inset_3px_3px_6px_rgba(163,177,198,0.5),inset_-3px_-3px_6px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20 w-full sm:w-auto overflow-x-auto">
-          {frameworks.map((fw) => {
-            const isActive = selectedFramework === fw;
-            return (
-              <button
-                key={fw}
-                onClick={() => setSelectedFramework(fw)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  isActive
-                    ? 'bg-[#E0E5EC] text-blue-600 shadow-[4px_4px_8px_rgba(163,177,198,0.5),-4px_-4px_8px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20'
-                    : 'text-[#6B7280] hover:text-[#3D4852]'
-                }`}
-              >
-                {fw}
-              </button>
-            );
-          })}
-        </div>
+        {setPage && (
+          <div className="flex items-center gap-1.5 p-1 bg-[#E0E5EC] rounded-xl shadow-[inset_3px_3px_6px_rgba(163,177,198,0.5),inset_-3px_-3px_6px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20 flex-shrink-0">
+            <button
+              disabled={page <= 1}
+              onClick={() => setPage((p) => p - 1)}
+              className="px-2.5 py-1 rounded-lg text-xs font-bold text-[#3D4852] disabled:opacity-40 disabled:cursor-not-allowed hover:text-blue-600 flex items-center gap-0.5 cursor-pointer"
+            >
+              <ChevronLeft className="w-3.5 h-3.5 text-blue-600" />
+              <span>Prev</span>
+            </button>
+            <span className="px-2 py-0.5 text-xs font-extrabold text-[#3D4852] bg-[#E0E5EC] rounded-md shadow-[3px_3px_6px_rgba(163,177,198,0.5),-3px_-3px_6px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20">
+              {page} / {totalPages || 1}
+            </span>
+            <button
+              disabled={page >= totalPages}
+              onClick={() => setPage((p) => p + 1)}
+              className="px-2.5 py-1 rounded-lg text-xs font-bold text-[#3D4852] disabled:opacity-40 disabled:cursor-not-allowed hover:text-blue-600 flex items-center gap-0.5 cursor-pointer"
+            >
+              <span>Next</span>
+              <ChevronRight className="w-3.5 h-3.5 text-blue-600" />
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

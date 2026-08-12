@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const Document = require('../models/Document');
 const Project = require('../models/Project');
+const UIComponent = require('../models/UIComponent');
 const asyncWrapper = require('../utils/asyncWrapper');
 const AppError = require('../utils/AppError');
 
@@ -120,4 +121,160 @@ exports.getMyStats = asyncWrapper(async (req, res) => {
     success: true,
     data: { monthlyTokens, docsPerProject, totalTokens, totalDocs, totalAiMessages, modelBreakdown, avgGenMs },
   });
+});
+
+exports.getUserPublicProfile = asyncWrapper(async (req, res) => {
+  const user = await User.findById(req.params.id).select('displayName avatarUrl bgImageUrl bio creatorPoints createdAt role followers following');
+  if (!user) throw new AppError('User not found', 404, 'NOT_FOUND');
+
+  const higherRanked = await User.countDocuments({
+    $or: [
+      { creatorPoints: { $gt: user.creatorPoints || 0 } },
+      { creatorPoints: user.creatorPoints || 0, _id: { $lt: user._id } }
+    ]
+  });
+
+  const rank = higherRanked + 1;
+
+  res.status(200).json({
+    success: true,
+    data: {
+      ...user.toObject(),
+      rank
+    }
+  });
+});
+
+exports.toggleFollowUser = asyncWrapper(async (req, res) => {
+  const targetUserId = req.params.id;
+  const currentUserId = req.user.id;
+
+  if (targetUserId === currentUserId) {
+    throw new AppError('You cannot follow yourself.', 400, 'BAD_REQUEST');
+  }
+
+  const targetUser = await User.findById(targetUserId);
+  const currentUser = await User.findById(currentUserId);
+
+  if (!targetUser || !currentUser) {
+    throw new AppError('User not found', 404, 'NOT_FOUND');
+  }
+
+  const isFollowing = (currentUser.following || []).some(id => id.toString() === targetUserId);
+
+  if (isFollowing) {
+    currentUser.following.pull(targetUserId);
+    targetUser.followers.pull(currentUserId);
+  } else {
+    currentUser.following.push(targetUserId);
+    targetUser.followers.push(currentUserId);
+  }
+
+  await currentUser.save();
+  await targetUser.save();
+
+  res.status(200).json({
+    success: true,
+    data: {
+      isFollowing: !isFollowing,
+      followersCount: targetUser.followers.length
+    }
+  });
+});
+
+exports.getUserSocialNetwork = asyncWrapper(async (req, res) => {
+  const user = await User.findById(req.params.id)
+    .populate('followers', 'displayName avatarUrl bio creatorPoints createdAt role followers')
+    .populate('following', 'displayName avatarUrl bio creatorPoints createdAt role followers');
+
+  if (!user) throw new AppError('User not found', 404, 'NOT_FOUND');
+
+  res.status(200).json({
+    success: true,
+    data: {
+      user: {
+        _id: user._id,
+        displayName: user.displayName,
+        avatarUrl: user.avatarUrl,
+        creatorPoints: user.creatorPoints
+      },
+      followers: user.followers || [],
+      following: user.following || []
+    }
+  });
+});
+
+exports.getLeaderboard = asyncWrapper(async (req, res) => {
+  const period = req.query.period || 'all';
+
+  if (period === 'week' || period === 'month') {
+    const days = period === 'week' ? 7 : 30;
+    const sinceDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+    const stats = await UIComponent.aggregate([
+      { $match: { createdAt: { $gte: sinceDate } } },
+      {
+        $group: {
+          _id: '$creator',
+          recentCount: { $sum: 1 },
+          recentPoints: { $sum: 10 }
+        }
+      },
+      { $sort: { recentPoints: -1, recentCount: -1 } },
+      { $limit: 100 }
+    ]);
+
+    const creatorIds = stats.map((s) => s._id);
+    const users = await User.find({ _id: { $in: creatorIds } }).select('displayName avatarUrl bio creatorPoints submittedComponentsCount followers createdAt role');
+
+    const userMap = new Map(users.map((u) => [String(u._id), u]));
+
+    let rankCounter = 1;
+    const formatted = stats
+      .map((s) => {
+        const u = userMap.get(String(s._id));
+        if (!u) return null;
+        return {
+          ...u.toObject(),
+          creatorPoints: s.recentPoints,
+          submittedComponentsCount: s.recentCount,
+          rank: rankCounter++,
+          followersCount: u.followers?.length || 0
+        };
+      })
+      .filter(Boolean);
+
+    if (formatted.length < 100) {
+      const existingIds = new Set(formatted.map((u) => String(u._id)));
+      const fallbackUsers = await User.find({ _id: { $nin: Array.from(existingIds) } })
+        .sort({ creatorPoints: -1 })
+        .limit(100 - formatted.length)
+        .select('displayName avatarUrl bio creatorPoints submittedComponentsCount followers createdAt role');
+
+      fallbackUsers.forEach((u) => {
+        formatted.push({
+          ...u.toObject(),
+          creatorPoints: 0,
+          submittedComponentsCount: 0,
+          rank: rankCounter++,
+          followersCount: u.followers?.length || 0
+        });
+      });
+    }
+
+    return res.status(200).json({ success: true, data: formatted });
+  }
+
+  const users = await User.find({})
+    .sort({ creatorPoints: -1, submittedComponentsCount: -1 })
+    .limit(100)
+    .select('displayName avatarUrl bio creatorPoints submittedComponentsCount followers createdAt role');
+
+  const formatted = users.map((u, idx) => ({
+    ...u.toObject(),
+    rank: idx + 1,
+    followersCount: u.followers?.length || 0
+  }));
+
+  res.status(200).json({ success: true, data: formatted });
 });

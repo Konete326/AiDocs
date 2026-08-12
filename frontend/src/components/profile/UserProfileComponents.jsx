@@ -14,7 +14,7 @@ const UserProfileComponents = ({ userId }) => {
     if (!userId) return;
     setLoading(true);
     try {
-      const res = await fetch(`/api/ui-components?creator=${userId}&limit=3`);
+      const res = await fetch(`/api/ui-components?creator=${userId}&limit=12`);
       const data = await res.json();
       if (data.success) setComponents(data.data.components || []);
 

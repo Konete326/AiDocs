@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { FolderKanban, Rss } from 'lucide-react';
 import { getProjects, deleteProject } from '../services/projectService';
 import DashboardHeader from '../components/dashboard/DashboardHeader';
 import ProjectCard from '../components/dashboard/ProjectCard';
 import EmptyState from '../components/dashboard/EmptyState';
+import FollowingActivityFeed from '../components/dashboard/FollowingActivityFeed';
 import { useConfirmModal, useAlertModal } from '../hooks/useModal';
 import ConfirmModal from '../components/common/ConfirmModal';
 import AlertModal from '../components/common/AlertModal';
@@ -11,6 +13,7 @@ import AlertModal from '../components/common/AlertModal';
 const Dashboard = () => {
   const [projects, setProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('projects');
 
   const { modal: confirmModal, confirm, close: closeConfirm, handleConfirm } = useConfirmModal();
   const { modal: alertModal, alert: triggerAlert, close: closeAlert } = useAlertModal();
@@ -54,7 +57,7 @@ const Dashboard = () => {
       <div className="relative z-10 pt-20 pb-8 px-4 md:px-8 max-w-[95%] xl:max-w-[1500px] mx-auto">
         <DashboardHeader projectCount={projects?.length || 0} />
 
-        <div className="mt-5 space-y-4">
+        <div className="mt-8 space-y-4">
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {[1, 2, 3, 4].map(i => (

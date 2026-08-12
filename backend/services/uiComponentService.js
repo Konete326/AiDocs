@@ -2,6 +2,27 @@ const UIComponent = require('../models/UIComponent');
 const User = require('../models/User');
 const AppError = require('../utils/AppError');
 
+const sseClients = new Set();
+
+const addSseClient = (res) => {
+  sseClients.add(res);
+};
+
+const removeSseClient = (res) => {
+  sseClients.delete(res);
+};
+
+const broadcastSseEvent = (type, data) => {
+  const payload = `data: ${JSON.stringify({ type, ...data })}\n\n`;
+  for (const client of sseClients) {
+    try {
+      client.write(payload);
+    } catch {
+      sseClients.delete(client);
+    }
+  }
+};
+
 const getComponentsService = async ({ page = 1, limit = 12, category, framework, creator, search, sort = 'newest', favoritesOnly, favoriteUser }) => {
   const p = Math.max(1, parseInt(page, 10) || 1);
   const l = Math.max(1, Math.min(50, parseInt(limit, 10) || 12));
@@ -36,20 +57,49 @@ const getComponentsService = async ({ page = 1, limit = 12, category, framework,
   return { components, total, page: p, limit: l, totalPages: Math.ceil(total / l) };
 };
 
-const getComponentByIdService = async (id) => {
-  const component = await UIComponent.findByIdAndUpdate(
-    id,
-    { $inc: { viewsCount: 1 } },
-    { new: true }
-  ).populate('creator', 'displayName avatarUrl creatorPoints');
+const getComponentByIdService = async (id, identifier = 'anonymous') => {
+  const component = await UIComponent.findById(id).populate('creator', 'displayName avatarUrl creatorPoints followers');
   if (!component) throw new AppError('UI Component not found', 404, 'NOT_FOUND');
+
+  const now = new Date();
+  const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+  const existingLog = (component.viewsLog || []).find(
+    (log) => log.identifier === String(identifier) && new Date(log.timestamp) > twentyFourHoursAgo
+  );
+
+  if (!existingLog) {
+    component.viewsCount = (component.viewsCount || 0) + 1;
+    if (!component.viewsLog) component.viewsLog = [];
+    component.viewsLog.push({ identifier: String(identifier), timestamp: now });
+    await component.save();
+  }
+
   return component;
 };
 
+const generateFallbackThumbnail = (title, category) => {
+  const safeTitle = (title || 'UI Component').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const safeCat = (category || 'UI').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="350" viewBox="0 0 600 350">
+    <rect width="600" height="350" fill="#E0E5EC"/>
+    <rect x="20" y="20" width="560" height="310" rx="28" fill="#E0E5EC" stroke="#A3B1C6" stroke-opacity="0.5" stroke-width="2"/>
+    <text x="300" y="160" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="800" fill="#3D4852" text-anchor="middle">${safeTitle}</text>
+    <text x="300" y="195" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#2563EB" text-anchor="middle">${safeCat}</text>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+};
+
 const createComponentService = async (data, userId) => {
-  const component = await UIComponent.create({ ...data, creator: userId });
+  let thumbnail = data.thumbnail;
+  if (!thumbnail || typeof thumbnail !== 'string' || !thumbnail.trim()) {
+    thumbnail = generateFallbackThumbnail(data.title, data.category);
+  }
+  const component = await UIComponent.create({ ...data, thumbnail, creator: userId });
   await User.findByIdAndUpdate(userId, { $inc: { submittedComponentsCount: 1, creatorPoints: 10 } });
-  return component.populate('creator', 'displayName avatarUrl creatorPoints');
+  const populated = await component.populate('creator', 'displayName avatarUrl creatorPoints');
+  broadcastSseEvent('COMPONENT_CREATED', { component: populated });
+  return populated;
 };
 
 const updateComponentService = async (id, data, userId) => {
@@ -96,8 +146,22 @@ const recordEmbedViewService = async (id) => {
   return true;
 };
 
+const getCategoryCountsService = async () => {
+  const counts = await UIComponent.aggregate([
+    { $group: { _id: '$category', count: { $sum: 1 } } }
+  ]);
+  const total = await UIComponent.countDocuments({});
+
+  const result = { All: total };
+  counts.forEach((item) => {
+    if (item._id) result[item._id] = item.count;
+  });
+  return result;
+};
+
 module.exports = {
   getComponentsService, getComponentByIdService, createComponentService,
   updateComponentService, deleteComponentService, toggleFavoriteService,
-  getUserComponentStatsService, recordEmbedViewService
+  getUserComponentStatsService, recordEmbedViewService, getCategoryCountsService,
+  addSseClient, removeSseClient
 };

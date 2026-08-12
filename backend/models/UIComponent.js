@@ -39,6 +39,12 @@ const uiComponentSchema = new mongoose.Schema(
     embedViewsCount: { type: Number, default: 0 },
     favoritesCount: { type: Number, default: 0 },
     favoritedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    viewsLog: [
+      {
+        identifier: { type: String },
+        timestamp: { type: Date, default: Date.now }
+      }
+    ],
     tags: [{ type: String }],
     isFeatured: { type: Boolean, default: false }
   },

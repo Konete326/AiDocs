@@ -1,12 +1,12 @@
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ExternalLink } from 'lucide-react';
 
 const ProfileHeader = ({ user }) => {
   const navigate = useNavigate();
 
   return (
     <div className="space-y-1">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/dashboard')}
@@ -19,9 +19,18 @@ const ProfileHeader = ({ user }) => {
             {user?.displayName || 'Welcome'}
           </h2>
         </div>
-        <span className="bg-[#6C63FF] text-white rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.3em] flex-shrink-0">
-          Your Profile
-        </span>
+
+        <button
+          onClick={() => {
+            const uid = user?._id || user?.id;
+            if (uid) navigate(`/profile/${uid}`);
+          }}
+          className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-3.5 py-1.5 flex items-center gap-1.5 text-xs font-bold shadow-[3px_3px_6px_rgba(37,99,235,0.3)] active:scale-95 transition-all cursor-pointer flex-shrink-0"
+          title="View how others see your public creator profile"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+          <span>View Public Profile</span>
+        </button>
       </div>
       <p className="text-[#6B7280] text-xs leading-relaxed">
         Manage your account, view your subscription, and upload a photo.

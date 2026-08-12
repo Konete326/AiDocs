@@ -6,7 +6,6 @@ import ProfileHeader from '../components/profile/ProfileHeader';
 import McpStatusWidget from '../components/profile/McpStatusWidget';
 import MonthlyTokenChart from '../components/profile/ActivityChart';
 import AiUsagePanel from '../components/profile/AiUsagePanel';
-import UserProfileComponents from '../components/profile/UserProfileComponents';
 import { useAuth } from '../context/AuthContext';
 
 const Profile = () => {
@@ -33,25 +32,11 @@ const Profile = () => {
     ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     : 'N/A';
 
-  const userId = user?._id || user?.id || user?.userId;
-
   return (
-    <div className="min-h-screen w-full flex flex-col bg-[#E0E5EC] overflow-y-auto pt-24 md:pt-28 px-4 pb-12 md:px-8">
-      <div className="max-w-7xl w-full mx-auto flex flex-col gap-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="neumorphic-card rounded-3xl p-5 flex flex-col gap-4">
-            <ProfileHeader user={user} />
-            <StatsGrid projectsCount={projectsCount} completedCount={completedCount} joinedAt={user?.createdAt} />
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <MonthlyTokenChart monthlyTokens={stats?.monthlyTokens} />
-              <AiUsagePanel stats={stats} />
-            </div>
-
-            <McpStatusWidget />
-          </div>
-
-          <div className="neumorphic-card rounded-3xl p-5">
+    <div className="min-h-screen w-full flex flex-col bg-[#E0E5EC] overflow-y-auto pt-20 md:pt-24 px-6 md:px-8 pb-12">
+      <div className="w-full max-w-none flex flex-col gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <div className="lg:col-span-5 flex flex-col">
             <ProfileCard
               user={user} subscription={subscription} memberSince={memberSince}
               isEditing={isEditing} editData={editData}
@@ -65,9 +50,24 @@ const Profile = () => {
               onEditToggle={handleEditToggle}
             />
           </div>
-        </div>
 
-        <UserProfileComponents userId={userId} />
+          <div className="lg:col-span-7 bg-[#E0E5EC] rounded-[32px] p-6 shadow-[9px_9px_16px_rgba(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)] border border-[#A3B1C6]/30 flex flex-col gap-5">
+            <ProfileHeader user={user} />
+            <StatsGrid
+              projectsCount={projectsCount}
+              componentsCount={user?.submittedComponentsCount || 0}
+              completedCount={completedCount}
+              joinedAt={user?.createdAt}
+            />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <MonthlyTokenChart monthlyTokens={stats?.monthlyTokens} />
+              <AiUsagePanel stats={stats} />
+            </div>
+
+            <McpStatusWidget />
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,8 @@
 const {
   getComponentsService, getComponentByIdService, createComponentService,
   updateComponentService, deleteComponentService, toggleFavoriteService,
-  getUserComponentStatsService, recordEmbedViewService
+  getUserComponentStatsService, recordEmbedViewService, getCategoryCountsService,
+  addSseClient, removeSseClient
 } = require('../services/uiComponentService');
 const { synthesizePromptService, convertFrameworkService } = require('../services/uiPromptSynthesizer');
 const AppError = require('../utils/AppError');
@@ -11,7 +12,10 @@ const getComponents = async (req, res, next) => {
 };
 
 const getComponentById = async (req, res, next) => {
-  try { res.status(200).json({ success: true, data: await getComponentByIdService(req.params.id) }); } catch (err) { next(err); }
+  try {
+    const identifier = req.user?.id || req.ip || req.headers['x-forwarded-for'] || 'anonymous';
+    res.status(200).json({ success: true, data: await getComponentByIdService(req.params.id, identifier) });
+  } catch (err) { next(err); }
 };
 
 const createComponent = async (req, res, next) => {
@@ -50,7 +54,26 @@ const recordEmbedView = async (req, res, next) => {
   try { await recordEmbedViewService(req.params.id); res.status(200).json({ success: true }); } catch (err) { next(err); }
 };
 
+const getCategoryCounts = async (req, res, next) => {
+  try { res.status(200).json({ success: true, data: await getCategoryCountsService() }); } catch (err) { next(err); }
+};
+
+const streamComponentEvents = (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('Connection', 'keep-alive');
+  if (res.flushHeaders) res.flushHeaders();
+
+  res.write(`data: ${JSON.stringify({ type: 'CONNECTED' })}\n\n`);
+  addSseClient(res);
+
+  req.on('close', () => {
+    removeSseClient(res);
+  });
+};
+
 module.exports = {
   getComponents, getComponentById, createComponent, updateComponent, deleteComponent,
-  toggleFavorite, synthesizePrompt, convertFramework, getUserComponentStats, recordEmbedView
+  toggleFavorite, synthesizePrompt, convertFramework, getUserComponentStats, recordEmbedView,
+  getCategoryCounts, streamComponentEvents
 };

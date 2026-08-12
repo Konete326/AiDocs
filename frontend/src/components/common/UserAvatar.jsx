@@ -42,17 +42,22 @@ const UserAvatar = ({ user, size = 'md', showUpload = false, onUpload, className
   return (
     <div 
       onClick={onClick}
-      className={`relative group ${currentSizeClass} ${className}`}
+      style={{ borderRadius: '9999px' }}
+      className={`relative group rounded-full overflow-hidden flex-shrink-0 ${currentSizeClass} ${className}`}
     >
       {hasAvatar ? (
         <img
           src={user.avatarUrl}
           alt={user.displayName}
           onError={() => setImgError(true)}
+          style={{ borderRadius: '9999px' }}
           className="w-full h-full rounded-full object-cover border border-slate-300/80 shadow-sm"
         />
       ) : (
-        <div className={`liquid-glass rounded-full w-full h-full flex items-center justify-center font-medium text-[#3D4852] border border-slate-300/80 ${currentTextSize}`}>
+        <div 
+          style={{ borderRadius: '9999px' }}
+          className={`bg-[#E0E5EC] rounded-full w-full h-full flex items-center justify-center font-bold text-[#3D4852] shadow-[inset_3px_3px_6px_rgba(163,177,198,0.5),inset_-3px_-3px_6px_rgba(255,255,255,0.5)] border border-[#A3B1C6]/30 ${currentTextSize}`}
+        >
           {initial}
         </div>
       )}
