@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Trophy, Award, Layers, Search, Loader2, ArrowLeft, UserPlus, UserCheck, Calendar, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'react-hot-toast';
@@ -16,6 +16,7 @@ const calculateCreatorTier = (points = 0) => {
 const Leaderboard = () => {
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
+  const tableRef = useRef(null);
 
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,6 +26,11 @@ const Leaderboard = () => {
 
   const [tablePage, setTablePage] = useState(1);
   const tableLimit = 5;
+
+  const handleTablePageChange = (newPage) => {
+    setTablePage(newPage);
+    tableRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   useEffect(() => {
     setTablePage(1);
@@ -341,7 +347,7 @@ const Leaderboard = () => {
             </div>
           )}
 
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" ref={tableRef}>
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-[#A3B1C6]/30 text-xs font-extrabold text-[#6B7280] uppercase tracking-wider">
@@ -446,7 +452,7 @@ const Leaderboard = () => {
               <div className="flex items-center gap-1.5">
                 <button
                   disabled={tablePage <= 1}
-                  onClick={() => setTablePage((p) => Math.max(1, p - 1))}
+                  onClick={() => handleTablePageChange(Math.max(1, tablePage - 1))}
                   className="px-3 py-1.5 rounded-xl bg-[#E0E5EC] text-xs font-bold text-[#3D4852] shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 active:scale-95 cursor-pointer"
                 >
                   <ChevronLeft className="w-4 h-4 text-blue-600" /> Prev
@@ -455,7 +461,7 @@ const Leaderboard = () => {
                 {Array.from({ length: totalTablePages }, (_, i) => i + 1).map((pNum) => (
                   <button
                     key={pNum}
-                    onClick={() => setTablePage(pNum)}
+                    onClick={() => handleTablePageChange(pNum)}
                     className={`w-8 h-8 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                       tablePage === pNum
                         ? 'bg-blue-600 text-white shadow-[3px_3px_6px_rgba(37,99,235,0.3)]'
@@ -468,7 +474,7 @@ const Leaderboard = () => {
 
                 <button
                   disabled={tablePage >= totalTablePages}
-                  onClick={() => setTablePage((p) => Math.min(totalTablePages, p + 1))}
+                  onClick={() => handleTablePageChange(Math.min(totalTablePages, tablePage + 1))}
                   className="px-3 py-1.5 rounded-xl bg-[#E0E5EC] text-xs font-bold text-[#3D4852] shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 active:scale-95 cursor-pointer"
                 >
                   Next <ChevronRight className="w-4 h-4 text-blue-600" />

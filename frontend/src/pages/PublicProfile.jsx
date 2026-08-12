@@ -107,6 +107,7 @@ const PublicProfile = () => {
   const { userId } = useParams();
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
+  const compsRef = useRef(null);
   const [creator, setCreator] = useState(null);
   const [components, setComponents] = useState([]);
   const [stats, setStats] = useState({ totalViews: 0, totalFavorites: 0 });
@@ -119,6 +120,11 @@ const PublicProfile = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalComponentsCount, setTotalComponentsCount] = useState(0);
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    compsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   useEffect(() => {
     let isMounted = true;
@@ -372,7 +378,7 @@ const PublicProfile = () => {
           </div>
         </div>
 
-        <div className="bg-[#E0E5EC] rounded-[28px] p-6 md:p-7 shadow-[8px_8px_16px_rgba(163,177,198,0.6),-8px_-8px_16px_rgba(255,255,255,0.5)] border border-[#A3B1C6]/30">
+        <div className="bg-[#E0E5EC] rounded-[28px] p-6 md:p-7 shadow-[8px_8px_16px_rgba(163,177,198,0.6),-8px_-8px_16px_rgba(255,255,255,0.5)] border border-[#A3B1C6]/30" ref={compsRef}>
           <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
             <div>
               <h2 className="text-xl font-extrabold text-[#3D4852]">Created UI Components ({totalComponentsCount})</h2>
@@ -384,7 +390,7 @@ const PublicProfile = () => {
                 <div className="flex items-center gap-1.5 bg-[#E0E5EC] p-1 rounded-xl shadow-[inset_2px_2px_4px_rgba(163,177,198,0.5),inset_-2px_-2px_4px_rgba(255,255,255,0.5)] border border-[#A3B1C6]/20">
                   <button
                     disabled={page <= 1}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    onClick={() => handlePageChange(Math.max(1, page - 1))}
                     className="p-1 bg-[#E0E5EC] text-[#3D4852] disabled:opacity-30 rounded-lg shadow-[2px_2px_4px_rgba(163,177,198,0.6),-2px_-2px_4px_rgba(255,255,255,0.5)] active:scale-95 transition-all cursor-pointer"
                     title="Previous Page"
                   >
@@ -395,7 +401,7 @@ const PublicProfile = () => {
                   </span>
                   <button
                     disabled={page >= totalPages}
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
                     className="p-1 bg-[#E0E5EC] text-[#3D4852] disabled:opacity-30 rounded-lg shadow-[2px_2px_4px_rgba(163,177,198,0.6),-2px_-2px_4px_rgba(255,255,255,0.5)] active:scale-95 transition-all cursor-pointer"
                     title="Next Page"
                   >
@@ -410,7 +416,7 @@ const PublicProfile = () => {
                   value={selectedCategory}
                   onChange={(e) => {
                     setSelectedCategory(e.target.value);
-                    setPage(1);
+                    handlePageChange(1);
                   }}
                   className="px-3 py-1.5 bg-[#E0E5EC] text-[#3D4852] font-bold text-xs rounded-xl shadow-[inset_2px_2px_4px_rgba(163,177,198,0.5),inset_-2px_-2px_4px_rgba(255,255,255,0.5)] border border-[#A3B1C6]/30 focus:outline-none cursor-pointer"
                 >
@@ -446,7 +452,7 @@ const PublicProfile = () => {
                 <div className="flex items-center justify-end gap-2 pt-4 border-t border-[#A3B1C6]/20">
                   <button
                     disabled={page <= 1}
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    onClick={() => handlePageChange(Math.max(1, page - 1))}
                     className="px-3 py-1 bg-[#E0E5EC] text-[#3D4852] disabled:opacity-40 font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] active:scale-95 transition-all flex items-center gap-1 cursor-pointer"
                   >
                     <ChevronLeft className="w-3.5 h-3.5 text-blue-600" /> Prev
@@ -458,7 +464,7 @@ const PublicProfile = () => {
 
                   <button
                     disabled={page >= totalPages}
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                    onClick={() => handlePageChange(Math.min(totalPages, page + 1))}
                     className="px-3 py-1 bg-[#E0E5EC] text-[#3D4852] disabled:opacity-40 font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] active:scale-95 transition-all flex items-center gap-1 cursor-pointer"
                   >
                     Next <ChevronRight className="w-3.5 h-3.5 text-blue-600" />
