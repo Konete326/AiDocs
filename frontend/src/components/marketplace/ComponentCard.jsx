@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, Heart, Code2, Sparkles, Award } from 'lucide-react';
+import { Eye, Heart, Code2, Sparkles, Award, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import UserAvatar from '../common/UserAvatar';
 import PromptModal from './PromptModal';
 import { attachAttributionToCode } from '../../utils/codeAttribution';
 
-const ComponentCard = ({ component, onFavorite }) => {
+const ComponentCard = ({ component, onFavorite, onEdit, onDelete, isOwner }) => {
   const navigate = useNavigate();
   const [copiedCode, setCopiedCode] = useState(false);
   const [isPromptOpen, setIsPromptOpen] = useState(false);
@@ -149,6 +149,16 @@ const ComponentCard = ({ component, onFavorite }) => {
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E0E5EC] text-blue-600 shadow-[inset_2px_2px_4px_rgba(163,177,198,0.5),inset_-2px_-2px_4px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20">
                 {component.framework || 'CSS'}
               </span>
+              {isOwner && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); navigate('/editor/' + component._id); }}
+                  className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-[2px_2px_4px_rgba(37,99,235,0.3)] border border-blue-500/20 active:scale-95 transition-all flex items-center gap-1 text-[10px] font-bold cursor-pointer"
+                  title="Edit in VS Code Studio"
+                >
+                  <Code2 className="w-3.5 h-3.5 text-white" />
+                  <span>VS Code</span>
+                </button>
+              )}
               <button
                 onClick={handleNavigateDetail}
                 className="px-2 py-0.5 bg-[#E0E5EC] text-[#3D4852] hover:text-blue-600 rounded-lg shadow-[2px_2px_4px_rgba(163,177,198,0.5),-2px_-2px_4px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20 active:scale-95 transition-all flex items-center gap-1 text-[10px] font-bold cursor-pointer"
@@ -207,12 +217,31 @@ const ComponentCard = ({ component, onFavorite }) => {
           </div>
 
           <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#101010]/5">
-            <button onClick={handleCopyCode} className="bg-[#E0E5EC] hover:bg-white/50 text-[#3D4852] py-2 rounded-xl text-xs font-bold shadow-[3px_3px_6px_rgba(163,177,198,0.5),-3px_-3px_6px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-              <Code2 className="w-3.5 h-3.5 text-blue-600" />{copiedCode ? 'Copied!' : 'Copy Code'}
-            </button>
-            <button onClick={handleOpenPromptModal} className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl text-xs font-bold shadow-[3px_3px_6px_rgba(37,99,235,0.3)] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-              <Sparkles className="w-3.5 h-3.5" />Copy AI Prompt
-            </button>
+            {isOwner ? (
+              <>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onEdit?.(component); }}
+                  className="bg-[#E0E5EC] hover:bg-amber-50 text-amber-600 py-2 rounded-xl text-xs font-bold shadow-[3px_3px_6px_rgba(163,177,198,0.5),-3px_-3px_6px_rgba(255,255,255,0.35)] border border-amber-300/40 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Pencil className="w-3.5 h-3.5 text-amber-600" />Edit
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onDelete?.(component); }}
+                  className="bg-[#E0E5EC] hover:bg-red-50 text-red-600 py-2 rounded-xl text-xs font-bold shadow-[3px_3px_6px_rgba(163,177,198,0.5),-3px_-3px_6px_rgba(255,255,255,0.35)] border border-red-300/40 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-red-600" />Delete
+                </button>
+              </>
+            ) : (
+              <>
+                <button onClick={handleCopyCode} className="bg-[#E0E5EC] hover:bg-white/50 text-[#3D4852] py-2 rounded-xl text-xs font-bold shadow-[3px_3px_6px_rgba(163,177,198,0.5),-3px_-3px_6px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                  <Code2 className="w-3.5 h-3.5 text-blue-600" />{copiedCode ? 'Copied!' : 'Copy Code'}
+                </button>
+                <button onClick={handleOpenPromptModal} className="bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-xl text-xs font-bold shadow-[3px_3px_6px_rgba(37,99,235,0.3)] active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer">
+                  <Sparkles className="w-3.5 h-3.5" />Copy AI Prompt
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>

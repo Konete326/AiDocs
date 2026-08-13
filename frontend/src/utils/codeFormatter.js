@@ -2,17 +2,32 @@ export const formatHtml = (html) => {
   if (!html) return '';
   let formatted = '';
   let indent = 0;
-  const tokens = html.replace(/>\s*</g, '><').split(/(?=<)|(?<=>)/);
+
+  let clean = html.replace(/\s+/g, ' ').replace(/>\s+</g, '><').trim();
+  const tokens = clean.split(/(?=<)|(?<=>)/);
+
+  const voidElements = new Set([
+    'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
+    'link', 'meta', 'param', 'source', 'track', 'wbr',
+    'path', 'circle', 'rect', 'line', 'polyline', 'polygon', 'use', 'stop'
+  ]);
 
   tokens.forEach((token) => {
     if (!token.trim()) return;
+
     if (token.startsWith('</')) {
       indent = Math.max(0, indent - 1);
       formatted += '  '.repeat(indent) + token.trim() + '\n';
-    } else if (token.startsWith('<') && !token.startsWith('<!') && !token.endsWith('/>') && !token.includes('</')) {
+    } else if (token.startsWith('<') && !token.startsWith('<!')) {
+      const isSelfClosing = token.endsWith('/>');
+      const tagNameMatch = token.match(/<([a-zA-Z0-9-]+)/);
+      const tagName = tagNameMatch ? tagNameMatch[1].toLowerCase() : '';
+      const isVoid = voidElements.has(tagName) || isSelfClosing;
+
       formatted += '  '.repeat(indent) + token.trim() + '\n';
-      const isSelfClosing = token.match(/<(img|input|br|hr|meta|link)\b/i);
-      if (!isSelfClosing) indent++;
+      if (!isVoid && !token.includes('</')) {
+        indent++;
+      }
     } else {
       formatted += '  '.repeat(indent) + token.trim() + '\n';
     }

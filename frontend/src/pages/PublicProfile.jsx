@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Share2, Award, Layers, Sparkles, Loader2, CheckCircle, UserPlus, UserCheck, ChevronLeft, ChevronRight, Filter, Trophy } from 'lucide-react';
+import { Share2, Award, Layers, Sparkles, Loader2, CheckCircle, UserPlus, UserCheck, ChevronLeft, ChevronRight, Filter, Trophy, AlertTriangle, X, Save, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -120,6 +120,33 @@ const PublicProfile = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalComponentsCount, setTotalComponentsCount] = useState(0);
+
+  const [componentToDelete, setComponentToDelete] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  const isOwnProfile = currentUser && (String(currentUser._id || currentUser.id) === String(userId));
+
+  const handleOpenEdit = (comp) => {
+    navigate(`/components/edit/${comp._id}`);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!componentToDelete) return;
+    setDeleting(true);
+    try {
+      const res = await api.delete(`/ui-components/${componentToDelete._id}`);
+      if (res.data?.success) {
+        toast.success('Component deleted successfully!');
+        setComponents((prev) => prev.filter((c) => c._id !== componentToDelete._id));
+        setTotalComponentsCount((prev) => Math.max(0, prev - 1));
+        setComponentToDelete(null);
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to delete component');
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   const handlePageChange = (newPage) => {
     setPage(newPage);
@@ -289,17 +316,26 @@ const PublicProfile = () => {
               </div>
 
               <div className="p-3.5 md:p-4 pt-0 grid grid-cols-2 gap-2">
-                <button
-                  onClick={handleToggleFollow}
-                  className={`w-full py-1.5 rounded-xl font-bold text-xs active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
-                    isFollowing
-                      ? 'bg-[#E0E5EC] text-emerald-600 border border-emerald-400/40 shadow-[inset_2px_2px_4px_rgba(163,177,198,0.5),inset_-2px_-2px_4px_rgba(255,255,255,0.5)]'
-                      : 'bg-blue-600 hover:bg-blue-700 text-white shadow-[2px_2px_5px_rgba(37,99,235,0.3)]'
-                  }`}
-                >
-                  {isFollowing ? <UserCheck className="w-3.5 h-3.5 text-emerald-600" /> : <UserPlus className="w-3.5 h-3.5 text-white" />}
-                  <span>{isFollowing ? 'Following' : '+ Follow'}</span>
-                </button>
+                {isOwnProfile ? (
+                  <button
+                    onClick={() => navigate('/profile')}
+                    className="w-full py-1.5 bg-[#E0E5EC] hover:bg-white/50 text-blue-600 rounded-xl text-xs font-bold shadow-[2px_2px_4px_rgba(163,177,198,0.5),-2px_-2px_4px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20 active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                  >
+                    <Pencil className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Edit Profile</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleToggleFollow}
+                    className={`w-full py-1.5 rounded-xl font-bold text-xs active:scale-95 transition-all flex items-center justify-center gap-1.5 cursor-pointer ${isFollowing
+                        ? 'bg-[#E0E5EC] text-emerald-600 border border-emerald-400/40 shadow-[inset_2px_2px_4px_rgba(163,177,198,0.5),inset_-2px_-2px_4px_rgba(255,255,255,0.5)]'
+                        : 'bg-blue-600 hover:bg-blue-700 text-white shadow-[2px_2px_5px_rgba(37,99,235,0.3)]'
+                      }`}
+                  >
+                    {isFollowing ? <UserCheck className="w-3.5 h-3.5 text-emerald-600" /> : <UserPlus className="w-3.5 h-3.5 text-white" />}
+                    <span>{isFollowing ? 'Following' : '+ Follow'}</span>
+                  </button>
+                )}
 
                 <button
                   onClick={handleShareProfile}
@@ -444,7 +480,14 @@ const PublicProfile = () => {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
                 {components.map((comp) => (
-                  <ComponentCard key={comp._id} component={comp} onFavorite={() => {}} />
+                  <ComponentCard
+                    key={comp._id}
+                    component={comp}
+                    onFavorite={() => { }}
+                    onEdit={handleOpenEdit}
+                    onDelete={(c) => setComponentToDelete(c)}
+                    isOwner={isOwnProfile}
+                  />
                 ))}
               </div>
 
@@ -475,6 +518,42 @@ const PublicProfile = () => {
           )}
         </div>
       </div>
+
+      {componentToDelete && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-[#E0E5EC] rounded-[28px] p-6 max-w-md w-full shadow-[12px_12px_24px_rgba(163,177,198,0.7),-12px_-12px_24px_rgba(255,255,255,0.7)] border border-[#A3B1C6]/30">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="p-2.5 rounded-2xl bg-red-50 text-red-500 shadow-[inset_2px_2px_4px_rgba(163,177,198,0.5),inset_-2px_-2px_4px_rgba(255,255,255,0.5)] border border-red-200">
+                <AlertTriangle className="w-6 h-6 text-red-500" />
+              </div>
+              <div>
+                <h3 className="text-base font-extrabold text-[#3D4852]">Delete UI Component?</h3>
+                <p className="text-xs text-[#6B7280]">This action cannot be undone.</p>
+              </div>
+            </div>
+            <p className="text-xs text-[#3D4852] font-medium bg-[#E0E5EC] p-3 rounded-xl shadow-[inset_2px_2px_4px_rgba(163,177,198,0.5),inset_-2px_-2px_4px_rgba(255,255,255,0.5)] mb-5 border border-[#A3B1C6]/20">
+              Are you sure you want to delete <strong className="text-red-600">{componentToDelete.title}</strong>?
+            </p>
+            <div className="flex items-center justify-end gap-2.5">
+              <button
+                disabled={deleting}
+                onClick={() => setComponentToDelete(null)}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-[#3D4852] bg-[#E0E5EC] hover:bg-white/50 shadow-[3px_3px_6px_rgba(163,177,198,0.5),-3px_-3px_6px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={deleting}
+                onClick={handleConfirmDelete}
+                className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 shadow-[3px_3px_6px_rgba(220,38,38,0.3)] flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                <span>{deleting ? 'Deleting...' : 'Delete Component'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

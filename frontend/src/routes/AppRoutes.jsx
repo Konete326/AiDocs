@@ -30,6 +30,7 @@ import CreateComponent from '../pages/CreateComponent';
 import PublicProfile from '../pages/PublicProfile';
 import FollowersPage from '../pages/FollowersPage';
 import Leaderboard from '../pages/Leaderboard';
+import EditorPage from '../pages/EditorPage';
 
 export default function AppRoutes() {
   return (
@@ -42,7 +43,7 @@ export default function AppRoutes() {
       <Route path="/profile/:userId/followers" element={<FollowersPage />} />
       <Route path="/embed/components/:id" element={<EmbedComponent />} />
       <Route path="/feedback" element={<Feedback />} />
-      
+
       <Route element={<PublicOnlyRoute />}>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -52,9 +53,11 @@ export default function AppRoutes() {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/features" element={<Features />} />
-      
+
       <Route element={<PrivateRoute />}>
         <Route path="/components/create" element={<CreateComponent />} />
+        <Route path="/components/edit/:id" element={<CreateComponent />} />
+        <Route path="/editor/:id" element={<EditorPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />

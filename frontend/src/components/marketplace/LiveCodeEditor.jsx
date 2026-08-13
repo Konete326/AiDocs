@@ -1,12 +1,26 @@
 import { useState } from 'react';
-import { Code2, Copy, Check } from 'lucide-react';
+import { Code2, Copy, Check, Wand2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { attachAttributionToCode } from '../../utils/codeAttribution';
+import { formatHtml, formatCss } from '../../utils/codeFormatter';
 
 const LiveCodeEditor = ({ htmlCode, setHtmlCode, cssCode, setCssCode, creatorName = 'Founder', componentId = '' }) => {
   const [activeTab, setActiveTab] = useState('html');
   const [copiedHtml, setCopiedHtml] = useState(false);
   const [copiedCss, setCopiedCss] = useState(false);
+
+  const handleFormat = (e) => {
+    e.stopPropagation();
+    if (activeTab === 'html') {
+      if (!htmlCode) return;
+      setHtmlCode(formatHtml(htmlCode));
+      toast.success('HTML code formatted cleanly!');
+    } else {
+      if (!cssCode) return;
+      setCssCode(formatCss(cssCode));
+      toast.success('CSS code formatted cleanly!');
+    }
+  };
 
   const handleCopyHtml = (e) => {
     e.stopPropagation();
@@ -51,18 +65,29 @@ const LiveCodeEditor = ({ htmlCode, setHtmlCode, cssCode, setCssCode, creatorNam
       </div>
 
       <div className="relative flex-1 flex flex-col">
-        <button
-          onClick={activeTab === 'html' ? handleCopyHtml : handleCopyCss}
-          className="absolute top-2.5 right-2.5 z-10 p-1.5 rounded-lg bg-[#E0E5EC]/90 text-[#3D4852] hover:text-blue-600 shadow-[2px_2px_4px_rgba(163,177,198,0.6),-2px_-2px_4px_rgba(255,255,255,0.5)] active:scale-90 transition-all flex items-center gap-1 text-[10px] font-bold cursor-pointer border border-white/30"
-          title={`Copy ${activeTab.toUpperCase()} Code`}
-        >
-          {(activeTab === 'html' ? copiedHtml : copiedCss) ? (
-            <Check className="w-3.5 h-3.5 text-green-600" />
-          ) : (
-            <Copy className="w-3.5 h-3.5 text-blue-600" />
-          )}
-          <span>{(activeTab === 'html' ? copiedHtml : copiedCss) ? 'Copied!' : 'Copy'}</span>
-        </button>
+        <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5">
+          <button
+            onClick={handleFormat}
+            className="p-1.5 rounded-lg bg-[#E0E5EC]/90 text-[#3D4852] hover:text-blue-600 shadow-[2px_2px_4px_rgba(163,177,198,0.6),-2px_-2px_4px_rgba(255,255,255,0.5)] active:scale-90 transition-all flex items-center gap-1 text-[10px] font-bold cursor-pointer border border-white/30"
+            title={`Format ${activeTab.toUpperCase()} Code`}
+          >
+            <Wand2 className="w-3.5 h-3.5 text-blue-600" />
+            <span>Format</span>
+          </button>
+
+          <button
+            onClick={activeTab === 'html' ? handleCopyHtml : handleCopyCss}
+            className="p-1.5 rounded-lg bg-[#E0E5EC]/90 text-[#3D4852] hover:text-blue-600 shadow-[2px_2px_4px_rgba(163,177,198,0.6),-2px_-2px_4px_rgba(255,255,255,0.5)] active:scale-90 transition-all flex items-center gap-1 text-[10px] font-bold cursor-pointer border border-white/30"
+            title={`Copy ${activeTab.toUpperCase()} Code`}
+          >
+            {(activeTab === 'html' ? copiedHtml : copiedCss) ? (
+              <Check className="w-3.5 h-3.5 text-green-600" />
+            ) : (
+              <Copy className="w-3.5 h-3.5 text-blue-600" />
+            )}
+            <span>{(activeTab === 'html' ? copiedHtml : copiedCss) ? 'Copied!' : 'Copy'}</span>
+          </button>
+        </div>
 
         {activeTab === 'html' ? (
           <textarea

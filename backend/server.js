@@ -73,6 +73,10 @@ app.use(cors({
 }));
 
 const { recoverAllStuckProjects } = require('./services/recoveryService');
+const { startCleanupScheduler } = require('./services/vscodeCleanupService');
+const { ensureCodeServerRunning } = require('./services/codeServerManager');
+startCleanupScheduler();
+ensureCodeServerRunning().catch(() => {});
 
 app.use(async (req, res, next) => {
   if (req.method === 'OPTIONS') return next();
@@ -122,6 +126,7 @@ app.use(['/api/ui-components', '/ui-components'], require('./routes/uiComponentR
 app.use(['/api/github', '/github'], require('./routes/githubRoutes'));
 app.use(['/api/webhooks', '/webhooks'], require('./routes/webhookRoutes'));
 app.use(['/api', '/'], suggestionRoutes);
+app.use(['/api/vscode', '/vscode'], require('./routes/vscodeRoutes'));
 
 app.use((req, res, next) => {
   res.status(404).json({ success: false, error: 'Route not found' });

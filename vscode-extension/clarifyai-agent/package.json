@@ -1,0 +1,37 @@
+{
+  "name": "clarifyai-agent",
+  "displayName": "ClarifyAI Co-founder Studio",
+  "description": "AI Co-founder Side-Panel Extension for ClarifyAI VS Code Integration",
+  "version": "1.0.0",
+  "publisher": "clarifyai",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./extension.js",
+  "activationEvents": [
+    "onView:clarifyai.agentView"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "clarifyai-sidebar",
+          "title": "ClarifyAI Co-founder",
+          "icon": "$(sparkle)"
+        }
+      ]
+    },
+    "views": {
+      "clarifyai-sidebar": [
+        {
+          "type": "webview",
+          "id": "clarifyai.agentView",
+          "name": "AI Co-founder Studio"
+        }
+      ]
+    }
+  }
+}

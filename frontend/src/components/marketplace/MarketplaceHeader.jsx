@@ -1,4 +1,5 @@
-import { Search, Plus, ArrowLeft, Heart, ChevronLeft, ChevronRight, Trophy, Layers } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { Search, Plus, ArrowLeft, Heart, ChevronLeft, ChevronRight, Trophy, Layers, ChevronDown } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const MarketplaceHeader = ({
@@ -13,6 +14,18 @@ const MarketplaceHeader = ({
   totalComponents = 0
 }) => {
   const navigate = useNavigate();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <div className="bg-[#E0E5EC] rounded-[28px] p-4 md:p-5 shadow-[8px_8px_16px_rgba(163,177,198,0.5),-8px_-8px_16px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/30 mb-4">
@@ -33,27 +46,49 @@ const MarketplaceHeader = ({
             <span>Dashboard</span>
           </button>
 
-          <button
-            onClick={() => navigate('/leaderboard')}
-            className="px-3 py-1.5 bg-[#E0E5EC] hover:bg-white/50 text-[#3D4852] border border-[#A3B1C6]/20 shadow-[3px_3px_6px_rgba(163,177,198,0.5),-3px_-3px_6px_rgba(255,255,255,0.35)] rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer"
-            title="View Top 100 Creators Leaderboard"
-          >
-            <Trophy className="w-3.5 h-3.5 text-amber-500" />
-            <span>Leaderboard</span>
-          </button>
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${
+                showFavoritesOnly
+                  ? 'bg-red-50 text-red-500 border-red-300 shadow-[inset_3px_3px_6px_rgba(163,177,198,0.5),inset_-3px_-3px_6px_rgba(255,255,255,0.35)]'
+                  : 'bg-[#E0E5EC] text-[#3D4852] hover:bg-white/50 border-[#A3B1C6]/20 shadow-[3px_3px_6px_rgba(163,177,198,0.5),-3px_-3px_6px_rgba(255,255,255,0.35)]'
+              }`}
+            >
+              <span>Explore Menu</span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
 
-          <button
-            onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer border ${
-              showFavoritesOnly
-                ? 'bg-red-50 text-red-500 border-red-300 shadow-[inset_3px_3px_6px_rgba(163,177,198,0.5),inset_-3px_-3px_6px_rgba(255,255,255,0.35)]'
-                : 'bg-[#E0E5EC] text-[#3D4852] hover:text-red-500 border-[#A3B1C6]/20 shadow-[3px_3px_6px_rgba(163,177,198,0.5),-3px_-3px_6px_rgba(255,255,255,0.35)]'
-            }`}
-            title="Filter by your liked components"
-          >
-            <Heart className={`w-3.5 h-3.5 ${showFavoritesOnly ? 'fill-red-500 text-red-500' : 'text-red-500'}`} />
-            <span>Favorites</span>
-          </button>
+            {isDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-[#E0E5EC] rounded-2xl shadow-[10px_10px_20px_rgba(163,177,198,0.6),-10px_-10px_20px_rgba(255,255,255,0.6)] border border-[#A3B1C6]/30 p-2 z-50 flex flex-col gap-1.5 animate-in fade-in zoom-in-95">
+                <button
+                  onClick={() => {
+                    navigate('/leaderboard');
+                    setIsDropdownOpen(false);
+                  }}
+                  className="w-full text-left px-3 py-2 rounded-xl text-xs font-bold text-[#3D4852] hover:bg-white/40 flex items-center gap-2 transition-all cursor-pointer"
+                >
+                  <Trophy className="w-4 h-4 text-amber-500" />
+                  <span>Leaderboard</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowFavoritesOnly(!showFavoritesOnly);
+                    setIsDropdownOpen(false);
+                  }}
+                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                    showFavoritesOnly
+                      ? 'bg-red-50 text-red-500'
+                      : 'text-[#3D4852] hover:bg-white/40'
+                  }`}
+                >
+                  <Heart className={`w-4 h-4 ${showFavoritesOnly ? 'fill-red-500 text-red-500' : 'text-red-500'}`} />
+                  <span>{showFavoritesOnly ? 'Show All' : 'Favorites'}</span>
+                </button>
+              </div>
+            )}
+          </div>
 
           <button
             onClick={onOpenSubmit || (() => navigate('/components/create'))}

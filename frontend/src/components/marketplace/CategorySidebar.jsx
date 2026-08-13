@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import {
+  ChevronLeft, ChevronRight, LayoutGrid, MousePointerClick, CheckSquare,
+  ToggleLeft, CreditCard, Loader, FormInput, CircleDot, FileText,
+  Sparkles, MessageSquare, Package, Palette
+} from 'lucide-react';
 import api from '../../services/api';
 
 const categories = [
@@ -7,6 +11,22 @@ const categories = [
   'Loaders', 'Inputs', 'Radio buttons', 'Forms', 'Patterns',
   'Tooltips', 'UI Kits', 'Themes'
 ];
+
+const categoryIcons = {
+  'All': LayoutGrid,
+  'Buttons': MousePointerClick,
+  'Checkboxes': CheckSquare,
+  'Toggle switches': ToggleLeft,
+  'Cards': CreditCard,
+  'Loaders': Loader,
+  'Inputs': FormInput,
+  'Radio buttons': CircleDot,
+  'Forms': FileText,
+  'Patterns': Sparkles,
+  'Tooltips': MessageSquare,
+  'UI Kits': Package,
+  'Themes': Palette
+};
 
 const CategorySidebar = ({ selectedCategory, setSelectedCategory, isCollapsed, setIsCollapsed }) => {
   const [counts, setCounts] = useState({});
@@ -45,7 +65,7 @@ const CategorySidebar = ({ selectedCategory, setSelectedCategory, isCollapsed, s
           const isActive = selectedCategory === cat;
           const countVal = counts[cat] || 0;
           const isEmpty = countVal === 0 && cat !== 'All';
-          const shortName = cat === 'All' ? 'ALL' : cat.substring(0, 3).toUpperCase();
+          const IconComponent = categoryIcons[cat] || LayoutGrid;
 
           return (
             <button
@@ -63,17 +83,13 @@ const CategorySidebar = ({ selectedCategory, setSelectedCategory, isCollapsed, s
               }`}
             >
               {isCollapsed ? (
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className={`text-[10px] font-extrabold ${isEmpty && !isActive ? 'text-[#9CA3AF]' : ''}`}>{shortName}</span>
-                  <span className={`px-1 rounded-full text-[9px] font-extrabold ${
-                    isActive ? 'bg-blue-600 text-white' : isEmpty ? 'bg-slate-200/50 text-slate-400' : 'text-[#6B7280]'
-                  }`}>
-                    {countVal}
-                  </span>
-                </div>
+                <IconComponent className={`w-5 h-5 ${isActive ? 'text-blue-600' : isEmpty ? 'text-[#9CA3AF]' : 'text-[#3D4852]'}`} />
               ) : (
                 <>
-                  <span className={isEmpty && !isActive ? 'text-[#9CA3AF]' : ''}>{cat}</span>
+                  <div className="flex items-center gap-2">
+                    <IconComponent className={`w-3.5 h-3.5 ${isActive ? 'text-blue-600' : 'text-[#6B7280]'}`} />
+                    <span className={isEmpty && !isActive ? 'text-[#9CA3AF]' : ''}>{cat}</span>
+                  </div>
                   <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold ${
                     isActive
                       ? 'bg-blue-600 text-white shadow-sm'

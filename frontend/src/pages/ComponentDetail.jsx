@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Sparkles, Code2, Maximize2, Loader2, Eye, Sun, Moon, Award, Smartphone, Tablet, Monitor } from 'lucide-react';
+import { ArrowLeft, Sparkles, Code2, Maximize2, Loader2, Eye, Sun, Moon, Award, Smartphone, Tablet, Monitor, Save } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import UserAvatar from '../components/common/UserAvatar';
 import FullScreenSandboxModal from '../components/marketplace/FullScreenSandboxModal';
 import LiveCodeEditor from '../components/marketplace/LiveCodeEditor';
@@ -13,15 +14,24 @@ import { buildAgentPromptContext } from '../utils/agentPromptBuilder';
 const ComponentDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
   const [component, setComponent] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState(false);
   const [htmlCode, setHtmlCode] = useState('');
   const [cssCode, setCssCode] = useState('');
+  const [initialHtml, setInitialHtml] = useState('');
+  const [initialCss, setInitialCss] = useState('');
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isEmbedOpen, setIsEmbedOpen] = useState(false);
   const [isPromptOpen, setIsPromptOpen] = useState(false);
   const [isPreviewDark, setIsPreviewDark] = useState(false);
   const [viewportWidth, setViewportWidth] = useState('100%');
+
+  const [autoResynthesize, setAutoResynthesize] = useState(true);
+
+  const isOwner = currentUser && component && String(currentUser._id || currentUser.id) === String(component.creator?._id || component.creator?.id || component.creator);
+  const isModified = isOwner && (htmlCode !== initialHtml || cssCode !== initialCss);
 
   useEffect(() => {
     const fetchComp = async () => {
@@ -29,14 +39,77 @@ const ComponentDetail = () => {
       try {
         const res = await api.get(`/ui-components/${id}`);
         if (res.data?.success) {
-          setComponent(res.data.data);
-          setHtmlCode(res.data.data?.code?.html || res.data.data?.code?.tailwind || '');
-          setCssCode(res.data.data?.code?.css || '');
+          const compData = res.data.data;
+          const loadedHtml = compData?.code?.html || compData?.code?.tailwind || '';
+          const loadedCss = compData?.code?.css || '';
+          setComponent(compData);
+          setHtmlCode(loadedHtml);
+          setCssCode(loadedCss);
+          setInitialHtml(loadedHtml);
+          setInitialCss(loadedCss);
         } else { toast.error('Component not found.'); }
       } catch { toast.error('Failed to load component.'); } finally { setLoading(false); }
     };
     fetchComp();
   }, [id]);
+
+  const handleUpdateComponent = async () => {
+    if (!id) return;
+    const prevHtml = initialHtml;
+    const prevCss = initialCss;
+    const prevComponent = component;
+
+    setInitialHtml(htmlCode);
+    setInitialCss(cssCode);
+    setComponent((prev) => ({
+      ...prev,
+      code: { ...prev.code, html: htmlCode, css: cssCode, react: htmlCode, tailwind: htmlCode }
+    }));
+    toast.success(autoResynthesize ? 'Updating component & AI Prompt...' : 'Component updated!');
+
+    setUpdating(true);
+    try {
+      let updatedPrompt = component?.aiPrompt;
+      if (autoResynthesize) {
+        try {
+          const synthRes = await api.post('/ui-components/synthesize-prompt', {
+            html: htmlCode,
+            css: cssCode,
+            category: component?.category || 'Buttons'
+          });
+          if (synthRes.data?.success && synthRes.data?.data?.aiPrompt) {
+            updatedPrompt = synthRes.data.data.aiPrompt;
+          }
+        } catch { }
+      }
+
+      const res = await api.put(`/ui-components/${id}`, {
+        code: {
+          html: htmlCode,
+          css: cssCode,
+          react: htmlCode,
+          tailwind: htmlCode
+        },
+        aiPrompt: updatedPrompt
+      });
+
+      if (res.data?.success) {
+        setComponent(res.data.data);
+      } else {
+        setInitialHtml(prevHtml);
+        setInitialCss(prevCss);
+        setComponent(prevComponent);
+        toast.error(res.data?.error || 'Failed to sync update');
+      }
+    } catch (err) {
+      setInitialHtml(prevHtml);
+      setInitialCss(prevCss);
+      setComponent(prevComponent);
+      toast.error(err.response?.data?.error || 'Failed to save changes');
+    } finally {
+      setUpdating(false);
+    }
+  };
 
   const handleCopyAgentContext = () => {
     if (!component) return;
@@ -165,6 +238,35 @@ const ComponentDetail = () => {
             </div>
 
             <div className="flex items-center gap-2">
+              {isModified && (
+                <div className="flex items-center gap-2 flex-wrap">
+                  <button
+                    type="button"
+                    onClick={() => setAutoResynthesize(!autoResynthesize)}
+                    className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${autoResynthesize
+                        ? 'bg-purple-50 text-purple-600 border-purple-300 shadow-[inset_2px_2px_4px_rgba(163,177,198,0.5),inset_-2px_-2px_4px_rgba(255,255,255,0.5)]'
+                        : 'bg-[#E0E5EC] text-[#6B7280] border-[#A3B1C6]/20 shadow-[2px_2px_4px_rgba(163,177,198,0.5),-2px_-2px_4px_rgba(255,255,255,0.35)]'
+                      }`}
+                    title="Auto-generate new AI prompt with LLM on save"
+                  >
+                    <Sparkles className={`w-3.5 h-3.5 ${autoResynthesize ? 'text-purple-600' : 'text-[#6B7280]'}`} />
+                    <span>Auto AI Prompt: {autoResynthesize ? 'ON' : 'OFF'}</span>
+                  </button>
+
+                  <button
+                    disabled={updating}
+                    onClick={handleUpdateComponent}
+                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(16,185,129,0.3)] active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  >
+                    {updating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                    <span>{updating ? 'Updating...' : 'Update Component'}</span>
+                  </button>
+                </div>
+              )}
+
+              <button onClick={() => navigate('/editor/' + component._id)} className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(37,99,235,0.3)] active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer">
+                <Code2 className="w-3.5 h-3.5 text-white" /><span>Edit in VS Code</span>
+              </button>
               <button onClick={() => setIsPromptOpen(true)} className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(37,99,235,0.3)] active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer">
                 <Sparkles className="w-3.5 h-3.5" /><span>Get AI Prompt</span>
               </button>
@@ -196,11 +298,10 @@ const ComponentDetail = () => {
                           key={v.id}
                           type="button"
                           onClick={() => setViewportWidth(v.width)}
-                          className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
-                            isActive
+                          className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1 ${isActive
                               ? 'bg-[#E0E5EC] text-blue-600 shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)]'
                               : 'text-[#6B7280] hover:text-[#3D4852]'
-                          }`}
+                            }`}
                           title={`Preview at ${v.label}`}
                         >
                           <Icon className="w-3 h-3" />
@@ -228,11 +329,10 @@ const ComponentDetail = () => {
                   height: '100%',
                   transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
-                className={`flex flex-col items-center justify-center mx-auto relative min-h-[340px] ${
-                  viewportWidth !== '100%'
+                className={`flex flex-col items-center justify-center mx-auto relative min-h-[340px] ${viewportWidth !== '100%'
                     ? 'border-4 border-[#3D4852] rounded-[28px] shadow-[0_15px_30px_rgba(0,0,0,0.2)] bg-[#E0E5EC] overflow-hidden p-1'
                     : 'w-full h-full rounded-xl overflow-hidden'
-                }`}
+                  }`}
               >
                 {viewportWidth !== '100%' && (
                   <div className="w-full flex items-center justify-center py-1 bg-[#3D4852] text-[10px] font-bold text-gray-300 rounded-t-xl gap-1.5 flex-shrink-0">
