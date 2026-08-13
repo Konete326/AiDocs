@@ -32,6 +32,8 @@ import FollowersPage from '../pages/FollowersPage';
 import Leaderboard from '../pages/Leaderboard';
 import EditorPage from '../pages/EditorPage';
 
+import NotFound from '../pages/NotFound';
+
 export default function AppRoutes() {
   return (
     <Routes>
@@ -72,6 +74,8 @@ export default function AppRoutes() {
         <Route path="/projects/:id/stack" element={<ProjectStackPage />} />
         <Route path="/projects/:id/stack/custom" element={<CustomProjectStackPage />} />
       </Route>
+
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

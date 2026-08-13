@@ -152,7 +152,13 @@ select:-webkit-autofill {
 .text-slate-600,
 .text-slate-500,
 .text-slate-400 {
-  color: #6B7280 !important;
+  color: #475569 !important;
+}
+
+.neumorphic-badge,
+[class*="badge"] {
+  color: #374151 !important;
+  font-weight: 600;
 }
 
 .fixed.inset-0,

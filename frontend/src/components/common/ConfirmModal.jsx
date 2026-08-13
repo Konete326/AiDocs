@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertTriangle } from 'lucide-react';
 import { createPortal } from 'react-dom';
@@ -13,6 +14,17 @@ const ConfirmModal = ({
   isDangerous = false,
   variant = 'default'
 }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   const isRed = isDangerous || variant === 'danger';
   const modalContent = (
     <AnimatePresence>

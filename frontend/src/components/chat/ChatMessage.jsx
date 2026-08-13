@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { Copy, Check, Download, FileSpreadsheet, FileText, Archive, Loader2, FileCode, Globe, ExternalLink, X, Smartphone, Tablet, Monitor, Volume2, VolumeX } from 'lucide-react';
+import { Copy, Check, Download, FileSpreadsheet, FileText, Archive, Loader2, FileCode, Globe, ExternalLink, X, Smartphone, Tablet, Monitor, Volume2, VolumeX, Pencil } from 'lucide-react';
 import { mdComponents } from '../project/markdownComponents';
 import { downloadZip, downloadDocAsWord, downloadDocAsExcel, downloadDocAsPdf, downloadDocAsMd } from '../../services/exportService';
 
-export default function ChatMessage({ message, projectId, projectTitle }) {
+export default function ChatMessage({ message, index, projectId, projectTitle, onEditUserMessage }) {
   const navigate = useNavigate();
   const isUser = message.role === 'user';
   const [copied, setCopied] = useState(false);
@@ -16,6 +16,9 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
   const [isIframeLoading, setIsIframeLoading] = useState(true);
   const [viewportMode, setViewportMode] = useState('desktop');
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editText, setEditText] = useState(message.content || '');
 
   const handleSpeakVoice = () => {
     if (isPlayingVoice) {
@@ -32,85 +35,19 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
     window.speechSynthesis.speak(utterance);
   };
 
-  const downloadMatch = message.content ? message.content.match(/\[DOWNLOAD_ACTION:([a-zA-Z]+):([a-zA-Z]+)\]/) : null;
-  const initialFormat = downloadMatch ? downloadMatch[1].toLowerCase() : null;
-  const docType = downloadMatch ? downloadMatch[2].toLowerCase() : null;
-
-  const [selectedFormat, setSelectedFormat] = useState(initialFormat || 'word');
-
-  const cleanedContent = message.content ? message.content.replace(/\[DOWNLOAD_ACTION:[a-zA-Z]+:[a-zA-Z]+\]/g, '').trim() : '';
-
-  const extractCleanUrl = (text) => {
-    if (!text) return null;
-    const urlRegex = /(https?:\/\/[^\s<>"')\]]+|(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(?:\/[^\s<>"')\]]*)?)/gi;
-    const matches = text.match(urlRegex);
-    if (!matches || matches.length === 0) return null;
-    
-    let raw = matches[0].replace(/[.,;:!()\]]+$/, '');
-    if (raw.includes('localhost') || raw.includes('/api/') || !raw.includes('.')) return null;
-    if (!raw.startsWith('http://') && !raw.startsWith('https://')) {
-      raw = `https://${raw}`;
-    }
-    return raw;
-  };
-
-  const detectedUrl = extractCleanUrl(cleanedContent);
-
-  const queryText = (message.userQuery || '').toLowerCase();
-  const isPreviewRequested = 
-    queryText.includes('preview') || 
-    queryText.includes('website') || 
-    queryText.includes('url') || 
-    queryText.includes('site') || 
-    queryText.includes('link') || 
-    queryText.includes('competitor') || 
-    queryText.includes('http') ||
-    cleanedContent.toLowerCase().includes('website analysis') ||
-    cleanedContent.toLowerCase().includes('competitor website');
-
-  const showPreviewButton = detectedUrl && isPreviewRequested;
-
-  const htmlBlockMatch = cleanedContent.match(/```html\s*([\s\S]*?)\s*```/i);
-  const detectedArtifactHtml = htmlBlockMatch && htmlBlockMatch[1].trim().length > 30 ? htmlBlockMatch[1].trim() : null;
-
-  const hasDocReference = (cleanedContent.includes('Updated Document:') || cleanedContent.includes('Document Updated:') || message.content?.includes('[UPDATE_DOC:')) && !showPreviewButton && !detectedArtifactHtml;
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(cleanedContent);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleDownload = async (fmt, type) => {
-    if (!projectId || isDownloading) return;
-    try {
-      setIsDownloading(true);
-      const activeFmt = fmt || selectedFormat;
-      if (activeFmt === 'zip' || type === 'all') {
-        await downloadZip(projectId, projectTitle || 'Project');
-      } else if (activeFmt === 'word') {
-        await downloadDocAsWord(projectId, type);
-      } else if (activeFmt === 'md') {
-        await downloadDocAsMd(projectId, type);
-      } else if (activeFmt === 'excel') {
-        await downloadDocAsExcel(projectId, type);
-      } else if (activeFmt === 'pdf') {
-        await downloadDocAsPdf(projectId, type);
-      } else {
-        await downloadZip(projectId, projectTitle || 'Project');
-      }
-    } catch (err) {
-      console.error('Download failed:', err);
-    } finally {
-      setIsDownloading(false);
-    }
+  const handleSaveEdit = () => {
+    if (!editText.trim()) return;
+    setIsEditing(false);
+    onEditUserMessage?.(index, editText.trim());
   };
 
   if (isUser) {
     const isMcp = message.isMcpAgent || message.content?.includes('[Antigravity IDE Agent]');
+    const cleanUserContent = (message.content || '').replace('[Antigravity IDE Agent]:', '').trim();
+
     return (
-      <div className="flex justify-end">
-        <div className={`rounded-3xl rounded-tr-sm px-4 py-3 max-w-[70%] sm:max-w-[65%] w-fit space-y-1.5 shadow-md ${
+      <div className="flex justify-end group">
+        <div className={`rounded-3xl rounded-tr-sm px-4 py-3 max-w-[75%] sm:max-w-[70%] w-fit space-y-1.5 shadow-md relative ${
           isMcp ? 'bg-[#38B2AC] text-white' : 'bg-[#6C63FF] text-white'
         }`}>
           {isMcp && (
@@ -119,8 +56,47 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
               <span>🤖 Antigravity IDE Agent</span>
             </div>
           )}
-          {message.content && (
-            <p className="text-xs sm:text-sm leading-relaxed font-sans">{message.content.replace('[Antigravity IDE Agent]:', '').trim()}</p>
+
+          {isEditing ? (
+            <div className="space-y-2 py-1 min-w-[240px]">
+              <textarea
+                value={editText}
+                onChange={(e) => setEditText(e.target.value)}
+                className="w-full bg-white/10 text-white placeholder-white/60 text-xs sm:text-sm font-sans p-2 rounded-xl border border-white/30 focus:outline-none resize-none"
+                rows={3}
+                autoFocus
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => { setIsEditing(false); setEditText(cleanUserContent); }}
+                  className="px-2.5 py-1 text-[10.5px] font-bold bg-white/20 text-white rounded-xl hover:bg-white/30 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveEdit}
+                  className="px-3 py-1 text-[10.5px] font-bold bg-white text-[#6C63FF] rounded-xl hover:bg-white/90 transition-all cursor-pointer shadow-sm"
+                >
+                  Save & Regenerate
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-start justify-between gap-2">
+              {message.content && (
+                <p className="text-xs sm:text-sm leading-relaxed font-sans flex-1">{cleanUserContent}</p>
+              )}
+              {onEditUserMessage && (
+                <button
+                  onClick={() => { setIsEditing(true); setEditText(cleanUserContent); }}
+                  className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded-full bg-white/20 hover:bg-white/30 text-white flex-shrink-0 cursor-pointer"
+                  title="Edit message & regenerate response"
+                  aria-label="Edit message"
+                >
+                  <Pencil className="w-3 h-3 text-white" />
+                </button>
+              )}
+            </div>
           )}
 
           {message.attachments && message.attachments.length > 0 && (
@@ -295,21 +271,21 @@ export default function ChatMessage({ message, projectId, projectTitle }) {
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={handleSpeakVoice}
-                    className={`neumorphic-btn rounded-full px-2.5 py-0.5 text-[9.5px] font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                    className={`neumorphic-btn rounded-full p-1.5 transition-all cursor-pointer ${
                       isPlayingVoice ? 'text-[#38B2AC]' : 'text-[#3D4852]'
                     }`}
                     title={isPlayingVoice ? 'Stop voice playback' : 'Listen to AI voice'}
+                    aria-label={isPlayingVoice ? 'Stop voice playback' : 'Listen to AI voice'}
                   >
-                    {isPlayingVoice ? <VolumeX className="w-3 h-3 text-[#38B2AC] animate-pulse" /> : <Volume2 className="w-3 h-3" />}
-                    <span>{isPlayingVoice ? 'Speaking...' : 'Listen'}</span>
+                    {isPlayingVoice ? <VolumeX className="w-3.5 h-3.5 text-[#38B2AC] animate-pulse" /> : <Volume2 className="w-3.5 h-3.5 text-[#3D4852]" />}
                   </button>
                   <button
                     onClick={handleCopy}
-                    className="neumorphic-btn rounded-full px-2.5 py-0.5 text-[9.5px] text-[#3D4852] font-bold flex items-center gap-1 transition-all cursor-pointer"
-                    title="Copy AI response"
+                    className="neumorphic-btn rounded-full p-1.5 text-[#3D4852] transition-all cursor-pointer"
+                    title={copied ? 'Copied AI response!' : 'Copy AI response'}
                     aria-label="Copy AI response"
                   >
-                    {copied ? <><Check className="w-3 h-3 text-emerald-600" /> Copied</> : <><Copy className="w-3 h-3" /> Copy</>}
+                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-[#3D4852]" />}
                   </button>
                 </div>
               </div>

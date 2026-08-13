@@ -1,12 +1,12 @@
-import { Download, MessageCircle, Loader2, Cpu, Palette, Layers, Play, ChevronDown, LayoutGrid, Users, Archive, Trash2 } from 'lucide-react';
+import { Download, MessageCircle, Loader2, Cpu, Palette, Layers, Play, ChevronDown, LayoutGrid, Users, Trash2, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { downloadZip } from '../../services/exportService';
-import { archiveProject, deleteProject } from '../../services/projectService';
+import { deleteProject, triggerGeneration } from '../../services/projectService';
 import LiveSandboxModal from './LiveSandboxModal';
 import TeamInviteModal from './TeamInviteModal';
-import ArchiveProjectModal from './ArchiveProjectModal';
 import DeleteProjectModal from './DeleteProjectModal';
+import ConfirmModal from '../common/ConfirmModal';
 import { toast } from 'react-hot-toast';
 
 const ProjectHeaderActions = ({ project }) => {
@@ -14,8 +14,8 @@ const ProjectHeaderActions = ({ project }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSandboxOpen, setIsSandboxOpen] = useState(false);
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
-  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isRegenerateModalOpen, setIsRegenerateModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [agentLiveUrl, setAgentLiveUrl] = useState('');
   const dropdownRef = useRef(null);
@@ -73,16 +73,6 @@ const ProjectHeaderActions = ({ project }) => {
     }
   };
 
-  const handleArchiveConfirm = async () => {
-    try {
-      await archiveProject(project._id);
-      toast.success(`Project "${project.title}" archived successfully`);
-      navigate('/dashboard');
-    } catch (err) {
-      toast.error('Failed to archive project. Please try again.');
-    }
-  };
-
   const handleDeleteConfirm = async () => {
     try {
       await deleteProject(project._id);
@@ -90,6 +80,17 @@ const ProjectHeaderActions = ({ project }) => {
       navigate('/dashboard');
     } catch (err) {
       toast.error('Failed to delete project. Please try again.');
+    }
+  };
+
+  const handleRegenerateConfirm = async () => {
+    setIsRegenerateModalOpen(false);
+    try {
+      await triggerGeneration(project._id);
+      toast.success(`Re-triggering AI document generation pipeline for "${project.title}"...`);
+      window.location.reload();
+    } catch (err) {
+      toast.error('Failed to re-trigger document generation.');
     }
   };
 
@@ -120,6 +121,27 @@ const ProjectHeaderActions = ({ project }) => {
           <MessageCircle className="w-4 h-4 text-[#6C63FF]" />
           <span className="text-xs sm:text-sm text-[#3D4852] font-bold">AI Chat</span>
         </button>
+
+        {project?.status === 'complete' && (
+          <button
+            onClick={handleZipDownload}
+            disabled={isDownloading}
+            className="neumorphic-btn rounded-2xl px-4 py-2 flex items-center gap-2 cursor-pointer flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
+            title="Download Complete Technical Documentation Suite as ZIP"
+          >
+            {isDownloading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-[#6C63FF]" />
+                <span className="text-xs sm:text-sm text-[#6C63FF] font-bold">Building ZIP...</span>
+              </>
+            ) : (
+              <>
+                <Download className="w-4 h-4 text-[#6C63FF]" />
+                <span className="text-xs sm:text-sm text-[#3D4852] font-bold">Export ZIP</span>
+              </>
+            )}
+          </button>
+        )}
 
         <div className="relative" ref={dropdownRef}>
           <button
@@ -176,6 +198,17 @@ const ProjectHeaderActions = ({ project }) => {
                 <span>Skills</span>
               </button>
 
+              <button
+                onClick={() => {
+                  setIsDropdownOpen(false);
+                  setIsRegenerateModalOpen(true);
+                }}
+                className="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm text-[#3D4852] font-bold hover:bg-[#d1d7e0] flex items-center gap-2 transition-colors cursor-pointer"
+              >
+                <RefreshCw className="w-4 h-4 text-[#6C63FF]" />
+                <span>Regenerate Docs</span>
+              </button>
+
               {project.status === 'complete' && (
                 <>
                   <div className="h-px bg-[#c4cdd8] my-1" />
@@ -197,17 +230,6 @@ const ProjectHeaderActions = ({ project }) => {
               <button
                 onClick={() => {
                   setIsDropdownOpen(false);
-                  setIsArchiveModalOpen(true);
-                }}
-                className="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm text-amber-700 font-bold hover:bg-amber-100/50 flex items-center gap-2 transition-colors cursor-pointer"
-              >
-                <Archive className="w-4 h-4 text-amber-600" />
-                <span>Archive</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setIsDropdownOpen(false);
                   setIsDeleteModalOpen(true);
                 }}
                 className="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm text-rose-600 font-bold hover:bg-rose-100/50 flex items-center gap-2 transition-colors cursor-pointer"
@@ -222,8 +244,17 @@ const ProjectHeaderActions = ({ project }) => {
 
       <LiveSandboxModal isOpen={isSandboxOpen} onClose={() => setIsSandboxOpen(false)} project={project} initialUrl={agentLiveUrl} />
       <TeamInviteModal projectId={project?._id} isOpen={isTeamModalOpen} onClose={() => setIsTeamModalOpen(false)} />
-      <ArchiveProjectModal isOpen={isArchiveModalOpen} onClose={() => setIsArchiveModalOpen(false)} onConfirm={handleArchiveConfirm} projectTitle={project?.title} />
       <DeleteProjectModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} onConfirm={handleDeleteConfirm} projectTitle={project?.title} />
+      <ConfirmModal
+        isOpen={isRegenerateModalOpen}
+        title="Regenerate Document Suite?"
+        message={`Are you sure you want to regenerate all documents for "${project?.title || 'this project'}"? This will overwrite your existing AI specs with fresh generated versions.`}
+        confirmLabel="Regenerate Suite"
+        cancelLabel="Cancel"
+        onConfirm={handleRegenerateConfirm}
+        onCancel={() => setIsRegenerateModalOpen(false)}
+        isDangerous={true}
+      />
     </>
   );
 };

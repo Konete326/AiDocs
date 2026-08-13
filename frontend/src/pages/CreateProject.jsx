@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { RotateCcw, Check, Sparkles } from 'lucide-react';
 import { createProject, triggerGeneration } from '../services/projectService';
@@ -31,16 +31,22 @@ const CreateProject = () => {
   const [showRestorePrompt, setShowRestorePrompt] = useState(false);
   const [savedDraftInfo, setSavedDraftInfo] = useState(null);
   const [formData, setFormData] = useState(defaultFormData);
+  const submittingRef = useRef(false);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw);
-        const hasContent = parsed.formData?.title || parsed.formData?.wizardAnswers?.problemStatement;
-        if (hasContent) {
-          setSavedDraftInfo(parsed);
-          setShowRestorePrompt(true);
+        const isExpired = parsed.expiresAt && new Date(parsed.expiresAt) < new Date();
+        if (isExpired) {
+          localStorage.removeItem(DRAFT_STORAGE_KEY);
+        } else {
+          const hasContent = parsed.formData?.title || parsed.formData?.wizardAnswers?.problemStatement;
+          if (hasContent) {
+            setSavedDraftInfo(parsed);
+            setShowRestorePrompt(true);
+          }
         }
       }
     } catch {}
@@ -66,7 +72,8 @@ const CreateProject = () => {
       localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify({
         formData,
         step,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        expiresAt: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString()
       }));
     }
   }, [formData, step, showRestorePrompt]);
@@ -94,6 +101,8 @@ const CreateProject = () => {
   };
 
   const handleSubmit = async () => {
+    if (submittingRef.current || isSubmitting) return;
+    submittingRef.current = true;
     setIsSubmitting(true);
     try {
       const rawFeat = formData.wizardAnswers?.coreFeatures;
@@ -105,6 +114,7 @@ const CreateProject = () => {
       localStorage.removeItem(DRAFT_STORAGE_KEY);
       navigate(`/projects/${proj._id}`);
     } catch (err) {
+      submittingRef.current = false;
       const msg = err.response?.data?.error;
       setError(typeof msg === 'string' ? msg : msg?.message || 'Generation failed');
       setIsSubmitting(false);

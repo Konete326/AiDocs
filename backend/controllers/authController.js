@@ -6,8 +6,8 @@ const getCookieOptions = (req) => {
   const isProd = process.env.NODE_ENV === 'production' || process.env.VERCEL || process.env.VERCEL_ENV;
   return {
     httpOnly: true,
-    secure: isProd ? true : true,
-    sameSite: 'none',
+    secure: Boolean(isProd),
+    sameSite: isProd ? 'none' : 'lax',
     path: '/',
   };
 };
@@ -24,29 +24,29 @@ exports.register = asyncWrapper(async (req, res) => {
   const { user, accessToken, refreshToken } = await authService.registerUser(email, password, displayName);
 
   setRefreshCookie(res, refreshToken);
-  res.status(201).json({ success: true, data: { user: { id: user._id, email: user.email, displayName: user.displayName }, accessToken } });
+  res.status(201).json({ success: true, data: { user: { id: user._id, email: user.email, displayName: user.displayName }, accessToken, refreshToken } });
 });
 
 exports.login = asyncWrapper(async (req, res) => {
   const { email, password } = req.body;
   const userAgent = req.get('user-agent');
   const deviceInfo = {
-    deviceFingerprint: userAgent, // For demo, using UA as fingerprint
-    deviceName: userAgent.split(')')[0].split('(')[1] || 'Web Browser'
+    deviceFingerprint: userAgent,
+    deviceName: userAgent ? (userAgent.split(')')[0].split('(')[1] || 'Web Browser') : 'Web Browser'
   };
 
   const { user, accessToken, refreshToken } = await authService.loginUser(email, password, deviceInfo);
 
   setRefreshCookie(res, refreshToken);
-  res.status(200).json({ success: true, data: { user: { id: user._id, email: user.email, displayName: user.displayName }, accessToken } });
+  res.status(200).json({ success: true, data: { user: { id: user._id, email: user.email, displayName: user.displayName }, accessToken, refreshToken } });
 });
 
 exports.refreshToken = asyncWrapper(async (req, res) => {
-  const token = req.cookies?.refreshToken;
+  const token = req.cookies?.refreshToken || req.headers['x-refresh-token'] || req.body?.refreshToken;
   const { accessToken, refreshToken } = await authService.refreshAccessToken(token);
 
   setRefreshCookie(res, refreshToken);
-  res.status(200).json({ success: true, data: { accessToken } });
+  res.status(200).json({ success: true, data: { accessToken, refreshToken } });
 });
 
 exports.logout = asyncWrapper(async (req, res) => {

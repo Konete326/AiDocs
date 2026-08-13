@@ -24,7 +24,12 @@ exports.createProject = async (userId, data) => {
   return project;
 };
 
+const mongoose = require('mongoose');
+
 exports.getProjectById = async (projectId, userId) => {
+  if (!mongoose.Types.ObjectId.isValid(projectId)) {
+    throw new AppError('Project not found', 404, 'NOT_FOUND');
+  }
   const project = await Project.findOne({ _id: projectId, userId, isArchived: false }).lean();
   if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');
   return await checkAndRecoverProject(project);

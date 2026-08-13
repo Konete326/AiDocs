@@ -9,7 +9,7 @@ exports.getSuggestions = asyncWrapper(async (req, res) => {
 
   const prompt = buildSuggestionPrompt(projectTitle, projectType, fieldName, currentValue, wizardAnswers);
 
-  const aiResult = await AIService.generateText(prompt, 'suggestion', 256);
+  const aiResult = await AIService.generateText(prompt, 'suggestion', 100);
   const suggestions = parseSuggestions(aiResult.content);
 
   res.json({ success: true, data: { suggestions } });

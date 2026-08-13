@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Crown, X, Check } from 'lucide-react';
@@ -6,6 +6,17 @@ import { Crown, X, Check } from 'lucide-react';
 const Motion = motion;
 
 const UpgradeModal = ({ isOpen, onClose, onUpgrade }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
+
   const features = [
     'AI-Powered Collaboration',
     'Advanced Workspace Tools',

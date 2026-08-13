@@ -51,17 +51,40 @@ const ProfileCard = ({
           )}
         </div>
 
-        {isEditing ? (
-          <div className="space-y-2 mb-2">
-            <div className="neumorphic-inset rounded-xl px-3 py-1.5">
-              <input type="text" value={editData.displayName} onChange={(e) => onChange('displayName', e.target.value)} className="bg-transparent text-[#3D4852] outline-none w-full text-base font-semibold" />
+        {isEditing ? (() => {
+          const displayNameClean = (editData.displayName || '').trim();
+          const displayNameError = displayNameClean.length < 2 || displayNameClean.length > 50
+            ? 'Display name must be between 2 and 50 characters'
+            : null;
+
+          return (
+            <div className="space-y-2 mb-2">
+              <div className="neumorphic-inset rounded-xl px-3 py-1.5">
+                <input
+                  type="text"
+                  value={editData.displayName}
+                  onChange={(e) => onChange('displayName', e.target.value)}
+                  placeholder="Your Display Name"
+                  className="bg-transparent text-[#3D4852] outline-none w-full text-base font-semibold"
+                />
+              </div>
+              {displayNameError && (
+                <p className="text-[10px] font-bold text-rose-600 px-1 animate-in fade-in">⚠️ {displayNameError}</p>
+              )}
+              <div className="neumorphic-inset rounded-xl px-3 py-2 relative">
+                <textarea
+                  value={editData.bio}
+                  onChange={(e) => onChange('bio', e.target.value)}
+                  maxLength={160}
+                  rows={2}
+                  placeholder="Tell us about yourself..."
+                  className="bg-transparent text-[#3D4852] outline-none w-full text-xs resize-none"
+                />
+              </div>
+              {saveError && <p className="text-xs text-rose-600 font-bold px-1">{saveError}</p>}
             </div>
-            <div className="neumorphic-inset rounded-xl px-3 py-2 relative">
-              <textarea value={editData.bio} onChange={(e) => onChange('bio', e.target.value)} maxLength={160} rows={2} className="bg-transparent text-[#3D4852] outline-none w-full text-xs resize-none" />
-            </div>
-            {saveError && <p className="text-xs text-rose-600">{saveError}</p>}
-          </div>
-        ) : (
+          );
+        })() : (
           <div className="mb-2">
             <div className="flex items-center gap-1.5">
               <h3 className="text-base font-bold text-[#3D4852] truncate">{user?.displayName || 'User'}</h3>

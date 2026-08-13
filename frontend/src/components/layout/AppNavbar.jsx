@@ -28,7 +28,7 @@ const AppNavbar = () => {
   if (isSandboxOpen || location.pathname.includes('/preview') || location.pathname.startsWith('/components') || location.pathname.startsWith('/embed') || location.pathname.startsWith('/editor')) return null;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-3 pointer-events-none">
+    <nav className="fixed top-0 left-0 right-0 z-40 px-4 md:px-8 py-3 pointer-events-none">
       <div className="max-w-7xl mx-auto liquid-glass-strong no-hover rounded-2xl px-6 h-[60px] flex items-center justify-between pointer-events-auto shadow-2xl !overflow-visible mb-[5px]">
         <div 
           onClick={() => navigate('/')}

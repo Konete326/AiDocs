@@ -6,7 +6,10 @@ export async function getProjects(params = { includeArchived: true }) {
 }
 
 export async function createProject(data) {
-  const response = await api.post('/projects', data);
+  const key = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `idemp_${Date.now()}_${Math.random()}`;
+  const response = await api.post('/projects', data, {
+    headers: { 'X-Idempotency-Key': key }
+  });
   return response.data.data;
 }
 

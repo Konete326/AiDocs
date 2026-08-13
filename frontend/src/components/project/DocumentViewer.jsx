@@ -58,23 +58,58 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   const [showDiff, setShowDiff] = useState(false);
   const [editContent, setEditContent] = useState(document.content);
   const [isSaving, setIsSaving] = useState(false);
+  const [autoSaveStatus, setAutoSaveStatus] = useState('idle');
   const [saveError, setSaveError] = useState('');
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showExportMenu, setShowExportMenu] = useState(false);
   const menuRef = useRef(null);
+  const debounceTimerRef = useRef(null);
+  const lastSavedContentRef = useRef(document.content);
 
   const [copySuccess, setCopySuccess] = useState(false);
   const [pdfSuccess, setPdfSuccess] = useState(false);
   const [wordSuccess, setWordSuccess] = useState(false);
 
   useEffect(() => {
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     setEditContent(document.content);
+    lastSavedContentRef.current = document.content;
     setIsEditing(false);
     setShowDiff(false);
     setSearchQuery('');
     setShowExportMenu(false);
+    setAutoSaveStatus('idle');
   }, [document.content, document.docType]);
+
+  useEffect(() => {
+    if (!isEditing || editContent === lastSavedContentRef.current) return;
+
+    setAutoSaveStatus('unsaved');
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+
+    debounceTimerRef.current = setTimeout(async () => {
+      setIsSaving(true);
+      setAutoSaveStatus('saving');
+      setSaveError('');
+      try {
+        const updated = await updateDocument(project._id, document.docType, editContent);
+        lastSavedContentRef.current = editContent;
+        onUpdate(updated);
+        setAutoSaveStatus('saved');
+      } catch (err) {
+        const msg = err.response?.data?.error;
+        setSaveError(typeof msg === 'string' ? msg : msg?.message || 'Auto-save failed.');
+        setAutoSaveStatus('idle');
+      } finally {
+        setIsSaving(false);
+      }
+    }, 1000);
+
+    return () => {
+      if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    };
+  }, [editContent, isEditing, project._id, document.docType]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -112,16 +147,23 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   };
 
   const handleSave = async () => {
-    setIsSaving(true);
-    setSaveError('');
-    try {
-      const updated = await updateDocument(project._id, document.docType, editContent);
-      onUpdate(updated);
-      setIsEditing(false);
-    } catch (err) {
-      const msg = err.response?.data?.error;
-      setSaveError(typeof msg === 'string' ? msg : msg?.message || 'Save failed.');
-    } finally { setIsSaving(false); }
+    if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
+    if (editContent !== lastSavedContentRef.current) {
+      setIsSaving(true);
+      setSaveError('');
+      try {
+        const updated = await updateDocument(project._id, document.docType, editContent);
+        lastSavedContentRef.current = editContent;
+        onUpdate(updated);
+      } catch (err) {
+        const msg = err.response?.data?.error;
+        setSaveError(typeof msg === 'string' ? msg : msg?.message || 'Save failed.');
+      } finally {
+        setIsSaving(false);
+      }
+    }
+    setIsEditing(false);
+    setAutoSaveStatus('idle');
   };
 
   const matchCount = useMemo(() => {
@@ -226,6 +268,23 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
         <div className="flex items-center gap-2.5 min-w-0 shrink-0">
           <p className="text-base sm:text-lg font-extrabold text-[#3D4852] leading-tight">{DOC_LABELS[document.docType]}</p>
           {saveError && <p className="text-xs text-rose-600 font-bold truncate">{saveError}</p>}
+          {isEditing && (
+            <span className="text-[11px] px-2.5 py-0.5 rounded-full font-mono font-bold shrink-0 neumorphic-inset flex items-center gap-1.5">
+              {autoSaveStatus === 'saving' ? (
+                <>
+                  <LoadingSpinner size="sm" />
+                  <span className="text-[#6C63FF]">Auto-saving...</span>
+                </>
+              ) : autoSaveStatus === 'saved' ? (
+                <>
+                  <Check className="w-3 h-3 text-emerald-600" />
+                  <span className="text-emerald-600">Saved</span>
+                </>
+              ) : autoSaveStatus === 'unsaved' ? (
+                <span className="text-amber-600">Unsaved</span>
+              ) : null}
+            </span>
+          )}
           {showDiff ? (
             <span className="text-[11px] bg-[#6C63FF]/15 text-[#6C63FF] px-3 py-1 rounded-full font-mono font-extrabold shrink-0 neumorphic-inset flex items-center gap-2">
               <span className="text-emerald-700">+{diffData.additions}</span>

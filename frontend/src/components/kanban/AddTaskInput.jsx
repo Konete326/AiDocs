@@ -1,14 +1,18 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, Calendar, AlertTriangle } from 'lucide-react';
 
 const AddTaskInput = ({ columnId, onAdd }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [text, setText] = useState('');
+  const [dueDate, setDueDate] = useState('');
+
+  const isPastDue = dueDate && new Date(dueDate) < new Date(new Date().setHours(0,0,0,0));
 
   const handleSubmit = () => {
     if (!text.trim()) return;
-    onAdd(columnId, text.trim());
+    onAdd(columnId, text.trim(), dueDate || null);
     setText('');
+    setDueDate('');
     setIsOpen(false);
   };
 
@@ -29,7 +33,7 @@ const AddTaskInput = ({ columnId, onAdd }) => {
       <textarea
         className="bg-[#E0E5EC] text-[#3D4852] placeholder:text-[#6B7280] outline-none text-xs font-bold p-2.5 rounded-xl resize-none w-full neumorphic-inset"
         rows={2}
-        placeholder="Task description..."
+        placeholder="Task / Milestone description..."
         value={text}
         onChange={(e) => setText(e.target.value)}
         onKeyDown={(e) => {
@@ -40,11 +44,32 @@ const AddTaskInput = ({ columnId, onAdd }) => {
         }}
         autoFocus
       />
+
+      <div className="flex items-center gap-2 flex-wrap pt-1">
+        <div className="flex items-center gap-1 bg-[#E0E5EC] neumorphic-inset rounded-xl px-2.5 py-1 text-xs">
+          <Calendar className="w-3.5 h-3.5 text-[#6C63FF]" />
+          <input
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            className="bg-transparent text-[11px] font-bold text-[#3D4852] outline-none cursor-pointer"
+          />
+        </div>
+
+        {isPastDue && (
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-700 text-[10px] font-bold animate-pulse">
+            <AlertTriangle className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
+            <span>Past Due Date Warning</span>
+          </div>
+        )}
+      </div>
+
       <div className="flex gap-2 justify-end mt-1">
         <button
           onClick={() => {
             setIsOpen(false);
             setText('');
+            setDueDate('');
           }}
           className="neumorphic-btn rounded-xl px-3 py-1.5 text-xs text-[#6B7280] font-bold cursor-pointer"
         >

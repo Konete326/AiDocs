@@ -43,12 +43,14 @@ const UserAvatar = ({ user, size = 'md', showUpload = false, onUpload, className
     <div 
       onClick={onClick}
       style={{ borderRadius: '9999px' }}
+      role="img"
+      aria-label={user?.displayName ? `${user.displayName}'s avatar` : 'User profile avatar'}
       className={`relative group rounded-full overflow-hidden flex-shrink-0 ${currentSizeClass} ${className}`}
     >
       {hasAvatar ? (
         <img
           src={user.avatarUrl}
-          alt={user.displayName}
+          alt={user.displayName || 'User avatar'}
           onError={() => setImgError(true)}
           style={{ borderRadius: '9999px' }}
           className="w-full h-full rounded-full object-cover border border-slate-300/80 shadow-sm"
@@ -56,6 +58,8 @@ const UserAvatar = ({ user, size = 'md', showUpload = false, onUpload, className
       ) : (
         <div 
           style={{ borderRadius: '9999px' }}
+          role="img"
+          aria-label={user?.displayName ? `${user.displayName}'s initial avatar` : 'User initial avatar fallback'}
           className={`bg-[#E0E5EC] rounded-full w-full h-full flex items-center justify-center font-bold text-[#3D4852] shadow-[inset_3px_3px_6px_rgba(163,177,198,0.5),inset_-3px_-3px_6px_rgba(255,255,255,0.5)] border border-[#A3B1C6]/30 ${currentTextSize}`}
         >
           {initial}
@@ -68,7 +72,7 @@ const UserAvatar = ({ user, size = 'md', showUpload = false, onUpload, className
             onClick={() => fileInputRef.current?.click()}
             className="absolute inset-0 rounded-full bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
           >
-            <Camera className="w-5 h-5 text-white" />
+            <Camera className="w-5 h-5 text-white" aria-label="Upload avatar camera icon" />
           </div>
           <input
             ref={fileInputRef}

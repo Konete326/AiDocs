@@ -5,12 +5,18 @@ import { signInWithPopup } from 'firebase/auth';
 export async function registerUser(name, email, password) {
   const response = await api.post('/auth/register', { displayName: name, email, password });
   setAccessToken(response.data.data.accessToken);
+  if (response.data.data.refreshToken) {
+    localStorage.setItem('clarifyai_refresh_token', response.data.data.refreshToken);
+  }
   return response.data.data.user;
 }
 
 export async function loginUser(email, password) {
   const response = await api.post('/auth/login', { email, password });
   setAccessToken(response.data.data.accessToken);
+  if (response.data.data.refreshToken) {
+    localStorage.setItem('clarifyai_refresh_token', response.data.data.refreshToken);
+  }
   return response.data.data.user;
 }
 
@@ -20,6 +26,9 @@ export async function loginWithGoogle() {
     const idToken = await result.user.getIdToken();
     const response = await api.post('/auth/google', { idToken });
     setAccessToken(response.data.data.accessToken);
+    if (response.data.data.refreshToken) {
+      localStorage.setItem('clarifyai_refresh_token', response.data.data.refreshToken);
+    }
     return response.data.data.user;
   } catch (err) {
     if (err.code === 'auth/unauthorized-domain') {
@@ -33,9 +42,9 @@ export async function logoutUser() {
   try {
     await api.post('/auth/logout');
   } catch (err) {
-    // Ignore network error on logout
   } finally {
     setAccessToken(null);
+    localStorage.removeItem('clarifyai_refresh_token');
   }
 }
 

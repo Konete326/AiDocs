@@ -151,7 +151,7 @@ export default function WizardShell({ step, totalSteps, onNext, onBack, onSubmit
           <button 
             disabled={isSubmitting}
             onClick={step === totalSteps ? onSubmit : onNext}
-            className="bg-[#6C63FF] hover:bg-[#8B84FF] rounded-xl px-8 py-2 text-xs text-white font-extrabold hover:scale-105 active:scale-95 disabled:hover:scale-100 disabled:cursor-not-allowed transition-all cursor-pointer border-none outline-none shadow-md flex items-center gap-2"
+            className="bg-[#6C63FF] hover:bg-[#8B84FF] rounded-xl px-8 py-2 text-xs text-white font-extrabold hover:scale-105 active:scale-95 disabled:hover:scale-100 disabled:cursor-not-allowed disabled:pointer-events-none disabled:opacity-70 transition-all cursor-pointer border-none outline-none shadow-md flex items-center gap-2"
           >
             {isSubmitting ? <><LoadingSpinner size="sm" /><span>Processing</span></> : (step === totalSteps ? "Generate Docs" : "Continue")}
           </button>

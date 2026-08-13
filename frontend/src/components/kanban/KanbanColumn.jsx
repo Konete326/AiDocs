@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Droppable } from '@hello-pangea/dnd';
+import { Inbox } from 'lucide-react';
 import KanbanCard from './KanbanCard';
 import AddTaskInput from './AddTaskInput';
 
@@ -8,7 +9,7 @@ const KanbanColumn = ({ column, onAddTask, onDeleteTask, onEditTitle }) => {
   const [titleValue, setTitleValue] = useState(column.title);
 
   return (
-    <div className="w-full flex flex-col gap-2.5 h-[380px] max-h-[400px] overflow-hidden neumorphic-card rounded-3xl p-3.5 transition-all">
+    <div className="w-full flex flex-col gap-2.5 h-[380px] max-h-[400px] overflow-hidden neumorphic-card rounded-3xl p-3.5 transition-all touch-pan-y">
       <div className="flex items-center justify-between px-1 flex-shrink-0 pb-1.5 border-b border-black/5">
         {isEditingTitle ? (
           <div className="neumorphic-inset rounded-xl px-3 py-1 flex-1 mr-2">
@@ -54,6 +55,16 @@ const KanbanColumn = ({ column, onAddTask, onDeleteTask, onEditTitle }) => {
               snapshot.isDraggingOver ? 'neumorphic-inset ring-2 ring-[#6C63FF]' : ''
             }`}
           >
+            {column.tasks.length === 0 && !snapshot.isDraggingOver && (
+              <div className="flex flex-col items-center justify-center h-full py-8 text-center my-auto pointer-events-none select-none opacity-60">
+                <div className="w-10 h-10 rounded-2xl neumorphic-inset flex items-center justify-center mb-2 text-[#6C63FF]">
+                  <Inbox className="w-5 h-5 text-[#6C63FF]/70" />
+                </div>
+                <span className="text-[11px] font-bold text-[#3D4852]">Empty Column</span>
+                <span className="text-[9.5px] text-[#6B7280] mt-0.5">Drop or add cards here</span>
+              </div>
+            )}
+
             {column.tasks.map((task, index) => (
               <KanbanCard
                 key={task.id}

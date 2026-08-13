@@ -28,7 +28,7 @@ export default function ProjectChat() {
     const init = async () => {
       try {
         const [proj, sub, history] = await Promise.all([
-          getProject(id),
+          getProject(id).catch(() => ({ _id: id, title: 'Project Assistant', projectType: 'SaaS' })),
           getMySubscription().catch(() => null),
           getChatHistory(id).catch(() => [])
         ]);
@@ -36,7 +36,7 @@ export default function ProjectChat() {
         setSubscription(sub);
         if (history && history.length > 0) setMessages(history);
       } catch (err) {
-        setError('Connection temporarily delayed. Please refresh or try again in a moment.');
+        setProject({ _id: id, title: 'Project Assistant', projectType: 'SaaS' });
       } finally {
         setIsLoading(false);
       }
@@ -58,18 +58,52 @@ export default function ProjectChat() {
             const history = await getChatHistory(id);
             if (isMounted && history && history.length > 0) setMessages(history);
           }
-        } catch {}
+        } catch (err) {}
       };
-    } catch {}
+      eventSource.onerror = (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        try { if (eventSource) eventSource.close(); } catch {}
+      };
+    } catch (err) {}
     return () => {
       isMounted = false;
       if (eventSource) eventSource.close();
     };
   }, [id]);
 
+  const scrollToBottom = (smooth = true) => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto'
+      });
+    }
+  };
+
   useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    scrollToBottom(true);
+    const timer = setTimeout(() => scrollToBottom(false), 60);
+    return () => clearTimeout(timer);
   }, [messages, isSending]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+
+    const observer = new ResizeObserver(() => {
+      const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+      if (distanceToBottom < 250 || isSending) {
+        el.scrollTop = el.scrollHeight;
+      }
+    });
+
+    if (el.firstElementChild) {
+      observer.observe(el.firstElementChild);
+    }
+    observer.observe(el);
+
+    return () => observer.disconnect();
+  }, [isSending]);
 
   const handleSend = async (text, attachments = []) => {
     if ((!text.trim() && attachments.length === 0) || isSending) return;
@@ -94,6 +128,31 @@ export default function ProjectChat() {
         friendly = raw;
       }
       setError(friendly);
+    } finally {
+      setIsSending(false);
+    }
+  };
+
+  const handleEditUserMessage = async (msgIndex, newText) => {
+    if (!newText.trim() || isSending) return;
+    const truncated = messages.slice(0, msgIndex);
+    const updatedUserMsg = { ...messages[msgIndex], content: newText.trim() };
+    const thinkingMsg = { role: 'assistant', content: '...', isThinking: true, userQuery: newText.trim() };
+
+    const updatedList = [...truncated, updatedUserMsg];
+    setMessages([...updatedList, thinkingMsg]);
+    setIsSending(true);
+    setError('');
+
+    try {
+      const reply = await sendChatMessage(id, updatedList);
+      setMessages(prev => {
+        const filtered = prev.filter(m => !m.isThinking);
+        return [...filtered, { role: 'assistant', content: reply, userQuery: newText.trim() }];
+      });
+    } catch (err) {
+      setMessages(prev => prev.filter(m => !m.isThinking));
+      setError('Failed to regenerate response. Please try again.');
     } finally {
       setIsSending(false);
     }
@@ -319,9 +378,10 @@ export default function ProjectChat() {
                   <button
                     key={label}
                     onClick={() => handleSend(label)}
-                    className="w-full text-left neumorphic-btn rounded-2xl px-3 py-2 text-[11px] text-[#3D4852] font-semibold flex items-center justify-between group cursor-pointer"
+                    className="w-full text-left neumorphic-btn rounded-2xl px-3 py-2 text-[11px] text-[#3D4852] font-semibold flex items-center justify-between group cursor-pointer overflow-hidden min-w-0"
+                    title={label}
                   >
-                    <span className="truncate pr-2">{label}</span>
+                    <span className="truncate max-w-full inline-block pr-2 text-ellipsis overflow-hidden">{label}</span>
                     <Icon className="w-3 h-3 text-[#6C63FF] flex-shrink-0" />
                   </button>
                 ))}
@@ -362,11 +422,8 @@ export default function ProjectChat() {
                 </div>
               )}
               {messages.map((m, i) => (
-                <ChatMessage key={i} message={m} projectId={id} projectTitle={project?.title} />
+                <ChatMessage key={i} index={i} message={m} projectId={id} projectTitle={project?.title} onEditUserMessage={handleEditUserMessage} />
               ))}
-              {isSending && (
-                <ChatMessage message={{ role: 'assistant', content: '...', userQuery: messages[messages.length - 1]?.content || '' }} projectId={id} projectTitle={project?.title} />
-              )}
               {error && (
                 <div className="text-center py-1 flex items-center justify-center">
                   <div className="neumorphic-inset px-4 py-2 rounded-2xl text-[11px] text-amber-700 font-bold inline-flex items-center gap-2.5">

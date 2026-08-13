@@ -9,6 +9,8 @@ import GeneratingState from '../components/project/GeneratingState';
 import ErrorState from '../components/project/ErrorState';
 import DocumentViewer from '../components/project/DocumentViewer';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import ConfirmModal from '../components/common/ConfirmModal';
+import { useConfirmModal } from '../hooks/useModal';
 import { getDynamicAgentRules } from '../constants/agentRules';
 
 const ProjectDetail = () => {
@@ -96,11 +98,22 @@ ${ds.prompt || ds.tagline || ''}
     return synthesizedDocs.find(d => d.docType === selectedDoc.docType) || selectedDoc;
   }, [selectedDoc, synthesizedDocs]);
 
-  const handleRetry = useCallback(async () => {
-    await triggerGeneration(id);
-    setProject((prev) => ({ ...prev, status: 'generating' }));
-    setViewingPartial(false);
-  }, [id, setProject]);
+  const { modal: confirmModal, confirm, close: closeConfirm, handleConfirm } = useConfirmModal();
+
+  const handleRetry = useCallback(() => {
+    confirm({
+      title: 'Generate All Documents?',
+      message: `Are you sure you want to trigger AI document generation for "${project?.title || 'this project'}"? Any existing generated documents will be updated.`,
+      confirmLabel: 'Start Generation',
+      cancelLabel: 'Cancel',
+      isDangerous: true,
+      onConfirm: async () => {
+        await triggerGeneration(id);
+        setProject((prev) => ({ ...prev, status: 'generating' }));
+        setViewingPartial(false);
+      }
+    });
+  }, [id, setProject, project?.title, confirm]);
 
   const handleDocSelect = useCallback((doc) => {
     setSelectedDoc(doc);
@@ -136,6 +149,16 @@ ${ds.prompt || ds.tagline || ''}
 
   return (
     <div className="min-h-screen lg:h-screen w-full flex flex-col bg-[#E0E5EC] overflow-x-hidden lg:overflow-hidden">
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmLabel={confirmModal.confirmLabel}
+        cancelLabel={confirmModal.cancelLabel}
+        onConfirm={handleConfirm}
+        onCancel={closeConfirm}
+        isDangerous={confirmModal.isDangerous}
+      />
       <div className="flex-1 flex flex-col pt-20 px-4 pb-4 md:px-8 min-h-0">
         <div className="max-w-[1400px] w-full mx-auto flex flex-col flex-1 min-h-0">
 

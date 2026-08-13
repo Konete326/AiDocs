@@ -11,6 +11,10 @@ import { authReducer, initialState } from './authReducer';
 
 const AuthContext = createContext();
 
+const authChannel = typeof window !== 'undefined' && 'BroadcastChannel' in window
+  ? new BroadcastChannel('clarifyai_auth')
+  : null;
+
 export function AuthProvider({ children }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
@@ -36,6 +40,28 @@ export function AuthProvider({ children }) {
     }
 
     bootstrap();
+
+    if (authChannel) {
+      const handleMessage = async (e) => {
+        if (e.data?.type === 'LOGOUT') {
+          dispatch({ type: 'CLEAR_USER' });
+        } else if (e.data?.type === 'LOGIN') {
+          try {
+            await refreshAccessToken();
+            const user = await getMe();
+            if (isMounted) dispatch({ type: 'SET_USER', payload: user });
+          } catch {
+            if (isMounted) dispatch({ type: 'CLEAR_USER' });
+          }
+        }
+      };
+      authChannel.addEventListener('message', handleMessage);
+      return () => {
+        isMounted = false;
+        authChannel.removeEventListener('message', handleMessage);
+      };
+    }
+
     return () => { isMounted = false; };
   }, []);
 
@@ -47,6 +73,7 @@ export function AuthProvider({ children }) {
     } catch {
       dispatch({ type: 'SET_USER', payload: loginRes });
     }
+    authChannel?.postMessage({ type: 'LOGIN' });
   };
 
   const loginGoogle = async () => {
@@ -57,6 +84,7 @@ export function AuthProvider({ children }) {
     } catch {
       dispatch({ type: 'SET_USER', payload: loginRes });
     }
+    authChannel?.postMessage({ type: 'LOGIN' });
   };
 
   const register = async (name, email, password) => {
@@ -67,6 +95,7 @@ export function AuthProvider({ children }) {
     } catch {
       dispatch({ type: 'SET_USER', payload: regRes });
     }
+    authChannel?.postMessage({ type: 'LOGIN' });
   };
 
   const logout = async () => {
@@ -74,6 +103,7 @@ export function AuthProvider({ children }) {
       await apiLogout();
     } finally {
       dispatch({ type: 'CLEAR_USER' });
+      authChannel?.postMessage({ type: 'LOGOUT' });
     }
   };
 

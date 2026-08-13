@@ -15,6 +15,7 @@ const NotificationBell = () => {
   useEffect(() => {
     let active = true;
     const fetchNotifications = async () => {
+      if (document.visibilityState === 'hidden') return;
       try {
         const data = await getNotifications();
         if (active) setNotifications(data || []);
@@ -25,13 +26,21 @@ const NotificationBell = () => {
     fetchNotifications().finally(() => { if (active) setIsLoading(false); });
 
     const handleRefresh = () => { fetchNotifications(); };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        fetchNotifications();
+      }
+    };
+
     window.addEventListener('notificationRefresh', handleRefresh);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
     const interval = setInterval(fetchNotifications, 30000);
 
     return () => {
       active = false;
       clearInterval(interval);
       window.removeEventListener('notificationRefresh', handleRefresh);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 

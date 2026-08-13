@@ -104,8 +104,8 @@ export const useKanban = (projectId) => {
     save(updated);
   };
 
-  const addTask = (colId, text) => {
-    const newTask = { id: `task-${Date.now()}`, text: text.trim(), completed: false };
+  const addTask = (colId, text, dueDate = null) => {
+    const newTask = { id: `task-${Date.now()}`, text: text.trim(), dueDate: dueDate || null, completed: false };
     const updated = columns.map(c => c.id === colId ? { ...c, tasks: [...c.tasks, newTask] } : c);
     setColumns(updated);
     save(updated);

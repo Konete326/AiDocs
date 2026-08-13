@@ -33,6 +33,19 @@ const errorHandler = (err, req, res, next) => {
     message = 'Server configuration error. Contact support.';
   }
 
+  const isEventStream = res.headersSent || req.headers?.accept?.includes('text/event-stream') || req.path?.includes('/events');
+
+  if (isEventStream) {
+    if (!res.headersSent) {
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache, no-transform');
+      res.setHeader('Connection', 'keep-alive');
+      res.setHeader('X-Accel-Buffering', 'no');
+    }
+    res.write(`data: ${JSON.stringify({ type: 'error', error: message, code: code })}\n\n`);
+    return res.end();
+  }
+
   res.status(statusCode).json({
     success: false,
     error: message,

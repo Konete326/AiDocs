@@ -187,15 +187,25 @@ const Marketplace = () => {
                     >
                       <ChevronLeft className="w-4 h-4 text-blue-600" /> Prev
                     </button>
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((pNum) => (
-                      <button
-                        key={pNum}
-                        onClick={() => { setPage(pNum); gridRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                        className={`w-8 h-8 rounded-xl text-xs font-bold transition-all cursor-pointer ${page === pNum ? 'bg-blue-600 text-white shadow-[3px_3px_6px_rgba(37,99,235,0.3)]' : 'bg-[#E0E5EC] text-[#3D4852] shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)]'}`}
-                      >
-                        {pNum}
-                      </button>
-                    ))}
+                    {(() => {
+                      const maxVisible = 10;
+                      let start = Math.max(1, page - Math.floor(maxVisible / 2));
+                      let end = Math.min(totalPages, start + maxVisible - 1);
+                      if (end - start + 1 < maxVisible) {
+                        start = Math.max(1, end - maxVisible + 1);
+                      }
+                      const pages = [];
+                      for (let i = start; i <= end; i++) pages.push(i);
+                      return pages.map((pNum) => (
+                        <button
+                          key={pNum}
+                          onClick={() => { setPage(pNum); gridRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                          className={`w-8 h-8 rounded-xl text-xs font-bold transition-all cursor-pointer ${page === pNum ? 'bg-blue-600 text-white shadow-[3px_3px_6px_rgba(37,99,235,0.3)]' : 'bg-[#E0E5EC] text-[#3D4852] shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)]'}`}
+                        >
+                          {pNum}
+                        </button>
+                      ));
+                    })()}
                     <button
                       disabled={page >= totalPages}
                       onClick={() => { setPage(p => p + 1); gridRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }}

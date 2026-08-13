@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Info } from 'lucide-react';
 import { createPortal } from 'react-dom';
@@ -9,6 +10,16 @@ const AlertModal = ({
   buttonLabel = 'Got it', 
   onClose 
 }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isOpen]);
   const modalContent = (
     <AnimatePresence>
       {isOpen && (

@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { getProjects, deleteProject, archiveProject, unarchiveProject } from '../services/projectService';
+import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { RotateCcw } from 'lucide-react';
+import { getProjects, deleteProject } from '../services/projectService';
 import DashboardHeader from '../components/dashboard/DashboardHeader';
 import DashboardFilterBar from '../components/dashboard/DashboardFilterBar';
 import DashboardPagination from '../components/dashboard/DashboardPagination';
@@ -12,21 +14,37 @@ import AlertModal from '../components/common/AlertModal';
 import { toast } from 'react-hot-toast';
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [viewTab, setViewTab] = useState('active');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(8);
+  const [draftInfo, setDraftInfo] = useState(null);
 
   const { modal: confirmModal, confirm, close: closeConfirm, handleConfirm } = useConfirmModal();
   const { modal: alertModal, alert: triggerAlert, close: closeAlert } = useAlertModal();
 
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem('draft_wizard_state');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const isExpired = parsed.expiresAt && new Date(parsed.expiresAt) < new Date();
+        if (isExpired) {
+          localStorage.removeItem('draft_wizard_state');
+        } else if (parsed.formData?.title || parsed.formData?.wizardAnswers?.problemStatement) {
+          setDraftInfo(parsed);
+        }
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
     const fetchData = async () => {
       try {
-        const projectsData = await getProjects({ includeArchived: true });
+        const projectsData = await getProjects();
         setProjects(projectsData || []);
       } catch {
         setProjects([]);
@@ -37,13 +55,8 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  const activeProjects = useMemo(() => projects.filter(p => !p.isArchived), [projects]);
-  const archivedProjects = useMemo(() => projects.filter(p => p.isArchived === true), [projects]);
-
-  const currentTabProjects = viewTab === 'active' ? activeProjects : archivedProjects;
-
   const filteredProjects = useMemo(() => {
-    return currentTabProjects.filter((p) => {
+    return projects.filter((p) => {
       const matchesSearch =
         !searchQuery.trim() ||
         p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -53,7 +66,7 @@ const Dashboard = () => {
 
       return matchesSearch && matchesStatus;
     });
-  }, [currentTabProjects, searchQuery, statusFilter]);
+  }, [projects, searchQuery, statusFilter]);
 
   const totalPages = Math.ceil(filteredProjects.length / itemsPerPage) || 1;
 
@@ -87,46 +100,57 @@ const Dashboard = () => {
     });
   };
 
-  const handleArchive = async (id) => {
-    try {
-      await archiveProject(id);
-      setProjects(prev => prev.map(p => p._id === id ? { ...p, isArchived: true } : p));
-      toast.success('Project archived successfully');
-    } catch {
-      toast.error('Failed to archive project');
-    }
-  };
-
-  const handleUnarchive = async (id) => {
-    try {
-      await unarchiveProject(id);
-      setProjects(prev => prev.map(p => p._id === id ? { ...p, isArchived: false } : p));
-      toast.success('Project restored successfully');
-    } catch {
-      toast.error('Failed to restore project');
-    }
-  };
-
   return (
     <div className="relative min-h-screen w-full bg-[#E0E5EC] text-[#3D4852]">
       <ConfirmModal isOpen={confirmModal.isOpen} title={confirmModal.title} message={confirmModal.message} confirmLabel={confirmModal.confirmLabel} cancelLabel={confirmModal.cancelLabel} onConfirm={handleConfirm} onCancel={closeConfirm} isDangerous={confirmModal.isDangerous} />
       <AlertModal isOpen={alertModal.isOpen} title={alertModal.title} message={alertModal.message} buttonLabel={alertModal.buttonLabel} onClose={closeAlert} />
 
-      <div className="relative z-10 pt-20 pb-12 px-4 md:px-8 max-w-[95%] xl:max-w-[1500px] mx-auto">
-        <DashboardHeader projectCount={activeProjects.length} />
+      <div className="relative z-10 pt-16 sm:pt-20 pb-8 px-4 md:px-8 max-w-[95%] xl:max-w-[1500px] mx-auto">
+        <DashboardHeader projectCount={projects.length} />
+
+        {draftInfo && (
+          <div className="my-3 p-3.5 rounded-2xl neumorphic-card bg-[#E0E5EC] flex flex-wrap items-center justify-between gap-3 border border-[#6C63FF]/40 shadow-lg animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#6C63FF]/15 flex items-center justify-center text-[#6C63FF]">
+                <RotateCcw className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-xs font-extrabold text-[#3D4852]">
+                  Unfinished Wizard Draft Found: &ldquo;{draftInfo.formData?.title || 'Untitled Project'}&rdquo; (Step {draftInfo.step || 1})
+                </p>
+                <p className="text-[11px] text-[#6B7280]">
+                  You have an active setup draft saved within the last 12 hours.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  localStorage.removeItem('draft_wizard_state');
+                  setDraftInfo(null);
+                }}
+                className="neumorphic-btn rounded-xl px-3 py-1.5 text-xs text-[#6B7280] font-bold hover:scale-105 transition-transform cursor-pointer"
+              >
+                Dismiss
+              </button>
+              <button
+                onClick={() => navigate('/create-project')}
+                className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white rounded-xl px-4 py-1.5 text-xs font-extrabold shadow-md hover:scale-105 transition-transform cursor-pointer border-none"
+              >
+                Resume Wizard
+              </button>
+            </div>
+          </div>
+        )}
 
         <DashboardFilterBar
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           statusFilter={statusFilter}
           setStatusFilter={setStatusFilter}
-          viewTab={viewTab}
-          setViewTab={(tab) => { setViewTab(tab); setCurrentPage(1); }}
-          activeCount={activeProjects.length}
-          archivedCount={archivedProjects.length}
         />
 
-        <div className="mt-8 space-y-4">
+        <div className="mt-5 space-y-4">
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {[1, 2, 3, 4].map(i => (
@@ -152,16 +176,24 @@ const Dashboard = () => {
             )
           ) : (
             <>
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                {paginatedProjects.map(project => (
-                  <ProjectCard
-                    key={project._id}
-                    project={project}
-                    onDelete={handleDelete}
-                    onArchive={handleArchive}
-                    onUnarchive={handleUnarchive}
-                  />
-                ))}
+              <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <AnimatePresence mode="popLayout">
+                  {paginatedProjects.map(project => (
+                    <motion.div
+                      key={project._id}
+                      layout
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      transition={{ duration: 0.2, ease: 'easeInOut' }}
+                    >
+                      <ProjectCard
+                        project={project}
+                        onDelete={handleDelete}
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
               </motion.div>
 
               <DashboardPagination
