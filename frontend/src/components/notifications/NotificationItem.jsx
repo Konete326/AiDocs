@@ -1,9 +1,11 @@
-import { CheckCircle, AlertCircle, Zap, Clock, Bell, Shield, Trash2 } from 'lucide-react';
+import { CheckCircle, AlertCircle, Zap, Clock, Bell, Shield, Trash2, CreditCard } from 'lucide-react';
 
 const icons = {
   doc_ready: CheckCircle,
   generation_failed: AlertCircle,
   plan_upgraded: Zap,
+  billing: CreditCard,
+  plan: Zap,
   milestone_due: Clock,
   system: Bell,
   security: Shield
@@ -13,6 +15,8 @@ const colors = {
   doc_ready: 'text-emerald-600',
   generation_failed: 'text-rose-500',
   plan_upgraded: 'text-amber-500',
+  billing: 'text-[#6C63FF]',
+  plan: 'text-amber-500',
   milestone_due: 'text-sky-500',
   system: 'text-[#6B7280]',
   security: 'text-rose-600'

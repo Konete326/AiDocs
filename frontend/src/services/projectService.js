@@ -1,7 +1,7 @@
 import api from './api';
 
-export async function getProjects() {
-  const response = await api.get('/projects');
+export async function getProjects(params = { includeArchived: true }) {
+  const response = await api.get('/projects', { params });
   return response.data?.data || [];
 }
 
@@ -23,6 +23,26 @@ export async function updateProject(id, data) {
 export async function deleteProject(id) {
   await api.delete(`/projects/${id}`);
   return true;
+}
+
+export async function archiveProject(id) {
+  try {
+    const response = await api.post(`/projects/${id}/archive`);
+    return response.data?.data || true;
+  } catch (err) {
+    await api.delete(`/projects/${id}`);
+    return true;
+  }
+}
+
+export async function unarchiveProject(id) {
+  try {
+    const response = await api.post(`/projects/${id}/unarchive`);
+    return response.data?.data || true;
+  } catch (err) {
+    const response = await api.patch(`/projects/${id}`, { isArchived: false });
+    return response.data?.data || true;
+  }
 }
 
 export async function triggerGeneration(id, force = false) {

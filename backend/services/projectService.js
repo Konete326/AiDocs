@@ -3,8 +3,12 @@ const AppError = require('../utils/AppError');
 const subscriptionService = require('./subscriptionService');
 const { checkAndRecoverProject } = require('./recoveryService');
 
-exports.getUserProjects = async (userId) => {
-  const projects = await Project.find({ userId, isArchived: false }).sort({ createdAt: -1 }).lean();
+exports.getUserProjects = async (userId, includeArchived = true) => {
+  const query = { userId };
+  if (!includeArchived) {
+    query.isArchived = { $ne: true };
+  }
+  const projects = await Project.find(query).sort({ createdAt: -1 }).lean();
   return await Promise.all(projects.map(p => checkAndRecoverProject(p)));
 };
 
@@ -46,6 +50,20 @@ exports.deleteProject = async (projectId, userId) => {
   const project = await Project.findOneAndUpdate(
     { _id: projectId, userId, isArchived: false },
     { isArchived: true },
+    { new: true }
+  ).lean();
+  if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');
+  return project;
+};
+
+exports.archiveProject = async (projectId, userId) => {
+  return exports.deleteProject(projectId, userId);
+};
+
+exports.unarchiveProject = async (projectId, userId) => {
+  const project = await Project.findOneAndUpdate(
+    { _id: projectId, userId, isArchived: true },
+    { isArchived: false },
     { new: true }
   ).lean();
   if (!project) throw new AppError('Project not found', 404, 'NOT_FOUND');

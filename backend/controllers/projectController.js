@@ -14,7 +14,8 @@ try {
 }
 
 exports.getAllProjects = asyncWrapper(async (req, res) => {
-  const projects = await projectService.getUserProjects(req.user.id);
+  const includeArchived = req.query.archived === 'true' || req.query.includeArchived === 'true' || req.query.all === 'true';
+  const projects = await projectService.getUserProjects(req.user.id, includeArchived);
   res.status(200).json({ success: true, data: projects });
 });
 
@@ -36,6 +37,16 @@ exports.updateProject = asyncWrapper(async (req, res) => {
 exports.deleteProject = asyncWrapper(async (req, res) => {
   await projectService.deleteProject(req.params.id, req.user.id);
   res.status(200).json({ success: true, data: {} });
+});
+
+exports.archiveProject = asyncWrapper(async (req, res) => {
+  const project = await projectService.archiveProject(req.params.id, req.user.id);
+  res.status(200).json({ success: true, data: project, message: 'Project archived successfully' });
+});
+
+exports.unarchiveProject = asyncWrapper(async (req, res) => {
+  const project = await projectService.unarchiveProject(req.params.id, req.user.id);
+  res.status(200).json({ success: true, data: project, message: 'Project unarchived successfully' });
 });
 
 exports.triggerGeneration = asyncWrapper(async (req, res) => {

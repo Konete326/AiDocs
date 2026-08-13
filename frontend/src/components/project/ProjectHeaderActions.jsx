@@ -1,10 +1,12 @@
-import { Download, MessageCircle, Loader2, Cpu, Palette, Layers, Play, ChevronDown, LayoutGrid, Users } from 'lucide-react';
+import { Download, MessageCircle, Loader2, Cpu, Palette, Layers, Play, ChevronDown, LayoutGrid, Users, Archive, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { downloadZip } from '../../services/exportService';
-import { getAccessToken, refreshAccessTokenSilent } from '../../services/api';
+import { archiveProject, deleteProject } from '../../services/projectService';
 import LiveSandboxModal from './LiveSandboxModal';
 import TeamInviteModal from './TeamInviteModal';
+import ArchiveProjectModal from './ArchiveProjectModal';
+import DeleteProjectModal from './DeleteProjectModal';
 import { toast } from 'react-hot-toast';
 
 const ProjectHeaderActions = ({ project }) => {
@@ -12,6 +14,8 @@ const ProjectHeaderActions = ({ project }) => {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSandboxOpen, setIsSandboxOpen] = useState(false);
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [agentLiveUrl, setAgentLiveUrl] = useState('');
   const dropdownRef = useRef(null);
@@ -66,6 +70,26 @@ const ProjectHeaderActions = ({ project }) => {
       console.error('Export failed:', err);
     } finally {
       setIsDownloading(false);
+    }
+  };
+
+  const handleArchiveConfirm = async () => {
+    try {
+      await archiveProject(project._id);
+      toast.success(`Project "${project.title}" archived successfully`);
+      navigate('/dashboard');
+    } catch (err) {
+      toast.error('Failed to archive project. Please try again.');
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    try {
+      await deleteProject(project._id);
+      toast.success(`Project "${project.title}" deleted successfully`);
+      navigate('/dashboard');
+    } catch (err) {
+      toast.error('Failed to delete project. Please try again.');
     }
   };
 
@@ -168,6 +192,29 @@ const ProjectHeaderActions = ({ project }) => {
                   </button>
                 </>
               )}
+
+              <div className="h-px bg-[#c4cdd8] my-1" />
+              <button
+                onClick={() => {
+                  setIsDropdownOpen(false);
+                  setIsArchiveModalOpen(true);
+                }}
+                className="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm text-amber-700 font-bold hover:bg-amber-100/50 flex items-center gap-2 transition-colors cursor-pointer"
+              >
+                <Archive className="w-4 h-4 text-amber-600" />
+                <span>Archive</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setIsDropdownOpen(false);
+                  setIsDeleteModalOpen(true);
+                }}
+                className="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm text-rose-600 font-bold hover:bg-rose-100/50 flex items-center gap-2 transition-colors cursor-pointer"
+              >
+                <Trash2 className="w-4 h-4 text-rose-600" />
+                <span>Delete Project</span>
+              </button>
             </div>
           )}
         </div>
@@ -175,6 +222,8 @@ const ProjectHeaderActions = ({ project }) => {
 
       <LiveSandboxModal isOpen={isSandboxOpen} onClose={() => setIsSandboxOpen(false)} project={project} initialUrl={agentLiveUrl} />
       <TeamInviteModal projectId={project?._id} isOpen={isTeamModalOpen} onClose={() => setIsTeamModalOpen(false)} />
+      <ArchiveProjectModal isOpen={isArchiveModalOpen} onClose={() => setIsArchiveModalOpen(false)} onConfirm={handleArchiveConfirm} projectTitle={project?.title} />
+      <DeleteProjectModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} onConfirm={handleDeleteConfirm} projectTitle={project?.title} />
     </>
   );
 };
