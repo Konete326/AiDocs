@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, RotateCcw, X, ArrowRight, Pencil, Check } from 'lucide-react';
+import { Sparkles, RotateCcw, X, Pencil, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SuggestionPills({ suggestions, isLoading, onSelect, fieldName, onRefresh }) {
@@ -57,44 +57,44 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
               transition={{ duration: 0.15 }}
               className="bg-[#E0E5EC] rounded-[28px] w-full max-w-md p-5 md:p-6 shadow-[14px_14px_28px_rgba(163,177,198,0.7),-14px_-14px_28px_rgba(255,255,255,0.8)] border border-white/70 relative text-left"
             >
-              <button
-                type="button"
-                onClick={() => {
-                  setIsOpen(false);
-                  setEditingIndex(null);
-                }}
-                className="absolute top-4 right-4 p-1.5 rounded-xl bg-[#E0E5EC] text-[#6B7280] hover:text-[#3D4852] shadow-[2px_2px_5px_rgba(163,177,198,0.5),-2px_-2px_5px_rgba(255,255,255,0.5)] active:scale-95 transition-all cursor-pointer border border-white/40"
-                title="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
-
-              <div className="flex items-center justify-between pr-8 mb-3">
+              <div className="flex items-center justify-between mb-3.5">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-[#E0E5EC] shadow-[inset_2px_2px_4px_rgba(163,177,198,0.5),inset_-2px_-2px_4px_rgba(255,255,255,0.6)] flex items-center justify-center text-[#6C63FF] border border-white/40">
                     <Sparkles className="w-4 h-4" />
                   </div>
                   <div>
                     <h3 className="text-sm font-extrabold text-[#3D4852]">Smart AI Ideas</h3>
-                    <p className="text-[10px] text-[#6B7280] font-medium">Click to use directly or edit to customize</p>
+                    <p className="text-[10px] text-[#6B7280] font-medium">Click any idea to use directly</p>
                   </div>
                 </div>
 
-                {onRefresh && (
+                <div className="flex items-center gap-1.5">
+                  {onRefresh && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingIndex(null);
+                        onRefresh();
+                      }}
+                      disabled={isLoading}
+                      className="p-1.5 rounded-xl bg-[#E0E5EC] text-[#6C63FF] hover:text-[#5B52EE] shadow-[2px_2px_5px_rgba(163,177,198,0.5),-2px_-2px_5px_rgba(255,255,255,0.5)] active:scale-95 transition-all cursor-pointer border border-white/40 disabled:opacity-50"
+                      title="Generate new ideas"
+                    >
+                      <RotateCcw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => {
+                      setIsOpen(false);
                       setEditingIndex(null);
-                      onRefresh();
                     }}
-                    disabled={isLoading}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[#E0E5EC] shadow-[2px_2px_4px_rgba(163,177,198,0.5),-2px_-2px_4px_rgba(255,255,255,0.5)] text-[#6C63FF] hover:text-[#5B52EE] text-[11px] font-bold transition-all cursor-pointer disabled:opacity-50 active:scale-95 border border-white/40"
-                    title="Generate new ideas"
+                    className="p-1.5 rounded-xl bg-[#E0E5EC] text-[#6B7280] hover:text-[#3D4852] shadow-[2px_2px_5px_rgba(163,177,198,0.5),-2px_-2px_5px_rgba(255,255,255,0.5)] active:scale-95 transition-all cursor-pointer border border-white/40"
+                    title="Close"
                   >
-                    <RotateCcw className={`w-3 h-3 ${isLoading ? 'animate-spin' : ''}`} />
-                    <span>New Ideas</span>
+                    <X className="w-3.5 h-3.5" />
                   </button>
-                )}
+                </div>
               </div>
 
               {isLoading ? (
@@ -147,7 +147,7 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
                               className="px-3 py-1 rounded-xl text-[11px] font-extrabold text-white bg-[#6C63FF] hover:bg-[#5B52EE] shadow-[2px_2px_6px_rgba(108,99,255,0.4)] flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer"
                             >
                               <Check className="w-3.5 h-3.5 text-white" />
-                              <span>Apply Customized Idea</span>
+                              <span>Apply Idea</span>
                             </button>
                           </div>
                         </div>
@@ -157,42 +157,32 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
                     return (
                       <div
                         key={`${fieldName}-${i}`}
-                        className="w-full p-3.5 rounded-2xl bg-[#E0E5EC] shadow-[3px_3px_6px_rgba(163,177,198,0.45),-3px_-3px_6px_rgba(255,255,255,0.6)] hover:shadow-[inset_2px_2px_5px_rgba(163,177,198,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.6)] text-xs font-semibold text-[#3D4852] transition-all border border-white/40 group flex items-start justify-between gap-2.5"
+                        className="w-full p-3.5 rounded-2xl bg-[#E0E5EC] shadow-[3px_3px_6px_rgba(163,177,198,0.45),-3px_-3px_6px_rgba(255,255,255,0.6)] hover:shadow-[inset_2px_2px_5px_rgba(163,177,198,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.6)] text-xs font-semibold text-[#3D4852] transition-all border border-white/40 flex items-center justify-between gap-3 group"
                       >
-                        <span
+                        <button
+                          type="button"
                           onClick={() => {
                             onSelect(s);
                             setIsOpen(false);
                           }}
-                          className="flex-1 cursor-pointer leading-relaxed hover:text-[#6C63FF] transition-colors"
+                          className="flex-1 text-left cursor-pointer leading-relaxed hover:text-[#6C63FF] transition-colors py-0.5 bg-transparent border-0 outline-none"
+                          title="Click to use this idea"
                         >
                           {s}
-                        </span>
+                        </button>
 
-                        <div className="flex items-center gap-1 flex-shrink-0 pt-0.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEditingIndex(i);
-                              setEditText(s);
-                            }}
-                            className="p-1 rounded-lg bg-[#E0E5EC] shadow-[2px_2px_4px_rgba(163,177,198,0.45),-2px_-2px_4px_rgba(255,255,255,0.55)] hover:text-[#6C63FF] text-[#6B7280] active:scale-90 transition-all cursor-pointer border border-white/30"
-                            title="Customize this idea before applying"
-                          >
-                            <Pencil className="w-3 h-3" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onSelect(s);
-                              setIsOpen(false);
-                            }}
-                            className="p-1 rounded-lg bg-[#E0E5EC] shadow-[2px_2px_4px_rgba(163,177,198,0.45),-2px_-2px_4px_rgba(255,255,255,0.55)] text-[#6C63FF] active:scale-90 transition-all cursor-pointer border border-white/30"
-                            title="Use directly"
-                          >
-                            <ArrowRight className="w-3 h-3" />
-                          </button>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setEditingIndex(i);
+                            setEditText(s);
+                          }}
+                          className="p-1.5 rounded-xl bg-[#E0E5EC] shadow-[2px_2px_4px_rgba(163,177,198,0.45),-2px_-2px_4px_rgba(255,255,255,0.55)] hover:text-[#6C63FF] text-[#6B7280] active:scale-90 transition-all cursor-pointer border border-white/30 flex-shrink-0"
+                          title="Customize this idea"
+                        >
+                          <Pencil className="w-3 h-3" />
+                        </button>
                       </div>
                     );
                   })}
