@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, RotateCcw, X, Pencil, Check } from 'lucide-react';
+import { Sparkles, RotateCcw, X, Pencil, Check, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-export default function SuggestionPills({ suggestions, isLoading, onSelect, fieldName, onRefresh }) {
+export default function SuggestionPills({ suggestions = [], isLoading, onSelect, fieldName, onRefresh }) {
   const [isOpen, setIsOpen] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
   const [editText, setEditText] = useState('');
@@ -23,8 +23,6 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, editingIndex]);
 
-  if (!suggestions || suggestions.length === 0) return null;
-
   return (
     <>
       <button
@@ -32,6 +30,7 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
         onClick={() => {
           setIsOpen(true);
           setEditingIndex(null);
+          if (suggestions.length === 0 && onRefresh) onRefresh();
         }}
         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#E0E5EC] shadow-[2px_2px_5px_rgba(163,177,198,0.5),-2px_-2px_5px_rgba(255,255,255,0.6)] border border-white/50 text-[#6C63FF] hover:text-[#5B52EE] text-[11px] font-bold active:scale-95 transition-all cursor-pointer"
         title="View AI Suggestions"
@@ -47,7 +46,7 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
               setIsOpen(false);
               setEditingIndex(null);
             }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-150"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm"
           >
             <motion.div
               onClick={(e) => e.stopPropagation()}
@@ -63,8 +62,8 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
                     <Sparkles className="w-4 h-4" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-extrabold text-[#3D4852]">Smart AI Ideas</h3>
-                    <p className="text-[10px] text-[#6B7280] font-medium">Click any idea to use directly</p>
+                    <h3 className="text-sm font-extrabold text-[#3D4852]">Live AI Suggestions</h3>
+                    <p className="text-[10px] text-[#6B7280] font-medium">Real-time AI generated for your project</p>
                   </div>
                 </div>
 
@@ -98,7 +97,11 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
               </div>
 
               {isLoading ? (
-                <div className="space-y-2.5 py-2">
+                <div className="space-y-2.5 py-4">
+                  <div className="flex items-center justify-center gap-2 text-xs font-bold text-[#6C63FF] py-2">
+                    <Loader2 className="w-4 h-4 animate-spin text-[#6C63FF]" />
+                    <span>Generating live AI suggestions...</span>
+                  </div>
                   {[1, 2, 3].map((i) => (
                     <div
                       key={i}
@@ -108,6 +111,18 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
                       <div className="h-2.5 bg-[#A3B1C6]/20 rounded-full w-3/5" />
                     </div>
                   ))}
+                </div>
+              ) : suggestions.length === 0 ? (
+                <div className="py-6 text-center">
+                  <p className="text-xs text-[#6B7280] font-semibold mb-3">No suggestions generated yet.</p>
+                  <button
+                    type="button"
+                    onClick={() => onRefresh && onRefresh()}
+                    className="px-4 py-2 bg-[#6C63FF] hover:bg-[#5B52EE] text-white text-xs font-extrabold rounded-xl shadow-md cursor-pointer transition-all active:scale-95 inline-flex items-center gap-1.5"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Generate Now</span>
+                  </button>
                 </div>
               ) : (
                 <div className="space-y-2.5 max-h-[55vh] overflow-y-auto custom-scrollbar pr-1 py-1">

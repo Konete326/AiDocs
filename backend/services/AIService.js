@@ -14,18 +14,26 @@ const providers = [
     getKey: () => process.env.GEMINI_API_KEY
   },
   {
-    name: 'NVIDIA_70B',
-    type: 'openai',
-    url: NVIDIA_URL,
-    model: 'meta/llama-3.1-70b-instruct',
-    getKey: () => process.env.NVIDIA_API_KEY,
-    headers: {}
-  },
-  {
     name: 'NVIDIA_8B',
     type: 'openai',
     url: NVIDIA_URL,
     model: 'meta/llama-3.1-8b-instruct',
+    getKey: () => process.env.NVIDIA_API_KEY,
+    headers: {}
+  },
+  {
+    name: 'OPENROUTER_8B',
+    type: 'openai',
+    url: OPENROUTER_URL,
+    model: 'meta-llama/llama-3.1-8b-instruct:free',
+    getKey: () => process.env.OPENROUTER_API_KEY,
+    headers: { 'HTTP-Referer': 'https://aidocs.com', 'X-Title': 'AiDocs' }
+  },
+  {
+    name: 'NVIDIA_70B',
+    type: 'openai',
+    url: NVIDIA_URL,
+    model: 'meta/llama-3.1-70b-instruct',
     getKey: () => process.env.NVIDIA_API_KEY,
     headers: {}
   },
