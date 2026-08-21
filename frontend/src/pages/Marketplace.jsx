@@ -68,48 +68,40 @@ const Marketplace = () => {
         setTotalComponents(cached.total);
         setLoading(false);
       } else {
-        setLoading(true);
+        if (components.length > 0) setIsFetching(true);
+        else setLoading(true);
       }
-      setIsFetching(true);
 
       try {
-        const q = new URLSearchParams();
-        q.append('page', targetPage);
-        q.append('limit', limit);
-        if (selectedCategory && selectedCategory !== 'All') q.append('category', selectedCategory);
-        if (selectedFramework && selectedFramework !== 'All') q.append('framework', selectedFramework);
-        if (searchQuery.trim()) q.append('search', searchQuery.trim());
-        if (creatorId) q.append('creator', creatorId);
+        const params = new URLSearchParams();
+        if (selectedCategory !== 'All') params.append('category', selectedCategory);
+        if (selectedFramework !== 'All') params.append('framework', selectedFramework);
+        if (searchQuery.trim()) params.append('search', searchQuery.trim());
+        if (creatorId) params.append('creator', creatorId);
+        if (showFavoritesOnly) params.append('favoritesOnly', 'true');
+        params.append('page', targetPage);
+        params.append('limit', limit);
 
-        if (showFavoritesOnly) {
-          const uId = user?._id || user?.id;
-          if (!uId) {
-            toast.error('Please sign in to view your favorited components.');
-            setShowFavoritesOnly(false);
-            setLoading(false);
-            setIsFetching(false);
-            return navigate('/login');
-          }
-          q.append('favoritesOnly', 'true');
-          q.append('favoriteUser', uId);
-        }
-
-        const res = await api.get(`/ui-components?${q.toString()}`);
+        const res = await api.get(`/api/ui-components?${params.toString()}`);
         if (!isCancelled && res.data?.success) {
-          const compList = res.data.data.components || [];
-          const tPages = res.data.data.totalPages || 1;
-          const tTotal = res.data.data.total || 0;
-          if (cacheRef.current.size >= 20) {
-            const firstKey = cacheRef.current.keys().next().value;
-            if (firstKey) cacheRef.current.delete(firstKey);
-          }
-          cacheRef.current.set(key, { components: compList, totalPages: tPages, total: tTotal });
-          setComponents(compList);
-          setTotalPages(tPages);
-          setTotalComponents(tTotal);
+          const fetchedComps = res.data.data.components || [];
+          const fetchedPages = res.data.data.totalPages || 1;
+          const fetchedTotal = res.data.data.total || 0;
+
+          setComponents(fetchedComps);
+          setTotalPages(fetchedPages);
+          setTotalComponents(fetchedTotal);
+
+          cacheRef.current.set(key, {
+            components: fetchedComps,
+            totalPages: fetchedPages,
+            total: fetchedTotal
+          });
         }
-      } catch {
-        if (!isCancelled) toast.error('Failed to load components.');
+      } catch (err) {
+        if (!isCancelled) {
+          toast.error('Failed to fetch components.');
+        }
       } finally {
         if (!isCancelled) {
           setLoading(false);
@@ -118,55 +110,17 @@ const Marketplace = () => {
       }
     };
 
-    const isSearchDebounced = searchQuery.trim().length > 0;
-    if (isSearchDebounced) {
-      const timer = setTimeout(() => { doFetch(); }, 150);
-      return () => {
-        isCancelled = true;
-        clearTimeout(timer);
-      };
-    }
-
-    doFetch();
+    const debounceTimer = setTimeout(doFetch, searchQuery.trim() ? 300 : 0);
 
     return () => {
       isCancelled = true;
+      clearTimeout(debounceTimer);
     };
-  }, [page, searchQuery, selectedCategory, selectedFramework, creatorId, showFavoritesOnly, location.key]);
-
-  useEffect(() => {
-    let eventSource;
-    try {
-      eventSource = new EventSource('/api/ui-components/stream');
-      eventSource.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-          if (data.type === 'COMPONENT_CREATED' && data.component) {
-            cacheRef.current.clear();
-            toast.success(`🚀 New Component Published: "${data.component.title}"!`);
-            setComponents((prev) => [data.component, ...prev.filter((c) => c._id !== data.component._id)]);
-            setTotalComponents((prev) => prev + 1);
-            window.dispatchEvent(new CustomEvent('clarifyai_component_created', { detail: { component: data.component, category: data.component.category } }));
-          }
-        } catch {}
-      };
-    } catch {}
-
-    const handleComponentCreated = () => {
-      cacheRef.current.clear();
-      setSelectedCategory('All');
-      setPage(1);
-    };
-    window.addEventListener('clarifyai_component_created', handleComponentCreated);
-    return () => {
-      if (eventSource) eventSource.close();
-      window.removeEventListener('clarifyai_component_created', handleComponentCreated);
-    };
-  }, []);
+  }, [selectedCategory, selectedFramework, searchQuery, creatorId, showFavoritesOnly, page, user?._id]);
 
   const handleFavorite = async (id) => {
     try {
-      const res = await api.post(`/ui-components/${id}/favorite`);
+      const res = await api.post(`/api/ui-components/${id}/favorite`);
       if (res.data?.success) {
         setComponents((prev) => prev.map((c) => (c._id === id ? res.data.data.component : c)));
         cacheRef.current.clear();
@@ -182,9 +136,18 @@ const Marketplace = () => {
     }
   };
 
+  const handleOpenSubmit = () => {
+    if (!user) {
+      toast.error('Please sign in to submit components.');
+      navigate('/login', { state: { from: '/components/create' } });
+      return;
+    }
+    navigate('/components/create');
+  };
+
   return (
-    <div className="h-screen max-h-screen overflow-hidden bg-[#E0E5EC] pt-4 pb-4 px-6 md:px-8 w-full max-w-none flex gap-6">
-      <div className={`${isSidebarCollapsed ? 'w-16 md:w-20' : 'w-64 md:w-72'} flex-shrink-0 h-full overflow-hidden transition-all duration-300`}>
+    <div className="h-screen max-h-screen overflow-hidden bg-[#E0E5EC] pt-20 sm:pt-24 pb-4 px-3 sm:px-6 w-full max-w-7xl mx-auto flex gap-4">
+      <div className={`${isSidebarCollapsed ? 'w-16 md:w-20' : 'w-60 md:w-64'} flex-shrink-0 h-full overflow-hidden transition-all duration-300 hidden lg:block`}>
         <CategorySidebar
           selectedCategory={selectedCategory}
           setSelectedCategory={handleCategorySelect}
@@ -200,7 +163,7 @@ const Marketplace = () => {
           setSearchQuery={handleSearchChange}
           showFavoritesOnly={showFavoritesOnly}
           setShowFavoritesOnly={handleFavoritesToggle}
-          onOpenSubmit={() => navigate('/components/create')}
+          onOpenSubmit={handleOpenSubmit}
           page={page}
           setPage={setPage}
           totalPages={totalPages}
@@ -210,15 +173,15 @@ const Marketplace = () => {
         <div ref={gridRef} className="flex-1 overflow-y-auto pr-2 custom-scrollbar min-h-0 relative">
           {loading && components.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-[#6B7280]">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-2" />
+              <Loader2 className="w-8 h-8 animate-spin text-[#6C63FF] mb-2" />
               <span className="text-sm font-semibold">Loading Marketplace...</span>
             </div>
           ) : components.length === 0 ? (
-            <div className="bg-[#E0E5EC] rounded-[32px] p-12 text-center shadow-[inset_6px_6px_10px_rgba(163,177,198,0.6),inset_-6px_-6px_10px_rgba(255,255,255,0.5)]">
+            <div className="bg-[#E0E5EC] rounded-[32px] p-12 text-center shadow-[inset_6px_6px_10px_rgba(163,177,198,0.6),inset_-6px_-6px_10px_rgba(255,255,255,0.5)] border border-[#CAD1DB]">
               <Layers className="w-12 h-12 text-[#6B7280] mx-auto mb-3 opacity-50" />
               <h3 className="text-lg font-extrabold text-[#3D4852] mb-1">{showFavoritesOnly ? 'No favorited components yet' : 'No components found'}</h3>
               <p className="text-xs text-[#6B7280] mb-4">{showFavoritesOnly ? 'Click the heart icon on components to save them here!' : 'Be the first creator to submit a component!'}</p>
-              <button onClick={() => navigate('/components/create')} className="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-2xl shadow-[4px_4px_8px_rgba(37,99,235,0.3)] cursor-pointer">
+              <button onClick={handleOpenSubmit} className="px-5 py-2.5 bg-[#6C63FF] hover:bg-[#8B84FF] text-white text-xs font-bold rounded-2xl shadow-md cursor-pointer">
                 Submit Component (+10 PTS)
               </button>
             </div>
@@ -231,7 +194,7 @@ const Marketplace = () => {
               </div>
 
               {totalPages > 1 && (
-                <div className="flex flex-wrap items-center justify-between gap-3 mt-6 pt-4 border-t border-[#A3B1C6]/20">
+                <div className="flex flex-wrap items-center justify-between gap-3 mt-6 pt-4 border-t border-[#CAD1DB]/60">
                   <span className="text-xs font-semibold text-[#6B7280]">
                     Showing {Math.min((page - 1) * limit + 1, totalComponents)}-{Math.min(page * limit, totalComponents)} of {totalComponents} items
                   </span>
@@ -239,9 +202,9 @@ const Marketplace = () => {
                     <button
                       disabled={page <= 1}
                       onClick={() => { setPage(p => p - 1); gridRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                      className="px-3 py-1.5 rounded-xl bg-[#E0E5EC] text-xs font-bold text-[#3D4852] shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 active:scale-95 cursor-pointer"
+                      className="px-3 py-1.5 rounded-xl neumorphic-btn text-xs font-bold text-[#3D4852] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 active:scale-95 cursor-pointer"
                     >
-                      <ChevronLeft className="w-4 h-4 text-blue-600" /> Prev
+                      <ChevronLeft className="w-4 h-4 text-[#6C63FF]" /> Prev
                     </button>
                     {(() => {
                       const maxVisible = 10;
@@ -256,7 +219,7 @@ const Marketplace = () => {
                         <button
                           key={pNum}
                           onClick={() => { setPage(pNum); gridRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                          className={`w-8 h-8 rounded-xl text-xs font-bold transition-all cursor-pointer ${page === pNum ? 'bg-blue-600 text-white shadow-[3px_3px_6px_rgba(37,99,235,0.3)]' : 'bg-[#E0E5EC] text-[#3D4852] shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)]'}`}
+                          className={`w-8 h-8 rounded-xl text-xs font-bold transition-all cursor-pointer ${page === pNum ? 'bg-[#6C63FF] text-white shadow-md' : 'neumorphic-btn text-[#3D4852]'}`}
                         >
                           {pNum}
                         </button>
@@ -265,9 +228,9 @@ const Marketplace = () => {
                     <button
                       disabled={page >= totalPages}
                       onClick={() => { setPage(p => p + 1); gridRef.current?.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                      className="px-3 py-1.5 rounded-xl bg-[#E0E5EC] text-xs font-bold text-[#3D4852] shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 active:scale-95 cursor-pointer"
+                      className="px-3 py-1.5 rounded-xl neumorphic-btn text-xs font-bold text-[#3D4852] disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1 active:scale-95 cursor-pointer"
                     >
-                      Next <ChevronRight className="w-4 h-4 text-blue-600" />
+                      Next <ChevronRight className="w-4 h-4 text-[#6C63FF]" />
                     </button>
                   </div>
                 </div>
