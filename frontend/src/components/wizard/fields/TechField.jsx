@@ -116,16 +116,16 @@ export function TechFieldSelector({ formData, onChange }) {
             <h4 className="text-xs font-extrabold text-[#3D4852] truncate">
               {shortStackName}
             </h4>
-            <p className="text-[10px] text-[#2563EB] font-extrabold truncate mt-0.5">Active Framework</p>
+            <p className="text-[10px] text-[#6C63FF] font-extrabold truncate mt-0.5">Active Framework</p>
           </div>
         </div>
 
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold px-3.5 py-1.5 rounded-xl text-xs transition-all shadow-[2px_2px_5px_rgba(37,99,235,0.35)] cursor-pointer shrink-0 flex items-center justify-center"
+          className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white !text-white font-extrabold px-3.5 py-1.5 rounded-xl text-xs transition-all shadow-md active:scale-95 cursor-pointer shrink-0 flex items-center justify-center"
         >
-          <span className="text-white font-extrabold tracking-wide">Select Stack ↗</span>
+          <span className="text-white !text-white font-extrabold tracking-wide">Select Stack ↗</span>
         </button>
       </div>
 
@@ -134,7 +134,7 @@ export function TechFieldSelector({ formData, onChange }) {
           <div className="w-full max-w-6xl w-[92vw] neumorphic-card rounded-[2.5rem] bg-[#E0E5EC] text-[#3D4852] flex flex-col overflow-hidden shadow-2xl max-h-[85vh] mt-2 md:mt-4">
             <div className="flex items-center justify-between p-5 px-7 border-b border-black/5 bg-[#E0E5EC]">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-2xl bg-[#2563EB] text-white flex items-center justify-center font-extrabold text-sm shadow-md">
+                <div className="w-9 h-9 rounded-2xl bg-[#6C63FF] text-white flex items-center justify-center font-extrabold text-sm shadow-md">
                   <Layers className="w-5 h-5" />
                 </div>
                 <div>
@@ -163,8 +163,8 @@ export function TechFieldSelector({ formData, onChange }) {
                     onClick={() => handleSelectStack(stack)}
                     className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                       isSelected
-                        ? "bg-[#2563EB] border-[#2563EB] text-white shadow-lg ring-2 ring-[#2563EB]/30"
-                        : "neumorphic-card bg-[#E0E5EC] border-black/5 text-[#3D4852] hover:border-[#2563EB]/40"
+                        ? "bg-[#6C63FF] border-[#6C63FF] text-white shadow-lg ring-2 ring-[#6C63FF]/30"
+                        : "neumorphic-card bg-[#E0E5EC] border-black/5 text-[#3D4852] hover:border-[#6C63FF]/40"
                     }`}
                   >
                     <div>
@@ -179,10 +179,10 @@ export function TechFieldSelector({ formData, onChange }) {
                     </div>
 
                     <div className="mt-4 pt-2 border-t border-black/5 flex items-center justify-between">
-                      <span className={`text-[9px] font-extrabold uppercase tracking-wider ${isSelected ? 'text-white' : 'text-[#2563EB]'}`}>
+                      <span className={`text-[9px] font-extrabold uppercase tracking-wider ${isSelected ? 'text-white' : 'text-[#6C63FF]'}`}>
                         {isSelected ? 'Active Stack' : 'Click to Select'}
                       </span>
-                      <span className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-[#2563EB]'}`}>Select ↗</span>
+                      <span className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-[#6C63FF]'}`}>Select ↗</span>
                     </div>
                   </button>
                 );
@@ -191,14 +191,14 @@ export function TechFieldSelector({ formData, onChange }) {
 
             <div className="p-4 px-7 border-t border-black/5 bg-[#E0E5EC] flex justify-between items-center">
               <span className="text-xs text-[#6B7280] font-semibold">
-                Current Stack: <strong className="text-[#2563EB] font-extrabold">{currentStack.label}</strong>
+                Current Stack: <strong className="text-[#6C63FF] font-extrabold">{currentStack.label}</strong>
               </span>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold px-5 py-2 rounded-2xl text-xs transition-all shadow-md cursor-pointer"
+                className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white !text-white font-extrabold px-5 py-2 rounded-2xl text-xs transition-all shadow-md cursor-pointer"
               >
-                <span className="text-white font-extrabold">Close</span>
+                <span className="text-white !text-white font-extrabold">Close</span>
               </button>
             </div>
           </div>
