@@ -8,7 +8,10 @@ exports.getUserProjects = async (userId, includeArchived = true) => {
   if (!includeArchived) {
     query.isArchived = { $ne: true };
   }
-  const projects = await Project.find(query).sort({ createdAt: -1 }).lean();
+  const projects = await Project.find(query)
+    .select('-chatHistory -kanbanColumns -wizardAnswers.additionalContext')
+    .sort({ createdAt: -1 })
+    .lean();
   return await Promise.all(projects.map(p => checkAndRecoverProject(p)));
 };
 

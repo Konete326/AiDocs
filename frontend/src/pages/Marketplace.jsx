@@ -99,6 +99,10 @@ const Marketplace = () => {
           const compList = res.data.data.components || [];
           const tPages = res.data.data.totalPages || 1;
           const tTotal = res.data.data.total || 0;
+          if (cacheRef.current.size >= 20) {
+            const firstKey = cacheRef.current.keys().next().value;
+            if (firstKey) cacheRef.current.delete(firstKey);
+          }
           cacheRef.current.set(key, { components: compList, totalPages: tPages, total: tTotal });
           setComponents(compList);
           setTotalPages(tPages);

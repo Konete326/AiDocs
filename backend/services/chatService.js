@@ -426,6 +426,9 @@ ${docsContext.slice(0, 10000)}`;
       role: 'assistant',
       content: rawReply
     });
+    if (project.chatHistory.length > 80) {
+      project.chatHistory = project.chatHistory.slice(-80);
+    }
     await project.save();
 
     const { broadcastChatUpdate } = require('./eventBroadcaster');

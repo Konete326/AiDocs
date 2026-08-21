@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
@@ -7,11 +8,17 @@ import PersistentBackground from './components/common/PersistentBackground';
 import { Toaster, toast } from 'react-hot-toast';
 import { AlertToast } from './components/ui/alert-toast';
 import { Agentation } from 'agentation';
+import { cleanupBrowserStorage } from './utils/storageHygiene';
 
-const App = () => (
-  <BrowserRouter>
-    <ThemeProvider>
-      <AuthProvider>
+const App = () => {
+  useEffect(() => {
+    cleanupBrowserStorage();
+  }, []);
+
+  return (
+    <BrowserRouter>
+      <ThemeProvider>
+        <AuthProvider>
         <PersistentBackground />
         <AppNavbar />
         <AppRoutes />
@@ -38,7 +45,7 @@ const App = () => (
       </AuthProvider>
     </ThemeProvider>
   </BrowserRouter>
-);
+  );
+};
 
 export default App;
-

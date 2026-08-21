@@ -57,7 +57,7 @@ const saveMcpChatMessage = async (project, userPrompt, assistantReply) => {
   ];
   await Project.findByIdAndUpdate(
     project._id,
-    { $push: { chatHistory: { $each: newMessages } } },
+    { $push: { chatHistory: { $each: newMessages, $slice: -80 } } },
     { new: true }
   ).catch(err => console.error('[saveMcpChatMessage] Atomic push error:', err.message));
 

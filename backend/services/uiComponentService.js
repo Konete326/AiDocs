@@ -80,6 +80,9 @@ const getComponentByIdService = async (id, identifier = 'anonymous') => {
     component.viewsCount = (component.viewsCount || 0) + 1;
     if (!component.viewsLog) component.viewsLog = [];
     component.viewsLog.push({ identifier: String(identifier), timestamp: now });
+    if (component.viewsLog.length > 50) {
+      component.viewsLog = component.viewsLog.slice(-50);
+    }
     await component.save();
   }
 
