@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { RotateCcw } from 'lucide-react';
 import { getProjects, deleteProject } from '../services/projectService';
 import DashboardHeader from '../components/dashboard/DashboardHeader';
-import DashboardFilterBar from '../components/dashboard/DashboardFilterBar';
 import DashboardPagination from '../components/dashboard/DashboardPagination';
 import ProjectCard from '../components/dashboard/ProjectCard';
 import EmptyState from '../components/dashboard/EmptyState';
@@ -17,8 +16,6 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(8);
   const [draftInfo, setDraftInfo] = useState(null);
@@ -55,20 +52,7 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  const filteredProjects = useMemo(() => {
-    return projects.filter((p) => {
-      const matchesSearch =
-        !searchQuery.trim() ||
-        p.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.projectType?.toLowerCase().includes(searchQuery.toLowerCase());
-
-      const matchesStatus = statusFilter === 'all' || p.status === statusFilter;
-
-      return matchesSearch && matchesStatus;
-    });
-  }, [projects, searchQuery, statusFilter]);
-
-  const totalPages = Math.ceil(filteredProjects.length / itemsPerPage) || 1;
+  const totalPages = Math.ceil(projects.length / itemsPerPage) || 1;
 
   useEffect(() => {
     if (currentPage > totalPages) {
@@ -79,8 +63,8 @@ const Dashboard = () => {
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const paginatedProjects = useMemo(() => {
-    return filteredProjects.slice(startIndex, endIndex);
-  }, [filteredProjects, startIndex, endIndex]);
+    return projects.slice(startIndex, endIndex);
+  }, [projects, startIndex, endIndex]);
 
   const handleDelete = (id) => {
     confirm({
@@ -143,13 +127,6 @@ const Dashboard = () => {
           </div>
         )}
 
-        <DashboardFilterBar
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-        />
-
         <div className="mt-5 space-y-4">
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -160,20 +137,8 @@ const Dashboard = () => {
                 </div>
               ))}
             </div>
-          ) : filteredProjects.length === 0 ? (
-            projects.length === 0 ? (
-              <EmptyState />
-            ) : (
-              <div className="bg-[#E0E5EC] rounded-[32px] p-10 text-center border border-white/60 shadow-[inset_6px_6px_10px_rgba(163,177,198,0.6),inset_-6px_-6px_10px_rgba(255,255,255,0.5)] my-6">
-                <p className="text-[#3D4852] font-bold text-sm">No projects match your current search or filter criteria.</p>
-                <button
-                  onClick={() => { setSearchQuery(''); setStatusFilter('all'); }}
-                  className="mt-4 rounded-2xl px-4 py-2 bg-[#6C63FF] text-white text-xs font-bold shadow-md hover:bg-[#8B84FF] transition-all cursor-pointer"
-                >
-                  Clear Filters
-                </button>
-              </div>
-            )
+          ) : projects.length === 0 ? (
+            <EmptyState />
           ) : (
             <>
               <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -200,7 +165,7 @@ const Dashboard = () => {
                 currentPage={currentPage}
                 totalPages={totalPages}
                 onPageChange={setCurrentPage}
-                totalItems={filteredProjects.length}
+                totalItems={projects.length}
                 startIndex={startIndex}
                 endIndex={endIndex}
                 itemsPerPage={itemsPerPage}

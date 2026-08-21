@@ -139,6 +139,12 @@ const PublicProfile = () => {
         toast.success('Component deleted successfully!');
         setComponents((prev) => prev.filter((c) => c._id !== componentToDelete._id));
         setTotalComponentsCount((prev) => Math.max(0, prev - 1));
+        window.dispatchEvent(new CustomEvent('clarifyai_component_updated', {
+          detail: { deletedId: componentToDelete._id, category: componentToDelete.category }
+        }));
+        window.dispatchEvent(new CustomEvent('clarifyai_component_deleted', {
+          detail: { deletedId: componentToDelete._id, category: componentToDelete.category }
+        }));
         setComponentToDelete(null);
       }
     } catch (err) {

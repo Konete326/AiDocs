@@ -28,17 +28,22 @@ const getComponentsService = async ({ page = 1, limit = 12, category, framework,
   const l = Math.max(1, Math.min(50, parseInt(limit, 10) || 12));
   const query = {};
 
-  if (category) query.category = category;
-  if (framework) query.framework = framework;
+  if (category && category !== 'All') {
+    query.category = new RegExp(`^${category.trim()}$`, 'i');
+  }
+  if (framework && framework !== 'All') {
+    query.framework = new RegExp(`^${framework.trim()}$`, 'i');
+  }
   if (creator) query.creator = creator;
   if (favoritesOnly === 'true' && favoriteUser) {
     query.favoritedBy = favoriteUser;
   }
-  if (search) {
+  if (search && search.trim()) {
+    const s = search.trim();
     query.$or = [
-      { title: new RegExp(search, 'i') },
-      { tags: new RegExp(search, 'i') },
-      { aiPrompt: new RegExp(search, 'i') }
+      { title: new RegExp(s, 'i') },
+      { tags: new RegExp(s, 'i') },
+      { aiPrompt: new RegExp(s, 'i') }
     ];
   }
 
@@ -46,13 +51,16 @@ const getComponentsService = async ({ page = 1, limit = 12, category, framework,
   if (sort === 'views') sortOption = { viewsCount: -1, createdAt: -1 };
   if (sort === 'popular') sortOption = { favoritesCount: -1, viewsCount: -1 };
 
-  const components = await UIComponent.find(query)
-    .sort(sortOption)
-    .skip((p - 1) * l)
-    .limit(l)
-    .populate('creator', 'displayName avatarUrl creatorPoints');
-
-  const total = await UIComponent.countDocuments(query);
+  const [components, total] = await Promise.all([
+    UIComponent.find(query)
+      .select('-viewsLog')
+      .sort(sortOption)
+      .skip((p - 1) * l)
+      .limit(l)
+      .populate('creator', 'displayName avatarUrl creatorPoints')
+      .lean(),
+    UIComponent.countDocuments(query)
+  ]);
 
   return { components, total, page: p, limit: l, totalPages: Math.ceil(total / l) };
 };
@@ -108,6 +116,7 @@ const updateComponentService = async (id, data, userId) => {
   if (component.creator.toString() !== userId.toString()) throw new AppError('Unauthorized to edit component', 403, 'FORBIDDEN');
 
   const updated = await UIComponent.findByIdAndUpdate(id, data, { new: true }).populate('creator', 'displayName avatarUrl creatorPoints');
+  broadcastSseEvent('COMPONENT_UPDATED', { component: updated });
   return updated;
 };
 
@@ -118,6 +127,7 @@ const deleteComponentService = async (id, userId) => {
 
   await UIComponent.findByIdAndDelete(id);
   await User.findByIdAndUpdate(userId, { $inc: { submittedComponentsCount: -1 } });
+  broadcastSseEvent('COMPONENT_DELETED', { componentId: id, category: component.category });
   return true;
 };
 

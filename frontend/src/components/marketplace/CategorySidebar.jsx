@@ -28,20 +28,69 @@ const categoryIcons = {
   'Themes': Palette
 };
 
-const CategorySidebar = ({ selectedCategory, setSelectedCategory, isCollapsed, setIsCollapsed }) => {
+const CategorySidebar = ({ selectedCategory, setSelectedCategory, isCollapsed, setIsCollapsed, refreshTrigger }) => {
   const [counts, setCounts] = useState({});
 
+  const fetchCounts = async () => {
+    try {
+      const res = await api.get(`/ui-components/category-counts?_t=${Date.now()}`);
+      if (res.data?.success) {
+        setCounts(res.data.data || {});
+      }
+    } catch {}
+  };
+
   useEffect(() => {
-    const fetchCounts = async () => {
-      try {
-        const res = await api.get('/ui-components/category-counts');
-        if (res.data?.success) {
-          setCounts(res.data.data || {});
-        }
-      } catch {}
-    };
     fetchCounts();
+
+    const handleCreated = (e) => {
+      const cat = e?.detail?.category || e?.detail?.component?.category;
+      if (cat) {
+        setCounts((prev) => ({
+          ...prev,
+          All: (prev.All || 0) + 1,
+          [cat]: (prev[cat] || 0) + 1
+        }));
+      }
+      fetchCounts();
+    };
+
+    const handleUpdated = (e) => {
+      const detail = e?.detail;
+      if (detail?.deletedId && detail?.category) {
+        setCounts((prev) => ({
+          ...prev,
+          All: Math.max(0, (prev.All || 0) - 1),
+          [detail.category]: Math.max(0, (prev[detail.category] || 0) - 1)
+        }));
+      } else if (detail?.category && detail?.previousCategory && detail.category !== detail.previousCategory) {
+        setCounts((prev) => ({
+          ...prev,
+          [detail.previousCategory]: Math.max(0, (prev[detail.previousCategory] || 0) - 1),
+          [detail.category]: (prev[detail.category] || 0) + 1
+        }));
+      }
+      fetchCounts();
+    };
+
+    window.addEventListener('clarifyai_component_created', handleCreated);
+    window.addEventListener('clarifyai_component_updated', handleUpdated);
+    window.addEventListener('clarifyai_component_deleted', handleUpdated);
+    window.addEventListener('focus', fetchCounts);
+
+    return () => {
+      window.removeEventListener('clarifyai_component_created', handleCreated);
+      window.removeEventListener('clarifyai_component_updated', handleUpdated);
+      window.removeEventListener('clarifyai_component_deleted', handleUpdated);
+      window.removeEventListener('focus', fetchCounts);
+    };
   }, []);
+
+  useEffect(() => {
+    if (refreshTrigger !== undefined) {
+      fetchCounts();
+    }
+  }, [refreshTrigger]);
 
   return (
     <div className={`bg-[#E0E5EC] rounded-[28px] ${isCollapsed ? 'p-2' : 'p-4'} shadow-[8px_8px_16px_rgba(163,177,198,0.5),-8px_-8px_16px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/30 h-full flex flex-col overflow-y-auto transition-all`}>

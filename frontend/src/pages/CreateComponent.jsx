@@ -5,9 +5,10 @@ import { toast } from 'react-hot-toast';
 import api from '../services/api';
 import PresetStarters from '../components/marketplace/PresetStarters';
 import DraftAutoSaveToast from '../components/marketplace/DraftAutoSaveToast';
-import { formatHtml, formatCss, formatCode } from '../utils/codeFormatter';
+import { formatHtml, formatCss, formatCode, formatByteSize } from '../utils/codeFormatter';
 import { captureComponentSnapshot } from '../utils/thumbnailCapturer';
 import { validateCode } from '../utils/codeValidator';
+import VsCodeComingSoonModal from '../components/vscode/VsCodeComingSoonModal';
 
 const categories = [
   'Buttons', 'Checkboxes', 'Toggle switches', 'Cards', 'Loaders',
@@ -33,6 +34,7 @@ const CreateComponent = () => {
   const [loadingEdit, setLoadingEdit] = useState(false);
   const [synthesizing, setSynthesizing] = useState(false);
   const [sideBySide, setSideBySide] = useState(false);
+  const [isVsCodeModalOpen, setIsVsCodeModalOpen] = useState(false);
   const [splitRatio, setSplitRatio] = useState('50/50');
   const [isPreviewDark, setIsPreviewDark] = useState(false);
   const [viewportWidth, setViewportWidth] = useState('100%');
@@ -160,7 +162,7 @@ const CreateComponent = () => {
 
       if (res.data?.success) {
         toast.success('Component duplicated as new (+10 PTS)!');
-        window.dispatchEvent(new Event('clarifyai_component_created'));
+        window.dispatchEvent(new CustomEvent('clarifyai_component_created', { detail: { category } }));
         navigate('/components');
       } else {
         toast.error(res.data?.error || 'Failed to duplicate component.');
@@ -206,6 +208,12 @@ const CreateComponent = () => {
 
         if (res.data?.success) {
           toast.success('Component updated successfully!');
+          window.dispatchEvent(new CustomEvent('clarifyai_component_updated', {
+            detail: {
+              component: res.data.data,
+              category: res.data.data?.category || category
+            }
+          }));
           navigate(`/components/${editId}`);
         } else {
           toast.error(res.data?.error || 'Failed to update component.');
@@ -223,7 +231,7 @@ const CreateComponent = () => {
         if (res.data?.success) {
           localStorage.removeItem('clarifyai_component_draft');
           toast.success('Component published successfully (+10 PTS)!');
-          window.dispatchEvent(new Event('clarifyai_component_created'));
+          window.dispatchEvent(new CustomEvent('clarifyai_component_created', { detail: { category } }));
           navigate('/components');
         } else {
           toast.error(res.data?.error || 'Failed to publish component.');
@@ -315,10 +323,7 @@ const CreateComponent = () => {
           </button>
           <button
             type="button"
-            onClick={() => {
-              if (editId) navigate(`/editor/${editId}`);
-              else toast.error('Save or publish component first to open in VS Code.');
-            }}
+            onClick={() => setIsVsCodeModalOpen(true)}
             className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-2xl shadow-[4px_4px_10px_rgba(37,99,235,0.35)] active:scale-95 transition-all flex items-center gap-2 cursor-pointer border border-blue-400/30"
           >
             <Code2 className="w-4 h-4 text-white" />
@@ -424,7 +429,12 @@ const CreateComponent = () => {
 
         <div className="bg-[#E0E5EC] rounded-[32px] p-5 shadow-[9px_9px_16px_rgba(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)] flex flex-col h-full min-h-[500px]">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-            <h3 className="text-xs font-bold text-[#6B7280] uppercase flex items-center gap-1.5"><Eye className="w-4 h-4 text-blue-600" />Live Real-time Preview</h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-xs font-bold text-[#6B7280] uppercase flex items-center gap-1.5"><Eye className="w-4 h-4 text-blue-600" />Live Real-time Preview</h3>
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#E0E5EC] text-blue-600 shadow-[inset_1.5px_1.5px_3px_rgba(163,177,198,0.5),inset_-1.5px_-1.5px_3px_rgba(255,255,255,0.5)] border border-[#A3B1C6]/20" title="Dynamic Code Byte Size">
+                {formatByteSize(html, css)}
+              </span>
+            </div>
 
             <div className="flex items-center gap-2">
               <button type="button" onClick={() => setIsPreviewDark(!isPreviewDark)} className="px-2.5 py-1 rounded-xl bg-[#E0E5EC] text-[#3D4852] font-bold text-xs shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer hover:text-blue-600">
@@ -510,6 +520,8 @@ const CreateComponent = () => {
           </div>
         </div>
       )}
+
+      <VsCodeComingSoonModal isOpen={isVsCodeModalOpen} onClose={() => setIsVsCodeModalOpen(false)} />
     </div>
   );
 };

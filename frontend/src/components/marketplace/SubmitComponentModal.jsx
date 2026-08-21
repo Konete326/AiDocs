@@ -62,7 +62,7 @@ const SubmitComponentModal = ({ onClose, onSuccess }) => {
       const data = await res.json();
       if (data.success) {
         toast.success('Component published! Earned +10 Creator Points!');
-        window.dispatchEvent(new Event('clarifyai_component_created'));
+        window.dispatchEvent(new CustomEvent('clarifyai_component_created', { detail: { category } }));
         onSuccess();
         onClose();
       } else {

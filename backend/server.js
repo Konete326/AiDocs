@@ -73,16 +73,12 @@ app.use(cors({
 }));
 
 const { recoverAllStuckProjects } = require('./services/recoveryService');
-const { startCleanupScheduler } = require('./services/vscodeCleanupService');
-const { ensureCodeServerRunning } = require('./services/codeServerManager');
-startCleanupScheduler();
-ensureCodeServerRunning().catch(() => {});
+recoverAllStuckProjects().catch(() => {});
 
 app.use(async (req, res, next) => {
   if (req.method === 'OPTIONS') return next();
   try {
     await db();
-    recoverAllStuckProjects().catch(() => {});
     next();
   } catch (err) {
     res.status(500).json({ success: false, error: 'Database connection failed', details: err.message });

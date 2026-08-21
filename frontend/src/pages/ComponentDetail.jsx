@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Sparkles, Code2, Maximize2, Loader2, Eye, Sun, Moon, Award, Smartphone, Tablet, Monitor, Save } from 'lucide-react';
+import { ArrowLeft, Sparkles, Code2, Maximize2, Loader2, Eye, Sun, Moon, Award, Smartphone, Tablet, Monitor, Save, Trash2, AlertTriangle } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -9,7 +9,9 @@ import FullScreenSandboxModal from '../components/marketplace/FullScreenSandboxM
 import LiveCodeEditor from '../components/marketplace/LiveCodeEditor';
 import EmbedSnippetModal from '../components/marketplace/EmbedSnippetModal';
 import PromptModal from '../components/marketplace/PromptModal';
+import VsCodeComingSoonModal from '../components/vscode/VsCodeComingSoonModal';
 import { buildAgentPromptContext } from '../utils/agentPromptBuilder';
+import { formatByteSize } from '../utils/codeFormatter';
 
 const ComponentDetail = () => {
   const { id } = useParams();
@@ -27,6 +29,9 @@ const ComponentDetail = () => {
   const [isPromptOpen, setIsPromptOpen] = useState(false);
   const [isPreviewDark, setIsPreviewDark] = useState(false);
   const [viewportWidth, setViewportWidth] = useState('100%');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [isVsCodeModalOpen, setIsVsCodeModalOpen] = useState(false);
 
   const [autoResynthesize, setAutoResynthesize] = useState(true);
 
@@ -95,6 +100,13 @@ const ComponentDetail = () => {
 
       if (res.data?.success) {
         setComponent(res.data.data);
+        window.dispatchEvent(new CustomEvent('clarifyai_component_updated', {
+          detail: {
+            component: res.data.data,
+            category: res.data.data.category,
+            previousCategory: prevComponent?.category
+          }
+        }));
       } else {
         setInitialHtml(prevHtml);
         setInitialCss(prevCss);
@@ -108,6 +120,31 @@ const ComponentDetail = () => {
       toast.error(err.response?.data?.error || 'Failed to save changes');
     } finally {
       setUpdating(false);
+    }
+  };
+
+  const handleDeleteComponent = async () => {
+    if (!id || !component) return;
+    setDeleting(true);
+    try {
+      const res = await api.delete(`/ui-components/${id}`);
+      if (res.data?.success) {
+        toast.success('Component deleted successfully');
+        window.dispatchEvent(new CustomEvent('clarifyai_component_updated', {
+          detail: { deletedId: id, category: component.category }
+        }));
+        window.dispatchEvent(new CustomEvent('clarifyai_component_deleted', {
+          detail: { deletedId: id, category: component.category }
+        }));
+        navigate('/components');
+      } else {
+        toast.error(res.data?.error || 'Failed to delete component');
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to delete component');
+    } finally {
+      setDeleting(false);
+      setIsDeleteModalOpen(false);
     }
   };
 
@@ -209,80 +246,99 @@ const ComponentDetail = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#E0E5EC] pt-4 pb-12 px-6 md:px-8 w-full max-w-none">
-      <div className="w-full max-w-none">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+    <div className="h-screen bg-[#E0E5EC] p-3 md:p-4 w-full max-w-none flex flex-col overflow-hidden">
+      <div className="w-full flex flex-col flex-1 min-h-0">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2 flex-shrink-0">
           <div className="flex items-center gap-2">
-            <button onClick={() => navigate(-1)} className="px-3.5 py-1.5 bg-[#E0E5EC] text-[#3D4852] font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer">
+            <button onClick={() => navigate(-1)} className="px-3 py-1 bg-[#E0E5EC] text-[#3D4852] font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer">
               <ArrowLeft className="w-3.5 h-3.5 text-blue-600" /><span>Back</span>
             </button>
-            <button onClick={() => navigate('/components')} className="px-3.5 py-1.5 bg-[#E0E5EC] text-blue-600 font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] active:scale-95 transition-all cursor-pointer">
+            <button onClick={() => navigate('/components')} className="px-3 py-1 bg-[#E0E5EC] text-blue-600 font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] active:scale-95 transition-all cursor-pointer">
               Marketplace
             </button>
           </div>
 
-          <div onClick={handleCreatorClick} className="flex items-center gap-2.5 cursor-pointer hover:opacity-90 transition-opacity bg-[#E0E5EC] px-3.5 py-1.5 rounded-2xl shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] border border-[#A3B1C6]/30" title={`View all components by ${component.creator?.displayName || 'Creator'}`}>
-            <UserAvatar user={component.creator} size="sm" />
+          <div onClick={handleCreatorClick} className="flex items-center gap-2 cursor-pointer hover:opacity-90 transition-opacity bg-[#E0E5EC] px-3 py-1 rounded-xl shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] border border-[#A3B1C6]/30" title={`View all components by ${component.creator?.displayName || 'Creator'}`}>
+            <UserAvatar user={component.creator} size="xs" />
             <span className="font-bold text-xs text-[#3D4852] hover:text-blue-600 transition-colors">{component.creator?.displayName || 'Creator'}</span>
-            <span className="bg-blue-50 text-blue-600 text-[11px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+            <span className="bg-blue-50 text-blue-600 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
               <Award className="w-3 h-3 text-blue-600" /> {component.creator?.creatorPoints || 0} PTS
             </span>
           </div>
         </div>
 
-        <div className="bg-[#E0E5EC] rounded-[28px] p-5 md:p-6 shadow-[9px_9px_16px_rgba(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)] mb-6">
-          <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#E0E5EC] text-blue-600 shadow-[inset_2px_2px_4px_rgba(163,177,198,0.5),inset_-2px_-2px_4px_rgba(255,255,255,0.5)]">{component.category}</span>
-              <h1 className="text-xl md:text-2xl font-extrabold text-[#3D4852]">{component.title}</h1>
+        <div className="bg-[#E0E5EC] rounded-[24px] p-3 md:p-4 shadow-[9px_9px_16px_rgba(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)] flex-1 min-h-0 flex flex-col overflow-hidden">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-2 flex-shrink-0">
+            <div className="flex items-center gap-2.5 flex-wrap">
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#E0E5EC] text-blue-600 shadow-[inset_2px_2px_4px_rgba(163,177,198,0.5),inset_-2px_-2px_4px_rgba(255,255,255,0.5)]">{component.category}</span>
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#E0E5EC] text-[#3D4852] shadow-[inset_2px_2px_4px_rgba(163,177,198,0.5),inset_-2px_-2px_4px_rgba(255,255,255,0.5)] border border-[#A3B1C6]/20" title="Total Code Size">
+                {formatByteSize(htmlCode, cssCode)}
+              </span>
+              <h1 className="text-base md:text-lg font-extrabold text-[#3D4852] truncate">{component.title}</h1>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 flex-wrap">
               {isModified && (
-                <div className="flex items-center gap-2 flex-wrap">
+                <div className="flex items-center gap-1.5 flex-wrap">
                   <button
                     type="button"
                     onClick={() => setAutoResynthesize(!autoResynthesize)}
-                    className={`px-3 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border ${autoResynthesize
+                    className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 cursor-pointer border ${autoResynthesize
                         ? 'bg-purple-50 text-purple-600 border-purple-300 shadow-[inset_2px_2px_4px_rgba(163,177,198,0.5),inset_-2px_-2px_4px_rgba(255,255,255,0.5)]'
                         : 'bg-[#E0E5EC] text-[#6B7280] border-[#A3B1C6]/20 shadow-[2px_2px_4px_rgba(163,177,198,0.5),-2px_-2px_4px_rgba(255,255,255,0.35)]'
                       }`}
                     title="Auto-generate new AI prompt with LLM on save"
                   >
                     <Sparkles className={`w-3.5 h-3.5 ${autoResynthesize ? 'text-purple-600' : 'text-[#6B7280]'}`} />
-                    <span>Auto AI Prompt: {autoResynthesize ? 'ON' : 'OFF'}</span>
+                    <span>Auto AI: {autoResynthesize ? 'ON' : 'OFF'}</span>
                   </button>
 
                   <button
                     disabled={updating}
                     onClick={handleUpdateComponent}
-                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(16,185,129,0.3)] active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                    className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(16,185,129,0.3)] active:scale-95 transition-all flex items-center gap-1 cursor-pointer disabled:opacity-50"
                   >
                     {updating ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
-                    <span>{updating ? 'Updating...' : 'Update Component'}</span>
+                    <span>{updating ? 'Updating...' : 'Update'}</span>
                   </button>
                 </div>
               )}
 
-              <button onClick={() => navigate('/editor/' + component._id)} className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(37,99,235,0.3)] active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer">
+              <button onClick={() => setIsVsCodeModalOpen(true)} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(37,99,235,0.3)] active:scale-95 transition-all flex items-center gap-1 cursor-pointer">
                 <Code2 className="w-3.5 h-3.5 text-white" /><span>Edit in VS Code</span>
               </button>
-              <button onClick={() => setIsPromptOpen(true)} className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(37,99,235,0.3)] active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer">
+              <button onClick={() => setIsPromptOpen(true)} className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(37,99,235,0.3)] active:scale-95 transition-all flex items-center gap-1 cursor-pointer">
                 <Sparkles className="w-3.5 h-3.5" /><span>Get AI Prompt</span>
               </button>
-              <button onClick={() => setIsEmbedOpen(true)} className="px-3.5 py-2 bg-[#E0E5EC] text-blue-600 font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer">
+              <button onClick={() => setIsEmbedOpen(true)} className="px-3 py-1.5 bg-[#E0E5EC] text-blue-600 font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] active:scale-95 transition-all flex items-center gap-1 cursor-pointer">
                 <Code2 className="w-3.5 h-3.5 text-blue-600" /><span>Embed</span>
               </button>
-              <button onClick={() => setIsFullScreen(true)} className="px-3.5 py-2 bg-[#E0E5EC] text-[#3D4852] hover:text-blue-600 font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer">
+              <button onClick={() => setIsFullScreen(true)} className="px-3 py-1.5 bg-[#E0E5EC] text-[#3D4852] hover:text-blue-600 font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] active:scale-95 transition-all flex items-center gap-1 cursor-pointer">
                 <Maximize2 className="w-3.5 h-3.5 text-blue-600" /><span>Full-Screen</span>
               </button>
+
+              {isOwner && (
+                <button
+                  onClick={() => setIsDeleteModalOpen(true)}
+                  className="px-3 py-1.5 bg-[#E0E5EC] hover:bg-red-50 text-red-600 font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] border border-red-300/40 active:scale-95 transition-all flex items-center gap-1 cursor-pointer"
+                  title="Delete Component"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-red-600" />
+                  <span>Delete</span>
+                </button>
+              )}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-[#E0E5EC] rounded-2xl p-4 shadow-[inset_6px_6px_10px_rgba(163,177,198,0.6),inset_-6px_-6px_10px_rgba(255,255,255,0.5)] min-h-[420px] flex flex-col">
-              <div className="flex flex-wrap items-center justify-between text-xs text-[#6B7280] font-bold mb-3 gap-2">
-                <span className="flex items-center gap-1.5"><Eye className="w-4 h-4 text-blue-600" /> Live Interactive Preview</span>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 flex-1 min-h-0 h-full overflow-hidden">
+            <div className="bg-[#E0E5EC] rounded-2xl p-3 shadow-[inset_6px_6px_10px_rgba(163,177,198,0.6),inset_-6px_-6px_10px_rgba(255,255,255,0.5)] flex-1 min-h-0 h-full flex flex-col overflow-hidden">
+              <div className="flex flex-wrap items-center justify-between text-xs text-[#6B7280] font-bold mb-2 gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2">
+                  <span className="flex items-center gap-1.5"><Eye className="w-4 h-4 text-blue-600" /> Live Interactive Preview</span>
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E0E5EC] text-blue-600 shadow-[inset_1.5px_1.5px_3px_rgba(163,177,198,0.5),inset_-1.5px_-1.5px_3px_rgba(255,255,255,0.5)] border border-[#A3B1C6]/20">
+                    {formatByteSize(htmlCode, cssCode)}
+                  </span>
+                </div>
 
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1 bg-[#E0E5EC] p-1 rounded-xl shadow-[inset_3px_3px_6px_rgba(163,177,198,0.5),inset_-3px_-3px_6px_rgba(255,255,255,0.5)] border border-[#A3B1C6]/20">
@@ -298,7 +354,7 @@ const ComponentDetail = () => {
                           key={v.id}
                           type="button"
                           onClick={() => setViewportWidth(v.width)}
-                          className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1 ${isActive
+                          className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-all cursor-pointer flex items-center gap-1 ${isActive
                               ? 'bg-[#E0E5EC] text-blue-600 shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)]'
                               : 'text-[#6B7280] hover:text-[#3D4852]'
                             }`}
@@ -329,8 +385,8 @@ const ComponentDetail = () => {
                   height: '100%',
                   transition: 'all 0.35s cubic-bezier(0.4, 0, 0.2, 1)'
                 }}
-                className={`flex flex-col items-center justify-center mx-auto relative min-h-[340px] ${viewportWidth !== '100%'
-                    ? 'border-4 border-[#3D4852] rounded-[28px] shadow-[0_15px_30px_rgba(0,0,0,0.2)] bg-[#E0E5EC] overflow-hidden p-1'
+                className={`flex-1 min-h-0 flex flex-col items-center justify-center mx-auto relative ${viewportWidth !== '100%'
+                    ? 'border-4 border-[#3D4852] rounded-[24px] shadow-[0_10px_20px_rgba(0,0,0,0.2)] bg-[#E0E5EC] overflow-hidden p-1'
                     : 'w-full h-full rounded-xl overflow-hidden'
                   }`}
               >
@@ -354,6 +410,39 @@ const ComponentDetail = () => {
       {isPromptOpen && <PromptModal rawPrompt={component.aiPrompt} component={component} onClose={() => setIsPromptOpen(false)} />}
       {isFullScreen && <FullScreenSandboxModal htmlCode={htmlCode} cssCode={cssCode} title={component.title} onClose={() => setIsFullScreen(false)} />}
       {isEmbedOpen && <EmbedSnippetModal componentId={component._id} title={component.title} onClose={() => setIsEmbedOpen(false)} />}
+
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <div className="bg-[#E0E5EC] rounded-[32px] w-full max-w-md p-6 shadow-[12px_12px_24px_rgba(163,177,198,0.8),-12px_-12px_24px_rgba(255,255,255,0.7)] border border-[#A3B1C6]/30 text-center relative">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-600 shadow-[inset_3px_3px_6px_rgba(163,177,198,0.5),inset_-3px_-3px_6px_rgba(255,255,255,0.5)] mx-auto flex items-center justify-center mb-4">
+              <AlertTriangle className="w-6 h-6 text-red-600" />
+            </div>
+            <h3 className="text-lg font-extrabold text-[#3D4852] mb-2">Delete UI Component?</h3>
+            <p className="text-xs text-[#6B7280] mb-6">
+              Are you sure you want to permanently delete <strong className="text-[#3D4852]">"{component.title}"</strong>? This action cannot be undone.
+            </p>
+            <div className="flex items-center justify-center gap-3">
+              <button
+                disabled={deleting}
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="px-5 py-2.5 bg-[#E0E5EC] text-[#3D4852] font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(163,177,198,0.6),-3px_-3px_6px_rgba(255,255,255,0.5)] active:scale-95 transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                disabled={deleting}
+                onClick={handleDeleteComponent}
+                className="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-[3px_3px_6px_rgba(220,38,38,0.3)] active:scale-95 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              >
+                {deleting ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                <span>{deleting ? 'Deleting...' : 'Confirm Delete'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <VsCodeComingSoonModal isOpen={isVsCodeModalOpen} onClose={() => setIsVsCodeModalOpen(false)} />
     </div>
   );
 };

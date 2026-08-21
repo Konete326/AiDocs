@@ -4,12 +4,15 @@ import { Eye, Heart, Code2, Sparkles, Award, Pencil, Trash2 } from 'lucide-react
 import { toast } from 'react-hot-toast';
 import UserAvatar from '../common/UserAvatar';
 import PromptModal from './PromptModal';
+import VsCodeComingSoonModal from '../vscode/VsCodeComingSoonModal';
 import { attachAttributionToCode } from '../../utils/codeAttribution';
+import { formatByteSize } from '../../utils/codeFormatter';
 
 const ComponentCard = ({ component, onFavorite, onEdit, onDelete, isOwner }) => {
   const navigate = useNavigate();
   const [copiedCode, setCopiedCode] = useState(false);
   const [isPromptOpen, setIsPromptOpen] = useState(false);
+  const [isVsCodeModalOpen, setIsVsCodeModalOpen] = useState(false);
 
   const getPreviewDoc = () => `<!DOCTYPE html>
 <html>
@@ -146,12 +149,15 @@ const ComponentCard = ({ component, onFavorite, onEdit, onDelete, isOwner }) => 
               {component.title}
             </h3>
             <div className="flex items-center gap-1.5 flex-shrink-0">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E0E5EC] text-[#6B7280] shadow-[inset_1.5px_1.5px_3px_rgba(163,177,198,0.5),inset_-1.5px_-1.5px_3px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20" title="Component Byte Size">
+                {formatByteSize(component?.code?.html || component?.code?.tailwind || '', component?.code?.css || '')}
+              </span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#E0E5EC] text-blue-600 shadow-[inset_2px_2px_4px_rgba(163,177,198,0.5),inset_-2px_-2px_4px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20">
                 {component.framework || 'CSS'}
               </span>
               {isOwner && (
                 <button
-                  onClick={(e) => { e.stopPropagation(); navigate('/editor/' + component._id); }}
+                  onClick={(e) => { e.stopPropagation(); setIsVsCodeModalOpen(true); }}
                   className="px-2 py-0.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-[2px_2px_4px_rgba(37,99,235,0.3)] border border-blue-500/20 active:scale-95 transition-all flex items-center gap-1 text-[10px] font-bold cursor-pointer"
                   title="Edit in VS Code Studio"
                 >
@@ -172,11 +178,12 @@ const ComponentCard = ({ component, onFavorite, onEdit, onDelete, isOwner }) => 
 
           <div
             onClick={(e) => e.stopPropagation()}
-            className="h-52 w-full rounded-2xl bg-[#E0E5EC] shadow-[inset_6px_6px_10px_rgba(163,177,198,0.6),inset_-6px_-6px_10px_rgba(255,255,255,0.5)] border border-[#A3B1C6]/20 overflow-hidden relative mb-4"
+            className="h-52 w-full rounded-2xl bg-[#E0E5EC] shadow-[inset_6px_6px_10px_rgba(163,177,198,0.6),inset_-6px_-6px_10px_rgba(255,255,255,0.5)] border border-[#A3B1C6]/20 overflow-hidden relative mb-4 flex items-center justify-center pointer-events-auto"
           >
             <iframe
               srcDoc={getPreviewDoc()}
               title={component.title}
+              loading="lazy"
               scrolling="no"
               className="w-full h-full border-0 pointer-events-auto"
             />
@@ -247,6 +254,7 @@ const ComponentCard = ({ component, onFavorite, onEdit, onDelete, isOwner }) => 
       </div>
 
       {isPromptOpen && <PromptModal rawPrompt={component.aiPrompt} component={component} onClose={() => setIsPromptOpen(false)} />}
+      <VsCodeComingSoonModal isOpen={isVsCodeModalOpen} onClose={() => setIsVsCodeModalOpen(false)} />
     </>
   );
 };

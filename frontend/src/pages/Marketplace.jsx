@@ -17,6 +17,7 @@ const Marketplace = () => {
   const { user } = useAuth();
   const [components, setComponents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isFetching, setIsFetching] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedFramework, setSelectedFramework] = useState('All');
@@ -27,57 +28,106 @@ const Marketplace = () => {
   const limit = 9;
 
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const cacheRef = useRef(new Map());
 
-  const fetchComponents = async () => {
-    setLoading(true);
-    try {
-      const q = new URLSearchParams();
-      q.append('page', page);
-      q.append('limit', limit);
-      q.append('_t', Date.now().toString());
-      if (selectedCategory !== 'All') q.append('category', selectedCategory);
-      if (selectedFramework !== 'All') q.append('framework', selectedFramework);
-      if (searchQuery.trim()) q.append('search', searchQuery.trim());
-      if (creatorId) q.append('creator', creatorId);
+  const handleCategorySelect = (cat) => {
+    setSelectedCategory(cat);
+    setPage(1);
+  };
 
-      if (showFavoritesOnly) {
-        const uId = user?._id || user?.id;
-        if (!uId) {
-          toast.error('Please sign in to view your favorited components.');
-          setShowFavoritesOnly(false);
-          setLoading(false);
-          return navigate('/login');
-        }
-        q.append('favoritesOnly', 'true');
-        q.append('favoriteUser', uId);
-      }
+  const handleSearchChange = (query) => {
+    setSearchQuery(query);
+    setPage(1);
+  };
 
-      const res = await api.get(`/ui-components?${q.toString()}`);
-      if (res.data?.success) {
-        setComponents(res.data.data.components || []);
-        setTotalPages(res.data.data.totalPages || 1);
-        setTotalComponents(res.data.data.total || 0);
-      }
-    } catch {
-      toast.error('Failed to load components.');
-    } finally {
-      setLoading(false);
-    }
+  const handleFavoritesToggle = (val) => {
+    setShowFavoritesOnly(val);
+    setPage(1);
   };
 
   useEffect(() => {
     if (location.state?.refresh) {
+      cacheRef.current.clear();
       setSelectedCategory('All');
       setSearchQuery('');
       setPage(1);
     }
   }, [location.key, location.state]);
 
-  useEffect(() => { setPage(1); }, [searchQuery, selectedCategory, selectedFramework, creatorId, showFavoritesOnly]);
-
   useEffect(() => {
-    const timer = setTimeout(() => { fetchComponents(); }, 150);
-    return () => clearTimeout(timer);
+    let isCancelled = false;
+
+    const doFetch = async () => {
+      const targetPage = page;
+      const key = `${selectedCategory}_${selectedFramework}_${searchQuery.trim()}_${creatorId || ''}_${showFavoritesOnly ? user?._id || 'fav' : ''}_${targetPage}`;
+      const cached = cacheRef.current.get(key);
+
+      if (cached) {
+        setComponents(cached.components);
+        setTotalPages(cached.totalPages);
+        setTotalComponents(cached.total);
+        setLoading(false);
+      } else {
+        setLoading(true);
+      }
+      setIsFetching(true);
+
+      try {
+        const q = new URLSearchParams();
+        q.append('page', targetPage);
+        q.append('limit', limit);
+        if (selectedCategory && selectedCategory !== 'All') q.append('category', selectedCategory);
+        if (selectedFramework && selectedFramework !== 'All') q.append('framework', selectedFramework);
+        if (searchQuery.trim()) q.append('search', searchQuery.trim());
+        if (creatorId) q.append('creator', creatorId);
+
+        if (showFavoritesOnly) {
+          const uId = user?._id || user?.id;
+          if (!uId) {
+            toast.error('Please sign in to view your favorited components.');
+            setShowFavoritesOnly(false);
+            setLoading(false);
+            setIsFetching(false);
+            return navigate('/login');
+          }
+          q.append('favoritesOnly', 'true');
+          q.append('favoriteUser', uId);
+        }
+
+        const res = await api.get(`/ui-components?${q.toString()}`);
+        if (!isCancelled && res.data?.success) {
+          const compList = res.data.data.components || [];
+          const tPages = res.data.data.totalPages || 1;
+          const tTotal = res.data.data.total || 0;
+          cacheRef.current.set(key, { components: compList, totalPages: tPages, total: tTotal });
+          setComponents(compList);
+          setTotalPages(tPages);
+          setTotalComponents(tTotal);
+        }
+      } catch {
+        if (!isCancelled) toast.error('Failed to load components.');
+      } finally {
+        if (!isCancelled) {
+          setLoading(false);
+          setIsFetching(false);
+        }
+      }
+    };
+
+    const isSearchDebounced = searchQuery.trim().length > 0;
+    if (isSearchDebounced) {
+      const timer = setTimeout(() => { doFetch(); }, 150);
+      return () => {
+        isCancelled = true;
+        clearTimeout(timer);
+      };
+    }
+
+    doFetch();
+
+    return () => {
+      isCancelled = true;
+    };
   }, [page, searchQuery, selectedCategory, selectedFramework, creatorId, showFavoritesOnly, location.key]);
 
   useEffect(() => {
@@ -88,25 +138,25 @@ const Marketplace = () => {
         try {
           const data = JSON.parse(event.data);
           if (data.type === 'COMPONENT_CREATED' && data.component) {
+            cacheRef.current.clear();
             toast.success(`🚀 New Component Published: "${data.component.title}"!`);
             setComponents((prev) => [data.component, ...prev.filter((c) => c._id !== data.component._id)]);
             setTotalComponents((prev) => prev + 1);
+            window.dispatchEvent(new CustomEvent('clarifyai_component_created', { detail: { component: data.component, category: data.component.category } }));
           }
         } catch {}
       };
     } catch {}
 
     const handleComponentCreated = () => {
+      cacheRef.current.clear();
       setSelectedCategory('All');
       setPage(1);
-      fetchComponents();
     };
     window.addEventListener('clarifyai_component_created', handleComponentCreated);
-    window.addEventListener('focus', fetchComponents);
     return () => {
       if (eventSource) eventSource.close();
       window.removeEventListener('clarifyai_component_created', handleComponentCreated);
-      window.removeEventListener('focus', fetchComponents);
     };
   }, []);
 
@@ -115,6 +165,7 @@ const Marketplace = () => {
       const res = await api.post(`/ui-components/${id}/favorite`);
       if (res.data?.success) {
         setComponents((prev) => prev.map((c) => (c._id === id ? res.data.data.component : c)));
+        cacheRef.current.clear();
         toast.success(res.data.data.isFavorited ? 'Favorited!' : 'Unfavorited.');
       }
     } catch (err) {
@@ -132,18 +183,19 @@ const Marketplace = () => {
       <div className={`${isSidebarCollapsed ? 'w-16 md:w-20' : 'w-64 md:w-72'} flex-shrink-0 h-full overflow-hidden transition-all duration-300`}>
         <CategorySidebar
           selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
+          setSelectedCategory={handleCategorySelect}
           isCollapsed={isSidebarCollapsed}
           setIsCollapsed={setIsSidebarCollapsed}
+          refreshTrigger={totalComponents}
         />
       </div>
 
       <div className="flex-1 flex flex-col h-full min-w-0 overflow-hidden">
         <MarketplaceHeader
           searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
+          setSearchQuery={handleSearchChange}
           showFavoritesOnly={showFavoritesOnly}
-          setShowFavoritesOnly={setShowFavoritesOnly}
+          setShowFavoritesOnly={handleFavoritesToggle}
           onOpenSubmit={() => navigate('/components/create')}
           page={page}
           setPage={setPage}
@@ -151,8 +203,8 @@ const Marketplace = () => {
           totalComponents={totalComponents}
         />
 
-        <div ref={gridRef} className="flex-1 overflow-y-auto pr-2 custom-scrollbar min-h-0">
-          {loading ? (
+        <div ref={gridRef} className="flex-1 overflow-y-auto pr-2 custom-scrollbar min-h-0 relative">
+          {loading && components.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-[#6B7280]">
               <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-2" />
               <span className="text-sm font-semibold">Loading Marketplace...</span>
@@ -167,7 +219,7 @@ const Marketplace = () => {
               </button>
             </div>
           ) : (
-            <div className="p-3 md:p-4 pb-12">
+            <div className={`p-3 md:p-4 pb-12 transition-opacity duration-150 ${isFetching ? 'opacity-60 pointer-events-none' : 'opacity-100'}`}>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {components.map((comp) => (
                   <ComponentCard key={comp._id} component={comp} onFavorite={handleFavorite} />

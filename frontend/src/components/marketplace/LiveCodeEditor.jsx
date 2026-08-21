@@ -41,8 +41,8 @@ const LiveCodeEditor = ({ htmlCode, setHtmlCode, cssCode, setCssCode, creatorNam
   };
 
   return (
-    <div className="bg-[#E0E5EC] rounded-2xl p-4 shadow-[inset_6px_6px_10px_rgba(163,177,198,0.6),inset_-6px_-6px_10px_rgba(255,255,255,0.5)] flex flex-col h-full min-h-[360px]">
-      <div className="flex items-center justify-between mb-3">
+    <div className="bg-[#E0E5EC] rounded-2xl p-3 shadow-[inset_6px_6px_10px_rgba(163,177,198,0.6),inset_-6px_-6px_10px_rgba(255,255,255,0.5)] flex flex-col h-full min-h-0 overflow-hidden">
+      <div className="flex items-center justify-between mb-2 flex-shrink-0">
         <div className="flex items-center gap-1.5 text-xs font-bold text-blue-600 uppercase">
           <Code2 className="w-4 h-4" /> Live Code Sandbox Editor
         </div>
@@ -64,7 +64,7 @@ const LiveCodeEditor = ({ htmlCode, setHtmlCode, cssCode, setCssCode, creatorNam
         </div>
       </div>
 
-      <div className="relative flex-1 flex flex-col">
+      <div className="relative flex-1 min-h-0 flex flex-col">
         <div className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1.5">
           <button
             onClick={handleFormat}
@@ -94,14 +94,14 @@ const LiveCodeEditor = ({ htmlCode, setHtmlCode, cssCode, setCssCode, creatorNam
             value={htmlCode}
             onChange={(e) => setHtmlCode(e.target.value)}
             placeholder="Paste or edit HTML..."
-            className="w-full flex-1 p-3 pt-9 bg-white/40 rounded-xl text-xs font-mono text-[#3D4852] shadow-[inset_3px_3px_6px_rgba(163,177,198,0.5)] focus:outline-none resize-none border border-white/40 min-h-[280px]"
+            className="w-full flex-1 min-h-0 p-3 pt-9 bg-white/40 rounded-xl text-xs font-mono text-[#3D4852] shadow-[inset_3px_3px_6px_rgba(163,177,198,0.5)] focus:outline-none resize-none border border-white/40"
           />
         ) : (
           <textarea
             value={cssCode}
             onChange={(e) => setCssCode(e.target.value)}
             placeholder="Paste or edit CSS..."
-            className="w-full flex-1 p-3 pt-9 bg-white/40 rounded-xl text-xs font-mono text-[#3D4852] shadow-[inset_3px_3px_6px_rgba(163,177,198,0.5)] focus:outline-none resize-none border border-white/40 min-h-[280px]"
+            className="w-full flex-1 min-h-0 p-3 pt-9 bg-white/40 rounded-xl text-xs font-mono text-[#3D4852] shadow-[inset_3px_3px_6px_rgba(163,177,198,0.5)] focus:outline-none resize-none border border-white/40"
           />
         )}
       </div>

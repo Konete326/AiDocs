@@ -51,3 +51,11 @@ export const formatCode = (html, css) => {
     formattedCss: formatCss(css)
   };
 };
+
+export const formatByteSize = (html = '', css = '') => {
+  const combined = (html || '') + (css || '');
+  if (!combined.trim()) return '0 B';
+  const bytes = new Blob([combined]).size;
+  if (bytes < 1024) return `${bytes} B`;
+  return `${(bytes / 1024).toFixed(1)} KB`;
+};
