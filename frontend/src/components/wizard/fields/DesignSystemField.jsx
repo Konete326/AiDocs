@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { DESIGN_PRESETS } from "../../../constants/designSystemPresets";
-import { DesignSystemSelector } from "../../design/DesignSystemSelector";
+import { DesignSystemSelector, THEME_PALETTES } from "../../design/DesignSystemSelector";
 import { Palette, Check, X, Sparkles } from "lucide-react";
 
 export const PROJECT_TYPE_THEME_MAP = {
@@ -19,6 +19,7 @@ export default function DesignSystemField({ formData, onChange }) {
 
   const currentThemeId = formData.designSystem?.id || autoThemeId;
   const currentPreset = DESIGN_PRESETS.find(p => p.id === currentThemeId) || DESIGN_PRESETS[0];
+  const palette = THEME_PALETTES[currentPreset.id] || ['#6C63FF', '#3D4852', '#E0E5EC'];
 
   useEffect(() => {
     if (!formData.designSystem?.id || formData.designSystem?.isAutoAssigned) {
@@ -59,9 +60,20 @@ export default function DesignSystemField({ formData, onChange }) {
             <Palette className="w-4 h-4 text-white stroke-white" />
           </div>
           <div className="min-w-0">
-            <h4 className="text-xs font-extrabold text-[#3D4852] truncate">
-              {currentPreset.name}
-            </h4>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <h4 className="text-xs font-extrabold text-[#3D4852] truncate">
+                {currentPreset.name}
+              </h4>
+              <div className="flex items-center -space-x-1 shrink-0">
+                {palette.map((color, i) => (
+                  <span
+                    key={i}
+                    className="w-2.5 h-2.5 rounded-full border border-black/15 inline-block shadow-xs"
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </div>
+            </div>
             <p className="text-[10px] text-[#6C63FF] font-extrabold truncate mt-0.5">Active Theme Studio</p>
           </div>
         </div>

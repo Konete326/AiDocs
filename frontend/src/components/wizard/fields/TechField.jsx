@@ -102,28 +102,28 @@ export const StackLogo = ({ stackId, className = "w-6 h-6" }) => {
 };
 
 export const STACK_OPTIONS = [
-  { id: 'react-native', category: 'mobile', label: 'React Native (Expo Web + NativeWind)', desc: 'Cross-platform iOS, Android, and Web with Expo SDK 51 Router & Tailwind styling', value: 'React Native Expo SDK 51 Web with Expo Router and NativeWind' },
+  { id: 'react-native', category: 'mobile', isRecommended: true, label: 'React Native (Expo Web + NativeWind)', desc: 'Cross-platform iOS, Android, and Web with Expo SDK 51 Router & Tailwind styling', value: 'React Native Expo SDK 51 Web with Expo Router and NativeWind' },
   { id: 'flutter', category: 'mobile', label: 'Flutter 3.24+ (Dart + Riverpod)', desc: 'Material 3 native compiled iOS & Android mobile experience with Riverpod state management', value: 'Flutter 3.24 Web App with Material 3, Dart, and Riverpod State Management' },
   { id: 'swift-native', category: 'mobile', label: 'Swift 6 & SwiftUI Native (iOS)', desc: 'Pure Apple Native iOS architecture with modern SwiftUI declarative views, Combine & CoreData', value: 'Swift 6 & SwiftUI Native iOS Application with Combine and CoreData' },
   { id: 'kotlin-native', category: 'mobile', label: 'Kotlin 2.0 & Jetpack Compose (Android)', desc: 'Modern Android Native app with Jetpack Compose, Kotlin Coroutines, and Ktor client', value: 'Kotlin 2.0 & Jetpack Compose Android App with Coroutines and Ktor' },
   { id: 'capacitor-react', category: 'mobile', label: 'Ionic Capacitor + React 19', desc: 'Hybrid mobile app packaging with offline SQLite database and full native device plugins', value: 'Ionic Capacitor with React 19, SQLite local storage, and Native Plugins' },
 
-  { id: 'next-full', category: 'saas', label: 'Next.js 15 Fullstack (App Router + Server Actions)', desc: 'Modern React 19 web application with Server Actions, NextAuth, and Tailwind CSS v4', value: 'Next.js 15 App Router with Server Actions, React 19, and Tailwind CSS v4' },
+  { id: 'next-full', category: 'saas', isRecommended: true, label: 'Next.js 15 Fullstack (App Router + Server Actions)', desc: 'Modern React 19 web application with Server Actions, NextAuth, and Tailwind CSS v4', value: 'Next.js 15 App Router with Server Actions, React 19, and Tailwind CSS v4' },
   { id: 'mern', category: 'saas', label: 'MERN Stack (Node.js Express + React 19)', desc: 'Node.js v20 Express REST API with MongoDB Mongoose schemas and React 19 frontend', value: 'Node.js v20 Express REST API with MongoDB Mongoose and React 19' },
   { id: 'python-fastapi', category: 'saas', label: 'Python 3.12+ FastAPI + React 19', desc: 'High-throughput async Python backend with Pydantic v2, SQLAlchemy, and React 19 SPA', value: 'Python 3.12 FastAPI Async API with Pydantic v2 and React 19' },
   { id: 'dotnet', category: 'saas', label: '.NET 9 (ASP.NET Core Web API)', desc: 'Enterprise C# .NET 9 Web API with Clean Architecture, JWT auth & Entity Framework 9', value: 'C# .NET 9 ASP.NET Core Web API with Clean Architecture & EF Core 9' },
   { id: 'laravel', category: 'saas', label: 'PHP 8.3 / Laravel 11+ API Framework', desc: 'Robust RESTful API architecture powered by Eloquent ORM, Sanctum Auth & Form Requests', value: 'PHP 8.3 Laravel 11 API with Eloquent ORM and Form Requests' },
   { id: 'react-vite', category: 'saas', label: 'React 19 SPA (Vite 6 + REST Services)', desc: 'Ultra-fast client-side single page application with Zustand store and Axios API layer', value: 'React 19 Vite 6 Single Page App with Zustand and Axios' },
 
-  { id: 'python-ai', category: 'ai', label: 'Python FastAPI + LangChain AI Engine', desc: 'Async Python server with streaming LLM tokens, Chroma vector DB, and tool calling', value: 'Python 3.12 FastAPI Async API with LangChain, ChromaDB, and OpenAI/Gemini' },
+  { id: 'python-ai', category: 'ai', isRecommended: true, label: 'Python FastAPI + LangChain AI Engine', desc: 'Async Python server with streaming LLM tokens, Chroma vector DB, and tool calling', value: 'Python 3.12 FastAPI Async API with LangChain, ChromaDB, and OpenAI/Gemini' },
   { id: 'next-ai', category: 'ai', label: 'Next.js 15 AI SDK (Vercel AI + Streaming)', desc: 'Server Actions with real-time AI token streaming, prompt pipelines, and generative UI', value: 'Next.js 15 App Router with Vercel AI SDK, React 19, and Tailwind CSS v4' },
   { id: 'mern-ai', category: 'ai', label: 'MERN AI Agent Sidecar (Node.js + Vector DB)', desc: 'Retrieval augmented generation (RAG) backend with Express, Pinecone, and React 19', value: 'Node.js Express AI Backend with Pinecone Vector DB and React 19' },
 
-  { id: 'next-commerce', category: 'ecommerce', label: 'Next.js 15 Commerce + Stripe Elements', desc: 'High-speed SSR product catalogs, edge caching, and Stripe Elements checkout workflow', value: 'Next.js 15 App Router with Stripe Elements Checkout, React 19, and Tailwind CSS v4' },
+  { id: 'next-commerce', category: 'ecommerce', isRecommended: true, label: 'Next.js 15 Commerce + Stripe Elements', desc: 'High-speed SSR product catalogs, edge caching, and Stripe Elements checkout workflow', value: 'Next.js 15 App Router with Stripe Elements Checkout, React 19, and Tailwind CSS v4' },
   { id: 'mern-commerce', category: 'ecommerce', label: 'MERN Storefront (Express + MongoDB + Cart)', desc: 'Custom shopping cart, inventory sync, multi-currency wallet, and Stripe webhooks', value: 'Node.js Express E-Commerce API with MongoDB, Stripe Webhooks, and React 19' },
   { id: 'laravel', category: 'ecommerce', label: 'Laravel 11 Commerce + Stripe Cashier', desc: 'Multi-currency invoicing, merchant dashboard, and automated inventory management', value: 'PHP 8.3 Laravel 11 E-Commerce Backend with Stripe Cashier and Blade/React' },
 
-  { id: 'next-decoupled', category: 'marketplace', label: 'Next.js 15 + Stripe Connect Marketplace', desc: 'Two-sided marketplace with split payouts, vendor KYC verification & escrow holds', value: 'Next.js 15 App Router Frontend with Stripe Connect Split Payouts' },
+  { id: 'next-decoupled', category: 'marketplace', isRecommended: true, label: 'Next.js 15 + Stripe Connect Marketplace', desc: 'Two-sided marketplace with split payouts, vendor KYC verification & escrow holds', value: 'Next.js 15 App Router Frontend with Stripe Connect Split Payouts' },
   { id: 'mern', category: 'marketplace', label: 'MERN Realtime Marketplace (Socket.io + Escrow)', desc: 'Live bidding, direct buyer-seller messaging, milestone escrow releases, and ratings', value: 'Node.js Express Marketplace with Socket.io Chat, MongoDB, and Escrow' }
 ];
 
@@ -147,6 +147,7 @@ export function TechFieldSelector({ formData, onChange }) {
 
   const selectedVal = formData.wizardAnswers.techPreferences || '';
   const currentStack = STACK_OPTIONS.find(s => selectedVal === s.value || selectedVal === s.id || (selectedVal && selectedVal.toLowerCase().includes(s.id.toLowerCase()))) ||
+    STACK_OPTIONS.find(s => s.category === projectCategory && s.isRecommended) ||
     STACK_OPTIONS.find(s => s.category === projectCategory) ||
     STACK_OPTIONS[0];
 
@@ -171,9 +172,16 @@ export function TechFieldSelector({ formData, onChange }) {
             <StackLogo stackId={currentStack.id} className="w-5 h-5" />
           </div>
           <div className="min-w-0">
-            <h4 className="text-xs font-extrabold text-[#3D4852] truncate">
-              {shortStackName}
-            </h4>
+            <div className="flex items-center gap-1.5 min-w-0">
+              <h4 className="text-xs font-extrabold text-[#3D4852] truncate">
+                {shortStackName}
+              </h4>
+              {currentStack.isRecommended && (
+                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full text-[8.5px] font-extrabold bg-amber-500/15 text-amber-700 border border-amber-500/30 shrink-0">
+                  ⭐ Fast MVP
+                </span>
+              )}
+            </div>
             <p className="text-[10px] text-[#6C63FF] font-extrabold truncate mt-0.5 capitalize">{currentStack.category || 'Active'} Framework</p>
           </div>
         </div>
@@ -249,10 +257,22 @@ export function TechFieldSelector({ formData, onChange }) {
                   >
                     <div>
                       <div className="flex items-center justify-between mb-2">
-                        <div className="w-8 h-8 rounded-xl bg-white/20 p-1 flex items-center justify-center">
+                        <div className="w-8 h-8 rounded-xl bg-white/20 p-1 flex items-center justify-center shadow-xs">
                           <StackLogo stackId={stack.id} className="w-6 h-6" />
                         </div>
-                        {isSelected && <Check size={16} className="text-white font-bold" />}
+                        <div className="flex items-center gap-1.5">
+                          {stack.isRecommended && (
+                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold shadow-xs ${
+                              isSelected
+                                ? 'bg-amber-400 text-amber-950 font-black'
+                                : 'bg-amber-500/15 text-amber-700 border border-amber-500/30'
+                            }`}>
+                              <span>⭐</span>
+                              <span>Fast MVP</span>
+                            </span>
+                          )}
+                          {isSelected && <Check size={16} className="text-white font-bold" />}
+                        </div>
                       </div>
                       <h4 className="text-xs font-extrabold mb-1 leading-snug">{stack.label}</h4>
                       <p className={`text-[11px] leading-relaxed line-clamp-2 ${isSelected ? 'text-white/90' : 'text-[#6B7280]'}`}>{stack.desc}</p>
