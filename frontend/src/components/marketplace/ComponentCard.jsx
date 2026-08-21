@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Eye, Heart, Code2, Sparkles, Award, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import { motion } from 'framer-motion';
 import UserAvatar from '../common/UserAvatar';
 import PromptModal from './PromptModal';
 import VsCodeComingSoonModal from '../vscode/VsCodeComingSoonModal';
@@ -15,6 +16,7 @@ const ComponentCard = ({ component, onFavorite, onEdit, onDelete, isOwner }) => 
   const [copiedCode, setCopiedCode] = useState(false);
   const [isPromptOpen, setIsPromptOpen] = useState(false);
   const [isVsCodeModalOpen, setIsVsCodeModalOpen] = useState(false);
+  const [justUnliked, setJustUnliked] = useState(false);
 
   const currentUserId = user?._id || user?.id;
   const isLiked = Boolean(
@@ -22,6 +24,15 @@ const ComponentCard = ({ component, onFavorite, onEdit, onDelete, isOwner }) => 
     component?.isFavorited ||
     (component?.favoritesCount > 0 && component?.hasLiked)
   );
+
+  const handleFavoriteClick = (e) => {
+    e.stopPropagation();
+    if (isLiked) {
+      setJustUnliked(true);
+      setTimeout(() => setJustUnliked(false), 600);
+    }
+    onFavorite(component._id);
+  };
 
   const getPreviewDoc = () => `<!DOCTYPE html>
 <html>
@@ -222,14 +233,26 @@ const ComponentCard = ({ component, onFavorite, onEdit, onDelete, isOwner }) => 
             <div className="flex items-center gap-2 flex-shrink-0">
               <span className="flex items-center gap-1 font-semibold text-[#3D4852] text-xs"><Eye className="w-3.5 h-3.5 text-blue-600" />{component.viewsCount || 0}</span>
               <button
-                onClick={(e) => { e.stopPropagation(); onFavorite(component._id); }}
+                onClick={handleFavoriteClick}
                 className={`px-2 py-1 bg-[#E0E5EC] rounded-lg shadow-[2px_2px_4px_rgba(163,177,198,0.5),-2px_-2px_4px_rgba(255,255,255,0.35)] border active:scale-90 transition-all flex items-center gap-1 cursor-pointer ${
                   isLiked ? 'text-red-500 border-red-200 shadow-[inset_1px_1px_3px_rgba(239,68,68,0.2)]' : 'text-[#6B7280] border-[#A3B1C6]/20 hover:text-red-500'
                 }`}
                 title={isLiked ? 'Unlike Component' : 'Like / Favorite Component'}
               >
-                <Heart className={`w-3.5 h-3.5 transition-all duration-200 ${isLiked ? 'fill-red-500 text-red-500 scale-110' : 'text-[#6B7280]'}`} />
-                <span className={`font-bold text-[11px] ${isLiked ? 'text-red-500' : 'text-[#3D4852]'}`}>{component.favoritesCount || 0}</span>
+                <motion.div
+                  animate={
+                    isLiked
+                      ? { scale: [1, 1.35, 1.1], rotate: [0, -12, 12, 0] }
+                      : justUnliked
+                      ? { x: [0, -4, 4, -3, 3, 0], scale: [1, 0.85, 1] }
+                      : { scale: 1, x: 0 }
+                  }
+                  transition={{ duration: 0.35, ease: 'easeInOut' }}
+                  className="flex items-center justify-center"
+                >
+                  <Heart className={`w-3.5 h-3.5 transition-colors duration-200 ${isLiked ? 'fill-red-500 text-red-500' : 'text-[#6B7280]'}`} />
+                </motion.div>
+                <span className={`font-bold text-[11px] transition-colors duration-200 ${isLiked ? 'text-red-500' : 'text-[#3D4852]'}`}>{component.favoritesCount || 0}</span>
               </button>
             </div>
           </div>
