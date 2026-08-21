@@ -6,7 +6,6 @@ import api from '../services/api';
 import PresetStarters from '../components/marketplace/PresetStarters';
 import DraftAutoSaveToast from '../components/marketplace/DraftAutoSaveToast';
 import { formatHtml, formatCss, formatCode, formatByteSize } from '../utils/codeFormatter';
-import { captureComponentSnapshot } from '../utils/thumbnailCapturer';
 import { validateCode } from '../utils/codeValidator';
 import VsCodeComingSoonModal from '../components/vscode/VsCodeComingSoonModal';
 
@@ -141,23 +140,13 @@ const CreateComponent = () => {
         finalAiPrompt = `Interactive ${category} UI component titled "${title}". Features clean HTML structure, Tailwind styling, and custom CSS rules with full visual fidelity and responsive layout.`;
       }
 
-      let thumbnail = null;
-      try {
-        const snapPromise = captureComponentSnapshot(iframeRef.current);
-        const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 100));
-        thumbnail = await Promise.race([snapPromise, timeoutPromise]);
-      } catch {
-        thumbnail = null;
-      }
-
       const dupTitle = title.endsWith('(Copy)') ? title : `${title} (Copy)`;
       const res = await api.post('/ui-components', {
         title: dupTitle,
         category,
         code: { html, css },
         aiPrompt: finalAiPrompt,
-        framework: 'CSS',
-        thumbnail
+        framework: 'CSS'
       });
 
       if (res.data?.success) {
@@ -188,22 +177,12 @@ const CreateComponent = () => {
         finalAiPrompt = `Interactive ${category} UI component titled "${title}". Features clean HTML structure, Tailwind styling, and custom CSS rules with full visual fidelity and responsive layout.`;
       }
 
-      let thumbnail = null;
-      try {
-        const snapPromise = captureComponentSnapshot(iframeRef.current);
-        const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve(null), 100));
-        thumbnail = await Promise.race([snapPromise, timeoutPromise]);
-      } catch {
-        thumbnail = null;
-      }
-
       if (isEditing) {
         const res = await api.put(`/ui-components/${editId}`, {
           title,
           category,
           code: { html, css, react: html, tailwind: html },
-          aiPrompt: finalAiPrompt,
-          ...(thumbnail ? { thumbnail } : {})
+          aiPrompt: finalAiPrompt
         });
 
         if (res.data?.success) {
@@ -224,8 +203,7 @@ const CreateComponent = () => {
           category,
           code: { html, css },
           aiPrompt: finalAiPrompt,
-          framework: 'CSS',
-          thumbnail
+          framework: 'CSS'
         });
 
         if (res.data?.success) {

@@ -89,24 +89,8 @@ const getComponentByIdService = async (id, identifier = 'anonymous') => {
   return component;
 };
 
-const generateFallbackThumbnail = (title, category) => {
-  const safeTitle = (title || 'UI Component').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const safeCat = (category || 'UI').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="350" viewBox="0 0 600 350">
-    <rect width="600" height="350" fill="#E0E5EC"/>
-    <rect x="20" y="20" width="560" height="310" rx="28" fill="#E0E5EC" stroke="#A3B1C6" stroke-opacity="0.5" stroke-width="2"/>
-    <text x="300" y="160" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="800" fill="#3D4852" text-anchor="middle">${safeTitle}</text>
-    <text x="300" y="195" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="700" fill="#2563EB" text-anchor="middle">${safeCat}</text>
-  </svg>`;
-  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
-};
-
 const createComponentService = async (data, userId) => {
-  let thumbnail = data.thumbnail;
-  if (!thumbnail || typeof thumbnail !== 'string' || !thumbnail.trim()) {
-    thumbnail = generateFallbackThumbnail(data.title, data.category);
-  }
-  const component = await UIComponent.create({ ...data, thumbnail, creator: userId });
+  const component = await UIComponent.create({ ...data, thumbnail: '', creator: userId });
   await User.findByIdAndUpdate(userId, { $inc: { submittedComponentsCount: 1, creatorPoints: 10 } });
   const populated = await component.populate('creator', 'displayName avatarUrl creatorPoints');
   broadcastSseEvent('COMPONENT_CREATED', { component: populated });
