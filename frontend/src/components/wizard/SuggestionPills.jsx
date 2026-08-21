@@ -1,19 +1,27 @@
 import { useState, useEffect } from 'react';
-import { Sparkles, RotateCcw, X, ArrowRight } from 'lucide-react';
+import { Sparkles, RotateCcw, X, ArrowRight, Pencil, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function SuggestionPills({ suggestions, isLoading, onSelect, fieldName, onRefresh }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [editText, setEditText] = useState('');
 
   useEffect(() => {
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') setIsOpen(false);
+      if (e.key === 'Escape') {
+        if (editingIndex !== null) {
+          setEditingIndex(null);
+        } else {
+          setIsOpen(false);
+        }
+      }
     };
     if (isOpen) {
       window.addEventListener('keydown', handleKeyDown);
     }
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen]);
+  }, [isOpen, editingIndex]);
 
   if (!suggestions || suggestions.length === 0) return null;
 
@@ -21,7 +29,10 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
     <>
       <button
         type="button"
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          setIsOpen(true);
+          setEditingIndex(null);
+        }}
         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-[#E0E5EC] shadow-[2px_2px_5px_rgba(163,177,198,0.5),-2px_-2px_5px_rgba(255,255,255,0.6)] border border-white/50 text-[#6C63FF] hover:text-[#5B52EE] text-[11px] font-bold active:scale-95 transition-all cursor-pointer"
         title="View AI Suggestions"
       >
@@ -32,7 +43,10 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
       <AnimatePresence>
         {isOpen && (
           <div
-            onClick={() => setIsOpen(false)}
+            onClick={() => {
+              setIsOpen(false);
+              setEditingIndex(null);
+            }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-150"
           >
             <motion.div
@@ -45,7 +59,10 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
             >
               <button
                 type="button"
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  setIsOpen(false);
+                  setEditingIndex(null);
+                }}
                 className="absolute top-4 right-4 p-1.5 rounded-xl bg-[#E0E5EC] text-[#6B7280] hover:text-[#3D4852] shadow-[2px_2px_5px_rgba(163,177,198,0.5),-2px_-2px_5px_rgba(255,255,255,0.5)] active:scale-95 transition-all cursor-pointer border border-white/40"
                 title="Close"
               >
@@ -59,14 +76,17 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
                   </div>
                   <div>
                     <h3 className="text-sm font-extrabold text-[#3D4852]">Smart AI Ideas</h3>
-                    <p className="text-[10px] text-[#6B7280] font-medium">Select an idea to auto-fill your field</p>
+                    <p className="text-[10px] text-[#6B7280] font-medium">Click to use directly or edit to customize</p>
                   </div>
                 </div>
 
                 {onRefresh && (
                   <button
                     type="button"
-                    onClick={onRefresh}
+                    onClick={() => {
+                      setEditingIndex(null);
+                      onRefresh();
+                    }}
                     disabled={isLoading}
                     className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-[#E0E5EC] shadow-[2px_2px_4px_rgba(163,177,198,0.5),-2px_-2px_4px_rgba(255,255,255,0.5)] text-[#6C63FF] hover:text-[#5B52EE] text-[11px] font-bold transition-all cursor-pointer disabled:opacity-50 active:scale-95 border border-white/40"
                     title="Generate new ideas"
@@ -90,21 +110,92 @@ export default function SuggestionPills({ suggestions, isLoading, onSelect, fiel
                   ))}
                 </div>
               ) : (
-                <div className="space-y-2 max-h-[55vh] overflow-y-auto custom-scrollbar pr-1 py-1">
-                  {suggestions.map((s, i) => (
-                    <button
-                      key={`${fieldName}-${i}`}
-                      type="button"
-                      onClick={() => {
-                        onSelect(s);
-                        setIsOpen(false);
-                      }}
-                      className="w-full text-left p-3.5 rounded-2xl bg-[#E0E5EC] shadow-[3px_3px_6px_rgba(163,177,198,0.45),-3px_-3px_6px_rgba(255,255,255,0.6)] hover:shadow-[inset_2px_2px_5px_rgba(163,177,198,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.6)] hover:text-[#6C63FF] text-xs font-semibold text-[#3D4852] transition-all cursor-pointer leading-relaxed border border-white/40 group flex items-start justify-between gap-2 active:scale-[0.99]"
-                    >
-                      <span className="flex-1">{s}</span>
-                      <ArrowRight className="w-3.5 h-3.5 text-[#6C63FF] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-0.5" />
-                    </button>
-                  ))}
+                <div className="space-y-2.5 max-h-[55vh] overflow-y-auto custom-scrollbar pr-1 py-1">
+                  {suggestions.map((s, i) => {
+                    const isEditingThis = editingIndex === i;
+
+                    if (isEditingThis) {
+                      return (
+                        <div
+                          key={`${fieldName}-${i}`}
+                          className="p-3.5 rounded-2xl bg-[#E0E5EC] shadow-[inset_3px_3px_6px_rgba(163,177,198,0.5),inset_-3px_-3px_6px_rgba(255,255,255,0.6)] border border-[#6C63FF]/50 space-y-2.5"
+                        >
+                          <textarea
+                            value={editText}
+                            onChange={(e) => setEditText(e.target.value)}
+                            rows={3}
+                            className="w-full bg-transparent text-xs font-semibold text-[#3D4852] outline-none resize-none leading-relaxed"
+                            autoFocus
+                          />
+                          <div className="flex items-center justify-end gap-2 pt-1 border-t border-[#A3B1C6]/20">
+                            <button
+                              type="button"
+                              onClick={() => setEditingIndex(null)}
+                              className="px-3 py-1 rounded-xl text-[11px] font-bold text-[#6B7280] hover:text-[#3D4852] bg-[#E0E5EC] shadow-[2px_2px_4px_rgba(163,177,198,0.4),-2px_-2px_4px_rgba(255,255,255,0.5)] active:scale-95 transition-all cursor-pointer"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (editText.trim()) {
+                                  onSelect(editText.trim());
+                                  setIsOpen(false);
+                                  setEditingIndex(null);
+                                }
+                              }}
+                              className="px-3 py-1 rounded-xl text-[11px] font-extrabold text-white bg-[#6C63FF] hover:bg-[#5B52EE] shadow-[2px_2px_6px_rgba(108,99,255,0.4)] flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+                            >
+                              <Check className="w-3.5 h-3.5 text-white" />
+                              <span>Apply Customized Idea</span>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div
+                        key={`${fieldName}-${i}`}
+                        className="w-full p-3.5 rounded-2xl bg-[#E0E5EC] shadow-[3px_3px_6px_rgba(163,177,198,0.45),-3px_-3px_6px_rgba(255,255,255,0.6)] hover:shadow-[inset_2px_2px_5px_rgba(163,177,198,0.5),inset_-2px_-2px_5px_rgba(255,255,255,0.6)] text-xs font-semibold text-[#3D4852] transition-all border border-white/40 group flex items-start justify-between gap-2.5"
+                      >
+                        <span
+                          onClick={() => {
+                            onSelect(s);
+                            setIsOpen(false);
+                          }}
+                          className="flex-1 cursor-pointer leading-relaxed hover:text-[#6C63FF] transition-colors"
+                        >
+                          {s}
+                        </span>
+
+                        <div className="flex items-center gap-1 flex-shrink-0 pt-0.5">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingIndex(i);
+                              setEditText(s);
+                            }}
+                            className="p-1 rounded-lg bg-[#E0E5EC] shadow-[2px_2px_4px_rgba(163,177,198,0.45),-2px_-2px_4px_rgba(255,255,255,0.55)] hover:text-[#6C63FF] text-[#6B7280] active:scale-90 transition-all cursor-pointer border border-white/30"
+                            title="Customize this idea before applying"
+                          >
+                            <Pencil className="w-3 h-3" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onSelect(s);
+                              setIsOpen(false);
+                            }}
+                            className="p-1 rounded-lg bg-[#E0E5EC] shadow-[2px_2px_4px_rgba(163,177,198,0.45),-2px_-2px_4px_rgba(255,255,255,0.55)] text-[#6C63FF] active:scale-90 transition-all cursor-pointer border border-white/30"
+                            title="Use directly"
+                          >
+                            <ArrowRight className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </motion.div>

@@ -7,12 +7,21 @@ import PromptModal from './PromptModal';
 import VsCodeComingSoonModal from '../vscode/VsCodeComingSoonModal';
 import { attachAttributionToCode } from '../../utils/codeAttribution';
 import { formatByteSize } from '../../utils/codeFormatter';
+import { useAuth } from '../../context/AuthContext';
 
 const ComponentCard = ({ component, onFavorite, onEdit, onDelete, isOwner }) => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [copiedCode, setCopiedCode] = useState(false);
   const [isPromptOpen, setIsPromptOpen] = useState(false);
   const [isVsCodeModalOpen, setIsVsCodeModalOpen] = useState(false);
+
+  const currentUserId = user?._id || user?.id;
+  const isLiked = Boolean(
+    (currentUserId && component?.favoritedBy?.some(id => (id._id || id)?.toString() === currentUserId.toString())) ||
+    component?.isFavorited ||
+    (component?.favoritesCount > 0 && component?.hasLiked)
+  );
 
   const getPreviewDoc = () => `<!DOCTYPE html>
 <html>
@@ -214,11 +223,13 @@ const ComponentCard = ({ component, onFavorite, onEdit, onDelete, isOwner }) => 
               <span className="flex items-center gap-1 font-semibold text-[#3D4852] text-xs"><Eye className="w-3.5 h-3.5 text-blue-600" />{component.viewsCount || 0}</span>
               <button
                 onClick={(e) => { e.stopPropagation(); onFavorite(component._id); }}
-                className="px-2 py-1 bg-[#E0E5EC] rounded-lg shadow-[2px_2px_4px_rgba(163,177,198,0.5),-2px_-2px_4px_rgba(255,255,255,0.35)] border border-[#A3B1C6]/20 active:scale-90 transition-all flex items-center gap-1 hover:text-red-500 cursor-pointer"
-                title="Like / Favorite Component"
+                className={`px-2 py-1 bg-[#E0E5EC] rounded-lg shadow-[2px_2px_4px_rgba(163,177,198,0.5),-2px_-2px_4px_rgba(255,255,255,0.35)] border active:scale-90 transition-all flex items-center gap-1 cursor-pointer ${
+                  isLiked ? 'text-red-500 border-red-200 shadow-[inset_1px_1px_3px_rgba(239,68,68,0.2)]' : 'text-[#6B7280] border-[#A3B1C6]/20 hover:text-red-500'
+                }`}
+                title={isLiked ? 'Unlike Component' : 'Like / Favorite Component'}
               >
-                <Heart className={`w-3.5 h-3.5 ${component.favoritesCount > 0 ? 'fill-red-500 text-red-500' : 'text-[#6B7280]'}`} />
-                <span className="font-bold text-[11px] text-[#3D4852]">{component.favoritesCount || 0}</span>
+                <Heart className={`w-3.5 h-3.5 transition-all duration-200 ${isLiked ? 'fill-red-500 text-red-500 scale-110' : 'text-[#6B7280]'}`} />
+                <span className={`font-bold text-[11px] ${isLiked ? 'text-red-500' : 'text-[#3D4852]'}`}>{component.favoritesCount || 0}</span>
               </button>
             </div>
           </div>
