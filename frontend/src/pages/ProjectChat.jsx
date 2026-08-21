@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Bot, FileText, Layers, Lightbulb, Trash2, UploadCloud, AlertCircle, Sparkles, ShieldCheck, Milestone, Cpu, Download } from 'lucide-react';
+import { ChevronLeft, Bot, FileText, Layers, Lightbulb, Trash2, UploadCloud, AlertCircle, Sparkles, ShieldCheck, Milestone, Cpu, Download, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
 import { getProject } from '../services/projectService';
 import { getMySubscription } from '../services/subscriptionService';
 import { sendChatMessage, getChatHistory, deleteChatHistory } from '../services/chatService';
@@ -21,6 +21,7 @@ export default function ProjectChat() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [dragError, setDragError] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const scrollRef = useRef(null);
 
   useEffect(() => {
@@ -44,126 +45,70 @@ export default function ProjectChat() {
   }, [id]);
 
   useEffect(() => {
-    if (!id) return;
-    let isMounted = true;
-    let eventSource;
-    try {
-      eventSource = new EventSource(`/api/projects/${id}/events`, { withCredentials: true });
-      eventSource.onmessage = async (e) => {
-        if (!isMounted) return;
-        try {
-          const data = JSON.parse(e.data);
-          if (data.type === 'chat_updated') {
-            const history = await getChatHistory(id);
-            if (isMounted && history && history.length > 0) setMessages(history);
-          }
-        } catch (err) {}
-      };
-      eventSource.onerror = (e) => {
-        if (e && e.preventDefault) e.preventDefault();
-        try { if (eventSource) eventSource.close(); } catch {}
-      };
-    } catch (err) {}
-    return () => {
-      isMounted = false;
-      if (eventSource) eventSource.close();
-    };
-  }, [id]);
-
-  const scrollToBottom = (smooth = true) => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTo({
-        top: scrollRef.current.scrollHeight,
-        behavior: smooth ? 'smooth' : 'auto'
-      });
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  };
-
-  useEffect(() => {
-    scrollToBottom(true);
-    const timer = setTimeout(() => scrollToBottom(false), 60);
-    return () => clearTimeout(timer);
   }, [messages, isSending]);
 
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-
-    const observer = new ResizeObserver(() => {
-      const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-      if (distanceToBottom < 250 || isSending) {
-        el.scrollTop = el.scrollHeight;
-      }
-    });
-
-    if (el.firstElementChild) {
-      observer.observe(el.firstElementChild);
-    }
-    observer.observe(el);
-
-    return () => observer.disconnect();
-  }, [isSending]);
-
-  const handleSend = async (text, attachments = []) => {
-    if ((!text.trim() && attachments.length === 0) || isSending) return;
-    const userMsg = { role: 'user', content: text, attachments };
-    const thinkingMsg = { role: 'assistant', content: '...', isThinking: true, userQuery: text };
-    const updated = [...messages, userMsg];
-    setMessages([...updated, thinkingMsg]);
-    setIsSending(true);
+  const handleSend = async (content, attachments = []) => {
+    if ((!content.trim() && attachments.length === 0) || isSending) return;
     setError('');
 
+    const optimisticUserMsg = {
+      role: 'user',
+      content: content.trim(),
+      attachments,
+      createdAt: new Date().toISOString()
+    };
+
+    const optimisticThinkingMsg = {
+      role: 'assistant',
+      content: '...',
+      createdAt: new Date().toISOString()
+    };
+
+    setMessages((prev) => [...prev, optimisticUserMsg, optimisticThinkingMsg]);
+    setIsSending(true);
+
     try {
-      const reply = await sendChatMessage(id, updated);
-      setMessages(prev => {
-        const filtered = prev.filter(m => !m.isThinking);
-        return [...filtered, { role: 'assistant', content: reply, userQuery: text }];
+      const res = await sendChatMessage(id, content, attachments);
+      const assistantMsg = res?.data?.assistantMessage || {
+        role: 'assistant',
+        content: res?.data?.message || 'Response received.',
+        createdAt: new Date().toISOString()
+      };
+
+      setMessages((prev) => {
+        const updated = [...prev];
+        const lastIdx = updated.length - 1;
+        if (lastIdx >= 0 && updated[lastIdx].content === '...') {
+          updated[lastIdx] = assistantMsg;
+        } else {
+          updated.push(assistantMsg);
+        }
+        return updated;
       });
     } catch (err) {
-      setMessages(prev => prev.filter(m => !m.isThinking));
-      const raw = err.response?.data?.error;
-      let friendly = 'Connection temporarily delayed. Please try sending again!';
-      if (typeof raw === 'string' && !raw.includes('timed out') && !raw.includes('Socket') && !raw.includes('connect') && !raw.includes('503')) {
-        friendly = raw;
-      }
-      setError(friendly);
+      setMessages((prev) => prev.filter((m) => m.content !== '...'));
+      setError(err?.response?.data?.message || 'Failed to get response from AI Co-founder.');
     } finally {
       setIsSending(false);
     }
   };
 
-  const handleEditUserMessage = async (msgIndex, newText) => {
-    if (!newText.trim() || isSending) return;
-    const truncated = messages.slice(0, msgIndex);
-    const updatedUserMsg = { ...messages[msgIndex], content: newText.trim() };
-    const thinkingMsg = { role: 'assistant', content: '...', isThinking: true, userQuery: newText.trim() };
-
-    const updatedList = [...truncated, updatedUserMsg];
-    setMessages([...updatedList, thinkingMsg]);
-    setIsSending(true);
-    setError('');
-
-    try {
-      const reply = await sendChatMessage(id, updatedList);
-      setMessages(prev => {
-        const filtered = prev.filter(m => !m.isThinking);
-        return [...filtered, { role: 'assistant', content: reply, userQuery: newText.trim() }];
-      });
-    } catch (err) {
-      setMessages(prev => prev.filter(m => !m.isThinking));
-      setError('Failed to regenerate response. Please try again.');
-    } finally {
-      setIsSending(false);
-    }
+  const handleEditUserMessage = (msgIndex, newContent) => {
+    const updatedMessages = messages.slice(0, msgIndex);
+    setMessages(updatedMessages);
+    handleSend(newContent, []);
   };
 
-  const handleConfirmDelete = async () => {
-    setShowDeleteConfirm(false);
+  const handleDeleteHistory = async () => {
     try {
       await deleteChatHistory(id);
       setMessages([]);
+      setShowDeleteConfirm(false);
     } catch (err) {
-      setError('Failed to clear chat history. Please try again.');
+      setError('Failed to clear chat history.');
     }
   };
 
@@ -174,7 +119,6 @@ export default function ProjectChat() {
 
   const handleDragOver = (e) => {
     e.preventDefault();
-    setIsDragging(true);
   };
 
   const handleDragLeave = (e) => {
@@ -249,32 +193,42 @@ export default function ProjectChat() {
             <p className="text-xs text-[#6B7280] mt-2 leading-relaxed">
               Are you sure you want to delete all chat history for this project?
             </p>
-            <div className="flex gap-3 mt-6 justify-center">
+            <div className="flex gap-2 justify-center mt-5">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="neumorphic-btn rounded-2xl px-4 py-2 text-xs text-[#3D4852] font-bold cursor-pointer"
+                className="neumorphic-btn rounded-xl px-4 py-2 text-xs font-bold text-[#6B7280] cursor-pointer"
               >
                 Cancel
               </button>
               <button
-                onClick={handleConfirmDelete}
-                className="bg-rose-600 hover:bg-rose-700 text-white rounded-2xl px-4 py-2 text-xs font-bold transition-all cursor-pointer shadow-md"
+                onClick={handleDeleteHistory}
+                className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl px-4 py-2 text-xs font-bold cursor-pointer shadow-md"
               >
-                Yes, Delete
+                Delete
               </button>
             </div>
           </div>
         </div>
       )}
 
-      <div className="relative z-10 flex-1 flex flex-col pt-24 sm:pt-28 pb-4 px-3 sm:px-6 max-w-7xl w-full mx-auto overflow-hidden">
-        <header className="flex items-center justify-between mb-3 flex-shrink-0">
+      <div className="relative z-10 flex-1 flex flex-col pt-20 sm:pt-24 pb-3 px-3 sm:px-6 max-w-7xl w-full mx-auto overflow-hidden">
+        <header className="flex items-center justify-between mb-2.5 flex-shrink-0">
           <div className="flex items-center gap-2">
             <button onClick={() => navigate(`/projects/${id}`)} className="neumorphic-btn rounded-2xl px-3.5 py-1.5 flex items-center gap-1.5 text-xs text-[#3D4852] font-bold cursor-pointer">
               <ChevronLeft className="w-4 h-4 text-[#3D4852]" /> Back
             </button>
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className={`neumorphic-btn rounded-2xl px-3 py-1.5 hidden lg:flex items-center gap-1.5 text-xs font-bold cursor-pointer transition-all ${
+                isSidebarOpen ? 'text-[#6C63FF]' : 'text-[#3D4852]'
+              }`}
+              title={isSidebarOpen ? 'Close project sidebar' : 'Open project sidebar'}
+            >
+              {isSidebarOpen ? <PanelLeftClose className="w-3.5 h-3.5 text-[#6C63FF]" /> : <PanelLeftOpen className="w-3.5 h-3.5 text-[#6C63FF]" />}
+              <span>{isSidebarOpen ? 'Hide Info' : 'Show Info'}</span>
+            </button>
             <div className="flex items-center gap-2">
-              <h1 className="text-xs sm:text-sm font-extrabold text-[#3D4852] truncate max-w-[180px] sm:max-w-md">
+              <h1 className="text-xs sm:text-sm font-extrabold text-[#3D4852] truncate max-w-[160px] sm:max-w-md">
                 {project?.title}
               </h1>
               <span className="text-xs text-[#6B7280] font-medium hidden sm:inline">• AI Co-founder</span>
@@ -309,7 +263,7 @@ export default function ProjectChat() {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 min-h-0 overflow-hidden relative"
+          className="flex gap-4 flex-1 min-h-0 overflow-hidden relative"
         >
           {isDragging && (
             <div className="absolute inset-0 bg-[#6C63FF]/20 backdrop-blur-md rounded-3xl border-2 border-dashed border-[#6C63FF] z-50 flex flex-col items-center justify-center space-y-2 text-[#3D4852] pointer-events-none shadow-2xl">
@@ -319,38 +273,47 @@ export default function ProjectChat() {
             </div>
           )}
 
-          <div className="lg:col-span-4 flex flex-col space-y-3 h-full overflow-hidden">
-            <div className="neumorphic-card rounded-3xl p-4 md:p-5 flex-1 min-h-0 flex flex-col justify-between overflow-hidden border border-[#CAD1DB]">
-              <div className="space-y-3 overflow-y-auto hover-scrollbar custom-scrollbar pr-0.5">
+          <div className={`${isSidebarOpen ? 'w-72 xl:w-80' : 'w-0 opacity-0 pointer-events-none -ml-4'} flex-shrink-0 h-full overflow-hidden transition-all duration-300 hidden lg:flex flex-col`}>
+            <div className="neumorphic-card rounded-3xl p-3.5 flex-1 min-h-0 flex flex-col justify-between overflow-hidden border border-[#CAD1DB] shadow-md">
+              <div className="space-y-2.5 overflow-hidden">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded-xl neumorphic-inset flex items-center justify-center text-[#6C63FF]">
                       <Bot className="w-4 h-4" />
                     </div>
                     <div>
-                      <span className="text-[10px] uppercase tracking-wider text-[#6B7280] font-mono font-bold">Project Context</span>
-                      <h3 className="text-xs font-black text-[#3D4852] truncate max-w-[160px]">{project?.title}</h3>
+                      <span className="text-[9.5px] uppercase tracking-wider text-[#6B7280] font-mono font-bold">Project Context</span>
+                      <h3 className="text-xs font-black text-[#3D4852] truncate max-w-[140px]">{project?.title}</h3>
                     </div>
                   </div>
-                  <span className="text-[9px] bg-[#6C63FF] font-bold px-2.5 py-0.5 rounded-full text-white uppercase shadow-sm">
-                    {project?.projectType || 'SaaS'}
-                  </span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[9px] bg-[#6C63FF] font-bold px-2 py-0.5 rounded-full text-white uppercase shadow-sm">
+                      {project?.projectType || 'SaaS'}
+                    </span>
+                    <button
+                      onClick={() => setIsSidebarOpen(false)}
+                      className="p-1 rounded-lg text-[#6B7280] hover:text-[#3D4852] cursor-pointer"
+                      title="Collapse sidebar"
+                    >
+                      <PanelLeftClose className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
 
                 {project?.wizardAnswers?.problemStatement && (
-                  <div className="neumorphic-inset rounded-2xl p-2.5">
-                    <p className="text-[10.5px] text-[#6B7280] line-clamp-2 leading-relaxed">
+                  <div className="neumorphic-inset rounded-2xl p-2">
+                    <p className="text-[10px] text-[#6B7280] line-clamp-2 leading-relaxed">
                       {project.wizardAnswers.problemStatement}
                     </p>
                   </div>
                 )}
 
                 {project?.wizardAnswers?.coreFeatures && project.wizardAnswers.coreFeatures.length > 0 && (
-                  <div className="space-y-1.5">
-                    <span className="text-[9.5px] uppercase tracking-wider text-[#6B7280] font-mono font-bold">Core Features</span>
-                    <div className="flex flex-wrap gap-1.5">
-                      {project.wizardAnswers.coreFeatures.slice(0, 4).map((f, i) => (
-                        <span key={i} className="neumorphic-inset rounded-xl px-2.5 py-1 text-[10px] text-[#3D4852] font-semibold truncate max-w-[130px]">
+                  <div className="space-y-1">
+                    <span className="text-[9px] uppercase tracking-wider text-[#6B7280] font-mono font-bold">Key Features</span>
+                    <div className="flex flex-wrap gap-1">
+                      {project.wizardAnswers.coreFeatures.slice(0, 3).map((f, i) => (
+                        <span key={i} className="neumorphic-inset rounded-lg px-2 py-0.5 text-[9.5px] text-[#3D4852] font-semibold truncate max-w-[120px]">
                           {f}
                         </span>
                       ))}
@@ -358,35 +321,29 @@ export default function ProjectChat() {
                   </div>
                 )}
 
-                <div className="pt-2 border-t border-black/5 space-y-2">
+                <div className="pt-2 border-t border-black/5 space-y-1.5">
                   <div className="flex items-center gap-1.5 text-[#3D4852]">
                     <Lightbulb className="w-3.5 h-3.5 text-[#6C63FF]" />
-                    <span className="text-[11px] font-black uppercase tracking-wider">Quick Actions</span>
+                    <span className="text-[10.5px] font-black uppercase tracking-wider">Quick Actions</span>
                   </div>
 
-                  <div className="grid grid-cols-1 gap-1.5">
+                  <div className="grid grid-cols-1 gap-1">
                     {[
-                      { label: "Download all project files (.zip)", icon: Download, desc: "Source & Docs bundle" },
-                      { label: "Download PRD in PDF format", icon: FileText, desc: "Executive PRD export" },
-                      { label: "Download DB Schema as Excel", icon: Layers, desc: "Data dictionary CSV" },
-                      { label: "Audit security & access rules", icon: ShieldCheck, desc: "Auth guardrail check" },
-                      { label: "Propose 90-Day MVP Roadmap", icon: Milestone, desc: "Milestone timeline" },
-                      { label: "Analyze architecture & stack", icon: Cpu, desc: "Performance & bottlenecks" }
-                    ].map(({ label, icon: Icon, desc }) => (
+                      { label: "Download all project files (.zip)", icon: Download },
+                      { label: "Download PRD in PDF format", icon: FileText },
+                      { label: "Download DB Schema as Excel", icon: Layers },
+                      { label: "Audit security & access rules", icon: ShieldCheck },
+                      { label: "Propose 90-Day MVP Roadmap", icon: Milestone }
+                    ].map(({ label, icon: Icon }) => (
                       <button
                         key={label}
                         onClick={() => handleSend(label)}
-                        className="w-full text-left neumorphic-btn rounded-2xl p-2.5 flex items-center justify-between group cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.98]"
+                        className="w-full text-left neumorphic-btn rounded-xl px-2.5 py-1.5 flex items-center justify-between group cursor-pointer transition-all hover:scale-[1.01] active:scale-[0.98]"
                         title={label}
                       >
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="w-6 h-6 rounded-lg neumorphic-inset flex items-center justify-center text-[#6C63FF] shrink-0">
-                            <Icon className="w-3.5 h-3.5" />
-                          </div>
-                          <div className="min-w-0">
-                            <div className="text-[11px] text-[#3D4852] font-bold truncate">{label}</div>
-                            <div className="text-[9px] text-[#6B7280] truncate font-medium">{desc}</div>
-                          </div>
+                        <div className="flex items-center gap-2 min-w-0">
+                          <Icon className="w-3.5 h-3.5 text-[#6C63FF] shrink-0" />
+                          <span className="text-[10px] text-[#3D4852] font-bold truncate">{label}</span>
                         </div>
                         <Sparkles className="w-3 h-3 text-[#6C63FF] opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-1" />
                       </button>
@@ -395,14 +352,14 @@ export default function ProjectChat() {
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-black/5 flex items-center gap-2 text-[9.5px] text-[#6B7280] font-medium flex-shrink-0">
+              <div className="pt-2.5 border-t border-black/5 flex items-center gap-2 text-[9px] text-[#6B7280] font-medium flex-shrink-0">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span>Grounded with 9 synthesized project documents</span>
+                <span className="truncate">Grounded with 9 project documents</span>
               </div>
             </div>
           </div>
 
-          <div className="lg:col-span-8 flex flex-col h-full overflow-hidden neumorphic-card rounded-3xl border border-[#CAD1DB]">
+          <div className="flex-1 min-w-0 flex flex-col h-full overflow-hidden neumorphic-card rounded-3xl border border-[#CAD1DB] shadow-md">
             <div ref={scrollRef} className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3 hover-scrollbar custom-scrollbar">
               {dragError && (
                 <div className="neumorphic-inset rounded-2xl p-3 flex items-center justify-between text-xs text-rose-600 font-bold">

@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
-import { Copy, Check, Download, FileSpreadsheet, FileText, Archive, Loader2, FileCode, Globe, ExternalLink, X, Smartphone, Tablet, Monitor, Volume2, VolumeX, Pencil } from 'lucide-react';
+import { Copy, Check, Download, FileSpreadsheet, FileText, Archive, Loader2, FileCode, Globe, ExternalLink, X, Smartphone, Tablet, Monitor, Volume2, VolumeX, Pencil, Layout, Layers } from 'lucide-react';
 import { mdComponents } from '../project/markdownComponents';
 import { downloadZip, downloadDocAsWord, downloadDocAsExcel, downloadDocAsPdf, downloadDocAsMd } from '../../services/exportService';
 
 export default function ChatMessage({ message, index, projectId, projectTitle, onEditUserMessage }) {
   const navigate = useNavigate();
   const isUser = message.role === 'user';
+  const rawContent = message.content || '';
+  const queryText = rawContent.toLowerCase();
+
   const [copied, setCopied] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [manualFormatToggle, setManualFormatToggle] = useState(false);
@@ -18,7 +21,74 @@ export default function ChatMessage({ message, index, projectId, projectTitle, o
   const [isPlayingVoice, setIsPlayingVoice] = useState(false);
 
   const [isEditing, setIsEditing] = useState(false);
-  const [editText, setEditText] = useState(message.content || '');
+  const [editText, setEditText] = useState(rawContent);
+
+  const isAll = queryText.includes('all docs') || queryText.includes('all files') || queryText.includes('zip') || queryText.includes('everything') || queryText.includes('full project');
+  let detectedDoc = null;
+  if (isAll) detectedDoc = 'all';
+  else if (queryText.includes('prd')) detectedDoc = 'prd';
+  else if (queryText.includes('srd')) detectedDoc = 'srd';
+  else if (queryText.includes('tech stack') || queryText.includes('techstack')) detectedDoc = 'techStack';
+  else if (queryText.includes('database') || queryText.includes('schema') || queryText.includes('dbschema')) detectedDoc = 'dbSchema';
+  else if (queryText.includes('user flow') || queryText.includes('userflow')) detectedDoc = 'userFlows';
+  else if (queryText.includes('mvp')) detectedDoc = 'mvpPlan';
+  else if (queryText.includes('folder') || queryText.includes('structure')) detectedDoc = 'folderStructure';
+  else if (queryText.includes('claude') || queryText.includes('context')) detectedDoc = 'claudeContext';
+  else if (queryText.includes('system prompt') || queryText.includes('systemprompt')) detectedDoc = 'agentSystemPrompt';
+
+  let initialFormat = null;
+  if (queryText.includes('excel') || queryText.includes('sheet') || queryText.includes('csv') || queryText.includes('xlsx')) initialFormat = 'excel';
+  else if (queryText.includes('pdf')) initialFormat = 'pdf';
+  else if (queryText.includes('md') || queryText.includes('markdown')) initialFormat = 'md';
+  else if (queryText.includes('word') || queryText.includes('docx') || queryText.includes('doc')) initialFormat = 'word';
+  else if (queryText.includes('zip') || detectedDoc === 'all') initialFormat = 'zip';
+  else if (detectedDoc) initialFormat = 'pdf';
+
+  const docType = detectedDoc;
+  const [selectedFormat, setSelectedFormat] = useState(initialFormat || 'pdf');
+
+  const cleanedContent = rawContent;
+
+  const urlRegex = /(https?:\/\/[^\s)]+)/i;
+  const urlMatch = rawContent.match(urlRegex);
+  const detectedUrl = urlMatch ? urlMatch[0] : null;
+  const showPreviewButton = Boolean(detectedUrl && !detectedUrl.includes('localhost') && !detectedUrl.includes('127.0.0.1'));
+
+  const htmlCodeBlockRegex = /```html\s*([\s\S]*?)```/i;
+  const htmlMatch = rawContent.match(htmlCodeBlockRegex);
+  const detectedArtifactHtml = htmlMatch ? htmlMatch[1] : null;
+
+  const hasDocReference = Boolean(docType && docType !== 'all');
+
+  const handleCopy = () => {
+    if (cleanedContent) {
+      navigator.clipboard.writeText(cleanedContent);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const handleDownload = async (fmt, doc) => {
+    if (!projectId || isDownloading) return;
+    setIsDownloading(true);
+    try {
+      if (fmt === 'zip' || doc === 'all') {
+        await downloadZip(projectId, projectTitle || 'Project');
+      } else if (fmt === 'excel') {
+        await downloadDocAsExcel(projectId, doc, projectTitle || 'Project');
+      } else if (fmt === 'word') {
+        await downloadDocAsWord(projectId, doc, projectTitle || 'Project');
+      } else if (fmt === 'md') {
+        await downloadDocAsMd(projectId, doc, projectTitle || 'Project');
+      } else {
+        await downloadDocAsPdf(projectId, doc, projectTitle || 'Project');
+      }
+    } catch (err) {
+      console.error('Download error:', err);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const handleSpeakVoice = () => {
     if (isPlayingVoice) {
@@ -129,11 +199,9 @@ export default function ChatMessage({ message, index, projectId, projectTitle, o
   };
 
   const FormatIcon = getFormatIcon(selectedFormat);
-
   const isThinking = message.content === '...';
 
   let thinkingText = 'AI is thinking...';
-
   if (queryText.includes('skill')) {
     thinkingText = 'Adding skill to project...';
   } else if (queryText.includes('download') || queryText.includes('downlaod') || queryText.includes('pdf') || queryText.includes('zip') || queryText.includes('excel') || queryText.includes('word') || queryText.includes('csv') || queryText.includes('md') || queryText.includes('markdown')) {
@@ -251,7 +319,7 @@ export default function ChatMessage({ message, index, projectId, projectTitle, o
       )}
 
       <div className="flex justify-start group">
-        <div className="liquid-glass rounded-3xl rounded-tl-sm px-4 py-3 max-w-[85%] sm:max-w-[78%] relative text-[#3D4852] w-fit overflow-hidden break-words">
+        <div className="neumorphic-card rounded-3xl rounded-tl-sm px-4 py-3 max-w-[85%] sm:max-w-[78%] relative text-[#3D4852] w-fit overflow-hidden break-words border border-[#CAD1DB] shadow-md">
           {isThinking ? (
             <div className="flex items-center gap-2.5 py-1">
               <Loader2 className="w-4 h-4 text-[#6C63FF] animate-spin flex-shrink-0" />
@@ -310,35 +378,35 @@ export default function ChatMessage({ message, index, projectId, projectTitle, o
                 {showPreviewButton && (
                   <button
                     onClick={() => { setIsIframeLoading(true); setActiveArtifact(null); setPreviewUrl(detectedUrl); }}
-                    className="liquid-glass rounded-2xl px-3 py-1.5 text-[11px] text-white/90 hover:text-white flex items-center justify-between border border-white/10 w-full transition-all hover:scale-[1.01] cursor-pointer"
+                    className="neumorphic-btn rounded-2xl px-3 py-1.5 text-[11px] text-[#3D4852] hover:text-[#6C63FF] flex items-center justify-between border border-[#CAD1DB] w-full transition-all hover:scale-[1.01] cursor-pointer"
                   >
                     <div className="flex items-center gap-2 truncate">
                       <Globe className="w-3.5 h-3.5 text-[#6C63FF] flex-shrink-0" />
                       <span className="truncate">Live Website Preview ({detectedUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')})</span>
                     </div>
-                    <ExternalLink className="w-3 h-3 text-white/50 flex-shrink-0" />
+                    <ExternalLink className="w-3 h-3 text-[#6B7280] flex-shrink-0" />
                   </button>
                 )}
 
                 {hasDocReference && projectId && (
                   <button
                     onClick={() => navigate(`/projects/${projectId}`)}
-                    className="liquid-glass rounded-2xl px-3 py-1.5 text-[11px] text-white/90 hover:text-white flex items-center justify-between border border-white/10 w-full transition-all hover:scale-[1.01] cursor-pointer"
+                    className="neumorphic-btn rounded-2xl px-3 py-1.5 text-[11px] text-[#3D4852] hover:text-[#6C63FF] flex items-center justify-between border border-[#CAD1DB] w-full transition-all hover:scale-[1.01] cursor-pointer"
                   >
                     <div className="flex items-center gap-2 truncate">
                       <FileText className="w-3.5 h-3.5 text-[#6C63FF] flex-shrink-0" />
                       <span className="truncate">View Real Document in Project Viewer</span>
                     </div>
-                    <ExternalLink className="w-3 h-3 text-white/50 flex-shrink-0" />
+                    <ExternalLink className="w-3 h-3 text-[#6B7280] flex-shrink-0" />
                   </button>
                 )}
               </div>
 
               {initialFormat && docType && (
-                <div className="mt-3 pt-2.5 border-t border-white/10 space-y-2">
+                <div className="mt-3 pt-2.5 border-t border-black/5 space-y-2">
                   {showFormatSelector ? (
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[9px] uppercase tracking-wider text-white/40 font-semibold">Select Format:</span>
+                      <span className="text-[9px] uppercase tracking-wider text-[#6B7280] font-semibold">Select Format:</span>
                       <div className="flex items-center gap-1 flex-wrap">
                         {[
                           { id: 'word', label: 'DOCX' },
@@ -353,7 +421,7 @@ export default function ChatMessage({ message, index, projectId, projectTitle, o
                             disabled={isDownloading}
                             className={`rounded-full px-2.5 py-0.5 text-[9px] font-medium transition-all cursor-pointer ${selectedFormat === f.id
                                 ? 'bg-[#6C63FF] text-white shadow-[2px_2px_6px_rgba(108,99,255,0.3)]'
-                                : 'liquid-glass text-white/60 hover:text-white border-white/10'
+                                : 'neumorphic-inset text-[#6B7280] hover:text-[#3D4852]'
                               }`}
                           >
                             {f.label}
@@ -363,7 +431,7 @@ export default function ChatMessage({ message, index, projectId, projectTitle, o
                     </div>
                   ) : (
                     <div className="flex items-center justify-between px-1">
-                      <span className="text-[9px] uppercase tracking-wider text-white/40 font-semibold">Direct Download Ready</span>
+                      <span className="text-[9px] uppercase tracking-wider text-[#6B7280] font-semibold">Direct Download Ready</span>
                       <button
                         onClick={() => setManualFormatToggle(true)}
                         className="text-[9px] text-[#6C63FF] hover:underline cursor-pointer font-medium"
