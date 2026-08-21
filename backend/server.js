@@ -48,9 +48,8 @@ const allowedHeaders = [
 ];
 
 app.use((req, res, next) => {
-  if (req.url && req.url.includes('//')) {
-    req.url = req.url.replace(/\/+/g, '/');
-  }
+  if (req.url && req.url.includes('//')) req.url = req.url.replace(/\/+/g, '/');
+  if (req.url && req.url.startsWith('/api/api/')) req.url = req.url.replace(/^\/api\/api\//, '/api/');
   const origin = req.headers.origin;
   if (origin) {
     res.setHeader('Access-Control-Allow-Origin', origin);

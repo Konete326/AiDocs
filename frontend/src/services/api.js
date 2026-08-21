@@ -79,6 +79,10 @@ export const refreshAccessTokenSilent = async () => {
 
 api.interceptors.request.use(
   async (config) => {
+    if (config.url && config.url.startsWith('/api/')) {
+      config.url = config.url.substring(4);
+    }
+
     if (isPublicAuthEndpoint(config.url)) {
       return config;
     }

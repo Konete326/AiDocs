@@ -49,7 +49,19 @@ const getComponentsService = async ({ page = 1, limit = 12, category, framework,
 
   let sortOption = { createdAt: -1 };
   if (sort === 'views') sortOption = { viewsCount: -1, createdAt: -1 };
-  if (sort === 'popular') sortOption = { favoritesCount: -1, viewsCount: -1 };
+  if (sort === 'favorites' || sort === 'popular') sortOption = { favoritesCount: -1, viewsCount: -1 };
+
+  if (sort === 'random' || sort === 'randomize') {
+    const total = await UIComponent.countDocuments(query);
+    const components = await UIComponent.aggregate([
+      { $match: query },
+      { $sample: { size: l } },
+      { $lookup: { from: 'users', localField: 'creator', foreignField: '_id', as: 'creator' } },
+      { $unwind: { path: '$creator', preserveNullAndEmptyArrays: true } },
+      { $project: { 'creator.passwordHash': 0, 'creator.email': 0, viewsLog: 0 } }
+    ]);
+    return { components, total, page: p, limit: l, totalPages: Math.max(1, Math.ceil(total / l)) };
+  }
 
   const [components, total] = await Promise.all([
     UIComponent.find(query)

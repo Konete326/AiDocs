@@ -21,6 +21,7 @@ const Marketplace = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedFramework, setSelectedFramework] = useState('All');
+  const [selectedSort, setSelectedSort] = useState('newest');
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -45,11 +46,17 @@ const Marketplace = () => {
     setPage(1);
   };
 
+  const handleSortChange = (sortKey) => {
+    setSelectedSort(sortKey);
+    setPage(1);
+  };
+
   useEffect(() => {
     if (location.state?.refresh) {
       cacheRef.current.clear();
       setSelectedCategory('All');
       setSearchQuery('');
+      setSelectedSort('newest');
       setPage(1);
     }
   }, [location.key, location.state]);
@@ -59,10 +66,10 @@ const Marketplace = () => {
 
     const doFetch = async () => {
       const targetPage = page;
-      const key = `${selectedCategory}_${selectedFramework}_${searchQuery.trim()}_${creatorId || ''}_${showFavoritesOnly ? user?._id || 'fav' : ''}_${targetPage}`;
+      const key = `${selectedCategory}_${selectedFramework}_${searchQuery.trim()}_${creatorId || ''}_${showFavoritesOnly ? user?._id || 'fav' : ''}_${selectedSort}_${targetPage}`;
       const cached = cacheRef.current.get(key);
 
-      if (cached) {
+      if (cached && selectedSort !== 'random') {
         setComponents(cached.components);
         setTotalPages(cached.totalPages);
         setTotalComponents(cached.total);
@@ -76,13 +83,14 @@ const Marketplace = () => {
         const params = new URLSearchParams();
         if (selectedCategory !== 'All') params.append('category', selectedCategory);
         if (selectedFramework !== 'All') params.append('framework', selectedFramework);
+        if (selectedSort) params.append('sort', selectedSort);
         if (searchQuery.trim()) params.append('search', searchQuery.trim());
         if (creatorId) params.append('creator', creatorId);
         if (showFavoritesOnly) params.append('favoritesOnly', 'true');
         params.append('page', targetPage);
         params.append('limit', limit);
 
-        const res = await api.get(`/api/ui-components?${params.toString()}`);
+        const res = await api.get(`/ui-components?${params.toString()}`);
         if (!isCancelled && res.data?.success) {
           const fetchedComps = res.data.data.components || [];
           const fetchedPages = res.data.data.totalPages || 1;
@@ -92,11 +100,13 @@ const Marketplace = () => {
           setTotalPages(fetchedPages);
           setTotalComponents(fetchedTotal);
 
-          cacheRef.current.set(key, {
-            components: fetchedComps,
-            totalPages: fetchedPages,
-            total: fetchedTotal
-          });
+          if (selectedSort !== 'random') {
+            cacheRef.current.set(key, {
+              components: fetchedComps,
+              totalPages: fetchedPages,
+              total: fetchedTotal
+            });
+          }
         }
       } catch (err) {
         if (!isCancelled) {
@@ -116,11 +126,11 @@ const Marketplace = () => {
       isCancelled = true;
       clearTimeout(debounceTimer);
     };
-  }, [selectedCategory, selectedFramework, searchQuery, creatorId, showFavoritesOnly, page, user?._id]);
+  }, [selectedCategory, selectedFramework, searchQuery, creatorId, showFavoritesOnly, selectedSort, page, user?._id]);
 
   const handleFavorite = async (id) => {
     try {
-      const res = await api.post(`/api/ui-components/${id}/favorite`);
+      const res = await api.post(`/ui-components/${id}/favorite`);
       if (res.data?.success) {
         setComponents((prev) => prev.map((c) => (c._id === id ? res.data.data.component : c)));
         cacheRef.current.clear();
@@ -146,7 +156,7 @@ const Marketplace = () => {
   };
 
   return (
-    <div className="h-screen max-h-screen overflow-hidden bg-[#E0E5EC] pt-20 sm:pt-24 pb-4 px-3 sm:px-6 w-full max-w-7xl mx-auto flex gap-4">
+    <div className="h-screen max-h-screen overflow-hidden bg-[#E0E5EC] pt-3 sm:pt-4 pb-3 sm:pb-4 px-3 sm:px-6 w-full max-w-7xl mx-auto flex gap-4">
       <div className={`${isSidebarCollapsed ? 'w-16 md:w-20' : 'w-60 md:w-64'} flex-shrink-0 h-full overflow-hidden transition-all duration-300 hidden lg:block`}>
         <CategorySidebar
           selectedCategory={selectedCategory}
@@ -168,6 +178,8 @@ const Marketplace = () => {
           setPage={setPage}
           totalPages={totalPages}
           totalComponents={totalComponents}
+          selectedSort={selectedSort}
+          onSortChange={handleSortChange}
         />
 
         <div ref={gridRef} className="flex-1 overflow-y-auto pr-2 custom-scrollbar min-h-0 relative">
