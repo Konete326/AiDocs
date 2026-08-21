@@ -15,10 +15,19 @@ export default function ProblemField({ formData, onChange }) {
     <div>
       <div className="flex items-center justify-between mb-1.5">
         <label className="text-xs uppercase tracking-[0.2em] text-[#6B7280] font-extrabold">Problem Statement</label>
-        <VoiceMicButton
-          currentValue={formData.wizardAnswers.problemStatement}
-          onTranscript={(text) => onChange('wizardAnswers.problemStatement', text)}
-        />
+        <div className="flex items-center gap-2">
+          <SuggestionPills
+            suggestions={suggestions}
+            isLoading={isLoading}
+            onSelect={(s) => onChange('wizardAnswers.problemStatement', s)}
+            fieldName="problem"
+            onRefresh={refresh}
+          />
+          <VoiceMicButton
+            currentValue={formData.wizardAnswers.problemStatement}
+            onTranscript={(text) => onChange('wizardAnswers.problemStatement', text)}
+          />
+        </div>
       </div>
       <div className="neumorphic-input-wrapper rounded-xl px-4 py-3 w-full">
         <textarea 
@@ -29,13 +38,6 @@ export default function ProblemField({ formData, onChange }) {
           className="bg-transparent text-[#3D4852] font-semibold placeholder:text-[#9CA3AF] outline-none w-full text-sm resize-none"
         />
       </div>
-      <SuggestionPills
-        suggestions={suggestions}
-        isLoading={isLoading}
-        onSelect={(s) => onChange('wizardAnswers.problemStatement', s)}
-        fieldName="problem"
-        onRefresh={refresh}
-      />
     </div>
   );
 }

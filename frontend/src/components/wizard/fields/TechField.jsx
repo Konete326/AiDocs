@@ -219,7 +219,16 @@ export function TechNotesField({ formData, onChange }) {
 
   return (
     <div className="space-y-1">
-      <label className="text-[11px] uppercase tracking-[0.15em] text-[#6B7280] font-extrabold block">Custom Tech Notes</label>
+      <div className="flex items-center justify-between">
+        <label className="text-[11px] uppercase tracking-[0.15em] text-[#6B7280] font-extrabold block">Custom Tech Notes</label>
+        <SuggestionPills
+          suggestions={suggestions}
+          isLoading={isLoading}
+          onSelect={(s) => onChange('wizardAnswers.techPreferences', s)}
+          fieldName="tech"
+          onRefresh={refresh}
+        />
+      </div>
       <div className="neumorphic-input-wrapper rounded-xl px-4 py-2.5 w-full">
         <textarea 
           value={formData.wizardAnswers.techPreferences || ''}
@@ -229,14 +238,6 @@ export function TechNotesField({ formData, onChange }) {
           className="bg-transparent text-[#3D4852] font-semibold placeholder:text-[#9CA3AF] outline-none w-full text-xs resize-none"
         />
       </div>
-
-      <SuggestionPills
-        suggestions={suggestions}
-        isLoading={isLoading}
-        onSelect={(s) => onChange('wizardAnswers.techPreferences', s)}
-        fieldName="tech"
-        onRefresh={refresh}
-      />
     </div>
   );
 }

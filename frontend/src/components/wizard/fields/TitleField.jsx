@@ -12,7 +12,16 @@ export default function TitleField({ formData, onChange }) {
 
   return (
     <div>
-      <label className="text-xs uppercase tracking-[0.2em] text-[#6B7280] font-extrabold block mb-1.5">Project Title</label>
+      <div className="flex items-center justify-between mb-1.5">
+        <label className="text-xs uppercase tracking-[0.2em] text-[#6B7280] font-extrabold block">Project Title</label>
+        <SuggestionPills
+          suggestions={suggestions}
+          isLoading={isLoading}
+          onSelect={(s) => onChange('title', s)}
+          fieldName="title"
+          onRefresh={refresh}
+        />
+      </div>
       <div className="neumorphic-input-wrapper rounded-xl px-4 py-3 flex items-center gap-3">
         <input 
           value={formData.title} 
@@ -24,13 +33,6 @@ export default function TitleField({ formData, onChange }) {
       <p className="mt-1.5 text-[10px] text-[#6B7280] font-bold uppercase tracking-wider">
         Give your idea a working name. You can change it later.
       </p>
-      <SuggestionPills
-        suggestions={suggestions}
-        isLoading={isLoading}
-        onSelect={(s) => onChange('title', s)}
-        fieldName="title"
-        onRefresh={refresh}
-      />
     </div>
   );
 }
