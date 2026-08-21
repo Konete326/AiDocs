@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { DESIGN_PRESETS } from "../../constants/designSystemPresets";
 import { MonochromePreview } from "./previews/monochrome/MonochromePreview";
 import { BauhausPreview } from "./previews/bauhaus/BauhausPreview";
@@ -71,6 +71,29 @@ export const DesignSystemSelector = ({ selectedPresetId, onSelectPreset }) => {
     return DESIGN_PRESETS.find(p => p.id === activePresetId) || DESIGN_PRESETS[0];
   }, [activePresetId]);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "ArrowDown") {
+        e.preventDefault();
+        setActivePresetId((prev) => {
+          const currentIndex = DESIGN_PRESETS.findIndex((p) => p.id === prev);
+          const nextIndex = (currentIndex + 1) % DESIGN_PRESETS.length;
+          return DESIGN_PRESETS[nextIndex].id;
+        });
+      } else if (e.key === "ArrowUp") {
+        e.preventDefault();
+        setActivePresetId((prev) => {
+          const currentIndex = DESIGN_PRESETS.findIndex((p) => p.id === prev);
+          const prevIndex = (currentIndex - 1 + DESIGN_PRESETS.length) % DESIGN_PRESETS.length;
+          return DESIGN_PRESETS[prevIndex].id;
+        });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   const renderActivePreview = () => {
     switch (activePresetId) {
       case "monochrome": return <MonochromePreview mode={viewMode} />;
@@ -106,10 +129,11 @@ export const DesignSystemSelector = ({ selectedPresetId, onSelectPreset }) => {
   };
 
   return (
-    <div className="w-full liquid-glass rounded-2xl overflow-hidden flex flex-col lg:flex-row min-h-[460px] h-[520px]">
+    <div className="w-full liquid-glass rounded-2xl overflow-hidden flex flex-col lg:flex-row min-h-[380px] h-[440px]">
       <div className="w-full lg:w-56 xl:w-60 shrink-0 p-2 flex flex-col space-y-1 shadow-[inset_-2px_0_6px_rgba(163,177,198,0.3)] overflow-hidden bg-[#E0E5EC]">
         <div className="flex items-center justify-between px-1 py-0.5">
           <span className="text-[10px] font-bold uppercase tracking-wider text-[#6B7280]">Design Presets ({DESIGN_PRESETS.length})</span>
+          <span className="text-[9px] text-[#6C63FF] font-semibold">↑↓ Keys</span>
         </div>
 
         <div className="space-y-1 overflow-y-auto flex-1 pr-1 custom-scrollbar">
@@ -121,7 +145,7 @@ export const DesignSystemSelector = ({ selectedPresetId, onSelectPreset }) => {
               <button 
                 key={preset.id} 
                 onClick={() => setActivePresetId(preset.id)} 
-                className={`w-full text-left px-2.5 py-1.5 rounded-xl transition-all cursor-pointer border ${
+                className={`w-full text-left px-2.5 py-1 rounded-xl transition-all cursor-pointer border ${
                   isActive 
                     ? "bg-[#6C63FF]/15 border border-[#6C63FF] shadow-[0_0_8px_rgba(108,99,255,0.3)]" 
                     : "bg-white/40 border-black/5 hover:border-[#6C63FF]/40"
@@ -150,13 +174,13 @@ export const DesignSystemSelector = ({ selectedPresetId, onSelectPreset }) => {
       </div>
 
       <div className="flex-1 min-w-0 flex flex-col overflow-hidden bg-[#E0E5EC]">
-        <div className="p-2.5 px-4 flex flex-wrap items-center justify-between gap-2 shadow-[0_2px_6px_rgba(163,177,198,0.3)] border-b border-black/5">
+        <div className="p-2 px-3.5 flex flex-wrap items-center justify-between gap-2 shadow-[0_2px_6px_rgba(163,177,198,0.3)] border-b border-black/5">
           <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 rounded-lg bg-[#6C63FF] text-white flex items-center justify-center">
-              <Palette size={12} className="text-white stroke-white" />
+            <div className="w-5 h-5 rounded-lg bg-[#6C63FF] text-white flex items-center justify-center">
+              <Palette size={11} className="text-white stroke-white" />
             </div>
             <span className="text-xs font-bold text-[#3D4852] tracking-wide">{activePreset.name} Studio Preview</span>
-            <div className="flex items-center -space-x-1 ml-1.5">
+            <div className="flex items-center -space-x-1 ml-1">
               {(THEME_PALETTES[activePreset.id] || ['#6C63FF', '#3D4852', '#E0E5EC']).map((c, i) => (
                 <span key={i} className="w-2.5 h-2.5 rounded-full border border-black/10 inline-block shadow-xs" style={{ backgroundColor: c }} />
               ))}
@@ -167,27 +191,27 @@ export const DesignSystemSelector = ({ selectedPresetId, onSelectPreset }) => {
             {onSelectPreset && (
               <button 
                 onClick={() => onSelectPreset(activePreset)} 
-                className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white !text-white px-4 py-1.5 rounded-xl text-xs font-extrabold flex items-center justify-center space-x-1.5 transition-transform hover:scale-105 cursor-pointer min-w-[105px] shadow-md"
+                className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white !text-white px-3.5 py-1 rounded-xl text-xs font-extrabold flex items-center justify-center space-x-1.5 transition-transform hover:scale-105 cursor-pointer min-w-[95px] shadow-md"
               >
-                <Check size={12} className="text-white stroke-white" />
+                <Check size={11} className="text-white stroke-white" />
                 <span className="text-white !text-white font-extrabold">{selectedPresetId === activePreset.id ? "Applied ✓" : "Apply Theme"}</span>
               </button>
             )}
 
             <div className="flex items-center liquid-glass rounded-xl p-0.5 space-x-1">
-              <button onClick={() => setViewMode("landing")} className={`px-2.5 py-1 rounded-lg text-xs font-bold flex items-center space-x-1 transition-all cursor-pointer ${viewMode === "landing" ? "bg-[#6C63FF] text-white shadow-sm" : "text-[#6B7280] hover:text-[#3D4852]"}`}>
-                <Layout size={11} />
+              <button onClick={() => setViewMode("landing")} className={`px-2.5 py-0.5 rounded-lg text-[11px] font-bold flex items-center space-x-1 transition-all cursor-pointer ${viewMode === "landing" ? "bg-[#6C63FF] text-white shadow-sm" : "text-[#6B7280] hover:text-[#3D4852]"}`}>
+                <Layout size={10} />
                 <span>Landing</span>
               </button>
-              <button onClick={() => setViewMode("showcase")} className={`px-2.5 py-1 rounded-lg text-xs font-bold flex items-center space-x-1 transition-all cursor-pointer ${viewMode === "showcase" ? "bg-[#6C63FF] text-white shadow-sm" : "text-[#6B7280] hover:text-[#3D4852]"}`}>
-                <Layers size={11} />
+              <button onClick={() => setViewMode("showcase")} className={`px-2.5 py-0.5 rounded-lg text-[11px] font-bold flex items-center space-x-1 transition-all cursor-pointer ${viewMode === "showcase" ? "bg-[#6C63FF] text-white shadow-sm" : "text-[#6B7280] hover:text-[#3D4852]"}`}>
+                <Layers size={10} />
                 <span>UI Kit</span>
               </button>
             </div>
           </div>
         </div>
 
-        <div className="p-3.5 flex-1 overflow-y-auto max-h-[440px] custom-scrollbar">
+        <div className="p-3 flex-1 overflow-y-auto max-h-[380px] custom-scrollbar">
           {renderActivePreview()}
         </div>
       </div>

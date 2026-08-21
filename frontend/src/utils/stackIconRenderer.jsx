@@ -1,7 +1,42 @@
-import { Layers } from 'lucide-react';
+import { Layers, Smartphone, ShoppingBag } from 'lucide-react';
 
 export const renderStackIcon = (type) => {
   switch (type) {
+    case 'flutter':
+      return (
+        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+          <path d="M14.2 2L4 12.2L7.1 15.3L14.2 8.2L20.4 2H14.2Z" fill="#54C5F8"/>
+          <path d="M14.2 12.2L8.6 17.8L11.7 20.9L14.2 18.4L17.3 21.5H20.4L14.2 15.3L17.3 12.2H14.2Z" fill="#01579B"/>
+          <path d="M11.7 15.3L8.6 17.8L11.7 20.9L14.2 18.4L11.7 15.3Z" fill="#29B6F6"/>
+        </svg>
+      );
+    case 'react_native':
+    case 'expo':
+      return (
+        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+          <rect x="5" y="2" width="14" height="20" rx="3" fill="#61DAFB" fillOpacity="0.2" stroke="#61DAFB" strokeWidth="1.5"/>
+          <ellipse cx="12" cy="12" rx="4.5" ry="1.8" stroke="#61DAFB" strokeWidth="1.2" transform="rotate(30 12 12)"/>
+          <ellipse cx="12" cy="12" rx="4.5" ry="1.8" stroke="#61DAFB" strokeWidth="1.2" transform="rotate(90 12 12)"/>
+          <ellipse cx="12" cy="12" rx="4.5" ry="1.8" stroke="#61DAFB" strokeWidth="1.2" transform="rotate(150 12 12)"/>
+          <circle cx="12" cy="12" r="1" fill="#61DAFB"/>
+        </svg>
+      );
+    case 'swift':
+      return (
+        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="2" width="20" height="20" rx="5" fill="#FA7343" fillOpacity="0.2" stroke="#FA7343" strokeWidth="1.5"/>
+          <path d="M17.5 17C14.5 17 11 15 9 12C12 13 14 12.5 15.5 11.5C12 11 9 9 7.5 5.5C8.5 7 10.5 8.5 12.5 8.5C9.5 6.5 8 4 8 4C9.5 5.5 12 7.5 15 7.5C14 6 13.5 4.5 13.5 4.5C15 6 17 8 18 10C17.5 9 17 8.5 17 8.5C18.5 10 19.5 12 19.5 14C19.5 15.8 18.7 17 17.5 17Z" fill="#FA7343"/>
+        </svg>
+      );
+    case 'kotlin':
+      return (
+        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+          <rect x="2" y="2" width="20" height="20" rx="5" fill="#7F52FF" fillOpacity="0.2" stroke="#7F52FF" strokeWidth="1.5"/>
+          <path d="M4 4L12 12L4 20V4Z" fill="#7F52FF"/>
+          <path d="M12 12L20 4H12V12Z" fill="#C757BC"/>
+          <path d="M12 12L20 20H4L12 12Z" fill="#E24462"/>
+        </svg>
+      );
     case 'react':
     case 'mern':
     case 'layers':
@@ -14,6 +49,7 @@ export const renderStackIcon = (type) => {
         </svg>
       );
     case 'nextjs':
+    case 'nextjs_commerce':
       return (
         <svg className="w-5 h-5" viewBox="0 0 180 180" fill="none">
           <circle cx="90" cy="90" r="86" fill="black" stroke="black" strokeWidth="8" />
@@ -27,7 +63,7 @@ export const renderStackIcon = (type) => {
       return (
         <svg className="w-5 h-5" viewBox="0 0 128 128">
           <path fill="#3776AB" d="M62.6 3.2c-28.7 0-26.9 12.4-26.9 12.4l.1 12.9h27.4v3.9H24.7S5.6 30.3 5.6 59.2c0 28.9 16.7 27.9 16.7 27.9h9.9V73.2s-.5-16.7 16.4-16.7h28.1s15.7.3 15.7-15.3V18.6s1.9-15.4-30-15.4zm-14.7 8.3c2.7 0 4.8 2.2 4.8 4.8s-2.2 4.8-4.8 4.8-4.8-2.2-4.8-4.8 2.2-4.8 4.8-4.8z" />
-          <path fill="#FFD43B" d="M65.3 124.8c28.7 0 26.9-12.4 26.9-12.4l-.1-12.9H64.7v-3.9h38.5s19.1 2.1 19.1-26.8c0-28.9-16.7-27.9-16.7-27.9h-9.9v13.9s.5 16.7-16.4 16.7H51.7s-15.7-.3-15.7 15.3v23.5s-1.8 15.5 30.1 15.5zm14.7-8.3c-2.7 0-4.8-2.2-4.8-4.8s2.2-4.8 4.8-4.8 4.8 2.2 4.8 4.8-2.2 4.8-4.8 4.8z" />
+          <path fill="#FFD43B" d="M65.3 124.8c28.7 0 26.9-12.4 26.9-12.4l-.1-12.9H64.7v-3.9h38.5s19.1 2.1 19.1-26.8c0-28.9-16.7-27.9-16.7-27.9h-9.9v13.9s.5 16.7-16.4 16.7H51.7s-15.7-.3-15.7 15.3v23.5s-1.8 15.5 30.1 15.5zm14.7-8.3c-2.7 0-4.8-2.2-4.8-4.8s2.2-4.8 4.8-4.8 4.8 2.2 4.8-4.8-2.2 4.8-4.8 4.8z" />
         </svg>
       );
     case 'dotnet':
@@ -67,15 +103,11 @@ export const renderStackIcon = (type) => {
           <path fill="url(#vite-b)" d="M185.4 0L121 120.4a4 4 0 0 1-7.1 0L76.5 45.4a4 4 0 0 1 3.5-5.9h44.3a4 4 0 0 0 3.7-2.4L137 15.3a4 4 0 0 1 3.7-2.4h41.2a4 4 0 0 1 3.5 5.9z"/>
         </svg>
       );
-    case 'node':
-    case 'nodejs':
-    case 'server':
-      return (
-        <svg className="w-5 h-5" viewBox="0 0 256 289">
-          <path fill="#339933" d="M128 0L0 73.9v147.8L128 295.6l128-73.9V73.9L128 0zm71.7 185.3c-2.3 3.9-5.7 7.1-9.9 9.3l-51 29.4c-4.2 2.4-9 3.7-13.8 3.7s-9.6-1.3-13.8-3.7l-51-29.4c-4.2-2.3-7.6-5.4-9.9-9.3-2.3-3.9-3.5-8.4-3.5-13V123c0-4.6 1.2-9.1 3.5-13 2.3-3.9 5.7-7.1 9.9-9.3l51-29.4c4.2-2.4 9-3.7 13.8-3.7s9.6 1.3 13.8 3.7l51 29.4c4.2 2.3 7.6 5.4 9.9 9.3 2.3 3.9 3.5 8.4 3.5 13v49.3c0 4.6-1.2 9.1-3.5 13z"/>
-        </svg>
-      );
+    case 'mobile':
+      return <Smartphone className="w-5 h-5 text-[#6C63FF]" />;
+    case 'ecommerce':
+      return <ShoppingBag className="w-5 h-5 text-[#6C63FF]" />;
     default:
-      return <Layers className="w-5 h-5 text-blue-600" />;
+      return <Layers className="w-5 h-5 text-[#6C63FF]" />;
   }
 };

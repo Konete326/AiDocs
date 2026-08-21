@@ -1,14 +1,16 @@
-import { useState, useEffect } from 'react';
-import { FRONTENDS, BACKENDS, DATABASES, AUTHS, parseCustomString, checkIncompatibility } from '../../utils/stackCompatibility';
+import { useState, useEffect, useMemo } from 'react';
+import { getOptionsForProject, parseCustomString, checkIncompatibility } from '../../utils/stackCompatibility';
 import CustomStackOptionGroup from './CustomStackOptionGroup';
 import CustomStackSidebar from './CustomStackSidebar';
 
-export default function CustomStackBuilderPanel({ onSaveCustomStack, currentCustom, isUpdating }) {
+export default function CustomStackBuilderPanel({ onSaveCustomStack, currentCustom, isUpdating, project }) {
+  const options = useMemo(() => getOptionsForProject(project), [project]);
   const parsed = parseCustomString(currentCustom?.formattedValue);
-  const [frontend, setFrontend] = useState(currentCustom?.frontend || parsed.frontend || FRONTENDS[0]);
-  const [backend, setBackend] = useState(currentCustom?.backend || parsed.backend || BACKENDS[0]);
-  const [database, setDatabase] = useState(currentCustom?.database || parsed.database || DATABASES[0]);
-  const [auth, setAuth] = useState(currentCustom?.auth || parsed.auth || AUTHS[0]);
+
+  const [frontend, setFrontend] = useState(currentCustom?.frontend || parsed.frontend || options.frontends[0]);
+  const [backend, setBackend] = useState(currentCustom?.backend || parsed.backend || options.backends[0]);
+  const [database, setDatabase] = useState(currentCustom?.database || parsed.database || options.databases[0]);
+  const [auth, setAuth] = useState(currentCustom?.auth || parsed.auth || options.auths[0]);
 
   useEffect(() => {
     if (currentCustom?.formattedValue) {
@@ -17,8 +19,13 @@ export default function CustomStackBuilderPanel({ onSaveCustomStack, currentCust
       if (p.backend) setBackend(p.backend);
       if (p.database) setDatabase(p.database);
       if (p.auth) setAuth(p.auth);
+    } else {
+      setFrontend(options.frontends[0]);
+      setBackend(options.backends[0]);
+      setDatabase(options.databases[0]);
+      setAuth(options.auths[0]);
     }
-  }, [currentCustom]);
+  }, [currentCustom, options]);
 
   const currentStack = { frontend, backend, database, auth };
   const conflict = checkIncompatibility('all', null, frontend, backend, database, auth);
@@ -32,7 +39,7 @@ export default function CustomStackBuilderPanel({ onSaveCustomStack, currentCust
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch w-full my-2">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch w-full my-1">
       <div className="lg:col-span-4 h-full">
         <CustomStackSidebar
           currentStack={currentStack}
@@ -42,11 +49,11 @@ export default function CustomStackBuilderPanel({ onSaveCustomStack, currentCust
         />
       </div>
 
-      <div className="lg:col-span-8 h-full liquid-glass-strong rounded-2xl p-3 sm:p-4 border border-white/15 flex flex-col justify-between space-y-3">
-        <CustomStackOptionGroup label="Frontend Layer" category="frontend" options={FRONTENDS} selectedValue={frontend} onSelect={setFrontend} currentStack={currentStack} />
-        <CustomStackOptionGroup label="Backend Runtime & API" category="backend" options={BACKENDS} selectedValue={backend} onSelect={setBackend} currentStack={currentStack} />
-        <CustomStackOptionGroup label="Database Engine" category="database" options={DATABASES} selectedValue={database} onSelect={setDatabase} currentStack={currentStack} />
-        <CustomStackOptionGroup label="Authentication Strategy" category="auth" options={AUTHS} selectedValue={auth} onSelect={setAuth} currentStack={currentStack} />
+      <div className="lg:col-span-8 h-full neumorphic-card rounded-2xl p-3.5 sm:p-4 border border-[#CAD1DB] flex flex-col justify-between space-y-3">
+        <CustomStackOptionGroup label="1. Frontend Layer" category="frontend" options={options.frontends} selectedValue={frontend} onSelect={setFrontend} currentStack={currentStack} />
+        <CustomStackOptionGroup label="2. Backend Runtime & API" category="backend" options={options.backends} selectedValue={backend} onSelect={setBackend} currentStack={currentStack} />
+        <CustomStackOptionGroup label="3. Database Engine & Persistence" category="database" options={options.databases} selectedValue={database} onSelect={setDatabase} currentStack={currentStack} />
+        <CustomStackOptionGroup label="4. Authentication Strategy" category="auth" options={options.auths} selectedValue={auth} onSelect={setAuth} currentStack={currentStack} />
       </div>
     </div>
   );

@@ -88,44 +88,44 @@ export default function DesignSystemField({ formData, onChange }) {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center pt-16 md:pt-20 pb-6 px-4 bg-black/75 backdrop-blur-sm">
-          <div className="w-full max-w-7xl w-[94vw] neumorphic-card rounded-[2.5rem] bg-[#E0E5EC] text-[#3D4852] flex flex-col overflow-hidden shadow-2xl max-h-[85vh] mt-2 md:mt-4">
-            <div className="flex items-center justify-between p-4 px-6 border-b border-black/5 bg-[#E0E5EC]">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-2xl bg-[#6C63FF] text-white flex items-center justify-center font-extrabold text-sm shadow-md">
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-2 sm:p-3 bg-black/75 backdrop-blur-sm">
+          <div className="w-full max-w-7xl w-[96vw] neumorphic-card rounded-[2rem] bg-[#E0E5EC] text-[#3D4852] flex flex-col overflow-hidden shadow-2xl max-h-[92vh]">
+            <div className="flex items-center justify-between p-2.5 px-4 md:px-5 border-b border-black/5 bg-[#E0E5EC]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-xl bg-[#6C63FF] text-white flex items-center justify-center font-extrabold text-xs shadow-md">
                   🎨
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-[#3D4852]">Design System Presets & Live Interactive Preview Studio</h3>
-                  <p className="text-xs text-[#6B7280] font-medium mt-0.5">
-                    Explore live UI Kit components, landing page layouts, and color tokens for all 28 theme presets before selecting.
+                  <h3 className="text-xs md:text-sm font-extrabold text-[#3D4852]">Design System Presets & Live Studio</h3>
+                  <p className="text-[10.5px] text-[#6B7280] font-medium hidden sm:block">
+                    Explore live UI Kit components and color tokens for all 28 theme presets. Use <strong className="text-[#6C63FF]">↑↓ Arrow Keys</strong> to browse.
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="w-8 h-8 rounded-full neumorphic-btn flex items-center justify-center text-[#6B7280] hover:text-[#3D4852] cursor-pointer"
+                className="w-7 h-7 rounded-full neumorphic-btn flex items-center justify-center text-[#6B7280] hover:text-[#3D4852] cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <div className="p-3.5 overflow-y-auto max-h-[75vh] custom-scrollbar">
+            <div className="p-2 overflow-y-auto max-h-[72vh] custom-scrollbar">
               <DesignSystemSelector
                 selectedPresetId={currentThemeId}
                 onSelectPreset={handleSelectTheme}
               />
             </div>
 
-            <div className="p-3.5 px-6 border-t border-black/5 bg-[#E0E5EC] flex justify-between items-center">
+            <div className="p-2 px-5 border-t border-black/5 bg-[#E0E5EC] flex justify-between items-center">
               <span className="text-xs text-[#6B7280] font-semibold">
                 Current Active: <strong className="text-[#6C63FF] font-extrabold">{currentPreset.name}</strong>
               </span>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white !text-white font-extrabold px-5 py-2 rounded-2xl text-xs transition-all shadow-md cursor-pointer"
+                className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white !text-white font-extrabold px-4 py-1 rounded-xl text-xs transition-all shadow-md cursor-pointer"
               >
                 <span className="text-white !text-white font-extrabold">Close Preview</span>
               </button>

@@ -53,11 +53,7 @@ export const useProjectPolling = (id) => {
     let pollCount = 0;
     let timerId;
 
-    const getInterval = (count) => {
-      if (count < 10) return 1000;
-      if (count < 20) return 3000;
-      return 5000;
-    };
+    const getInterval = () => 1000;
 
     const poll = async () => {
       try {

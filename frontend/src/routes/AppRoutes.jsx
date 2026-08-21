@@ -66,6 +66,8 @@ export default function AppRoutes() {
         <Route path="/docs/clarifyation-setup" element={<ClarifyationSetupGuidePage />} />
         <Route path="/docs/mcp-setup" element={<McpSetupGuidePage />} />
         <Route path="/projects/new" element={<CreateProject />} />
+        <Route path="/create-project" element={<CreateProject />} />
+        <Route path="/project/new" element={<CreateProject />} />
         <Route path="/projects/:id" element={<ProjectDetail />} />
         <Route path="/projects/:id/workspace" element={<Workspace />} />
         <Route path="/projects/:id/chat" element={<ProjectChat />} />

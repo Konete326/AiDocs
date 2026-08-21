@@ -52,10 +52,31 @@ const CreateProject = () => {
     } catch {}
   }, []);
 
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isSubmitting) {
+        e.preventDefault();
+        e.returnValue = 'Document generation in progress, are you sure you want to leave?';
+        return e.returnValue;
+      }
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isSubmitting]);
+
   const handleRestoreDraft = () => {
     if (savedDraftInfo?.formData) {
-      setFormData(savedDraftInfo.formData);
-      if (savedDraftInfo.step) setStep(savedDraftInfo.step);
+      setFormData(prev => ({
+        ...defaultFormData,
+        ...savedDraftInfo.formData,
+        wizardAnswers: {
+          ...defaultFormData.wizardAnswers,
+          ...(savedDraftInfo.formData.wizardAnswers || {})
+        }
+      }));
+      if (savedDraftInfo.step && savedDraftInfo.step >= 1 && savedDraftInfo.step <= 4) {
+        setStep(savedDraftInfo.step);
+      }
     }
     setShowRestorePrompt(false);
   };
@@ -73,7 +94,7 @@ const CreateProject = () => {
         formData,
         step,
         updatedAt: new Date().toISOString(),
-        expiresAt: new Date(Date.now() + 12 * 60 * 60 * 1000).toISOString()
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
       }));
     }
   }, [formData, step, showRestorePrompt]);
@@ -110,14 +131,21 @@ const CreateProject = () => {
         ? rawFeat
         : (typeof rawFeat === 'string' ? rawFeat.split(',').map(f => f.trim()).filter(Boolean) : []);
       const proj = await createProject({ ...formData, wizardAnswers: { ...formData.wizardAnswers, coreFeatures: featArr } });
+      localStorage.setItem('clarifyai_active_generation', JSON.stringify({
+        projectId: proj._id,
+        title: proj.title,
+        startedAt: Date.now()
+      }));
       await triggerGeneration(proj._id);
       localStorage.removeItem(DRAFT_STORAGE_KEY);
       navigate(`/projects/${proj._id}`);
     } catch (err) {
-      submittingRef.current = false;
+      setTimeout(() => {
+        submittingRef.current = false;
+        setIsSubmitting(false);
+      }, 1500);
       const msg = err.response?.data?.error;
       setError(typeof msg === 'string' ? msg : msg?.message || 'Generation failed');
-      setIsSubmitting(false);
     }
   };
 
@@ -129,35 +157,35 @@ const CreateProject = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col items-center justify-center pt-20 pb-6 px-4 bg-[#E0E5EC]">
+    <div className="relative min-h-screen w-full flex flex-col items-center justify-center pt-12 md:pt-14 pb-3 px-3 bg-[#E0E5EC]">
       <div className="fixed inset-0 bg-[#E0E5EC]/85 backdrop-blur-md z-[1]" />
       
       <div className="relative z-10 w-full max-w-4xl flex flex-col items-center justify-center">
         {showRestorePrompt && (
-          <div className="w-full mb-4 p-4 rounded-2xl neumorphic-card bg-[#E0E5EC] flex flex-wrap items-center justify-between gap-3 border border-[#6C63FF]/40 shadow-xl animate-in fade-in slide-in-from-top-4 duration-300">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-[#6C63FF]/15 flex items-center justify-center text-[#6C63FF]">
-                <RotateCcw className="w-4 h-4" />
+          <div className="w-full mb-2.5 p-2.5 px-4 rounded-2xl neumorphic-card bg-[#E0E5EC] flex flex-wrap items-center justify-between gap-2 border border-[#6C63FF]/30 shadow-md animate-in fade-in duration-200">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-7 h-7 rounded-xl bg-[#6C63FF]/15 flex items-center justify-center text-[#6C63FF] shrink-0">
+                <RotateCcw className="w-3.5 h-3.5" />
               </div>
-              <div>
-                <p className="text-xs font-extrabold text-[#3D4852]">
-                  Unsaved Draft Found: &ldquo;{savedDraftInfo?.formData?.title || 'Untitled Project'}&rdquo; (Step {savedDraftInfo?.step || 1})
+              <div className="min-w-0">
+                <p className="text-xs font-extrabold text-[#3D4852] truncate">
+                  Unsaved Draft: &ldquo;{savedDraftInfo?.formData?.title || 'Untitled Project'}&rdquo; (Step {savedDraftInfo?.step || 1})
                 </p>
-                <p className="text-[11px] text-[#6B7280] font-medium">
-                  Would you like to restore your saved inputs or start with a blank form?
+                <p className="text-[10px] text-[#6B7280] font-medium truncate">
+                  Restore saved inputs or start with a blank form?
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 shrink-0">
               <button
                 onClick={handleStartFresh}
-                className="neumorphic-btn rounded-xl px-4 py-2 text-xs text-[#6B7280] font-bold hover:scale-105 transition-transform cursor-pointer"
+                className="neumorphic-btn rounded-xl px-3 py-1 text-xs text-[#6B7280] font-bold hover:scale-105 transition-transform cursor-pointer"
               >
                 Start Fresh
               </button>
               <button
                 onClick={handleRestoreDraft}
-                className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white rounded-xl px-5 py-2 text-xs font-extrabold shadow-[4px_4px_10px_rgba(108,99,255,0.35)] hover:scale-105 transition-transform cursor-pointer border-none"
+                className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white rounded-xl px-3.5 py-1 text-xs font-extrabold shadow-sm hover:scale-105 transition-transform cursor-pointer border-none"
               >
                 Restore Draft
               </button>

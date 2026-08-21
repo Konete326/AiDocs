@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { Copy, Pencil, Lock, FileText, FileDown, Check, Search, X, ChevronDown, Download, GitCompare } from 'lucide-react';
+import { Copy, Pencil, Lock, FileText, FileDown, Check, Search, X, ChevronDown, Download, GitCompare, ArrowUp } from 'lucide-react';
 import { downloadDocAsPdf, downloadDocAsWord, downloadZip } from '../../services/exportService';
 import LoadingSpinner from '../common/LoadingSpinner';
 import { updateDocument } from '../../services/documentService';
@@ -71,6 +71,25 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   const [pdfSuccess, setPdfSuccess] = useState(false);
   const [wordSuccess, setWordSuccess] = useState(false);
 
+  const scrollRef = useRef(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const handleScroll = () => {
+      setShowScrollTop(el.scrollTop > 300);
+    };
+    el.addEventListener('scroll', handleScroll, { passive: true });
+    return () => el.removeEventListener('scroll', handleScroll);
+  }, [showDiff, isEditing, document.docType]);
+
+  const scrollToTop = () => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   useEffect(() => {
     if (debounceTimerRef.current) clearTimeout(debounceTimerRef.current);
     setEditContent(document.content);
@@ -80,6 +99,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
     setSearchQuery('');
     setShowExportMenu(false);
     setAutoSaveStatus('idle');
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
   }, [document.content, document.docType]);
 
   useEffect(() => {
@@ -239,13 +259,11 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
       <div className="flex items-center gap-2">
         <button
           onClick={() => setShowDiff(!showDiff)}
-          className={`neumorphic-btn rounded-2xl px-3.5 py-2 text-xs font-extrabold flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer ${
-            showDiff ? 'bg-[#6C63FF] text-white shadow-[4px_4px_10px_rgba(108,99,255,0.35)]' : 'text-[#3D4852]'
-          }`}
+          className="neumorphic-btn rounded-2xl px-3.5 py-2 text-xs font-extrabold flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer text-[#3D4852]"
           title="Compare Version Diff"
         >
-          <GitCompare className={`w-3.5 h-3.5 ${showDiff ? 'text-white' : 'text-[#6C63FF]'}`} />
-          <span>{showDiff ? 'Markdown' : 'Diff'}</span>
+          <GitCompare className="w-3.5 h-3.5 text-[#6C63FF]" />
+          <span className="text-[#3D4852] font-extrabold">{showDiff ? 'Markdown' : 'Diff'}</span>
         </button>
         <button onClick={() => { setIsEditing(true); setShowDiff(false); }} className="neumorphic-btn rounded-2xl px-4 py-2 text-xs text-[#3D4852] font-extrabold flex items-center gap-1.5 hover:scale-105 transition-transform cursor-pointer">
           <Pencil className="w-3.5 h-3.5 text-[#6C63FF]" /> Edit
@@ -263,8 +281,8 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
   };
 
   return (
-    <div className="neumorphic-card rounded-[32px] flex flex-col h-full min-h-[450px] lg:min-h-0 overflow-hidden relative bg-[#E0E5EC] text-[#3D4852] border border-white/60 shadow-[9px_9px_18px_rgba(163,177,198,0.5),-9px_-9px_18px_rgba(255,255,255,0.6)]">
-      <div className="sticky top-0 z-20 shrink-0 bg-[#E0E5EC] border-b border-black/5 flex flex-wrap sm:flex-nowrap items-center justify-between px-6 py-3.5 gap-3">
+    <div className="neumorphic-card rounded-[32px] flex flex-col h-full min-h-[450px] lg:min-h-0 overflow-hidden relative bg-[#E0E5EC] text-[#3D4852] border border-[#CAD1DB] shadow-[9px_9px_18px_rgba(163,177,198,0.5),-9px_-9px_18px_rgba(255,255,255,0.6)]">
+      <div className="sticky top-0 z-20 shrink-0 bg-[#E0E5EC] border-b border-[#CAD1DB] flex flex-wrap sm:flex-nowrap items-center justify-between px-6 py-3.5 gap-3">
         <div className="flex items-center gap-2.5 min-w-0 shrink-0">
           <p className="text-base sm:text-lg font-extrabold text-[#3D4852] leading-tight">{DOC_LABELS[document.docType]}</p>
           {saveError && <p className="text-xs text-rose-600 font-bold truncate">{saveError}</p>}
@@ -285,40 +303,43 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
               ) : null}
             </span>
           )}
-          {showDiff ? (
+          {showDiff && (
             <span className="text-[11px] bg-[#6C63FF]/15 text-[#6C63FF] px-3 py-1 rounded-full font-mono font-extrabold shrink-0 neumorphic-inset flex items-center gap-2">
               <span className="text-emerald-700">+{diffData.additions}</span>
               <span className="text-rose-700">-{diffData.deletions}</span>
               <span>v{Math.max(1, (document.version || 1) - 1)} ➔ v{document.version || 1} Diff</span>
             </span>
-          ) : searchQuery.trim() ? (
-            <span className="text-[10px] bg-[#6C63FF]/15 text-[#6C63FF] px-2.5 py-0.5 rounded-full font-mono font-bold shrink-0 neumorphic-inset">
-              {matchCount} {matchCount === 1 ? 'match' : 'matches'}
-            </span>
-          ) : null}
-        </div>
-
-        <div className="flex-1 max-w-sm flex items-center mx-2">
-          {!isEditing && !showDiff && (
-            <div className="relative flex items-center w-full">
-              <Search className="w-3.5 h-3.5 text-[#6B7280] absolute left-3 pointer-events-none" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Filter document..."
-                className="w-full bg-[#E0E5EC] text-xs font-bold text-[#3D4852] placeholder:text-[#6B7280] pl-8 pr-7 py-2 rounded-2xl outline-none neumorphic-inset"
-              />
-              {searchQuery ? (
-                <button onClick={() => setSearchQuery('')} className="absolute right-2 text-[#6B7280] hover:text-[#3D4852] cursor-pointer">
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              ) : null}
-            </div>
           )}
         </div>
 
-        <div className="col-span-12 sm:col-span-4 flex items-center justify-end gap-2">
+        <div className="flex-1 max-w-sm flex items-center gap-2 mx-2">
+          {!isEditing && (
+            <>
+              <div className="relative flex items-center flex-1">
+                <Search className="w-3.5 h-3.5 text-[#6B7280] absolute left-3 pointer-events-none" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Filter document..."
+                  className="w-full bg-[#E0E5EC] text-xs font-bold text-[#3D4852] placeholder:text-[#6B7280] pl-8 pr-7 py-2 rounded-2xl outline-none neumorphic-inset"
+                />
+                {searchQuery ? (
+                  <button onClick={() => setSearchQuery('')} className="absolute right-2 text-[#6B7280] hover:text-[#3D4852] cursor-pointer">
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                ) : null}
+              </div>
+              {searchQuery.trim() ? (
+                <span className="text-[10px] bg-[#6C63FF]/15 text-[#6C63FF] px-2.5 py-1 rounded-full font-mono font-bold shrink-0 neumorphic-inset whitespace-nowrap">
+                  {matchCount} {matchCount === 1 ? 'match' : 'matches'}
+                </span>
+              ) : null}
+            </>
+          )}
+        </div>
+
+        <div className="col-span-12 sm:col-span-4 flex items-center justify-end gap-2 shrink-0">
           {!isEditing && (
             <div className="relative" ref={menuRef}>
               <button
@@ -332,7 +353,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
               </button>
 
               {showExportMenu && (
-                <div className="absolute right-0 mt-2 w-52 rounded-2xl neumorphic-card bg-[#E0E5EC] z-30 py-1.5 flex flex-col gap-0.5 overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+                <div className="absolute right-0 mt-2 w-52 rounded-2xl neumorphic-card bg-[#E0E5EC] z-30 py-1.5 flex flex-col gap-0.5 overflow-hidden animate-in fade-in zoom-in-95 duration-150 border border-[#CAD1DB] shadow-[9px_9px_16px_rgba(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)]">
                   <button
                     onClick={() => { handleCopy(); setShowExportMenu(false); }}
                     className="w-full px-4 py-2.5 text-left text-xs text-[#3D4852] hover:bg-[#6C63FF]/10 flex items-center justify-between transition-colors cursor-pointer font-bold"
@@ -382,7 +403,7 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
           {renderButtons()}
         </div>
       </div>
-      <div className={`flex-1 px-6 py-6 font-medium text-[#3D4852] ${isEditing ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
+      <div ref={scrollRef} className={`flex-1 px-6 py-6 font-medium text-[#3D4852] ${isEditing ? 'overflow-hidden flex flex-col' : 'overflow-y-auto'}`}>
         {isEditing ? (
           <DocumentEditor content={editContent} onChange={setEditContent} saveError={saveError} />
         ) : showDiff ? (
@@ -418,6 +439,17 @@ const DocumentViewer = ({ document, project, user, subscription, onUpdate }) => 
           </div>
         ) : renderedMarkdown}
       </div>
+
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="absolute bottom-5 right-6 z-30 w-10 h-10 rounded-2xl neumorphic-btn bg-[#E0E5EC] border border-[#CAD1DB] text-[#6C63FF] shadow-[5px_5px_14px_rgba(163,177,198,0.6),-5px_-5px_14px_rgba(255,255,255,0.7)] flex items-center justify-center hover:scale-110 active:scale-95 transition-all cursor-pointer animate-in fade-in zoom-in duration-200"
+          title="Scroll to top"
+          aria-label="Scroll to top"
+        >
+          <ArrowUp className="w-5 h-5 text-[#6C63FF]" />
+        </button>
+      )}
     </div>
   );
 };

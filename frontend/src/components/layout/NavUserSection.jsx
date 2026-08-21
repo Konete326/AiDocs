@@ -19,11 +19,11 @@ const NavUserSection = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex items-center gap-2">
-        <button onClick={() => navigate('/login')} className="neumorphic-btn rounded-full px-4 py-1.5 text-xs font-bold text-[#3D4852] cursor-pointer">
+      <div className="flex items-center gap-1.5 sm:gap-2">
+        <button onClick={() => navigate('/login')} className="hidden sm:inline-flex neumorphic-btn rounded-full px-3.5 py-1.5 text-xs font-bold text-[#3D4852] cursor-pointer">
           Sign in
         </button>
-        <button onClick={() => navigate('/register')} className="rounded-full px-4 py-1.5 text-xs font-bold bg-[#6C63FF] text-white cursor-pointer shadow-md">
+        <button onClick={() => navigate('/register')} className="rounded-full px-3.5 sm:px-4 py-1.5 text-xs font-bold bg-[#6C63FF] hover:bg-[#8B84FF] text-white cursor-pointer shadow-md">
           Get Started
         </button>
       </div>
@@ -31,14 +31,15 @@ const NavUserSection = () => {
   }
 
   return (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2 sm:gap-3">
       <NotificationBell />
       <div onClick={() => navigate('/profile')} className="cursor-pointer p-0.5 rounded-full neumorphic-inset">
         <UserAvatar size="sm" user={user} />
       </div>
+
       <button 
         onClick={() => navigate('/settings')}
-        className="neumorphic-btn rounded-full w-9 h-9 flex items-center justify-center cursor-pointer"
+        className="hidden md:flex neumorphic-btn rounded-full w-9 h-9 items-center justify-center cursor-pointer"
         title="Settings"
       >
         <Settings className="w-4 h-4 text-[#3D4852]" />
@@ -46,7 +47,7 @@ const NavUserSection = () => {
 
       <button 
         onClick={() => setShowLogoutModal(true)}
-        className="neumorphic-btn rounded-full w-9 h-9 flex items-center justify-center cursor-pointer hover:bg-rose-50"
+        className="hidden md:flex neumorphic-btn rounded-full w-9 h-9 items-center justify-center cursor-pointer hover:bg-rose-50"
         title="Logout"
       >
         <LogOut className="w-4 h-4 text-rose-600 font-bold" />

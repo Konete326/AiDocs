@@ -28,14 +28,14 @@ const AppNavbar = () => {
   if (isSandboxOpen || location.pathname.includes('/preview') || location.pathname.startsWith('/components') || location.pathname.startsWith('/embed') || location.pathname.startsWith('/editor')) return null;
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-40 px-4 md:px-8 py-3 pointer-events-none">
-      <div className="max-w-7xl mx-auto liquid-glass-strong no-hover rounded-2xl px-6 h-[60px] flex items-center justify-between pointer-events-auto shadow-2xl !overflow-visible mb-[5px]">
+    <nav className="fixed top-0 left-0 right-0 z-40 px-3 sm:px-6 md:px-8 py-2.5 pointer-events-none">
+      <div className="max-w-7xl mx-auto neumorphic-card rounded-2xl px-3.5 sm:px-6 h-[56px] sm:h-[60px] flex items-center justify-between pointer-events-auto border border-[#CAD1DB] shadow-[9px_9px_16px_rgba(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)]">
         <div 
           onClick={() => navigate('/')}
-          className="flex items-center gap-3 cursor-pointer"
+          className="flex items-center gap-2 sm:gap-3 cursor-pointer shrink-0"
         >
-          <img src={logo} alt="ClarifyAI Logo" className="h-8 w-auto object-contain rounded-lg" />
-          <span className="hidden sm:block text-base font-bold tracking-tight text-slate-900">
+          <img src={logo} alt="ClarifyAI Logo" className="h-7 sm:h-8 w-auto object-contain rounded-lg" />
+          <span className="text-sm sm:text-base font-black tracking-tight text-[#3D4852]">
             ClarifyAI
           </span>
         </div>
@@ -44,14 +44,15 @@ const AppNavbar = () => {
           <NavLinks />
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <NavUserSection />
           
           <button 
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden liquid-glass no-hover rounded-full w-9 h-9 flex items-center justify-center cursor-pointer"
+            className="md:hidden neumorphic-btn rounded-xl w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center cursor-pointer text-[#3D4852]"
+            aria-label="Toggle Menu"
           >
-            {mobileOpen ? <X className="w-4 h-4 text-slate-900" /> : <Menu className="w-4 h-4 text-slate-900" />}
+            {mobileOpen ? <X className="w-4 h-4 text-[#3D4852]" /> : <Menu className="w-4 h-4 text-[#3D4852]" />}
           </button>
         </div>
       </div>

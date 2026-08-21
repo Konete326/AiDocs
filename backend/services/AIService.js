@@ -10,7 +10,7 @@ const providers = [
   {
     name: 'GEMINI_FLASH',
     type: 'gemini',
-    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent',
+    url: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent',
     getKey: () => process.env.GEMINI_API_KEY
   },
   {
@@ -66,7 +66,7 @@ const callProvider = async (provider, prompt, max_tokens = 2048) => {
         headers: {
           'Content-Type': 'application/json'
         },
-        timeout: 60000
+        timeout: 12000
       }
     );
     

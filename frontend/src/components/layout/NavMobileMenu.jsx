@@ -33,45 +33,51 @@ const NavMobileMenu = ({ isOpen, onClose }) => {
   const menuItems = isAuthenticated 
     ? [
         { label: 'Home', href: '/', icon: Home },
-        { label: 'Projects', href: '/dashboard', icon: LayoutDashboard },
-        { label: 'Components', href: '/components', icon: Layers },
-        { label: 'Pricing', href: '/pricing', icon: CreditCard },
-        { label: 'Profile', href: '/profile', icon: User },
+        { label: 'Projects Dashboard', href: '/dashboard', icon: LayoutDashboard },
+        { label: 'Components Hub', href: '/components', icon: Layers },
+        { label: 'Pricing Plans', href: '/pricing', icon: CreditCard },
+        { label: 'User Profile', href: '/profile', icon: User },
         { label: 'Settings', href: '/settings', icon: Settings },
-        { label: 'Logout', action: logout, icon: LogOut, danger: true },
+        { label: 'Logout Account', action: logout, icon: LogOut, danger: true },
       ]
     : [
         { label: 'Home', href: '/', icon: Home },
-        { label: 'Components', href: '/components', icon: Layers },
-        { label: 'Pricing', href: '/pricing', icon: CreditCard },
+        { label: 'Components Hub', href: '/components', icon: Layers },
+        { label: 'Pricing Plans', href: '/pricing', icon: CreditCard },
         { label: 'Sign In', href: '/login', icon: LogIn },
-        { label: 'Get Started', href: '/register', icon: UserPlus },
+        { label: 'Get Started Free', href: '/register', icon: UserPlus, primary: true },
       ];
 
   return (
     <>
-      <div className="fixed inset-0 z-[100] h-[100dvh]">
+      <div className="fixed inset-0 z-[100] pointer-events-auto">
         <div onClick={onClose} className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
         <motion.div
           initial={{ opacity: 0, scale: 0.95, y: -10 }} 
           animate={{ opacity: 1, scale: 1, y: 0 }} 
           exit={{ opacity: 0, scale: 0.95, y: -10 }}
-          className="relative top-20 left-4 right-4 z-[110] liquid-glass-strong rounded-2xl p-2 space-y-1 shadow-2xl border border-white/5"
+          className="relative top-18 left-3 right-3 sm:left-6 sm:right-6 z-[110] bg-[#E0E5EC] rounded-3xl p-3 space-y-1.5 shadow-[9px_9px_16px_rgba(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)] border border-[#CAD1DB]"
         >
           {menuItems.map((item) => (
             <button
               key={item.label}
               onClick={() => handleLink(item)}
-              className="w-full liquid-glass rounded-xl px-4 py-2.5 flex items-center justify-between transition-all hover:bg-white/5 active:scale-95 cursor-pointer text-left"
+              className={`w-full rounded-2xl px-4 py-2.5 flex items-center justify-between transition-all active:scale-[0.98] cursor-pointer text-left ${
+                item.primary
+                  ? 'bg-[#6C63FF] text-white shadow-md'
+                  : item.danger
+                  ? 'neumorphic-btn text-rose-600 hover:bg-rose-50'
+                  : 'neumorphic-btn text-[#3D4852]'
+              }`}
             >
               <div className="flex items-center gap-3">
-                <item.icon className={`w-4 h-4 ${item.danger ? 'text-red-400/50' : 'text-white/50'}`} />
-                <span className={`text-sm ${item.danger ? 'text-red-400/70' : 'text-white/70'}`}>
+                <item.icon className={`w-4 h-4 ${item.primary ? 'text-white' : item.danger ? 'text-rose-600' : 'text-[#6C63FF]'}`} />
+                <span className={`text-xs font-bold ${item.primary ? 'text-white' : item.danger ? 'text-rose-600' : 'text-[#3D4852]'}`}>
                   {item.label}
                 </span>
               </div>
               {item.badge && (
-                <span className="text-[10px] font-extrabold px-1.5 py-0.5 rounded-md bg-blue-600 text-white">
+                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-[#6C63FF] text-white">
                   {item.badge}
                 </span>
               )}
@@ -85,9 +91,9 @@ const NavMobileMenu = ({ isOpen, onClose }) => {
         onCancel={() => setShowLogoutModal(false)}
         onConfirm={handleLogoutConfirm}
         title="Logout Account"
-        message="Are you sure you want to log out? You will need to sign in again to access shared documents and projects."
+        message="Are you sure you want to log out?"
         confirmLabel="Logout"
-        variant="danger"
+        isDangerous={true}
       />
     </>
   );

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import SuggestionPills from '../SuggestionPills';
 import { useSuggestions } from '../../../hooks/useSuggestions';
-import { Code2, Check, X, Layers, Smartphone, Globe, Bot, ShoppingCart, Store } from 'lucide-react';
+import { Code2, Check, X, Layers } from 'lucide-react';
 
 export const StackLogo = ({ stackId, className = "w-6 h-6" }) => {
   switch (stackId) {
@@ -127,23 +127,9 @@ export const STACK_OPTIONS = [
   { id: 'mern', category: 'marketplace', label: 'MERN Realtime Marketplace (Socket.io + Escrow)', desc: 'Live bidding, direct buyer-seller messaging, milestone escrow releases, and ratings', value: 'Node.js Express Marketplace with Socket.io Chat, MongoDB, and Escrow' }
 ];
 
-const CATEGORY_TABS = [
-  { id: 'mobile', label: 'Mobile App', icon: Smartphone },
-  { id: 'saas', label: 'SaaS Platform', icon: Globe },
-  { id: 'ai', label: 'AI Tool', icon: Bot },
-  { id: 'ecommerce', label: 'E-Commerce', icon: ShoppingCart },
-  { id: 'marketplace', label: 'Marketplace', icon: Store },
-  { id: 'all', label: 'All Stacks', icon: Layers }
-];
-
 export function TechFieldSelector({ formData, onChange }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const projectCategory = (formData.projectType || 'saas').toLowerCase();
-  const [activeTab, setActiveTab] = useState(projectCategory);
-
-  useEffect(() => {
-    setActiveTab((formData.projectType || 'saas').toLowerCase());
-  }, [formData.projectType]);
 
   const selectedVal = formData.wizardAnswers.techPreferences || '';
   const currentStack = STACK_OPTIONS.find(s => selectedVal === s.value || selectedVal === s.id || (selectedVal && selectedVal.toLowerCase().includes(s.id.toLowerCase()))) ||
@@ -153,9 +139,7 @@ export function TechFieldSelector({ formData, onChange }) {
 
   const shortStackName = currentStack.label.split(' (')[0];
 
-  const filteredStacks = activeTab === 'all'
-    ? STACK_OPTIONS
-    : STACK_OPTIONS.filter(s => s.category === activeTab);
+  const filteredStacks = STACK_OPTIONS.filter(s => s.category === projectCategory);
 
   const handleSelectStack = (stack) => {
     onChange('wizardAnswers.techPreferences', stack.value);
@@ -172,16 +156,9 @@ export function TechFieldSelector({ formData, onChange }) {
             <StackLogo stackId={currentStack.id} className="w-5 h-5" />
           </div>
           <div className="min-w-0">
-            <div className="flex items-center gap-1.5 min-w-0">
-              <h4 className="text-xs font-extrabold text-[#3D4852] truncate">
-                {shortStackName}
-              </h4>
-              {currentStack.isRecommended && (
-                <span className="inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full text-[8.5px] font-extrabold bg-amber-500/15 text-amber-700 border border-amber-500/30 shrink-0">
-                  ⭐ Fast MVP
-                </span>
-              )}
-            </div>
+            <h4 className="text-xs font-extrabold text-[#3D4852] truncate">
+              {shortStackName}
+            </h4>
             <p className="text-[10px] text-[#6C63FF] font-extrabold truncate mt-0.5 capitalize">{currentStack.category || 'Active'} Framework</p>
           </div>
         </div>
@@ -196,52 +173,30 @@ export function TechFieldSelector({ formData, onChange }) {
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-[120] flex items-center justify-center pt-16 md:pt-20 pb-6 px-4 bg-black/80 backdrop-blur-xl animate-in fade-in duration-150">
-          <div className="w-full max-w-6xl w-[92vw] neumorphic-card rounded-[2.5rem] bg-[#E0E5EC] text-[#3D4852] flex flex-col overflow-hidden shadow-2xl max-h-[85vh] mt-2 md:mt-4">
-            <div className="flex items-center justify-between p-5 px-7 border-b border-black/5 bg-[#E0E5EC]">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-2xl bg-[#6C63FF] text-white flex items-center justify-center font-extrabold text-sm shadow-md">
-                  <Layers className="w-5 h-5" />
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-2 sm:p-3 bg-black/75 backdrop-blur-sm">
+          <div className="w-full max-w-5xl w-[94vw] neumorphic-card rounded-[2rem] bg-[#E0E5EC] text-[#3D4852] flex flex-col overflow-hidden shadow-2xl max-h-[90vh]">
+            <div className="flex items-center justify-between p-2.5 px-4 md:px-5 border-b border-black/5 bg-[#E0E5EC]">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-xl bg-[#6C63FF] text-white flex items-center justify-center font-extrabold text-xs shadow-md">
+                  <Layers className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-[#3D4852]">Choose Target Framework & Stack</h3>
-                  <p className="text-xs text-[#6B7280] font-medium mt-0.5">
-                    Showing verified architecture stacks tailored specifically for <strong className="text-[#6C63FF] uppercase">{formData.projectType || 'Software'}</strong> projects.
+                  <h3 className="text-xs md:text-sm font-extrabold text-[#3D4852]">Choose Target Framework</h3>
+                  <p className="text-[10.5px] text-[#6B7280] font-medium">
+                    Verified architecture stacks for <strong className="text-[#6C63FF] uppercase">{formData.projectType || 'Software'}</strong> projects.
                   </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="w-8 h-8 rounded-full neumorphic-btn flex items-center justify-center text-[#6B7280] hover:text-[#3D4852] cursor-pointer"
+                className="w-7 h-7 rounded-full neumorphic-btn flex items-center justify-center text-[#6B7280] hover:text-[#3D4852] cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <div className="px-6 pt-3 pb-1 border-b border-black/5 bg-[#E0E5EC] flex items-center gap-1.5 overflow-x-auto custom-scrollbar">
-              {CATEGORY_TABS.map((tab) => {
-                const TabIcon = tab.icon;
-                const isTabActive = activeTab === tab.id;
-                return (
-                  <button
-                    key={tab.id}
-                    type="button"
-                    onClick={() => setActiveTab(tab.id)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-1.5 flex-shrink-0 ${
-                      isTabActive
-                        ? 'bg-[#6C63FF] text-white !text-white shadow-md'
-                        : 'bg-[#E0E5EC] text-[#6B7280] hover:text-[#3D4852] shadow-[2px_2px_4px_rgba(163,177,198,0.4),-2px_-2px_4px_rgba(255,255,255,0.5)]'
-                    }`}
-                  >
-                    <TabIcon className="w-3.5 h-3.5" />
-                    <span>{tab.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
+            <div className="p-3 sm:p-4 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5 max-h-[68vh] custom-scrollbar">
               {filteredStacks.map((stack) => {
                 const isSelected = currentStack.id === stack.id && (currentStack.value === stack.value || currentStack.category === stack.category);
                 return (
@@ -249,20 +204,20 @@ export function TechFieldSelector({ formData, onChange }) {
                     key={`${stack.category}-${stack.id}`}
                     type="button"
                     onClick={() => handleSelectStack(stack)}
-                    className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                    className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                       isSelected
                         ? "bg-[#6C63FF] border-[#6C63FF] text-white shadow-lg ring-2 ring-[#6C63FF]/30"
                         : "neumorphic-card bg-[#E0E5EC] border-black/5 text-[#3D4852] hover:border-[#6C63FF]/40"
                     }`}
                   >
                     <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="w-8 h-8 rounded-xl bg-white/20 p-1 flex items-center justify-center shadow-xs">
-                          <StackLogo stackId={stack.id} className="w-6 h-6" />
+                      <div className="flex items-center justify-between mb-1.5">
+                        <div className="w-7 h-7 rounded-xl bg-white/20 p-1 flex items-center justify-center shadow-xs">
+                          <StackLogo stackId={stack.id} className="w-5 h-5" />
                         </div>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1">
                           {stack.isRecommended && (
-                            <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-extrabold shadow-xs ${
+                            <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.2 rounded-full text-[8.5px] font-extrabold shadow-xs ${
                               isSelected
                                 ? 'bg-amber-400 text-amber-950 font-black'
                                 : 'bg-amber-500/15 text-amber-700 border border-amber-500/30'
@@ -271,32 +226,32 @@ export function TechFieldSelector({ formData, onChange }) {
                               <span>Fast MVP</span>
                             </span>
                           )}
-                          {isSelected && <Check size={16} className="text-white font-bold" />}
+                          {isSelected && <Check size={14} className="text-white font-bold" />}
                         </div>
                       </div>
                       <h4 className="text-xs font-extrabold mb-1 leading-snug">{stack.label}</h4>
-                      <p className={`text-[11px] leading-relaxed line-clamp-2 ${isSelected ? 'text-white/90' : 'text-[#6B7280]'}`}>{stack.desc}</p>
+                      <p className={`text-[10.5px] leading-relaxed line-clamp-2 ${isSelected ? 'text-white/90' : 'text-[#6B7280]'}`}>{stack.desc}</p>
                     </div>
 
-                    <div className="mt-4 pt-2 border-t border-black/5 flex items-center justify-between">
-                      <span className={`text-[9px] font-extrabold uppercase tracking-wider ${isSelected ? 'text-white' : 'text-[#6C63FF]'}`}>
+                    <div className="mt-3 pt-1.5 border-t border-black/5 flex items-center justify-between">
+                      <span className={`text-[8.5px] font-extrabold uppercase tracking-wider ${isSelected ? 'text-white' : 'text-[#6C63FF]'}`}>
                         {isSelected ? 'Active Stack' : 'Click to Select'}
                       </span>
-                      <span className={`text-xs font-bold ${isSelected ? 'text-white' : 'text-[#6C63FF]'}`}>Select ↗</span>
+                      <span className={`text-[11px] font-bold ${isSelected ? 'text-white' : 'text-[#6C63FF]'}`}>Select ↗</span>
                     </div>
                   </button>
                 );
               })}
             </div>
 
-            <div className="p-4 px-7 border-t border-black/5 bg-[#E0E5EC] flex justify-between items-center">
+            <div className="p-2 px-5 border-t border-black/5 bg-[#E0E5EC] flex justify-between items-center">
               <span className="text-xs text-[#6B7280] font-semibold">
-                Current Stack: <strong className="text-[#6C63FF] font-extrabold">{currentStack.label}</strong>
+                Active: <strong className="text-[#6C63FF] font-extrabold">{currentStack.label}</strong>
               </span>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white !text-white font-extrabold px-5 py-2 rounded-2xl text-xs transition-all shadow-md cursor-pointer"
+                className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white !text-white font-extrabold px-4 py-1 rounded-xl text-xs transition-all shadow-md cursor-pointer"
               >
                 <span className="text-white !text-white font-extrabold">Close</span>
               </button>

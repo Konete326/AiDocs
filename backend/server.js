@@ -1,23 +1,12 @@
 require('dotenv').config();
-
-const requiredEnvVars = ['MONGODB_URI', 'JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET'];
-const missing = requiredEnvVars.filter(v => !process.env[v]);
-if (missing.length > 0) {
-  console.error(`Missing required env vars: ${missing.join(', ')}`);
-}
-
-
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
-
 const db = require('./config/db');
-
 const { apiLimiter } = require('./middleware/rateLimiter');
 const errorHandler = require('./middleware/errorHandler');
-
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const projectRoutes = require('./routes/projectRoutes');
@@ -28,6 +17,8 @@ const chatRoutes = require('./routes/chatRoutes');
 const exportRoutes = require('./routes/exportRoutes');
 const feedbackRoutes = require('./routes/feedbackRoutes');
 const suggestionRoutes = require('./routes/suggestionRoutes');
+const subscriptionController = require('./controllers/subscriptionController');
+const { recoverAllStuckProjects } = require('./services/recoveryService');
 
 const app = express();
 
@@ -41,17 +32,31 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
 ].filter(Boolean);
 
+const allowedHeaders = [
+  'Content-Type',
+  'Authorization',
+  'X-Requested-With',
+  'Accept',
+  'Cache-Control',
+  'Pragma',
+  'X-CSRF-Token',
+  'X-Api-Version',
+  'X-Idempotency-Key',
+  'X-Refresh-Token',
+  'x-refresh-token',
+  'x-idempotency-key'
+];
+
 app.use((req, res, next) => {
   if (req.url && req.url.includes('//')) {
     req.url = req.url.replace(/\/+/g, '/');
   }
   const origin = req.headers.origin;
-  const isAllowed = !origin || allowedOrigins.includes(origin) || (origin && origin.endsWith('.vercel.app'));
-  if (isAllowed && origin) {
+  if (origin) {
     res.setHeader('Access-Control-Allow-Origin', origin);
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma, X-CSRF-Token, X-Api-Version');
+    res.setHeader('Access-Control-Allow-Headers', allowedHeaders.join(', '));
   }
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -60,19 +65,12 @@ app.use((req, res, next) => {
 });
 
 app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
-      callback(null, true);
-    } else {
-      callback(null, true);
-    }
-  },
+  origin: (origin, callback) => callback(null, true),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Cache-Control', 'Pragma', 'X-CSRF-Token', 'X-Api-Version'],
+  allowedHeaders
 }));
 
-const { recoverAllStuckProjects } = require('./services/recoveryService');
 recoverAllStuckProjects().catch(() => {});
 
 app.use(async (req, res, next) => {
@@ -85,57 +83,36 @@ app.use(async (req, res, next) => {
   }
 });
 
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
-
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
 app.use(morgan('dev'));
-
-const subscriptionController = require('./controllers/subscriptionController');
 app.use('/api/subscriptions/webhook', express.raw({ type: 'application/json' }), subscriptionController.handleWebhook);
-
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 app.use('/api', apiLimiter);
-
 app.set('trust proxy', 1);
 
-app.get('/', (req, res) => {
-  res.status(200).json({ status: 'active', message: 'ClarifyAI API is running' });
-});
+app.get('/', (req, res) => res.status(200).json({ status: 'active', message: 'ClarifyAI API is running' }));
 
-// CRITICAL: Mount skillsRoutes BEFORE projectRoutes to avoid /library being caught by /:id
-app.use(['/api/projects', '/projects'], require('./routes/skillsRoutes'));
-app.use(['/api/projects', '/projects'], projectRoutes);
-
+app.use(['/api/projects', '/projects'], require('./routes/skillsRoutes'), projectRoutes);
 app.use(['/api/auth', '/auth'], authRoutes);
 app.use(['/api/users', '/users'], userRoutes);
 app.use(['/api/projects/:projectId/documents', '/projects/:projectId/documents'], documentRoutes);
 app.use(['/api/subscriptions', '/subscriptions'], subscriptionRoutes);
 app.use(['/api/notifications', '/notifications'], notificationRoutes);
-app.use(['/api', '/'], require('./routes/mcpRoutes'));
-app.use(['/api', '/'], chatRoutes);
-app.use(['/api', '/'], exportRoutes);
+app.use(['/api', '/'], require('./routes/mcpRoutes'), chatRoutes, exportRoutes, suggestionRoutes);
 app.use(['/api/feedback', '/feedback'], feedbackRoutes);
 app.use(['/api/ui-components', '/ui-components'], require('./routes/uiComponentRoutes'));
 app.use(['/api/github', '/github'], require('./routes/githubRoutes'));
 app.use(['/api/webhooks', '/webhooks'], require('./routes/webhookRoutes'));
-app.use(['/api', '/'], suggestionRoutes);
 app.use(['/api/vscode', '/vscode'], require('./routes/vscodeRoutes'));
 
-app.use((req, res, next) => {
-  res.status(404).json({ success: false, error: 'Route not found' });
-});
-
+app.use((req, res) => res.status(404).json({ success: false, error: 'Route not found' }));
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-
 if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
 module.exports = app;

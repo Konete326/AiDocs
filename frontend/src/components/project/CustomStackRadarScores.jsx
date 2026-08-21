@@ -14,23 +14,23 @@ export default function CustomStackRadarScores({ currentStack }) {
   ];
 
   return (
-    <div className="space-y-2 pt-2 border-t border-slate-200">
-      <span className="text-[9.5px] uppercase tracking-widest text-blue-600 block font-mono font-bold">
+    <div className="space-y-2 pt-2.5 border-t border-black/5">
+      <span className="text-[10px] uppercase tracking-widest text-[#6C63FF] block font-mono font-bold">
         Live Performance Radar
       </span>
-      <div className="space-y-1.5">
+      <div className="space-y-2">
         {metrics.map(({ label, value, icon: Icon }) => (
-          <div key={label} className="space-y-0.5">
+          <div key={label} className="space-y-1">
             <div className="flex justify-between items-center text-[10.5px]">
               <div className="flex items-center gap-1.5">
-                <Icon className="w-3 h-3 text-blue-600 shrink-0" />
-                <span className="text-slate-800 font-semibold">{label}</span>
+                <Icon className="w-3 h-3 text-[#6C63FF] shrink-0" />
+                <span className="text-[#3D4852] font-bold">{label}</span>
               </div>
-              <span className="font-mono text-blue-600 font-bold">{value}%</span>
+              <span className="font-mono text-[#6C63FF] font-black">{value}%</span>
             </div>
-            <div className="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden border border-slate-200">
+            <div className="w-full bg-[#cad1db]/40 rounded-full h-1.5 overflow-hidden neumorphic-inset">
               <div
-                className="bg-blue-600 h-1.5 rounded-full transition-all duration-300 ease-out"
+                className="bg-[#6C63FF] h-1.5 rounded-full transition-all duration-300 ease-out"
                 style={{ width: `${value}%` }}
               />
             </div>

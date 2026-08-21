@@ -6,6 +6,9 @@ let refreshPromise = null;
 let initialRefreshAttempted = false;
 let initialRefreshFailed = false;
 
+const MAX_RETRIES = 3;
+const RETRY_DELAY_BASE = 800;
+
 export const getAccessToken = () => _accessToken;
 export const setAccessToken = (token) => {
   _accessToken = token;
@@ -34,6 +37,13 @@ const isPublicAuthEndpoint = (url) => {
     url.includes('/auth/reset-password');
 };
 
+const isNetworkOrServerError = (error) => {
+  if (!error) return false;
+  if (!error.response) return true;
+  const status = error.response.status;
+  return status === 408 || status === 429 || status === 502 || status === 503 || status === 504;
+};
+
 export const refreshAccessTokenSilent = async () => {
   if (!refreshPromise) {
     const storedRefreshToken = localStorage.getItem('clarifyai_refresh_token');
@@ -44,11 +54,11 @@ export const refreshAccessTokenSilent = async () => {
 
     refreshPromise = axios.post(
       `${cleanBaseUrl}/auth/refresh`,
-      {},
+      { refreshToken: storedRefreshToken || undefined },
       { withCredentials: true, headers }
     ).then(response => {
-      const newAccessToken = response.data.data.accessToken;
-      const newRefreshToken = response.data.data.refreshToken;
+      const newAccessToken = response.data?.data?.accessToken;
+      const newRefreshToken = response.data?.data?.refreshToken;
       setAccessToken(newAccessToken);
       if (newRefreshToken) {
         localStorage.setItem('clarifyai_refresh_token', newRefreshToken);
@@ -76,15 +86,11 @@ api.interceptors.request.use(
     if (refreshPromise) {
       try {
         await refreshPromise;
-      } catch (err) {
-        // Handled by response interceptor
-      }
+      } catch (err) {}
     } else if (!_accessToken && !initialRefreshFailed) {
       try {
         await refreshAccessTokenSilent();
-      } catch (err) {
-        // Handled by response interceptor
-      }
+      } catch (err) {}
     }
 
     const token = getAccessToken();
@@ -123,8 +129,22 @@ api.interceptors.response.use(
         } catch (err) {
         } finally {
           setAccessToken(null);
+          localStorage.removeItem('clarifyai_refresh_token');
+          if (typeof window !== 'undefined' && !window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
+            window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+          }
         }
         return Promise.reject(refreshError);
+      }
+    }
+
+    if (originalRequest && !isRefreshRequest && isNetworkOrServerError(error)) {
+      originalRequest.__retryCount = originalRequest.__retryCount || 0;
+      if (originalRequest.__retryCount < MAX_RETRIES) {
+        originalRequest.__retryCount += 1;
+        const delay = RETRY_DELAY_BASE * Math.pow(1.5, originalRequest.__retryCount - 1);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        return api(originalRequest);
       }
     }
 
@@ -133,5 +153,3 @@ api.interceptors.response.use(
 );
 
 export default api;
-
-

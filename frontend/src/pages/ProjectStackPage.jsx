@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Sparkles, Loader2, RotateCcw, Sliders } from 'lucide-react';
+import { ArrowLeft, Sparkles, Loader2, Sliders } from 'lucide-react';
 import { getProject, updateProject, triggerGeneration } from '../services/projectService';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import PresetStackCards from '../components/project/PresetStackCards';
@@ -36,6 +36,14 @@ export default function ProjectStackPage() {
 
   const handleApplyStack = async (targetValue) => {
     const valToApply = targetValue || selectedStack;
+    const currentStack = project?.wizardAnswers?.techPreferences || DEFAULT_MERN_VALUE;
+
+    if (valToApply.trim().toLowerCase() === currentStack.trim().toLowerCase()) {
+      toast.success('This architecture blueprint is already active for this project');
+      navigate(`/projects/${id}`);
+      return;
+    }
+
     setIsUpdating(true);
     setErrorMsg('');
     try {
@@ -44,7 +52,7 @@ export default function ProjectStackPage() {
       await triggerGeneration(id, true);
       setProject(updatedProj);
       setSelectedStack(valToApply);
-      setSuccessMsg('Target stack saved! Architecture blueprints re-generated.');
+      setSuccessMsg('Target stack updated! Tech specification refreshed.');
       toast.success('Target stack updated successfully!');
       navigate(`/projects/${id}`);
     } catch (err) {
@@ -88,10 +96,6 @@ export default function ProjectStackPage() {
               <Sliders className="w-4 h-4 text-[#6C63FF]" />
               <span>Build Custom Stack</span>
             </button>
-            <button onClick={() => { setSelectedStack(DEFAULT_MERN_VALUE); handleApplyStack(DEFAULT_MERN_VALUE); }} disabled={isUpdating} className="neumorphic-btn rounded-2xl px-4 py-2 text-xs font-bold text-[#3D4852] flex items-center gap-2 cursor-pointer">
-              <RotateCcw className="w-4 h-4 text-amber-600" />
-              <span>Reset MERN</span>
-            </button>
             <button onClick={() => handleApplyStack(selectedStack)} disabled={isUpdating} className="rounded-2xl px-5 py-2.5 text-xs font-bold text-white flex items-center gap-2 cursor-pointer bg-[#6C63FF] hover:bg-[#8B84FF] shadow-md">
               {isUpdating ? <Loader2 className="w-4 h-4 animate-spin text-white" /> : <Sparkles className="w-4 h-4 text-white" />}
               <span>Save & Re-target Specs</span>
@@ -102,7 +106,7 @@ export default function ProjectStackPage() {
         {successMsg && <div className="mb-4 px-4 py-3 rounded-2xl neumorphic-inset text-[#38B2AC] text-xs font-bold">{successMsg}</div>}
         {errorMsg && <div className="mb-4 px-4 py-3 rounded-2xl neumorphic-inset text-rose-600 text-xs font-bold">{errorMsg}</div>}
 
-        <StackCategoryFilters activeCategory={activeCategory} onSelectCategory={setActiveCategory} />
+        <StackCategoryFilters activeCategory={activeCategory} onSelectCategory={setActiveCategory} project={project} />
         <PresetStackCards selectedStack={selectedStack} onSelectStack={setSelectedStack} onApplyStack={handleApplyStack} isUpdating={isUpdating} activeCategory={activeCategory} project={project} />
       </div>
     </div>

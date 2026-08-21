@@ -1,4 +1,4 @@
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { triggerGeneration } from '../services/projectService';
@@ -24,8 +24,20 @@ const ProjectDetail = () => {
     selectedDoc, setSelectedDoc, subscription, isLoading, error
   } = useProjectPolling(id);
 
-  // Allows user to jump into partial bento-grid view during generation
   const [viewingPartial, setViewingPartial] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  useEffect(() => {
+    if (project?.status === 'generating') {
+      localStorage.setItem('clarifyai_active_generation', JSON.stringify({
+        projectId: id,
+        title: project.title,
+        startedAt: Date.now()
+      }));
+    } else if (project?.status && project.status !== 'generating') {
+      localStorage.removeItem('clarifyai_active_generation');
+    }
+  }, [project?.status, project?.title, id]);
 
   // ─── Document Synthesis ────────────────────────────────────────────────────
   const synthesizedDocs = useMemo(() => {
@@ -127,12 +139,16 @@ ${ds.prompt || ds.tagline || ''}
   // Show generating screen unless user clicked "View Ready Docs"
   if (isGenerating && !viewingPartial) return (
     <div className="relative min-h-screen w-full overflow-hidden">
-      <div className="fixed inset-0 bg-white z-[0]" />
-      <div className="relative z-10 pt-28 px-6 py-8 md:px-12">
+      <div className="fixed inset-0 bg-[#E0E5EC] z-[0]" />
+      <div className="relative z-10 pt-24 px-6 py-6 md:px-12">
         <GeneratingState
           project={project}
           subscription={subscription}
           onViewReady={() => setViewingPartial(true)}
+          onCancelState={() => {
+            setProject(prev => ({ ...prev, status: 'draft', generationLock: null }));
+            localStorage.removeItem('clarifyai_active_generation');
+          }}
         />
       </div>
     </div>
@@ -188,18 +204,19 @@ ${ds.prompt || ds.tagline || ''}
             />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 min-h-0 mt-1">
-
-            <div className="lg:col-span-4 h-[400px] lg:h-full overflow-hidden rounded-[32px]">
+          <div className="flex flex-col lg:flex-row gap-4 flex-1 min-h-0 mt-1">
+            <div className={`transition-all duration-300 ease-in-out ${isSidebarCollapsed ? 'lg:w-[68px]' : 'lg:w-[350px] xl:w-[370px]'} h-[400px] lg:h-full flex-shrink-0`}>
               <DocsList
                 documents={synthesizedDocs}
                 selectedDoc={activeDoc}
                 onSelect={handleDocSelect}
                 isGenerating={isGenerating}
+                isCollapsed={isSidebarCollapsed}
+                onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
               />
             </div>
 
-            <div className="lg:col-span-8 h-[550px] lg:h-full overflow-hidden rounded-[32px]">
+            <div className="flex-1 min-w-0 h-[550px] lg:h-full overflow-hidden rounded-[28px]">
               {selectedDoc ? (
                 <DocumentViewer
                   document={activeDoc}
@@ -212,29 +229,28 @@ ${ds.prompt || ds.tagline || ''}
                   }}
                 />
               ) : project.status === 'draft' ? (
-                <div className="bg-white border border-slate-200 rounded-3xl p-10 text-center flex flex-col items-center gap-6 h-full justify-center shadow-sm">
-                  <p className="text-slate-700 text-sm font-medium">Your project is ready to generate.</p>
+                <div className="bg-[#E0E5EC] border-2 border-[#CAD1DB] rounded-[28px] p-10 text-center flex flex-col items-center gap-6 h-full justify-center neumorphic-card">
+                  <p className="text-[#3D4852] text-sm font-bold">Your project is ready to generate.</p>
                   <button
                     onClick={handleRetry}
-                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-8 py-3 text-sm font-semibold hover:scale-105 transition-transform cursor-pointer shadow-md border-none"
+                    className="bg-[#6C63FF] hover:bg-[#8B84FF] text-white rounded-2xl px-8 py-3 text-sm font-extrabold hover:scale-105 transition-transform cursor-pointer shadow-md border-none"
                   >
                     Generate Documents
                   </button>
                 </div>
               ) : (
-                <div className="bg-slate-50 border border-slate-200 rounded-3xl p-10 text-center flex flex-col items-center justify-center h-full min-h-[300px] gap-4">
+                <div className="bg-[#E0E5EC] border-2 border-[#CAD1DB] rounded-[28px] p-10 text-center flex flex-col items-center justify-center h-full min-h-[300px] gap-4 neumorphic-card">
                   {isGenerating ? (
                     <>
-                      <div className="w-2.5 h-2.5 rounded-full bg-blue-600 animate-pulse" />
-                      <p className="text-slate-600 text-sm font-medium">Select a ready doc on the left to preview it.</p>
+                      <div className="w-2.5 h-2.5 rounded-full bg-[#6C63FF] animate-pulse" />
+                      <p className="text-[#6B7280] text-sm font-bold">Select a ready doc on the left to preview it.</p>
                     </>
                   ) : (
-                    <p className="text-slate-600 text-sm font-medium">Select a document to preview it here.</p>
+                    <p className="text-[#6B7280] text-sm font-bold">Select a document to preview it here.</p>
                   )}
                 </div>
               )}
             </div>
-
           </div>
         </div>
       </div>

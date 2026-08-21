@@ -28,6 +28,13 @@ export default function CustomProjectStackPage() {
   }, [id]);
 
   const handleSaveCustomStack = async (customConfig) => {
+    const currentStack = project?.wizardAnswers?.techPreferences || '';
+    if (customConfig.formattedValue.trim().toLowerCase() === currentStack.trim().toLowerCase()) {
+      toast.success('This custom architecture is already active for this project');
+      navigate(`/projects/${id}`);
+      return;
+    }
+
     setIsUpdating(true);
     setErrorMsg('');
     try {
@@ -48,7 +55,7 @@ export default function CustomProjectStackPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen w-full bg-white flex items-center justify-center">
+      <div className="min-h-screen w-full bg-[#E0E5EC] flex items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -59,28 +66,28 @@ export default function CustomProjectStackPage() {
     : null;
 
   return (
-    <div className="min-h-screen w-full bg-white pt-24 pb-8 px-3 sm:px-5 lg:px-6">
+    <div className="min-h-screen w-full bg-[#E0E5EC] text-[#3D4852] pt-20 pb-4 px-3 sm:px-5 lg:px-6 flex flex-col justify-start">
       <div className="max-w-7xl w-full mx-auto">
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 mb-2">
           <button
             onClick={() => navigate(`/projects/${id}/stack`)}
-            className="rounded-full p-2 bg-slate-100 hover:bg-slate-200 transition-all text-slate-700 hover:text-slate-900 border border-slate-200 cursor-pointer"
+            className="neumorphic-btn rounded-full p-2 text-[#3D4852] cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div>
             <div className="flex items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[9px] uppercase tracking-widest text-blue-600 font-mono font-bold bg-blue-50 border border-blue-200">
+              <span className="px-2.5 py-0.5 rounded-full text-[9px] uppercase tracking-widest text-[#6C63FF] font-mono font-bold neumorphic-inset">
                 Bespoke Configurator
               </span>
-              <span className="text-slate-500 text-xs font-medium">• {project?.title}</span>
+              <span className="text-[#6B7280] text-xs font-medium">• {project?.title}</span>
             </div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">Custom Architecture Configurator</h1>
+            <h1 className="text-lg sm:text-xl font-black text-[#3D4852] tracking-tight">Custom Architecture Configurator</h1>
           </div>
         </div>
 
         {errorMsg && (
-          <div className="mb-3 px-3 py-2 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center">
+          <div className="mb-2 px-3 py-1.5 rounded-xl neumorphic-inset text-rose-600 text-xs font-bold flex items-center">
             <span>{errorMsg}</span>
           </div>
         )}
@@ -89,6 +96,7 @@ export default function CustomProjectStackPage() {
           onSaveCustomStack={handleSaveCustomStack}
           currentCustom={currentCustomConfig}
           isUpdating={isUpdating}
+          project={project}
         />
       </div>
     </div>

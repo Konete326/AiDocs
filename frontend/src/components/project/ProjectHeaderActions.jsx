@@ -1,21 +1,17 @@
-import { Download, MessageCircle, Loader2, Cpu, Palette, Layers, Play, ChevronDown, LayoutGrid, Users, Trash2, RefreshCw } from 'lucide-react';
+import { Download, MessageCircle, Loader2, Cpu, Palette, Layers, Play, ChevronDown, LayoutGrid, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { downloadZip } from '../../services/exportService';
-import { deleteProject, triggerGeneration } from '../../services/projectService';
+import { deleteProject } from '../../services/projectService';
 import LiveSandboxModal from './LiveSandboxModal';
-import TeamInviteModal from './TeamInviteModal';
 import DeleteProjectModal from './DeleteProjectModal';
-import ConfirmModal from '../common/ConfirmModal';
 import { toast } from 'react-hot-toast';
 
 const ProjectHeaderActions = ({ project }) => {
   const navigate = useNavigate();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isSandboxOpen, setIsSandboxOpen] = useState(false);
-  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isRegenerateModalOpen, setIsRegenerateModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [agentLiveUrl, setAgentLiveUrl] = useState('');
   const dropdownRef = useRef(null);
@@ -83,17 +79,6 @@ const ProjectHeaderActions = ({ project }) => {
     }
   };
 
-  const handleRegenerateConfirm = async () => {
-    setIsRegenerateModalOpen(false);
-    try {
-      await triggerGeneration(project._id);
-      toast.success(`Re-triggering AI document generation pipeline for "${project.title}"...`);
-      window.location.reload();
-    } catch (err) {
-      toast.error('Failed to re-trigger document generation.');
-    }
-  };
-
   return (
     <>
       <div className="flex items-center gap-2.5 flex-wrap relative">
@@ -106,42 +91,12 @@ const ProjectHeaderActions = ({ project }) => {
         </button>
 
         <button
-          onClick={() => setIsTeamModalOpen(true)}
-          className="neumorphic-btn rounded-2xl px-4 py-2 flex items-center gap-2 cursor-pointer flex-shrink-0"
-          title="Manage Team & Workspace Roles"
-        >
-          <Users className="w-4 h-4 text-[#6C63FF]" />
-          <span className="text-xs sm:text-sm text-[#3D4852] font-bold">Team</span>
-        </button>
-
-        <button
           onClick={() => navigate(`/projects/${project._id}/chat`)}
           className="neumorphic-btn rounded-2xl px-4 py-2 flex items-center gap-2 cursor-pointer flex-shrink-0"
         >
           <MessageCircle className="w-4 h-4 text-[#6C63FF]" />
           <span className="text-xs sm:text-sm text-[#3D4852] font-bold">AI Chat</span>
         </button>
-
-        {project?.status === 'complete' && (
-          <button
-            onClick={handleZipDownload}
-            disabled={isDownloading}
-            className="neumorphic-btn rounded-2xl px-4 py-2 flex items-center gap-2 cursor-pointer flex-shrink-0 disabled:opacity-60 disabled:cursor-not-allowed"
-            title="Download Complete Technical Documentation Suite as ZIP"
-          >
-            {isDownloading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin text-[#6C63FF]" />
-                <span className="text-xs sm:text-sm text-[#6C63FF] font-bold">Building ZIP...</span>
-              </>
-            ) : (
-              <>
-                <Download className="w-4 h-4 text-[#6C63FF]" />
-                <span className="text-xs sm:text-sm text-[#3D4852] font-bold">Export ZIP</span>
-              </>
-            )}
-          </button>
-        )}
 
         <div className="relative" ref={dropdownRef}>
           <button
@@ -153,7 +108,7 @@ const ProjectHeaderActions = ({ project }) => {
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute right-0 mt-2 w-52 bg-[#E0E5EC] rounded-2xl p-2 z-50 flex flex-col gap-1 border border-white/60 shadow-[9px_9px_16px_rgba(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)]">
+            <div className="absolute right-0 mt-2 w-52 bg-[#E0E5EC] rounded-2xl p-2 z-50 flex flex-col gap-1 border border-[#CAD1DB] shadow-[9px_9px_16px_rgba(163,177,198,0.6),-9px_-9px_16px_rgba(255,255,255,0.5)]">
               <button
                 onClick={() => {
                   navigate(`/projects/${project._id}/workspace`);
@@ -198,20 +153,9 @@ const ProjectHeaderActions = ({ project }) => {
                 <span>Skills</span>
               </button>
 
-              <button
-                onClick={() => {
-                  setIsDropdownOpen(false);
-                  setIsRegenerateModalOpen(true);
-                }}
-                className="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm text-[#3D4852] font-bold hover:bg-[#d1d7e0] flex items-center gap-2 transition-colors cursor-pointer"
-              >
-                <RefreshCw className="w-4 h-4 text-[#6C63FF]" />
-                <span>Regenerate Docs</span>
-              </button>
-
               {project.status === 'complete' && (
                 <>
-                  <div className="h-px bg-[#c4cdd8] my-1" />
+                  <div className="h-px bg-[#CAD1DB] my-1" />
                   <button
                     onClick={() => {
                       handleZipDownload();
@@ -220,8 +164,8 @@ const ProjectHeaderActions = ({ project }) => {
                     disabled={isDownloading}
                     className="w-full text-left px-3 py-2 rounded-xl text-xs sm:text-sm text-[#3D4852] font-bold hover:bg-[#d1d7e0] flex items-center gap-2 transition-colors disabled:opacity-50 cursor-pointer"
                   >
-                    {isDownloading ? <Loader2 className="w-4 h-4 animate-spin text-[#3D4852]" /> : <Download className="w-4 h-4 text-[#3D4852]" />}
-                    <span>Download All</span>
+                    {isDownloading ? <Loader2 className="w-4 h-4 animate-spin text-[#6C63FF]" /> : <Download className="w-4 h-4 text-[#6C63FF]" />}
+                    <span>{isDownloading ? 'Building ZIP...' : 'Export ZIP'}</span>
                   </button>
                 </>
               )}
@@ -243,18 +187,7 @@ const ProjectHeaderActions = ({ project }) => {
       </div>
 
       <LiveSandboxModal isOpen={isSandboxOpen} onClose={() => setIsSandboxOpen(false)} project={project} initialUrl={agentLiveUrl} />
-      <TeamInviteModal projectId={project?._id} isOpen={isTeamModalOpen} onClose={() => setIsTeamModalOpen(false)} />
       <DeleteProjectModal isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} onConfirm={handleDeleteConfirm} projectTitle={project?.title} />
-      <ConfirmModal
-        isOpen={isRegenerateModalOpen}
-        title="Regenerate Document Suite?"
-        message={`Are you sure you want to regenerate all documents for "${project?.title || 'this project'}"? This will overwrite your existing AI specs with fresh generated versions.`}
-        confirmLabel="Regenerate Suite"
-        cancelLabel="Cancel"
-        onConfirm={handleRegenerateConfirm}
-        onCancel={() => setIsRegenerateModalOpen(false)}
-        isDangerous={true}
-      />
     </>
   );
 };

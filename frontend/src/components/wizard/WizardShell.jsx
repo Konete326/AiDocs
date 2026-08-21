@@ -89,9 +89,9 @@ export default function WizardShell({ step, totalSteps, onNext, onBack, onSubmit
         </button>
       )}
 
-      <div className="w-full md:w-[60%] p-4 md:p-5 flex flex-col justify-between bg-[#E0E5EC]">
+      <div className="w-full md:w-[60%] p-3 md:p-3.5 flex flex-col justify-between bg-[#E0E5EC]">
         <div>
-          <div className="flex gap-2 justify-center mb-2.5">
+          <div className="flex gap-2 justify-center mb-2">
             {Array.from({ length: totalSteps }).map((_, i) => {
               const num = i + 1;
               const isActive = step === num;
@@ -137,7 +137,7 @@ export default function WizardShell({ step, totalSteps, onNext, onBack, onSubmit
           </div>
         </div>
 
-        <div className="flex justify-between mt-3 pt-2.5 border-t border-black/5">
+        <div className="flex justify-between mt-2.5 pt-2 border-t border-black/5">
           {step > 1 ? (
             <button 
               onClick={onBack}
@@ -158,31 +158,31 @@ export default function WizardShell({ step, totalSteps, onNext, onBack, onSubmit
         </div>
       </div>
 
-      <div className="hidden md:flex w-[40%] p-4 md:p-5 flex flex-col justify-between bg-[#E0E5EC] text-[#3D4852] self-stretch select-none relative">
+      <div className="hidden md:flex w-[40%] p-3 md:p-3.5 flex flex-col justify-between bg-[#E0E5EC] text-[#3D4852] self-stretch select-none relative">
         <div className="absolute -top-12 -right-12 w-48 h-48 rounded-full shadow-[inset_6px_6px_12px_rgba(163,177,198,0.6),inset_-6px_-6px_12px_rgba(255,255,255,0.5)] flex items-center justify-center pointer-events-none">
           <div className="w-32 h-32 rounded-full shadow-[9px_9px_16px_rgba(163,177,198,0.5),-9px_-9px_16px_rgba(255,255,255,0.6)] flex items-center justify-center">
             <div className="w-16 h-16 rounded-full shadow-[inset_4px_4px_8px_rgba(163,177,198,0.6),inset_-4px_-4px_8px_rgba(255,255,255,0.5)]" />
           </div>
         </div>
 
-        <div className="relative z-10 flex flex-col justify-center h-full gap-4">
+        <div className="relative z-10 flex flex-col justify-center h-full gap-3">
           <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#6C63FF]">
             Step {step} of {totalSteps} Guide
           </span>
-          <h2 className="text-xl font-bold tracking-tight leading-tight text-[#3D4852]">
+          <h2 className="text-lg font-bold tracking-tight leading-tight text-[#3D4852]">
             {stepsGuide[step]?.title}
           </h2>
-          <p className="text-[11px] text-[#6B7280] leading-relaxed border-b border-black/5 pb-3">
+          <p className="text-[10.5px] text-[#6B7280] leading-relaxed border-b border-black/5 pb-2">
             {stepsGuide[step]?.description}
           </p>
 
-          <div className="space-y-3 mt-1 overflow-y-auto max-h-[220px] pr-1">
+          <div className="space-y-2 mt-1 overflow-y-auto max-h-[170px] pr-1">
             {stepsGuide[step]?.sections.map((section, i) => (
-              <div key={i} className="space-y-1">
+              <div key={i} className="space-y-0.5">
                 <span className="text-[9px] uppercase tracking-widest text-[#6C63FF] font-semibold block">
                   {section.label}
                 </span>
-                <p className="text-[10.5px] text-[#3D4852] leading-relaxed italic font-medium">
+                <p className="text-[10px] text-[#3D4852] leading-relaxed italic font-medium">
                   {section.value}
                 </p>
               </div>
