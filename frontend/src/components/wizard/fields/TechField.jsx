@@ -123,9 +123,9 @@ export function TechFieldSelector({ formData, onChange }) {
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold px-3 py-1.5 rounded-xl text-xs transition-all shadow-sm cursor-pointer shrink-0"
+          className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold px-3.5 py-1.5 rounded-xl text-xs transition-all shadow-[2px_2px_5px_rgba(37,99,235,0.35)] cursor-pointer shrink-0 flex items-center justify-center"
         >
-          <span className="text-white font-extrabold">Select Stack ↗</span>
+          <span className="text-white font-extrabold tracking-wide">Select Stack ↗</span>
         </button>
       </div>
 

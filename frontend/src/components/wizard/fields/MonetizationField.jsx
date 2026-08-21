@@ -13,7 +13,7 @@ export default function MonetizationField({ formData, onChange }) {
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between">
-        <label className="text-[11px] uppercase tracking-[0.15em] text-[#6B7280] font-extrabold block">Monetization & Scale</label>
+        <label className="text-[11px] uppercase tracking-[0.15em] text-[#6B7280] font-extrabold block">Monetization</label>
         <SuggestionPills
           suggestions={suggestions}
           isLoading={isLoading}

@@ -27,7 +27,7 @@ export default function DesignSystemField({ formData, onChange }) {
 
       <div className="neumorphic-card rounded-2xl p-2.5 px-3 bg-[#E0E5EC] border border-black/5 flex items-center justify-between gap-2 min-w-0">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-[#2563EB] text-white flex items-center justify-center font-extrabold text-xs shadow-sm shrink-0">
+          <div className="w-8 h-8 rounded-xl bg-[#2563EB] text-white flex items-center justify-center font-extrabold text-xs shadow-[2px_2px_4px_rgba(37,99,235,0.35)] shrink-0">
             <Palette className="w-4 h-4 text-white" />
           </div>
           <div className="min-w-0">
@@ -41,9 +41,9 @@ export default function DesignSystemField({ formData, onChange }) {
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold px-3 py-1.5 rounded-xl text-xs transition-all shadow-sm cursor-pointer shrink-0"
+          className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold px-3.5 py-1.5 rounded-xl text-xs transition-all shadow-[2px_2px_5px_rgba(37,99,235,0.35)] cursor-pointer shrink-0 flex items-center justify-center"
         >
-          <span className="text-white font-extrabold">Studio ↗</span>
+          <span className="text-white font-extrabold tracking-wide">Studio ↗</span>
         </button>
       </div>
 
