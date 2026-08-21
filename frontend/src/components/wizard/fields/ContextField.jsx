@@ -2,7 +2,7 @@ import SuggestionPills from '../SuggestionPills';
 import { useSuggestions } from '../../../hooks/useSuggestions';
 
 export default function ContextField({ formData, onChange }) {
-  const { suggestions, isLoading } = useSuggestions(
+  const { suggestions, isLoading, refresh } = useSuggestions(
     formData.title,
     formData.projectType,
     'additionalContext',
@@ -27,6 +27,7 @@ export default function ContextField({ formData, onChange }) {
         isLoading={isLoading}
         onSelect={(s) => onChange('wizardAnswers.additionalContext', s)}
         fieldName="context"
+        onRefresh={refresh}
       />
     </div>
   );

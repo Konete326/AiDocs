@@ -2,7 +2,7 @@ import SuggestionPills from '../SuggestionPills';
 import { useSuggestions } from '../../../hooks/useSuggestions';
 
 export default function MonetizationField({ formData, onChange }) {
-  const { suggestions, isLoading } = useSuggestions(
+  const { suggestions, isLoading, refresh } = useSuggestions(
     formData.title,
     formData.projectType,
     'monetizationModel',
@@ -27,6 +27,7 @@ export default function MonetizationField({ formData, onChange }) {
         isLoading={isLoading}
         onSelect={(s) => onChange('wizardAnswers.monetizationModel', s)}
         fieldName="monetization"
+        onRefresh={refresh}
       />
     </div>
   );

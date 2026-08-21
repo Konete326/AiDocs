@@ -3,7 +3,7 @@ import { useSuggestions } from '../../../hooks/useSuggestions';
 import VoiceMicButton from '../../common/VoiceMicButton';
 
 export default function ProblemField({ formData, onChange }) {
-  const { suggestions, isLoading } = useSuggestions(
+  const { suggestions, isLoading, refresh } = useSuggestions(
     formData.title,
     formData.projectType,
     'problemStatement',
@@ -34,6 +34,7 @@ export default function ProblemField({ formData, onChange }) {
         isLoading={isLoading}
         onSelect={(s) => onChange('wizardAnswers.problemStatement', s)}
         fieldName="problem"
+        onRefresh={refresh}
       />
     </div>
   );

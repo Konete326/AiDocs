@@ -209,7 +209,7 @@ export function TechFieldSelector({ formData, onChange }) {
 }
 
 export function TechNotesField({ formData, onChange }) {
-  const { suggestions, isLoading } = useSuggestions(
+  const { suggestions, isLoading, refresh } = useSuggestions(
     formData.title,
     formData.projectType,
     'techPreferences',
@@ -235,6 +235,7 @@ export function TechNotesField({ formData, onChange }) {
         isLoading={isLoading}
         onSelect={(s) => onChange('wizardAnswers.techPreferences', s)}
         fieldName="tech"
+        onRefresh={refresh}
       />
     </div>
   );

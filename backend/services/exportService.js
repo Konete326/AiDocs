@@ -354,7 +354,14 @@ exports.generateZip = async (projectId, userId) => {
 `;
   agentsFolder.file('AGENTS.md', agentsRuleContent);
 
-  return { buffer: await zip.generateAsync({ type: 'nodebuffer' }), slug };
+  return {
+    buffer: await zip.generateAsync({
+      type: 'nodebuffer',
+      compression: 'DEFLATE',
+      compressionOptions: { level: 9 }
+    }),
+    slug
+  };
 };
 
 const getSkillsDocContent = async (projectId, userId) => {

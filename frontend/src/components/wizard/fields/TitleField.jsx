@@ -2,7 +2,7 @@ import SuggestionPills from '../SuggestionPills';
 import { useSuggestions } from '../../../hooks/useSuggestions';
 
 export default function TitleField({ formData, onChange }) {
-  const { suggestions, isLoading } = useSuggestions(
+  const { suggestions, isLoading, refresh } = useSuggestions(
     formData.title,
     formData.projectType,
     'title',
@@ -29,6 +29,7 @@ export default function TitleField({ formData, onChange }) {
         isLoading={isLoading}
         onSelect={(s) => onChange('title', s)}
         fieldName="title"
+        onRefresh={refresh}
       />
     </div>
   );

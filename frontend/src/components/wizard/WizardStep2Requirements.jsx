@@ -3,7 +3,7 @@ import SuggestionPills from './SuggestionPills';
 import VoiceMicButton from '../common/VoiceMicButton';
 
 export default function WizardStep2Requirements({ formData, onChange }) {
-  const { suggestions: audSugg, isLoading: audLoading } = useSuggestions(
+  const { suggestions: audSugg, isLoading: audLoading, refresh: refreshAud } = useSuggestions(
     formData.title,
     formData.projectType,
     'targetAudience',
@@ -11,7 +11,7 @@ export default function WizardStep2Requirements({ formData, onChange }) {
     formData.wizardAnswers
   );
 
-  const { suggestions: featSugg, isLoading: featLoading } = useSuggestions(
+  const { suggestions: featSugg, isLoading: featLoading, refresh: refreshFeat } = useSuggestions(
     formData.title,
     formData.projectType,
     'coreFeatures',
@@ -43,6 +43,7 @@ export default function WizardStep2Requirements({ formData, onChange }) {
           isLoading={audLoading}
           onSelect={(s) => onChange('wizardAnswers.targetAudience', s)}
           fieldName="audience"
+          onRefresh={refreshAud}
         />
       </div>
 
@@ -68,6 +69,7 @@ export default function WizardStep2Requirements({ formData, onChange }) {
           isLoading={featLoading}
           onSelect={(s) => onChange('wizardAnswers.coreFeatures', s)}
           fieldName="features"
+          onRefresh={refreshFeat}
         />
       </div>
     </div>
