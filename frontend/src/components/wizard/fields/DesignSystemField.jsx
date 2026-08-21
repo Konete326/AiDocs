@@ -1,19 +1,47 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DESIGN_PRESETS } from "../../../constants/designSystemPresets";
 import { DesignSystemSelector } from "../../design/DesignSystemSelector";
 import { Palette, Check, X, Sparkles } from "lucide-react";
 
+export const PROJECT_TYPE_THEME_MAP = {
+  ecommerce: "botanical",
+  ai: "cyberpunk",
+  saas: "corporatetrust",
+  mobile: "claymorphism",
+  marketplace: "mindark",
+  other: "minimalistmodern"
+};
+
 export default function DesignSystemField({ formData, onChange }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const currentThemeId = formData.designSystem?.id || "monochrome";
+  const projectType = (formData.projectType || "saas").toLowerCase();
+  const autoThemeId = PROJECT_TYPE_THEME_MAP[projectType] || "corporatetrust";
+
+  const currentThemeId = formData.designSystem?.id || autoThemeId;
   const currentPreset = DESIGN_PRESETS.find(p => p.id === currentThemeId) || DESIGN_PRESETS[0];
+
+  useEffect(() => {
+    if (!formData.designSystem?.id || formData.designSystem?.isAutoAssigned) {
+      const matched = DESIGN_PRESETS.find(p => p.id === autoThemeId) || DESIGN_PRESETS[0];
+      if (matched && formData.designSystem?.id !== matched.id) {
+        onChange("designSystem", {
+          id: matched.id,
+          name: matched.name,
+          prompt: matched.prompt,
+          tokens: matched.tokens,
+          isAutoAssigned: true
+        });
+      }
+    }
+  }, [projectType, autoThemeId]);
 
   const handleSelectTheme = (preset) => {
     onChange("designSystem", {
       id: preset.id,
       name: preset.name,
       prompt: preset.prompt,
-      tokens: preset.tokens
+      tokens: preset.tokens,
+      isAutoAssigned: false
     });
     setIsModalOpen(false);
   };
@@ -21,7 +49,7 @@ export default function DesignSystemField({ formData, onChange }) {
   return (
     <div className="space-y-1.5">
       <label className="text-xs font-extrabold text-[#6B7280] uppercase tracking-wider flex items-center gap-1.5">
-        <Palette size={13} className="text-[#2563EB]" />
+        <Palette size={13} className="text-[#6C63FF]" />
         <span className="truncate">Design System Theme</span>
       </label>
 
