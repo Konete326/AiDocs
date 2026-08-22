@@ -1,15 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const defaultThemeContext = {
-  currentTheme: THEMES[0],
-  updateTheme: () => {},
-  allThemes: THEMES,
-  isGlassEnabled: true,
-  toggleGlass: () => {}
-};
-
-const ThemeContext = createContext(defaultThemeContext);
-
 export const THEMES = [
   {
     id: 'earth',
@@ -48,6 +38,16 @@ export const THEMES = [
     color: '#475569'
   }
 ];
+
+const defaultThemeContext = {
+  currentTheme: THEMES[0],
+  updateTheme: () => {},
+  allThemes: THEMES,
+  isGlassEnabled: true,
+  toggleGlass: () => {}
+};
+
+const ThemeContext = createContext(defaultThemeContext);
 
 export const ThemeProvider = ({ children }) => {
   const [currentThemeId, setCurrentThemeId] = useState(() => {
