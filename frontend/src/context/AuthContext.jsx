@@ -9,7 +9,19 @@ import {
 import { getMe } from '../services/userService';
 import { authReducer, initialState } from './authReducer';
 
-const AuthContext = createContext();
+const defaultAuthContext = {
+  user: null,
+  loading: false,
+  isAuthenticated: false,
+  error: null,
+  login: async () => {},
+  loginGoogle: async () => {},
+  register: async () => {},
+  logout: async () => {},
+  updateUser: () => {}
+};
+
+const AuthContext = createContext(defaultAuthContext);
 
 const authChannel = typeof window !== 'undefined' && 'BroadcastChannel' in window
   ? new BroadcastChannel('clarifyai_auth')
@@ -120,6 +132,6 @@ export function AuthProvider({ children }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within an AuthProvider');
-  return context;
+  return context || defaultAuthContext;
 }
+

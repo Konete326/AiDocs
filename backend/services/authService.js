@@ -8,7 +8,8 @@ const emailUtils = require('../utils/emailService');
 const notificationService = require('./notificationService');
 
 exports.registerUser = async (email, password, displayName) => {
-  const existingUser = await User.findOne({ email });
+  const cleanEmail = (email || '').trim().toLowerCase();
+  const existingUser = await User.findOne({ email: cleanEmail });
   if (existingUser) {
     throw new AppError('Email already in use', 400, 'USER_EXISTS');
   }
@@ -16,7 +17,7 @@ exports.registerUser = async (email, password, displayName) => {
   const salt = await bcrypt.genSalt(12);
   const passwordHash = await bcrypt.hash(password, salt);
 
-  const user = await User.create({ email, passwordHash, displayName });
+  const user = await User.create({ email: cleanEmail, passwordHash, displayName });
 
   await Subscription.create({ userId: user._id, plan: 'free', status: 'active', projectLimit: 3 });
 
@@ -31,7 +32,8 @@ exports.registerUser = async (email, password, displayName) => {
 };
 
 exports.loginUser = async (email, password, deviceInfo = {}) => {
-  const user = await User.findOne({ email });
+  const cleanEmail = (email || '').trim().toLowerCase();
+  const user = await User.findOne({ email: cleanEmail });
   if (!user || user.passwordHash === undefined) {
     throw new AppError('Invalid email or password', 401, 'INVALID_CREDENTIALS');
   }

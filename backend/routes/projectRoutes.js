@@ -21,6 +21,7 @@ router.patch('/:id/archive', projectController.archiveProject);
 router.post('/:id/unarchive', projectController.unarchiveProject);
 router.patch('/:id/unarchive', projectController.unarchiveProject);
 router.post('/:id/generate', projectController.triggerGeneration);
+router.post('/:id/generate-next', projectController.generateNext);
 router.post('/:id/reset-status', projectController.resetStatus);
 router.post('/:id/annotations', annotationController.submitAnnotations);
 router.get('/:id/annotations/pending', annotationController.getPendingAnnotations);

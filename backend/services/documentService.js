@@ -273,7 +273,7 @@ ${ds.prompt || ''}
 
 exports.generateNext = async (projectId, userId) => {
   const project = await Project.findOne({ _id: projectId, userId, isArchived: false });
-  if (!project || project.status !== 'generating') return;
+  if (!project) return { success: false, error: 'Project not found' };
 
   const existingDocs = await Document.find({ projectId });
   const generatedSoFar = {};
@@ -299,7 +299,7 @@ exports.generateNext = async (projectId, userId) => {
       'Your AI document suite has been fully generated.',
       { projectId }
     );
-    return;
+    return { success: true, isComplete: true, count: allDocs.length };
   }
 
   try {
@@ -319,7 +319,7 @@ exports.generateNext = async (projectId, userId) => {
       }
 
       await Document.findOneAndUpdate(
-        { projectId, docType: nextDocType },
+        { projectId: project._id, docType: nextDocType },
         { userId, content, modelUsed: 'LOCAL_TEMPLATE', generationTimeMs: 0, contentTokenCount: Math.floor(content.length / 4), $inc: { version: 1 } },
         { upsert: true, new: true }
       );
@@ -344,7 +344,16 @@ exports.generateNext = async (projectId, userId) => {
         { projectId }
       );
     }
+
+    return {
+      success: true,
+      docType: nextDocType,
+      isComplete: !remaining,
+      count: updatedAlreadyDone.size,
+      total: allDocs.length
+    };
   } catch (error) {
     console.error(`[generateNext] failed for ${nextDocType}:`, error);
+    return { success: false, error: error.message, docType: nextDocType };
   }
 };

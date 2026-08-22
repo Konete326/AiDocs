@@ -4,12 +4,10 @@ const asyncWrapper = require('../utils/asyncWrapper');
 const subscriptionService = require('../services/subscriptionService');
 const AppError = require('../utils/AppError');
 
-// waitUntil keeps the Vercel serverless function alive after res.json() is called
 let waitUntil;
 try {
   ({ waitUntil } = require('@vercel/functions'));
 } catch {
-  // Fallback for local development — just run as a promise (Node.js keeps running)
   waitUntil = (p) => p;
 }
 
@@ -61,6 +59,14 @@ exports.triggerGeneration = asyncWrapper(async (req, res) => {
     documentService.generateAll(projectId, userId, force)
       .catch(err => console.error('[triggerGeneration] generateAll failed:', err))
   );
+});
+
+exports.generateNext = asyncWrapper(async (req, res) => {
+  const projectId = req.params.id;
+  const userId = req.user.id;
+  const result = await documentService.generateNext(projectId, userId);
+  const project = await projectService.getProjectById(projectId, userId);
+  res.status(200).json({ success: true, data: project, result });
 });
 
 exports.resetStatus = asyncWrapper(async (req, res) => {

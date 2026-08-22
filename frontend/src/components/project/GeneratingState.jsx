@@ -42,7 +42,8 @@ const GeneratingState = ({ project, onCancelState }) => {
 
   const targetPct = useMemo(() => {
     if (project?.status === 'complete' || project?.status === 'ready' || count >= 9) return 100;
-    return Math.min(95, Math.max(20, Math.round((count / 9) * 90) + 8));
+    if (count === 0) return 10;
+    return Math.min(95, Math.round((count / 9) * 90) + 10);
   }, [count, project?.status]);
 
   const [smoothPct, setSmoothPct] = useState(() => targetPct);

@@ -53,6 +53,11 @@ export async function triggerGeneration(id, force = false) {
   return response.data.data;
 }
 
+export async function generateNextDocument(id) {
+  const response = await api.post(`/projects/${id}/generate-next`);
+  return response.data?.data || response.data;
+}
+
 export async function exportProject(id) {
   const response = await api.get(`/projects/${id}/export`, {
     responseType: 'blob'

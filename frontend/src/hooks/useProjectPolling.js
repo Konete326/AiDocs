@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { getProject } from '../services/projectService';
+import { useState, useEffect, useRef } from 'react';
+import { getProject, generateNextDocument } from '../services/projectService';
 import { getProjectDocuments as fetchDocs } from '../services/documentService';
 import { getMySubscription } from '../services/subscriptionService';
 import { getProjectSkills } from '../services/skillsService';
@@ -14,6 +14,7 @@ export const useProjectPolling = (id) => {
   const [subscription, setSubscription] = useState(user?.subscription || null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const isGeneratingNextRef = useRef(false);
 
   useEffect(() => {
     let active = true;
@@ -50,19 +51,32 @@ export const useProjectPolling = (id) => {
   useEffect(() => {
     if (project?.status !== 'generating') return;
 
-    let pollCount = 0;
-    let timerId;
+    let isSubscribed = true;
+    let timerId = null;
 
-    const getInterval = () => 1000;
+    const pollAndAdvance = async () => {
+      if (!isSubscribed) return;
 
-    const poll = async () => {
+      if (!isGeneratingNextRef.current) {
+        isGeneratingNextRef.current = true;
+        try {
+          await generateNextDocument(id);
+        } catch (genErr) {
+          console.warn('[useProjectPolling] generateNextDocument step note:', genErr.message);
+        } finally {
+          isGeneratingNextRef.current = false;
+        }
+      }
+
       try {
         const [updated, updatedDocs, updatedSkills] = await Promise.all([
           getProject(id), 
           fetchDocs(id),
-          getProjectSkills(id)
+          getProjectSkills(id).catch(() => [])
         ]);
-        
+
+        if (!isSubscribed) return;
+
         setProject(prev => {
           if (prev?.status === updated?.status && prev?.docsGenerated?.length === updated?.docsGenerated?.length) {
             return prev;
@@ -77,26 +91,33 @@ export const useProjectPolling = (id) => {
           return updatedDocs;
         });
 
-        setSkills(prev => {
-          if (JSON.stringify(prev) === JSON.stringify(updatedSkills)) return prev;
-          return updatedSkills;
-        });
+        if (updatedSkills && updatedSkills.length > 0) {
+          setSkills(prev => {
+            if (JSON.stringify(prev) === JSON.stringify(updatedSkills)) return prev;
+            return updatedSkills;
+          });
+        }
 
         if (updatedDocs.length > 0 && !selectedDoc) {
           setSelectedDoc(updatedDocs[0]);
         }
-        
+
         if (updated.status === 'generating') {
-          pollCount++;
-          timerId = setTimeout(poll, getInterval(pollCount));
+          timerId = setTimeout(pollAndAdvance, 800);
         }
       } catch (err) {
         console.error('Polling error:', err);
+        if (isSubscribed) {
+          timerId = setTimeout(pollAndAdvance, 1500);
+        }
       }
     };
 
-    timerId = setTimeout(poll, 1000);
-    return () => clearTimeout(timerId);
+    timerId = setTimeout(pollAndAdvance, 400);
+    return () => {
+      isSubscribed = false;
+      if (timerId) clearTimeout(timerId);
+    };
   }, [project?.status, id]);
 
   return {

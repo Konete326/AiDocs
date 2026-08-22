@@ -45,8 +45,14 @@ const isNetworkOrServerError = (error) => {
 };
 
 export const refreshAccessTokenSilent = async () => {
+  const storedRefreshToken = typeof localStorage !== 'undefined' ? localStorage.getItem('clarifyai_refresh_token') : null;
+  if (!storedRefreshToken && !_accessToken) {
+    initialRefreshFailed = true;
+    initialRefreshAttempted = true;
+    return null;
+  }
+
   if (!refreshPromise) {
-    const storedRefreshToken = localStorage.getItem('clarifyai_refresh_token');
     const headers = {};
     if (storedRefreshToken) {
       headers['X-Refresh-Token'] = storedRefreshToken;
@@ -66,7 +72,9 @@ export const refreshAccessTokenSilent = async () => {
       return newAccessToken;
     }).catch(err => {
       setAccessToken(null);
-      localStorage.removeItem('clarifyai_refresh_token');
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('clarifyai_refresh_token');
+      }
       initialRefreshFailed = true;
       throw err;
     }).finally(() => {
@@ -91,7 +99,7 @@ api.interceptors.request.use(
       try {
         await refreshPromise;
       } catch (err) {}
-    } else if (!_accessToken && !initialRefreshFailed) {
+    } else if (!_accessToken && !initialRefreshFailed && typeof localStorage !== 'undefined' && localStorage.getItem('clarifyai_refresh_token')) {
       try {
         await refreshAccessTokenSilent();
       } catch (err) {}
@@ -114,26 +122,30 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    const isRefreshRequest = originalRequest && originalRequest.url && originalRequest.url.includes('/auth/refresh');
+    const isAuthEndpoint = originalRequest && isPublicAuthEndpoint(originalRequest.url);
 
     if (error.response && error.response.data && error.response.data.error === 'Database connection failed') {
       toast.error('Database connection failed');
     }
 
-    if (error.response && error.response.status === 401 && originalRequest && !originalRequest._retry && !isRefreshRequest) {
+    if (error.response && error.response.status === 401 && originalRequest && !originalRequest._retry && !isAuthEndpoint) {
       originalRequest._retry = true;
 
       try {
         const newAccessToken = await refreshAccessTokenSilent();
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        return api(originalRequest);
+        if (newAccessToken) {
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          return api(originalRequest);
+        }
       } catch (refreshError) {
         try {
           await axios.post(`${cleanBaseUrl}/auth/logout`, {}, { withCredentials: true });
         } catch (err) {
         } finally {
           setAccessToken(null);
-          localStorage.removeItem('clarifyai_refresh_token');
+          if (typeof localStorage !== 'undefined') {
+            localStorage.removeItem('clarifyai_refresh_token');
+          }
           if (typeof window !== 'undefined' && !window.location.pathname.includes('/login') && !window.location.pathname.includes('/register')) {
             window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
           }
@@ -142,7 +154,7 @@ api.interceptors.response.use(
       }
     }
 
-    if (originalRequest && !isRefreshRequest && isNetworkOrServerError(error)) {
+    if (originalRequest && !isAuthEndpoint && isNetworkOrServerError(error)) {
       originalRequest.__retryCount = originalRequest.__retryCount || 0;
       if (originalRequest.__retryCount < MAX_RETRIES) {
         originalRequest.__retryCount += 1;

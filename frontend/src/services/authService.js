@@ -3,7 +3,8 @@ import { auth, googleProvider } from '../config/firebase';
 import { signInWithPopup } from 'firebase/auth';
 
 export async function registerUser(name, email, password) {
-  const response = await api.post('/auth/register', { displayName: name, email, password });
+  const cleanEmail = (email || '').trim().toLowerCase();
+  const response = await api.post('/auth/register', { displayName: name, email: cleanEmail, password });
   setAccessToken(response.data.data.accessToken);
   if (response.data.data.refreshToken) {
     localStorage.setItem('clarifyai_refresh_token', response.data.data.refreshToken);
@@ -12,7 +13,8 @@ export async function registerUser(name, email, password) {
 }
 
 export async function loginUser(email, password) {
-  const response = await api.post('/auth/login', { email, password });
+  const cleanEmail = (email || '').trim().toLowerCase();
+  const response = await api.post('/auth/login', { email: cleanEmail, password });
   setAccessToken(response.data.data.accessToken);
   if (response.data.data.refreshToken) {
     localStorage.setItem('clarifyai_refresh_token', response.data.data.refreshToken);
@@ -21,6 +23,9 @@ export async function loginUser(email, password) {
 }
 
 export async function loginWithGoogle() {
+  if (!auth) {
+    throw new Error('Firebase Auth is not initialized. Please configure VITE_FIREBASE_API_KEY in .env file.');
+  }
   try {
     const result = await signInWithPopup(auth, googleProvider);
     const idToken = await result.user.getIdToken();
